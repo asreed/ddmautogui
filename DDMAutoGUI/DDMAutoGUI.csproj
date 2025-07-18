@@ -67,8 +67,8 @@
 			Intended for Gen 1 Phase 1b. ENGINEERING TESTING ONLY.
 	-->
 	  
-	<Version>1.1.5</Version> <!-- THIS IS THE VERSION NUMBER -->
-	<OutputPath>bin\Release\test</OutputPath> <!-- THIS IS THE OUTPUT PATH -->
+	<Version>1.1.4</Version> <!-- THIS IS THE VERSION NUMBER -->
+	<!--<OutputPath>bin\Release\test</OutputPath>--> <!-- THIS IS THE OUTPUT PATH -->
 	  
 	  
 	  
