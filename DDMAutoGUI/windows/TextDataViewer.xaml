@@ -1,0 +1,42 @@
+﻿<Window x:Class="DDMAutoGUI.windows.TextDataViewer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DDMAutoGUI.windows"
+        mc:Ignorable="d"
+        Title="Text Data Viewer" Height="500" Width="300" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="12,6,0,0">
+            <Label x:Name="dataNameLabel" Content="Data Name" Padding="0" FontWeight="Bold"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="12,6,12,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBox Name="dataTextBlock" 
+                     Grid.Column="0" 
+                     Text="(text data)" 
+                     TextWrapping="Wrap"
+                     Padding="6,5" 
+                     VerticalScrollBarVisibility="Auto" 
+                     VerticalContentAlignment="Top"
+                     IsReadOnly="True"
+                     FontFamily="Consolas"
+                     FontSize="10"/>
+        </Grid>
+
+        <StackPanel Grid.Row="2" Background="WhiteSmoke">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"  Margin="4">
+                <Button Name="okBtn" Content="Close" Padding="10,5" Click="okBtn_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

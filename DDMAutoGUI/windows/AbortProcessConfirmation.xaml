@@ -1,0 +1,32 @@
+﻿<Window x:Class="DDMAutoGUI.windows.AbortProcessConfirmation"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DDMAutoGUI.windows"
+        mc:Ignorable="d"
+        Title="Abort Process?" Height="180" Width="420" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Image Source="/images/icons/triangle-exclamation-solid.png" Width="50" Height="50"/>
+            <!--<Label Content="!" HorizontalAlignment="Center" VerticalAlignment="Center"/>-->
+            <TextBlock Grid.Column="1" Text="Are you sure you want to abort the current process? You will need to manually reset the system." TextWrapping="Wrap" VerticalAlignment="Center"/>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Background="WhiteSmoke">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"  Margin="4">
+                <Button x:Name="cancelBtn" Content="Return to Process" Padding="10,5" Click="cancelBtn_Click"/>
+                <Button x:Name="abortBtn" Content="Abort Process" Padding="10,5" Style="{DynamicResource PrimaryRedButton}" Click="abortBtn_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

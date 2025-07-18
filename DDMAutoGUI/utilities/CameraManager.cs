@@ -1,0 +1,171 @@
+﻿using ArenaNET;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection.Metadata.Ecma335;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
+
+namespace DDMAutoGUI.utilities
+{
+
+    class CameraAcquisitionResult
+    {
+        public bool success = false;
+        public string errorMsg = "";
+        public string filePath = "";
+        public string fileName = "";
+    }
+
+
+
+    class CameraManager
+    {
+
+        private static readonly Lazy<CameraManager> lazy =
+            new Lazy<CameraManager>(() => new CameraManager());
+        public static CameraManager Instance { get { return lazy.Value; } }
+
+        public CameraManager()
+        {
+            //
+        }
+
+
+
+        private const ArenaNET.EPfncFormat PIXEL_FORMAT = ArenaNET.EPfncFormat.BGR8;
+        private string acqFilePath = string.Empty;
+        private string acqFilePrefix = "acq_img";
+        private string acqFileSuffix = ".png";
+        private string acqFileDirectory = AppDomain.CurrentDomain.BaseDirectory + "acquisitions\\";
+
+
+        public void OpenExplorerToImages()
+        {
+            Process.Start("explorer.exe", acqFileDirectory);
+        }
+
+
+        public CameraAcquisitionResult AcquireAndSave(Image displayElement)
+        {
+            acqFilePath = acqFileDirectory + acqFilePrefix + GetTimestamp() + acqFileSuffix;
+
+            CameraAcquisitionResult result = new CameraAcquisitionResult();
+            result.success = false;
+            result.filePath = acqFilePath;
+            result.fileName = acqFilePrefix + GetTimestamp() + acqFileSuffix;
+
+            try
+            {
+                // prepare
+                ArenaNET.ISystem system = ArenaNET.Arena.OpenSystem();
+                system.UpdateDevices(100);
+                if (system.Devices.Count == 0)
+                {
+                    Debug.Print("\nNo camera connected\nAborting");
+                }
+
+                ArenaNET.IDeviceInfo selectedDeviceInfo = system.Devices[0]; // assumes only 1 camera connected
+                ArenaNET.IDevice device = system.CreateDevice(selectedDeviceInfo);
+
+                // enable stream auto negotiate packet size
+                var streamAutoNegotiatePacketSizeNode = (ArenaNET.IBoolean)device.TLStreamNodeMap.GetNode("StreamAutoNegotiatePacketSize");
+                streamAutoNegotiatePacketSizeNode.Value = true;
+
+                // enable stream packet resend
+                var streamPacketResendEnableNode = (ArenaNET.IBoolean)device.TLStreamNodeMap.GetNode("StreamPacketResendEnable");
+                streamPacketResendEnableNode.Value = true;
+
+                // get image
+                device.StartStream();
+                ArenaNET.IImage image = device.GetImage(2000);
+
+                // save image
+                SaveImage(image, acqFilePath);
+
+                // clean up
+                device.RequeueBuffer(image);
+                device.StopStream();
+                system.DestroyDevice(device);
+                ArenaNET.Arena.CloseSystem(system);
+
+                result.success = true;
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+
+                Debug.Print("\nException thrown: {0}", ex.Message);
+                result.success = false;
+                result.errorMsg = ex.Message;
+                return result;
+            }
+
+        }
+
+        static void SaveImage(ArenaNET.IImage image, String filePath)
+        {
+            // convert image
+            Debug.Print("...Convert image to {0}", PIXEL_FORMAT);
+
+            ArenaNET.IImage converted = ArenaNET.ImageFactory.Convert(image, PIXEL_FORMAT);
+
+            // prepare image parameters
+            Debug.Print("...Prepare image parameters");
+
+            SaveNET.ImageParams parameters = new SaveNET.ImageParams(
+                converted.Width,
+                converted.Height,
+                converted.BitsPerPixel,
+                true);
+
+            // prepare image writer
+            Debug.Print("...Prepare image writer");
+
+            SaveNET.ImageWriter writer = new SaveNET.ImageWriter(parameters, filePath);
+
+            // Set image writer to PNG
+            //   Set the output file format of the image writer to PNG.
+            //   The writer saves the image file as PNG file even without
+            //	 the extension in the file name. Aside from this setting, 
+            //   compression level can be set between 0 to 9 and the image
+            //   can be created using interlacing by changing the parameters. 
+
+            Debug.Print("...Set image writer to PNG");
+
+            writer.SetPng(".png", 0, false);
+
+            // save image
+            Debug.Print("...Save image");
+
+            writer.Save(converted.DataArray, true);
+
+            // destroy converted image
+            ArenaNET.ImageFactory.Destroy(converted);
+        }
+
+        public void DisplayImage(Image displayElement, String filePath)
+        {
+            // for convenience
+            BitmapImage bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.UriSource = new Uri(acqFilePath, UriKind.Absolute);
+            bitmap.EndInit();
+            bitmap.Freeze();
+            displayElement.Source = bitmap;
+        }
+
+        public string GetTimestamp()
+        {
+            return DateTime.Now.ToString("_yyMMdd_HHmmss");
+        }
+
+    }
+
+
+}
