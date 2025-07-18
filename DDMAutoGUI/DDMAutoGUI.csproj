@@ -7,11 +7,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
 	<ApplicationIcon>images\logos\b.ico</ApplicationIcon>
-
-	<Version>1.1.5</Version>
-
 	<Platforms>AnyCPU;x86</Platforms>
-	  
+
 	<!-- 1.1.0
 	        May 22, 2025
 			Release notes:
@@ -21,7 +18,7 @@
 			Display notes:
 			(none)
 	-->
-    <!-- 1.1.1
+	<!-- 1.1.1
 	        May 23, 2025
 			Release notes:
 			Small updates to load and verify correct TCS project is running. For internal
@@ -39,7 +36,7 @@
 			Display notes:
 			Intended for Gen 1 Phase 1a. ENGINEERING TESTING ONLY.
 	-->
-    <!-- 1.1.3
+	<!-- 1.1.3
 	        June 27, 2025
 			Release notes:
 			Linear axis added to the setup along with its position sensors. TCS and PAC files
@@ -61,7 +58,6 @@
 			Display notes:
 			Intended for Gen 1 Phase 1a. ENGINEERING TESTING ONLY.
 	-->
-	  
 	<!-- 1.1.5
 	        (in progress)
 			Release notes:
@@ -71,7 +67,37 @@
 			Intended for Gen 1 Phase 1b. ENGINEERING TESTING ONLY.
 	-->
 	  
+	<Version>1.1.5</Version> <!-- THIS IS THE VERSION NUMBER -->
+	<OutputPath>bin\Release\test</OutputPath> <!-- THIS IS THE OUTPUT PATH -->
+	  
+	  
+	  
+	  
+	  
+	  
+	  
   </PropertyGroup>
+
+    <Target Name="target1" BeforeTargets="Build">
+	    <PropertyGroup>
+		    <!--<NewVersion>1.0.0.$(Rev:.r)</NewVersion>-->
+		    <!-- Increment revision number -->
+	    </PropertyGroup>
+        <Message Importance="high" Text="before build message" />
+        <!--<Message Importance="high" Text="New Version: $(Version)" />-->
+        <!--<FileVersion>$(NewVersion)</FileVersion>-->
+        <!--<InformationalVersion>$(NewVersion)</InformationalVersion>-->
+    </Target>
+
+    <Target Name="target2" AfterTargets="Build">
+        <Message Importance="high" Text="after build message" />
+        <!--<Message Importance="high" Text="Packaging the application..." />-->
+        <!--<Exec Command="dotnet publish -c Release -o $(OutputPath)" />-->
+	    <!--<Exec Command="powershell -Command Compress-Archive -Path $(OutputPath)\* -DestinationPath $(OutputPath)\MyApp_$(NewVersion).zip" />-->
+    </Target>
+	  
+	
+	  
 	
 	
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
