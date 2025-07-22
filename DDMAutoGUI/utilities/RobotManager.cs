@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using System.Windows.Documents;
+using System.Web;
 
 
 
@@ -26,13 +27,15 @@ namespace DDMAutoGUI.utilities
     public class UIState
     {
         public bool isConnected = false;
-        public bool isDispenseWizardActive = false;
-
         public bool isAutoStateRequesting = false;
+
     }
 
-    public class RobotState
+    public class ControllerState
     {
+        public bool parseError = false;
+        public string parseErrorMessage = string.Empty;
+
         public bool isPowerEnabled = false;
         public bool isRobotHomed = false;
 
@@ -53,7 +56,6 @@ namespace DDMAutoGUI.utilities
         public float flowVolume2 = 0;
         public float flowError2 = 0;
 
-
     }
 
 
@@ -66,22 +68,20 @@ namespace DDMAutoGUI.utilities
         public static RobotManager Instance { get { return lazy.Value; } }
 
 
-        public const string CORRECT_TCS_VERSION = "Tcs_ddm_cell_1_1_3"; // ???? ?????????????
+
+
+        public const string CORRECT_TCS_VERSION = "Tcs_ddm_cell_1_1_4"; // ???? ?????????????
 
 
         private string statusLog = string.Empty;
         private string robotLog = string.Empty;
 
-
-
-
-
         private double autoStatusInterval = 1.0; //sec
+        private DispatcherTimer _timer;
 
-        private bool debug = true;
         private string term = "\n";
-        private int sendTimeout = 5000;
-        private int receiveTimeout = 5000;
+        private int sendTimeout = 2000;
+        private int receiveTimeout = 2000;
 
         private Socket statusClient;
         private Socket robotClient;
@@ -92,9 +92,8 @@ namespace DDMAutoGUI.utilities
         public event EventHandler ChangeRobotLog;
         public event EventHandler UpdateAutoStatus;
 
-
         private UIState UI_STATE = new UIState();
-        private RobotState CONTROLLER_STATE = new RobotState();
+        private ControllerState CONTROLLER_STATE = new ControllerState();
 
         public RobotManager()
         {
@@ -105,26 +104,86 @@ namespace DDMAutoGUI.utilities
 
 
 
-        // Process-specific commands
 
-        public async void BeginDispense()
+
+
+
+
+
+        // ==================================================================
+        // Autoload TCS (port 23)
+
+        public async Task<string> ReceiveConsoleHeader(Socket client)
         {
-            UIState newState = UI_STATE;
-            //newState.isDispensing = true;
-            //SetUIState(newState);
 
-            //await SendRobotCommandAsync("dispense");
+            StringBuilder response = new StringBuilder();
+            try
+            {
+                Debug.Print("attempting to receive header");
+                byte[] buffer = new byte[1024];
+                int bytesRead;
 
-            //newState = UI_STATE;
-            //newState.isDispensing = false;
-            SetUIState(newState);
+                while (true)
+                {
+                    bytesRead = await client.ReceiveAsync(buffer);
+                    if (bytesRead == 0)
+                    {
+                        break;
+                    }
+                    response.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
+                    Debug.Print($"building response: {response.ToString()}");
+                    if (response.ToString().Trim().EndsWith(":") || response.ToString().Trim().EndsWith("..."))
+                    {
+                        break;
+                    }
+
+                }
+                Debug.Print($"full response: {response.ToString()}");
+            }
+            catch (SocketException e)
+            {
+                Debug.Print("Send console command failed");
+                Debug.Print($"{e.ErrorCode}: {e.Message}");
+                response.Append("Error?");
+            }
+            return response.ToString();
         }
 
+        public async Task<string> SendConsoleCmd(Socket client, string command)
+        {
+            byte[] commandBytes = Encoding.ASCII.GetBytes(command + term);
+            StringBuilder response = new StringBuilder();
+            try
+            {
+                Debug.Print($"c >> {command}");
+                await client.SendAsync(commandBytes);
+                byte[] buffer = new byte[1024];
+                int bytesRead;
 
-
-
-
-        // Load TCS
+                while (true)
+                {
+                    bytesRead = await client.ReceiveAsync(buffer);
+                    if (bytesRead == 0)
+                    {
+                        break;
+                    }
+                    response.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
+                    //Debug.Print($"building response: {response.ToString()}");
+                    if (response.ToString().Trim().EndsWith(":"))
+                    {
+                        break;
+                    }
+                }
+                Debug.Print($"c << {response.ToString()}");
+            }
+            catch (SocketException e)
+            {
+                Debug.Print("Send console command failed");
+                Debug.Print($"{e.ErrorCode}: {e.Message}");
+                response.Clear().Append("Failed");
+            }
+            return response.ToString();
+        }
 
         public async Task<string> AttemptLoadTCS(string ip)
         {
@@ -212,82 +271,11 @@ namespace DDMAutoGUI.utilities
             return reply;
         }
 
-        public async Task<string> ReceiveConsoleHeader(Socket client)
-        {
-
-            StringBuilder response = new StringBuilder();
-            try
-            {
-                Debug.Print("attempting to receive header");
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-
-                while (true)
-                {
-                    bytesRead = await client.ReceiveAsync(buffer);
-                    if (bytesRead == 0)
-                    {
-                        break;
-                    }
-                    response.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
-                    Debug.Print($"building response: {response.ToString()}");
-                    if (response.ToString().Trim().EndsWith(":") || response.ToString().Trim().EndsWith("..."))
-                    {
-                        break;
-                    }
-
-                }
-                Debug.Print($"full response: {response.ToString()}");
-            }
-            catch (SocketException e)
-            {
-                Debug.Print("Send console command failed");
-                Debug.Print($"{e.ErrorCode}: {e.Message}");
-                response.Append("Error?");
-            }
-            return response.ToString();
-        }
-
-        public async Task<string> SendConsoleCmd(Socket client, string command)
-        {
-            byte[] commandBytes = Encoding.ASCII.GetBytes(command + term);
-            StringBuilder response = new StringBuilder();
-            try
-            {
-                Debug.Print($"c >> {command}");
-                await client.SendAsync(commandBytes);
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-
-                while (true)
-                {
-                    bytesRead = await client.ReceiveAsync(buffer);
-                    if (bytesRead == 0)
-                    {
-                        break;
-                    }
-                    response.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
-                    //Debug.Print($"building response: {response.ToString()}");
-                    if (response.ToString().Trim().EndsWith(":"))
-                    {
-                        break;
-                    }
-                }
-                Debug.Print($"c << {response.ToString()}");
-            }
-            catch (SocketException e)
-            {
-                Debug.Print("Send console command failed");
-                Debug.Print($"{e.ErrorCode}: {e.Message}");
-                response.Clear().Append("Failed");
-            }
-            return response.ToString();
-        }
 
 
 
-
-        // General TCS messaging
+        // ==================================================================
+        // General TCS messaging (port 10000 and 10100)
 
         public async Task<bool> ConnectAsync(string ip)
         {
@@ -303,45 +291,66 @@ namespace DDMAutoGUI.utilities
             robotClient.SendTimeout = sendTimeout;
             robotClient.ReceiveTimeout = receiveTimeout;
 
-            UpdateRobotLog("Connecting...");
+            UpdateBothLogs($"Connecting to {ip}...");
             try
             {
                 await statusClient.ConnectAsync(statusEP);
                 await robotClient.ConnectAsync(robotEP);
 
+                // It seems to be possible that the connection succeeds even for some
+                // apparently random IP addresses. Need to send test command.
 
-                UpdateRobotLog("Connected");
+                if (await TestStatusConnection() != "0")
+                {
+                    SocketException ex = new SocketException(-1, "Failed test command");
+                    throw ex;
+                }
+
+                UpdateBothLogs("Connection succeeded");
+
                 UIState newState = UI_STATE;
                 newState.isConnected = true;
                 SetUIState(newState);
+
                 return true;
 
             }
             catch (SocketException e)
             {
 
-
-                UpdateRobotLog("Connection error");
-                UpdateRobotLog($"{e.ErrorCode}: {e.Message}");
                 statusClient.Close();
                 robotClient.Close();
+                UpdateBothLogs("Connection failed");
+                UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
 
                 UIState newState = UI_STATE;
                 newState.isConnected = false;
                 SetUIState(newState);
+
                 return false;
             }
         }
 
         public async Task DisconnectAsync()
         {
-            StopAutoStatus();
-            await SendStatusCommandAsync("exit");
-            await SendRobotCommandAsync("exit");
-            statusClient.Shutdown(SocketShutdown.Both);
-            statusClient.Close();
-            robotClient.Shutdown(SocketShutdown.Both);
-            robotClient.Close();
+            UpdateBothLogs("Disconnecting...");
+            try
+            {
+
+                StopAutoStatus();
+                await SendStatusCommandAsync("exit");
+                await SendRobotCommandAsync("exit");
+                statusClient.Shutdown(SocketShutdown.Both);
+                statusClient.Close();
+                robotClient.Shutdown(SocketShutdown.Both);
+                robotClient.Close();
+
+            }
+            catch (SocketException e)
+            {
+                UpdateBothLogs("Disconnection failed");
+                UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
+            }
 
             UIState newState = UI_STATE;
             newState.isConnected = false;
@@ -351,6 +360,11 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> SendRobotCommandAsync(string command)
         {
+            if (!UI_STATE.isConnected)
+            {
+                return "-100";
+            }
+
             UpdateRobotLog($">> {command}");
 
             byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
@@ -386,6 +400,12 @@ namespace DDMAutoGUI.utilities
             {
                 UpdateRobotLog("Send failed");
                 UpdateRobotLog($"{e.ErrorCode}: {e.Message}");
+                response = new StringBuilder();
+
+                UIState newState = UI_STATE;
+                newState.isConnected = false;
+                SetUIState(newState);
+
             }
             return response.ToString().Trim();
         }
@@ -393,6 +413,11 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> SendStatusCommandAsync(string command)
         {
+            if (!UI_STATE.isConnected)
+            {
+                return "-100";
+            }
+
             UpdateStatusLog($">> {command}");
 
             byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
@@ -411,101 +436,161 @@ namespace DDMAutoGUI.utilities
                 UpdateStatusLog("Send failed");
                 UpdateStatusLog($"{e.ErrorCode}: {e.Message}");
                 response = string.Empty;
+
+                UIState newState = UI_STATE;
+                newState.isConnected = false;
+                SetUIState(newState);
             }
             return response;
         }
 
-        public async Task<string> GetControllerSoftwareVersionAsync()
+
+
+
+
+
+
+
+
+
+
+
+        // ==================================================================
+        // Private helpers
+
+        private async Task<string> TestStatusConnection()
         {
-            string response = await SendStatusCommandAsync("getversion");
-            string version = response.Split(" ")[1];
-            return version;
+            string response = await SendStatusCommandAsync("nop");
+            return response.Trim();
         }
 
-        public async Task<string> GetControllerConfigVersionAsync()
+        private ControllerState ParseControllerStatus(string newStatusString)
         {
-            string response = await SendStatusCommandAsync("getconfigversion");
-            string[] fullversion = response.Split(" ");
-            string version = string.Join(" ", fullversion.Skip(1));
-            return version;
-        }
-
-
-        private RobotState ParseControllerStatus(string newStatusString)
-        {
-            RobotState newStatus = new RobotState();
+            ControllerState newStatus = new ControllerState();
             string[] status = newStatusString.Split(" ");
+            if (status.Length > 1)
+            {
+                try
+                {
+                    newStatus.isPowerEnabled = status[1] != "0";
+                    newStatus.isRobotHomed = status[2] != "0";
 
-            newStatus.isPowerEnabled        = status[1] != "0";
-            newStatus.isRobotHomed          = status[2] != "0";
+                    newStatus.posLinear = float.Parse(status[3]);
+                    newStatus.posRotary = float.Parse(status[4]);
 
-            newStatus.posLinear             = float.Parse(status[3]);
-            newStatus.posRotary             = float.Parse(status[4]);
+                    newStatus.isLinearIn1 = status[5] != "0";
+                    newStatus.isLinearIn2 = status[6] != "0";
+                    newStatus.isLinearIn3 = status[7] != "0";
 
-            newStatus.isLinearIn1           = status[5] != "0";
-            newStatus.isLinearIn2           = status[6] != "0";
-            newStatus.isLinearIn3           = status[7] != "0";
+                    newStatus.pressureCommand1 = float.Parse(status[8]);
+                    newStatus.pressureMeasurement1 = float.Parse(status[9]);
+                    newStatus.pressureCommand2 = float.Parse(status[10]);
+                    newStatus.pressureMeasurement2 = float.Parse(status[11]);
 
-            newStatus.pressureCommand1      = float.Parse(status[8]);
-            newStatus.pressureMeasurement1  = float.Parse(status[9]);
-            newStatus.pressureCommand2      = float.Parse(status[10]);
-            newStatus.pressureMeasurement2  = float.Parse(status[11]);
+                    newStatus.flowVolume1 = float.Parse(status[12]);
+                    newStatus.flowError1 = int.Parse(status[13]);
+                    newStatus.flowVolume2 = float.Parse(status[14]);
+                    newStatus.flowError2 = int.Parse(status[15]);
 
-            newStatus.flowVolume1           = float.Parse(status[12]);
-            newStatus.flowError1            = int.Parse(status[13]);
-            newStatus.flowVolume2           = float.Parse(status[14]);
-            newStatus.flowError2            = int.Parse(status[15]);
+                    newStatus.parseError = false;
+                }
+                catch
+                {
+                    // likely version mismatch
 
+                    newStatus.parseError = true;
+                    newStatus.parseErrorMessage = "Could not parse data into structure";
+                }
+            }
+            else
+            {
+                // likely error from controller
+
+                newStatus.parseError = true;
+                newStatus.parseErrorMessage = status[0];
+            }
             return newStatus;
+
         }
 
         private void UpdateStatusLog(string logLine)
         {
             statusLog += logLine + "\n";
             ChangeStatusLog?.Invoke(this, EventArgs.Empty);
-            //Debug.Print($"S: {logLine}");
         }
 
         private void UpdateRobotLog(string logLine)
         {
             robotLog += logLine + "\n";
             ChangeRobotLog?.Invoke(this, EventArgs.Empty);
-            //Debug.Print($"R: {logLine}");
 
+        }
+
+        private void UpdateBothLogs(string logLine)
+        {
+            UpdateStatusLog(logLine);
+            UpdateRobotLog(logLine);
         }
 
 
 
-        private DispatcherTimer _timer;
+
+
+        // ==================================================================
+        // Auto status start/stop
 
         public void StartAutoStatus()
         {
-            _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromSeconds(autoStatusInterval);
-            _timer.Tick += Timer_Tick;
-            _timer.Start();
+            if (UI_STATE.isConnected)
+            {
+                if (UI_STATE.isAutoStateRequesting == false)
+                {
+                    _timer = new DispatcherTimer();
+                    _timer.Interval = TimeSpan.FromSeconds(autoStatusInterval);
+                    _timer.Tick += Timer_Tick;
+                    _timer.Start();
+
+                    UIState newState = UI_STATE;
+                    newState.isAutoStateRequesting = true;
+                    SetUIState(newState);
+                }
+            }
         }
 
         public void StopAutoStatus()
         {
-            if (_timer != null)
+            if (UI_STATE.isConnected)
             {
-                _timer.Stop();
-                _timer.Tick -= Timer_Tick;
-                _timer = null;
+                if (UI_STATE.isAutoStateRequesting == true)
+                {
+                    if (_timer != null)
+                    {
+                        _timer.Stop();
+                        _timer.Tick -= Timer_Tick;
+                        _timer = null;
+
+                        UIState newState = UI_STATE;
+                        newState.isAutoStateRequesting = false;
+                        SetUIState(newState);
+                    }
+                }
             }
         }
 
-        public void Timer_Tick(object sender, EventArgs e)
-        {
-            GetStatusTaskAsync();
-        }
-
-        private async void GetStatusTaskAsync()
+        private async void Timer_Tick(object sender, EventArgs e)
         {
             string response = await SendStatusCommandAsync("systemstatus");
-            CONTROLLER_STATE = ParseControllerStatus(response);
-            UpdateAutoStatus?.Invoke(this, EventArgs.Empty);
+
+            ControllerState newState = ParseControllerStatus(response);
+            if (newState != null)
+            {
+                CONTROLLER_STATE = newState;
+                UpdateAutoStatus?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                // ?
+            }
         }
 
 
@@ -514,12 +599,15 @@ namespace DDMAutoGUI.utilities
 
 
 
+
+        // ==================================================================
+        // Public state set/get methods
 
         public UIState GetUIState()
         {
             return UI_STATE;
         }
-        public RobotState GetControllerState()
+        public ControllerState GetControllerState()
         {
             return CONTROLLER_STATE;
         }
@@ -548,8 +636,35 @@ namespace DDMAutoGUI.utilities
 
 
 
+
+
+
+
         // ==================================================================
-        // Robot routines
+        // Public robot routines
+
+        public async Task<string> GetControllerSoftwareVersionAsync()
+        {
+            string response = await SendStatusCommandAsync("getversion");
+            string version = string.Empty;
+            if (response.Split(" ").Length > 1)
+            {
+                version = response.Split(" ")[1];
+            }
+            return version;
+        }
+
+        public async Task<string> GetControllerConfigVersionAsync()
+        {
+            string response = await SendStatusCommandAsync("getconfigversion");
+            string[] fullversion = response.Split(" ");
+            string version = string.Empty;
+            if (fullversion.Length > 1)
+            {
+                version = string.Join(" ", fullversion.Skip(1));
+            }
+            return version;
+        }
 
         public async Task<string> EnablePower()
         {

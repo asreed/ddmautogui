@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DDMAutoGUI"
         mc:Ignorable="d"
         Closing="DispenseWindow_WindowClosing"
-        Title="Process Window" Height="600" Width="900" Background="WhiteSmoke" ResizeMode="NoResize" Icon="/images/icons/b.ico" WindowStartupLocation="CenterScreen">
+        Title="Process Window" Height="600" Width="900" Background="WhiteSmoke" ResizeMode="NoResize" Icon="/images/logos/b.ico" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

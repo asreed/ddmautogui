@@ -28,6 +28,7 @@ namespace DDMAutoGUI
         private static RobotConnectionWindow connectionWindow;
         private static DebugWindow2 debugWindow;
         private static DispenseWindow dispenseWindow;
+        private static DispenseWindow2 dispenseWindow2;
         private static CameraWindow cameraWindow;
         private static SettingsWindow settingsWindow;
 
@@ -53,8 +54,10 @@ namespace DDMAutoGUI
 
             var v = Assembly.GetExecutingAssembly().GetName().Version;
             string formattedVersion = $"{v.Major}.{v.Minor}.{v.Build}";
+
+            this.Title += $" {formattedVersion}";
             //versionLabel.Content = formattedVersion;
-            splashVersionLabel.Content = formattedVersion;
+            //splashVersionLabel.Content = formattedVersion;
             UpdateButtonLocks();
         }
 
@@ -64,6 +67,7 @@ namespace DDMAutoGUI
         {
             splashConnectBtn.IsEnabled = false;
             splashConnectBtn.Content = "Connecting...";
+
             await RobotManager.Instance.ConnectAsync(splashIPTextBox.Text);
             if (RobotManager.Instance.GetUIState().isConnected)
             {
@@ -91,13 +95,13 @@ namespace DDMAutoGUI
 
         private void DispenseBtn_Click(object sender, RoutedEventArgs e)
         {
-            UIState state = new UIState();
-            state = RobotManager.Instance.GetUIState();
-            state.isDispenseWizardActive = true;
-            RobotManager.Instance.SetUIState(state);
+            //UIState state = new UIState();
+            //state = RobotManager.Instance.GetUIState();
+            //state.isDispenseWizardActive = true;
+            //RobotManager.Instance.SetUIState(state);
 
-            dispenseWindow = new DispenseWindow();
-            dispenseWindow.Show();
+            dispenseWindow2 = new DispenseWindow2();
+            dispenseWindow2.Show();
         }
 
         private void DebugBtn_Click(object sender, RoutedEventArgs e)
@@ -155,29 +159,29 @@ namespace DDMAutoGUI
             if (state.isConnected)
             {
                 splashConnectBtn.Content = "Connected";
-                splashConnectBtn.IsEnabled = false;
                 splashErrorLabel.Visibility = Visibility.Collapsed;
-                debugBtn.IsEnabled = true;
+                splashConnectBtn.IsEnabled = false;
+                //debugBtn.IsEnabled = true;
                 //debugMenuItem.IsEnabled = true;
-                debugToolbarBtn.IsEnabled = true;
+                //debugToolbarBtn.IsEnabled = true;
 
-                if (state.isDispenseWizardActive)
-                {
-                    dispenseBtn.IsEnabled = false;
-                }
-                else
-                {
-                    dispenseBtn.IsEnabled = true;
-                }
+                //if (state.isDispenseWizardActive)
+                //{
+                //    dispenseBtn.IsEnabled = false;
+                //}
+                //else
+                //{
+                //    dispenseBtn.IsEnabled = true;
+                //}
             }
             else
             {
                 splashConnectBtn.Content = "Connect";
                 splashConnectBtn.IsEnabled = true;
-                dispenseBtn.IsEnabled = false;
-                debugBtn.IsEnabled = false;
+                //dispenseBtn.IsEnabled = false;
+                //debugBtn.IsEnabled = false;
                 //debugMenuItem.IsEnabled = false;
-                debugToolbarBtn.IsEnabled = false;
+                //debugToolbarBtn.IsEnabled = false;
 
             }
 

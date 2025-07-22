@@ -5,7 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DDMAutoGUI"
         mc:Ignorable="d"
-        Title="DDM Automation Cell Manager" Height="500" Width="800" ResizeMode="CanMinimize" Icon="/images/logos/b.ico" WindowStartupLocation="CenterScreen">
+        Title="DDM Automation Cell Manager" 
+        Height="400" 
+        Width="600" 
+        ResizeMode="CanMinimize" 
+        Icon="/images/logos/b.ico" 
+        WindowStartupLocation="CenterScreen">
     <Window.Background>
         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
             <LinearGradientBrush.RelativeTransform>
@@ -16,8 +21,8 @@
                     <TranslateTransform/>
                 </TransformGroup>
             </LinearGradientBrush.RelativeTransform>
-            <GradientStop Color="White" Offset="0."/>
-            <GradientStop Color="#FFB2CAE8" Offset="1.2"/>
+            <GradientStop Color="White" Offset="0.2"/>
+            <GradientStop Color="#FFB2CAE8" Offset="1.1"/>
         </LinearGradientBrush>
     </Window.Background>
 
@@ -31,19 +36,52 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!--<Menu VerticalAlignment="Top" Padding="3" Background="WhiteSmoke" Visibility="Collapsed">
+        <Menu VerticalAlignment="Top" Padding="4" Background="WhiteSmoke" Panel.ZIndex="10">
             <MenuItem Header="Tools">
-                <MenuItem x:Name="connectionMenuItem" Header="Connection Manager" Click="ConnectBtn_Click"/>
-                <MenuItem x:Name="debugMenuItem" Header="Debug Window" Click="DebugBtn_Click" IsEnabled="False"/>
-                <MenuItem x:Name="logMenuItem" Header="Log Window" IsEnabled="False"/>
+                <MenuItem 
+                    Header="Connection" 
+                    x:Name="dfdfdf"
+                    Click="ConnectBtn_Click">
+                    <MenuItem.Icon>
+                        <Image Source="/images/icons/down-left-and-up-right-to-center-solid.png" Height="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem 
+                    Header="Cell Control" 
+                    x:Name="ahha"
+                    Click="DebugBtn_Click">
+                    <MenuItem.Icon>
+                        <Image Source="/images/icons/screwdriver-wrench-solid.png" Height="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem 
+                    Header="Camera" 
+                    x:Name="asdf"
+                    Click="CameraBtn_Click">
+                    <MenuItem.Icon>
+                        <Image Source="/images/icons/camera-solid.png" Height="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem 
+                    Header="Cell Settings" 
+                    x:Name="sdfs"
+                    Click="SettingsBtn_Click">
+                    <MenuItem.Icon>
+                        <Image Source="/images/icons/sliders-solid.png" Height="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
-            <MenuItem Header="Help">
-                <MenuItem Header="About" Click="AboutMenuItem_Click"/>
+            <MenuItem Header="About">
+                <MenuItem Header="Version Infomation" Click="AboutMenuItem_Click">
+                    <MenuItem.Icon>
+                        <Image Source="/images/icons/circle-info-solid.png" Height="12"/>
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
-        </Menu>-->
+        </Menu>
 
 
-        <Border BorderBrush="#DDD" BorderThickness="0,1,0,1" Visibility="Visible" Background="WhiteSmoke" Panel.ZIndex="10" Padding="3">
+        <!--<Border BorderBrush="#DDD" BorderThickness="0,1,0,1" Visibility="Collapsed" Background="WhiteSmoke" Panel.ZIndex="10" Padding="3">
             <Grid Grid.Row="0">
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
 
@@ -81,7 +119,7 @@
                             Click="SettingsBtn_Click"  
                             ToolTip="Show camera info window">
                         <StackPanel>
-                            <!--<Image Source="/images/icons/camera-solid.png"/>-->
+                            <Image Source="/images/icons/camera-solid.png"/>
                             <Label Content="Settings"/>
                         </StackPanel>
                     </Button>
@@ -97,21 +135,21 @@
                     </Button>
                 </StackPanel>
             </Grid>
-        </Border>
+        </Border>-->
 
 
 
         <Grid Grid.Row="1" Panel.ZIndex="0">
 
 
-            <Image Source="/images/splash/cad-splash-5.png" Margin="322,-42,0,-53" Stretch="UniformToFill" />
-            <Image Source="/images/logos/brooks-logo.png" Margin="26,55,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="30" Width="131"/>
-            <Label Content="DDM Automation Cell Manager" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,83,0,0" FontSize="22" Foreground="#FF0072BC"/>
-            <Label Content="Intended for Gen 1 Phase 1a (ENG TEST ONLY)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,113,0,0" Foreground="#FF0072BC"/>
-            <Label Content="UI Version:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,129,0,0" Foreground="#FF0072BC"/>
-            <Label x:Name="splashVersionLabel" Content="(version info)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="80,129,0,0" Foreground="#FF0072BC"/>
+            <Image Source="/images/splash/cad-splash-5.png" Margin="308,-51,0,-36" Stretch="UniformToFill" />
+            <!--<Image Source="/images/logos/brooks-logo.png" Margin="26,55,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="30" Width="131"/>-->
+            <!--<Label Content="DDM Automation Cell Manager" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,16,0,0" FontSize="22" Foreground="#FF0072BC"/>-->
+            <!--<Label Content="Intended for Gen 1 Phase 1a (ENG TEST ONLY)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,113,0,0" Foreground="#FF0072BC"/>-->
+            <!--<Label Content="UI Version:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,129,0,0" Foreground="#FF0072BC"/>-->
+            <!--<Label x:Name="splashVersionLabel" Content="(version info)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="80,129,0,0" Foreground="#FF0072BC"/>-->
 
-            <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="22,170,0,0">
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="45,106,0,0">
                 <Grid VerticalAlignment="Top" Width="200">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
@@ -131,21 +169,18 @@
                             Grid.ColumnSpan="2" 
                             x:Name="dispenseBtn" 
                             Click="DispenseBtn_Click" 
-                            Height="60" 
-                            Visibility="Collapsed"
+                            Height="80" 
+                            Visibility="Visible"
                             Style="{DynamicResource HeroButton}" 
                             
                             Margin="0,4,0,4">
                         <StackPanel>
-                            <Image Grid.Column="0" Source="/images/icons/cad-disp-valve-2-white.png"/>
-                            <Label Grid.Column="1" Content="Begin Dispense" />
+                            <!--<Image Grid.Column="0" Source="/images/icons/cad-disp-valve-2-white.png"/>-->
+                            <Label Grid.Column="1" Content="Begin Dispense Process" />
                         </StackPanel>
                     </Button>
                     
-                    <StackPanel Grid.Row ="3" Grid.ColumnSpan="2" Orientation="Vertical">
-                        <Button x:Name="connectBtn" Content="Connection Manager" Click="ConnectBtn_Click" Margin="0,4,0,4" Visibility="Collapsed" />
-                        <Button x:Name="debugBtn" Content="Debug Window" Click="DebugBtn_Click" Margin="0,4,0,4" Visibility="Collapsed" />
-                    </StackPanel>
+
                 </Grid>
             </Grid>
 
@@ -155,31 +190,8 @@
         </Grid>
 
         
-        <!--
-        <Grid Grid.Row="2" Visibility="Hidden">
-            <StatusBar VerticalAlignment="Bottom" Background="WhiteSmoke" Padding="3,3" >
-                <StatusBarItem>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="UI Version:" Padding="0" Margin="4,1" FontSize="10" Foreground="#FF848484"/>
-                        <Label x:Name="versionLabel" Content="(version info)" Padding="0" Margin="4,1" FontSize="10" Foreground="#FF848484"/>
-                    </StackPanel>
-                </StatusBarItem>
-                <Separator Background="#FFE0E0E0"/>
-                <StatusBarItem>
-                    <StackPanel Orientation="Horizontal" Visibility="Collapsed">
-                        <Label Content="UI Status:" Padding="0" Margin="4,1" FontSize="10" Foreground="#FF848484"/>
-                        <Label Content="(status)" Padding="0" Margin="4,1" FontSize="10" Foreground="#FF848484"/>
-                    </StackPanel>
-                </StatusBarItem>
-                <Separator Background="#FFE0E0E0"/>
-                <StatusBarItem Visibility="Collapsed">
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Controller Status:" Padding="0" Margin="4,1" FontSize="10" Foreground="#FF848484"/>
-                        <Label Content="(status)" Padding="0" Margin="4,1" FontSize="10" Foreground="#FF848484"/>
-                    </StackPanel>
-                </StatusBarItem>
-            </StatusBar>
-        </Grid>-->
+        
+
 
     </Grid>
 </Window>

@@ -11,8 +11,12 @@ namespace DDMAutoGUI.utilities
     {
         public string ringSN = "";
         public string processLog = "";
+        public event EventHandler UpdateProcessLog;
 
-        public DispenseProcessData() { }
+        public DispenseProcessData()
+        { 
+            //
+        }
 
 
         public void AddToLog(string line)
@@ -21,6 +25,8 @@ namespace DDMAutoGUI.utilities
             string newLine = now.ToShortDateString() + " " + now.ToLongTimeString() + ": " + line + "\n";
             Debug.Print(newLine);
             processLog += newLine;
+
+            UpdateProcessLog?.Invoke(this, EventArgs.Empty);
         }
     }
 }

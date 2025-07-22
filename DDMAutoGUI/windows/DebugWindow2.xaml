@@ -27,11 +27,37 @@
         <Grid Grid.Row="0">
 
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
+
+            <GroupBox Grid.Column="0" Header="Connection">
+                <TextBlock
+                    x:Name="connectedBox"
+                    Text="Not connected" 
+                    Foreground="Red"
+                    Width="100"
+                    TextWrapping="Wrap"
+                    TextAlignment="Center"
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"/>
+            </GroupBox>
             
-            <GroupBox Header="Version Information" Grid.Column="0">
+            <GroupBox Grid.Column="1" Header="Auto Status">
+                <TextBlock
+                    x:Name="statusBox"
+                    Text="No status" 
+                    Foreground="Red"
+                    Width="100"
+                    TextWrapping="Wrap"
+                    TextAlignment="Center"
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"/>
+            </GroupBox>
+            
+            <GroupBox Header="Version Information" Grid.Column="2">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition/>
@@ -52,7 +78,7 @@
                     <Label Grid.Row="2" Grid.Column="1" x:Name="versionConfigLabel" Content="-" Padding="1"/>
                 </Grid>
             </GroupBox>
-            <GroupBox Header="Emergency" Grid.Column="1">
+            <GroupBox Header="Emergency" Grid.Column="3">
                 <StackPanel Orientation="Horizontal" Grid.Column="1">
                     <Button x:Name="eCloseValvesBtn" Content="CLOSE VALVES" Style="{DynamicResource PrimaryRedButton}" Click="closeValvesBtn_Click"/>
                     <Button x:Name="eStopBtn" Content="E STOP"  Style="{DynamicResource PrimaryRedButton}" Click="eStopBtn_Click"/>

@@ -66,42 +66,19 @@
 			Display notes:
 			Intended for Gen 1 Phase 1b. ENGINEERING TESTING ONLY.
 	-->
-	  
+
 	<Version>1.1.4</Version> <!-- THIS IS THE VERSION NUMBER -->
-	<!--<OutputPath>bin\Release\test</OutputPath>--> <!-- THIS IS THE OUTPUT PATH -->
-	  
-	  
-	  
-	  
-	  
-	  
-	  
+	<AssemblyName>DDMAutoGUI</AssemblyName>
+	<GenerateDocumentationFile>False</GenerateDocumentationFile>
+	<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+
+
+
   </PropertyGroup>
 
-    <Target Name="target1" BeforeTargets="Build">
-	    <PropertyGroup>
-		    <!--<NewVersion>1.0.0.$(Rev:.r)</NewVersion>-->
-		    <!-- Increment revision number -->
-	    </PropertyGroup>
-        <Message Importance="high" Text="before build message" />
-        <!--<Message Importance="high" Text="New Version: $(Version)" />-->
-        <!--<FileVersion>$(NewVersion)</FileVersion>-->
-        <!--<InformationalVersion>$(NewVersion)</InformationalVersion>-->
-    </Target>
-
-    <Target Name="target2" AfterTargets="Build">
-        <Message Importance="high" Text="after build message" />
-        <!--<Message Importance="high" Text="Packaging the application..." />-->
-        <!--<Exec Command="dotnet publish -c Release -o $(OutputPath)" />-->
-	    <!--<Exec Command="powershell -Command Compress-Archive -Path $(OutputPath)\* -DestinationPath $(OutputPath)\MyApp_$(NewVersion).zip" />-->
-    </Target>
-	  
-	
-	  
-	
+   
 	
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
-	
 	
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" />
 	
@@ -126,6 +103,9 @@
 
   <ItemGroup>
     <Content Include="images\icons\arrow-right-solid.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="images\icons\sliders-solid.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="images\logos\b.ico">

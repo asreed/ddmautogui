@@ -51,30 +51,54 @@ namespace DDMAutoGUI.windows
             versionManagerLabel.Content = $"{v.Major}.{v.Minor}.{v.Build}";
 
             string response = await RobotManager.Instance.GetControllerSoftwareVersionAsync();
-            versionTCSLabel.Content = response;
+            versionTCSLabel.Content = response == "-100" ? response : "No connection";
 
             response = await RobotManager.Instance.GetControllerConfigVersionAsync();
-            versionConfigLabel.Content = response;
+            versionConfigLabel.Content = response == "-100" ? response : "No connection";
         }
 
         private void debugWindow_OnUpdateAutoStatus2(object sender, EventArgs e)
         {
-            RobotState newStatus = RobotManager.Instance.GetControllerState();
-            formatReadout(roPowerEnabled, newStatus.isPowerEnabled);
-            formatReadout(roRobotHomed, newStatus.isRobotHomed);
-            formatReadout(roLinPos, newStatus.posLinear);
-            formatReadout(roRotPos, newStatus.posRotary);
-            formatReadout(roLinFlag1, !newStatus.isLinearIn1); // rail sensors are low when part present
-            formatReadout(roLinFlag2, !newStatus.isLinearIn2);
-            formatReadout(roLinFlag3, !newStatus.isLinearIn3);
-            formatReadout(roPresCmd1, newStatus.pressureCommand1, "psi");
-            formatReadout(roPresMeas1, newStatus.pressureMeasurement1, "psi");
-            formatReadout(roPresCmd2, newStatus.pressureCommand2, "psi");
-            formatReadout(roPresMeas2, newStatus.pressureMeasurement2, "psi");
-            formatReadout(roFlowVol1, newStatus.flowVolume1, "mL");
-            formatReadout(roFlowErr1, newStatus.flowError1);
-            formatReadout(roFlowVol2, newStatus.flowVolume2, "mL");
-            formatReadout(roFlowErr2, newStatus.flowError2);
+
+            UIState uiState = RobotManager.Instance.GetUIState();
+            ControllerState contState = RobotManager.Instance.GetControllerState();
+
+            if (uiState.isConnected)
+            {
+                statusBox.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
+                statusBox.Text = "Connected";
+            } else
+            {
+                statusBox.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
+                statusBox.Text = "Not connected";
+            }
+
+            if (!contState.parseError)
+            {
+                statusBox.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
+                statusBox.Text = "Parse OK";
+
+                formatReadout(roPowerEnabled, contState.isPowerEnabled);
+                formatReadout(roRobotHomed, contState.isRobotHomed);
+                formatReadout(roLinPos, contState.posLinear);
+                formatReadout(roRotPos, contState.posRotary);
+                formatReadout(roLinFlag1, !contState.isLinearIn1); // rail sensors are low when part present
+                formatReadout(roLinFlag2, !contState.isLinearIn2);
+                formatReadout(roLinFlag3, !contState.isLinearIn3);
+                formatReadout(roPresCmd1, contState.pressureCommand1, "psi");
+                formatReadout(roPresMeas1, contState.pressureMeasurement1, "psi");
+                formatReadout(roPresCmd2, contState.pressureCommand2, "psi");
+                formatReadout(roPresMeas2, contState.pressureMeasurement2, "psi");
+                formatReadout(roFlowVol1, contState.flowVolume1, "mL");
+                formatReadout(roFlowErr1, contState.flowError1);
+                formatReadout(roFlowVol2, contState.flowVolume2, "mL");
+                formatReadout(roFlowErr2, contState.flowError2);
+            }
+            else
+            {
+                statusBox.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
+                statusBox.Text = $"Parse error: {contState.parseErrorMessage}";
+            }
 
         }
 
