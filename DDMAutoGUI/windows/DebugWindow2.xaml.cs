@@ -1,5 +1,6 @@
 ﻿using ArenaNET;
 using DDMAutoGUI.utilities;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,70 +35,96 @@ namespace DDMAutoGUI.windows
         public DebugWindow2()
         {
             InitializeComponent();
-            debugWindow_OnUpdateAutoStatus2(this, EventArgs.Empty);
-            UpdateVersion();
-            RobotManager.Instance.UpdateAutoStatus += debugWindow_OnUpdateAutoStatus2;
-            RobotManager.Instance.StartAutoStatus();
+
+            RobotManager.Instance.UpdateUIState += debugWindow_OnUpdateUIState;
+            RobotManager.Instance.UpdateControllerState += debugWindow_OnUpdateAutoControllerState;
+            RobotManager.Instance.ControllerConnected += debugWindow_OnControllerConnected;
+            RobotManager.Instance.ControllerDisconnected += debugWindow_OnControllerDisconnected;
+
+            var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            versionManagerLabel.Content = $"{v.Major}.{v.Minor}.{v.Build}";
+
+            if (RobotManager.Instance.GetUIState().isConnected)
+            {
+                debugWindow_OnControllerConnected(this, EventArgs.Empty);
+                debugWindow_OnUpdateAutoControllerState(this, EventArgs.Empty);
+            }
+            else
+            {
+                debugWindow_OnControllerDisconnected(this, EventArgs.Empty);
+                debugWindow_OnUpdateAutoControllerState(this, EventArgs.Empty);
+            }
+
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            RobotManager.Instance.StopAutoStatus();
+            RobotManager.Instance.StopAutoControllerState();
         }
 
-        private async void UpdateVersion()
+
+
+
+        private async void debugWindow_OnControllerConnected(object sender, EventArgs e)
         {
-            var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            versionManagerLabel.Content = $"{v.Major}.{v.Minor}.{v.Build}";
+            connectedBox.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
+            connectedBox.Text = "Connected";
 
-            string response = await RobotManager.Instance.GetControllerSoftwareVersionAsync();
-            versionTCSLabel.Content = response == "-100" ? response : "No connection";
+            versionTCSLabel.Content = await RobotManager.Instance.GetControllerSoftwareVersionAsync();
+            versionConfigLabel.Content = await RobotManager.Instance.GetControllerConfigVersionAsync();
 
-            response = await RobotManager.Instance.GetControllerConfigVersionAsync();
-            versionConfigLabel.Content = response == "-100" ? response : "No connection";
+            lockRobotButtons(false);
+            lockStatusButtons(false);
+
+            eStopBtn.IsEnabled = true;
+            eCloseValvesBtn.IsEnabled = true;
+
+            RobotManager.Instance.StartAutoControllerState();
         }
 
-        private void debugWindow_OnUpdateAutoStatus2(object sender, EventArgs e)
+        private void debugWindow_OnControllerDisconnected(object sender, EventArgs e)
         {
+            connectedBox.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
+            connectedBox.Text = "Not connected";
+            statusBox.Text = "-";
 
+            versionTCSLabel.Content = "-";
+            versionConfigLabel.Content = "-";
+
+            lockRobotButtons(true);
+            lockStatusButtons(true);
+            disableAllReadouts();
+
+            eStopBtn.IsEnabled = false;
+            eCloseValvesBtn.IsEnabled = false;
+
+            RobotManager.Instance.StopAutoControllerState();
+        }
+
+        private async void debugWindow_OnUpdateUIState(object sender, EventArgs e)
+        {
             UIState uiState = RobotManager.Instance.GetUIState();
-            ControllerState contState = RobotManager.Instance.GetControllerState();
 
-            if (uiState.isConnected)
-            {
-                statusBox.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
-                statusBox.Text = "Connected";
-            } else
-            {
-                statusBox.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
-                statusBox.Text = "Not connected";
-            }
+
+            // ... ?
+        }
+
+        private void debugWindow_OnUpdateAutoControllerState(object sender, EventArgs e)
+        {
+
+            ControllerState contState = RobotManager.Instance.GetControllerState();
 
             if (!contState.parseError)
             {
                 statusBox.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
                 statusBox.Text = "Parse OK";
-
-                formatReadout(roPowerEnabled, contState.isPowerEnabled);
-                formatReadout(roRobotHomed, contState.isRobotHomed);
-                formatReadout(roLinPos, contState.posLinear);
-                formatReadout(roRotPos, contState.posRotary);
-                formatReadout(roLinFlag1, !contState.isLinearIn1); // rail sensors are low when part present
-                formatReadout(roLinFlag2, !contState.isLinearIn2);
-                formatReadout(roLinFlag3, !contState.isLinearIn3);
-                formatReadout(roPresCmd1, contState.pressureCommand1, "psi");
-                formatReadout(roPresMeas1, contState.pressureMeasurement1, "psi");
-                formatReadout(roPresCmd2, contState.pressureCommand2, "psi");
-                formatReadout(roPresMeas2, contState.pressureMeasurement2, "psi");
-                formatReadout(roFlowVol1, contState.flowVolume1, "mL");
-                formatReadout(roFlowErr1, contState.flowError1);
-                formatReadout(roFlowVol2, contState.flowVolume2, "mL");
-                formatReadout(roFlowErr2, contState.flowError2);
+                formatAllReadouts(contState);
             }
             else
             {
                 statusBox.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
                 statusBox.Text = $"Parse error: {contState.parseErrorMessage}";
+                disableAllReadouts();
             }
 
         }
@@ -123,6 +150,50 @@ namespace DDMAutoGUI.windows
                 label.Background = new BrushConverter().ConvertFrom("WhiteSmoke") as SolidColorBrush;
             }
 
+        }
+
+        private void formatAllReadouts(ControllerState contState)
+        {
+            formatReadout(roPowerEnabled, contState.isPowerEnabled);
+            formatReadout(roRobotHomed, contState.isRobotHomed);
+            formatReadout(roLinPos, contState.posLinear);
+            formatReadout(roRotPos, contState.posRotary);
+            formatReadout(roLinFlag1, !contState.isLinearIn1); // rail sensors are low when part present
+            formatReadout(roLinFlag2, !contState.isLinearIn2);
+            formatReadout(roLinFlag3, !contState.isLinearIn3);
+            formatReadout(roPresCmd1, contState.pressureCommand1, "psi");
+            formatReadout(roPresMeas1, contState.pressureMeasurement1, "psi");
+            formatReadout(roPresCmd2, contState.pressureCommand2, "psi");
+            formatReadout(roPresMeas2, contState.pressureMeasurement2, "psi");
+            formatReadout(roFlowVol1, contState.flowVolume1, "mL");
+            formatReadout(roFlowErr1, contState.flowError1);
+            formatReadout(roFlowVol2, contState.flowVolume2, "mL");
+            formatReadout(roFlowErr2, contState.flowError2);
+        }
+
+        private void disableReadout(Label label)
+        {
+            label.Foreground = new BrushConverter().ConvertFrom("#AAA") as SolidColorBrush;
+            label.Background = new BrushConverter().ConvertFrom("WhiteSmoke") as SolidColorBrush;
+        }
+
+        private void disableAllReadouts()
+        {
+            disableReadout(roPowerEnabled);
+            disableReadout(roRobotHomed);
+            disableReadout(roLinPos);
+            disableReadout(roRotPos);
+            disableReadout(roLinFlag1);
+            disableReadout(roLinFlag2);
+            disableReadout(roLinFlag3);
+            disableReadout(roPresCmd1);
+            disableReadout(roPresMeas1);
+            disableReadout(roPresCmd2);
+            disableReadout(roPresMeas2);
+            disableReadout(roFlowVol1);
+            disableReadout(roFlowErr1);
+            disableReadout(roFlowVol2);
+            disableReadout(roFlowErr2);
         }
 
         private void lockRobotButtons(bool state)

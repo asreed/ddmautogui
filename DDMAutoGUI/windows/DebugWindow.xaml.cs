@@ -27,7 +27,7 @@ namespace DDMAutoGUI.windows
         {
             InitializeComponent();
             stopAutoStatusBtn.IsEnabled = false;
-            RobotManager.Instance.UpdateAutoStatus += debugWindow_OnUpdateAutoStatus;
+            RobotManager.Instance.UpdateControllerState += debugWindow_OnUpdateAutoStatus;
             debugWindow_OnUpdateAutoStatus(this, EventArgs.Empty);
             startAutoStatusBtn_Click(this, null);
             UpdateVersion();
@@ -73,13 +73,13 @@ namespace DDMAutoGUI.windows
         {
             startAutoStatusBtn.IsEnabled = false;
             stopAutoStatusBtn.IsEnabled = true;
-            RobotManager.Instance.StartAutoStatus();
+            RobotManager.Instance.StartAutoControllerState();
         }
         private void stopAutoStatusBtn_Click(object sender, RoutedEventArgs e)
         {
             startAutoStatusBtn.IsEnabled = true;
             stopAutoStatusBtn.IsEnabled = false;
-            RobotManager.Instance.StopAutoStatus();
+            RobotManager.Instance.StopAutoControllerState();
         }
 
 

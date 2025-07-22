@@ -22,19 +22,31 @@ namespace DDMAutoGUI.utilities
     // Also handles events for robot state so GUI can be locked/unlocked accordingly
 
 
-
-
     public class UIState
     {
         public bool isConnected = false;
-        public bool isAutoStateRequesting = false;
+        public bool isProcessWizardOpen = false;
+        public bool isAutoControllerStateRequesting = false;
+
+        public UIState() { }
+
+        public UIState (UIState state) {
+            isConnected = state.isConnected;
+            isProcessWizardOpen= state.isProcessWizardOpen;
+            isAutoControllerStateRequesting= state.isAutoControllerStateRequesting;
+        }
 
     }
 
     public class ControllerState
     {
+        // general
+
         public bool parseError = false;
         public string parseErrorMessage = string.Empty;
+
+
+        // from controller
 
         public bool isPowerEnabled = false;
         public bool isRobotHomed = false;
@@ -55,6 +67,29 @@ namespace DDMAutoGUI.utilities
         public float flowError1 = 0;
         public float flowVolume2 = 0;
         public float flowError2 = 0;
+
+        public ControllerState() { }
+
+        public ControllerState(ControllerState state)
+        {
+            parseError = state.parseError;
+            parseErrorMessage = state.parseErrorMessage;
+            isPowerEnabled = state.isPowerEnabled;
+            isRobotHomed= state.isRobotHomed;
+            posLinear = state.posLinear;
+            posRotary = state.posRotary;
+            isLinearIn1 = state.isLinearIn1;
+            isLinearIn2 = state.isLinearIn2;
+            isLinearIn3 = state.isLinearIn3;
+            pressureCommand1 = state.pressureCommand1;
+            pressureMeasurement1 = state.pressureMeasurement1;
+            pressureCommand2 = state.pressureCommand2;
+            pressureMeasurement2 = state.pressureMeasurement2;
+            flowVolume1 = state.flowVolume1;
+            flowError1 = state.flowError1;
+            flowVolume2 = state.flowVolume2;
+            flowError2 = state.flowError2;
+        }
 
     }
 
@@ -86,11 +121,13 @@ namespace DDMAutoGUI.utilities
         private Socket statusClient;
         private Socket robotClient;
 
+        public event EventHandler ControllerConnected;
+        public event EventHandler ControllerDisconnected;
+
         public event EventHandler UpdateUIState;
-        public event EventHandler ReceiveStatus;
+        public event EventHandler UpdateControllerState;
         public event EventHandler ChangeStatusLog;
         public event EventHandler ChangeRobotLog;
-        public event EventHandler UpdateAutoStatus;
 
         private UIState UI_STATE = new UIState();
         private ControllerState CONTROLLER_STATE = new ControllerState();
@@ -98,7 +135,6 @@ namespace DDMAutoGUI.utilities
         public RobotManager()
         {
             //
-
 
         }
 
@@ -298,7 +334,7 @@ namespace DDMAutoGUI.utilities
                 await robotClient.ConnectAsync(robotEP);
 
                 // It seems to be possible that the connection succeeds even for some
-                // apparently random IP addresses. Need to send test command.
+                // apparently random IP addresses... Need to send test command
 
                 if (await TestStatusConnection() != "0")
                 {
@@ -308,7 +344,7 @@ namespace DDMAutoGUI.utilities
 
                 UpdateBothLogs("Connection succeeded");
 
-                UIState newState = UI_STATE;
+                UIState newState = new UIState(UI_STATE);
                 newState.isConnected = true;
                 SetUIState(newState);
 
@@ -323,7 +359,7 @@ namespace DDMAutoGUI.utilities
                 UpdateBothLogs("Connection failed");
                 UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
 
-                UIState newState = UI_STATE;
+                UIState newState = new UIState(UI_STATE);
                 newState.isConnected = false;
                 SetUIState(newState);
 
@@ -337,7 +373,7 @@ namespace DDMAutoGUI.utilities
             try
             {
 
-                StopAutoStatus();
+                StopAutoControllerState();
                 await SendStatusCommandAsync("exit");
                 await SendRobotCommandAsync("exit");
                 statusClient.Shutdown(SocketShutdown.Both);
@@ -352,7 +388,7 @@ namespace DDMAutoGUI.utilities
                 UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
             }
 
-            UIState newState = UI_STATE;
+            UIState newState = new UIState(UI_STATE);
             newState.isConnected = false;
             SetUIState(newState);
 
@@ -360,11 +396,6 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> SendRobotCommandAsync(string command)
         {
-            if (!UI_STATE.isConnected)
-            {
-                return "-100";
-            }
-
             UpdateRobotLog($">> {command}");
 
             byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
@@ -402,7 +433,7 @@ namespace DDMAutoGUI.utilities
                 UpdateRobotLog($"{e.ErrorCode}: {e.Message}");
                 response = new StringBuilder();
 
-                UIState newState = UI_STATE;
+                UIState newState = new UIState(UI_STATE);
                 newState.isConnected = false;
                 SetUIState(newState);
 
@@ -413,11 +444,6 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> SendStatusCommandAsync(string command)
         {
-            if (!UI_STATE.isConnected)
-            {
-                return "-100";
-            }
-
             UpdateStatusLog($">> {command}");
 
             byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
@@ -437,7 +463,7 @@ namespace DDMAutoGUI.utilities
                 UpdateStatusLog($"{e.ErrorCode}: {e.Message}");
                 response = string.Empty;
 
-                UIState newState = UI_STATE;
+                UIState newState = new UIState(UI_STATE);
                 newState.isConnected = false;
                 SetUIState(newState);
             }
@@ -464,7 +490,7 @@ namespace DDMAutoGUI.utilities
             return response.Trim();
         }
 
-        private ControllerState ParseControllerStatus(string newStatusString)
+        private ControllerState ParseControllerStateString(string newStatusString)
         {
             ControllerState newStatus = new ControllerState();
             string[] status = newStatusString.Split(" ");
@@ -537,31 +563,31 @@ namespace DDMAutoGUI.utilities
 
 
         // ==================================================================
-        // Auto status start/stop
+        // Auto update for controller state start/stop
 
-        public void StartAutoStatus()
+        public void StartAutoControllerState()
         {
             if (UI_STATE.isConnected)
             {
-                if (UI_STATE.isAutoStateRequesting == false)
+                if (UI_STATE.isAutoControllerStateRequesting == false)
                 {
                     _timer = new DispatcherTimer();
                     _timer.Interval = TimeSpan.FromSeconds(autoStatusInterval);
                     _timer.Tick += Timer_Tick;
                     _timer.Start();
 
-                    UIState newState = UI_STATE;
-                    newState.isAutoStateRequesting = true;
+                    UIState newState = new UIState(UI_STATE);
+                    newState.isAutoControllerStateRequesting = true;
                     SetUIState(newState);
                 }
             }
         }
 
-        public void StopAutoStatus()
+        public void StopAutoControllerState()
         {
             if (UI_STATE.isConnected)
             {
-                if (UI_STATE.isAutoStateRequesting == true)
+                if (UI_STATE.isAutoControllerStateRequesting == true)
                 {
                     if (_timer != null)
                     {
@@ -569,8 +595,8 @@ namespace DDMAutoGUI.utilities
                         _timer.Tick -= Timer_Tick;
                         _timer = null;
 
-                        UIState newState = UI_STATE;
-                        newState.isAutoStateRequesting = false;
+                        UIState newState = new UIState(UI_STATE);
+                        newState.isAutoControllerStateRequesting = false;
                         SetUIState(newState);
                     }
                 }
@@ -579,18 +605,10 @@ namespace DDMAutoGUI.utilities
 
         private async void Timer_Tick(object sender, EventArgs e)
         {
-            string response = await SendStatusCommandAsync("systemstatus");
-
-            ControllerState newState = ParseControllerStatus(response);
-            if (newState != null)
-            {
-                CONTROLLER_STATE = newState;
-                UpdateAutoStatus?.Invoke(this, EventArgs.Empty);
-            }
-            else
-            {
-                // ?
-            }
+            string response = await GetControllerStateRemote();
+            ControllerState newState = ParseControllerStateString(response);
+            CONTROLLER_STATE = newState;
+            SetControllerState(newState);
         }
 
 
@@ -607,15 +625,33 @@ namespace DDMAutoGUI.utilities
         {
             return UI_STATE;
         }
+
+        public void SetUIState(UIState newState)
+        {
+            UIState prevState = UI_STATE;
+            UI_STATE = new UIState(newState);
+
+            if (prevState.isConnected ^ newState.isConnected)
+            {
+                if (newState.isConnected)
+                {
+                    ControllerConnected?.Invoke(this, EventArgs.Empty);
+                } else
+                {
+                    ControllerDisconnected?.Invoke(this, EventArgs.Empty);
+                }
+            }
+            UpdateUIState?.Invoke(this, EventArgs.Empty);
+        }
         public ControllerState GetControllerState()
         {
             return CONTROLLER_STATE;
         }
 
-        public void SetUIState(UIState state)
+        public void SetControllerState(ControllerState newState)
         {
-            UI_STATE = state;
-            UpdateUIState?.Invoke(this, EventArgs.Empty);
+            CONTROLLER_STATE = new ControllerState(newState);
+            UpdateControllerState?.Invoke(this, EventArgs.Empty);
         }
 
         public string GetStatusLog()
@@ -642,6 +678,12 @@ namespace DDMAutoGUI.utilities
 
         // ==================================================================
         // Public robot routines
+
+        public async Task<string> GetControllerStateRemote()
+        {
+            string response = await SendStatusCommandAsync("systemstatus");
+            return response;
+        }
 
         public async Task<string> GetControllerSoftwareVersionAsync()
         {
