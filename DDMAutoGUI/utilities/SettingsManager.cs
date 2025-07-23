@@ -32,7 +32,10 @@ namespace DDMAutoGUI.utilities
         public DateTime? last_saved { get; set; }
         public DDMSettingsAllSizes? all_sizes { get; set; }
         public DDMSettingsOneSize? ddm_57 { get; set; }
+        public DDMSettingsOneSize? ddm_95 { get; set; }
         public DDMSettingsOneSize? ddm_116 { get; set; }
+        public DDMSettingsOneSize? ddm_170 { get; set; }
+        public DDMSettingsOneSize? ddm_170_tall { get; set; }
     }
 
 

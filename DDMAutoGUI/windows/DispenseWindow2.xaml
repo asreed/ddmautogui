@@ -27,6 +27,10 @@
                 FontSize="18" 
                 Foreground="Black" 
                 Margin="0,3,0,0"/>
+            <Button
+                x:Name="logBtn"
+                Click="logBtn_Click"
+                Content="log"/>
         </StackPanel>
 
         
@@ -51,13 +55,18 @@
 
                             <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
                                 <GroupBox Header="Motor Size">
-                                    <ComboBox x:Name="motorSizeComboBox">
-                                        <ComboBoxItem Content="DDM 57" IsEnabled="False"/>
-                                        <ComboBoxItem Content="DDM 95" IsEnabled="False"/>
-                                        <ComboBoxItem Content="DDM 116" IsEnabled="True" IsSelected="True"/>
-                                        <ComboBoxItem Content="DDM 170" IsEnabled="False"/>
-                                        <ComboBoxItem Content="DDM 170 Tall" IsEnabled="False"/>
-                                    </ComboBox>
+                                    <StackPanel Orientation="Vertical">
+                                        <ComboBox x:Name="motorSizeComboBox">
+                                            <!-- Settings selected based on index. Be careful changing these items: -->
+                                            <ComboBoxItem Content="DDM 57" IsEnabled="False"/>
+                                            <ComboBoxItem Content="DDM 95" IsEnabled="False"/>
+                                            <ComboBoxItem Content="DDM 116" IsEnabled="True" IsSelected="True"/>
+                                            <ComboBoxItem Content="DDM 170" IsEnabled="False"/>
+                                            <ComboBoxItem Content="DDM 170 Tall" IsEnabled="False"/>
+                                        </ComboBox>
+
+                                        <Label x:Name="locLabel" Content="asdf"/>
+                                    </StackPanel>
                                 </GroupBox>
                                 <GroupBox Header="Motor SN">
                                     <TextBox x:Name="snTextBox" Padding="6"/>
