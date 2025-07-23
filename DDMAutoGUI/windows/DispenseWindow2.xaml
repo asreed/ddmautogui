@@ -27,10 +27,7 @@
                 FontSize="18" 
                 Foreground="Black" 
                 Margin="0,3,0,0"/>
-            <Button
-                x:Name="logBtn"
-                Click="logBtn_Click"
-                Content="log"/>
+
         </StackPanel>
 
         
@@ -57,12 +54,15 @@
                                 <GroupBox Header="Motor Size">
                                     <StackPanel Orientation="Vertical">
                                         <ComboBox x:Name="motorSizeComboBox">
+                                            
                                             <!-- Settings selected based on index. Be careful changing these items: -->
-                                            <ComboBoxItem Content="DDM 57" IsEnabled="False"/>
-                                            <ComboBoxItem Content="DDM 95" IsEnabled="False"/>
-                                            <ComboBoxItem Content="DDM 116" IsEnabled="True" IsSelected="True"/>
-                                            <ComboBoxItem Content="DDM 170" IsEnabled="False"/>
-                                            <ComboBoxItem Content="DDM 170 Tall" IsEnabled="False"/>
+                                            <!-- --><ComboBoxItem Content="DDM 57" IsEnabled="False"/>
+                                            <!-- --><ComboBoxItem Content="DDM 95" IsEnabled="False"/>
+                                            <!-- --><ComboBoxItem Content="DDM 116" IsEnabled="True" IsSelected="True"/>
+                                            <!-- --><ComboBoxItem Content="DDM 170" IsEnabled="False"/>
+                                            <!-- --><ComboBoxItem Content="DDM 170 Tall" IsEnabled="False"/>
+                                            <!-- -->
+                                            
                                         </ComboBox>
 
                                         <Label x:Name="locLabel" Content="asdf"/>
@@ -156,7 +156,38 @@
             <TabItem Header="3. Results">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <Grid x:Name="tabContainer3">
-                        <!-- step added dynamically -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            
+                            <StackPanel Grid.Column="1" Grid.Row="1">
+                                <Button
+                                    x:Name="logBtn"
+                                    Click="logBtn_Click"
+                                    Content="View log"
+                                    Style="{DynamicResource PrimaryBlackButton}"/>
+                                <Button
+                                    x:Name="saveLogBtn"
+                                    Click="saveLogBtn_Click"
+                                    Content="Save log"
+                                    Style="{DynamicResource PrimaryBlackButton}"/>
+                                <Button
+                                    x:Name="openFolderBtn"
+                                    Click="openFolderBtn_Click"
+                                    Content="Open folder"/>
+                            </StackPanel>
+
+
+                        </Grid>
+
                     </Grid>
                 </ScrollViewer>
             </TabItem>

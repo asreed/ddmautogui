@@ -199,5 +199,9 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="process_data\" />
+  </ItemGroup>
+
 
 </Project>

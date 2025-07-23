@@ -47,18 +47,25 @@ namespace DDMAutoGUI.windows
             GoToStep(0);
         }
 
-        private async void beginButton_Click(object sender, RoutedEventArgs e)
-        {
 
-            // pull data from config (validate?)
+        // ================ Main dispense process routine
+
+        private async void DoProcess()
+        {
+            // pull data from user config (validate?)
 
             string sn = snTextBox.Text.Trim();
             int motorSelection = motorSizeComboBox.SelectedIndex;
+
             bool doPrePhoto = prePhotoCheckBox.IsChecked ?? false;
             bool doRingMeasure = measureRingCheckBox.IsChecked ?? false;
             bool doMagMeasure = measureMagCheckBox.IsChecked ?? false;
             bool doDispense = dispenseCheckBox.IsChecked ?? false;
             bool doPostPhoto = postPhotoCheckBox.IsChecked ?? false;
+
+            // store relevant data in processData object
+
+            processData.ringSN = sn;
 
             // pull data from settings
 
@@ -87,9 +94,7 @@ namespace DDMAutoGUI.windows
                     break;
             }
 
-            processData.AddToLog($"Disp ID: [{motor.disp_id.x}, {motor.disp_id.th}]");
-            processData.AddToLog($"Disp OD: [{motor.disp_od.x} ,  {motor.disp_od.th}]");
-
+            processData.AddToLog($"Serial number: {sn}");
 
             // start process
 
@@ -97,6 +102,12 @@ namespace DDMAutoGUI.windows
             processProgressBar.IsIndeterminate = false;
             processProgressBar.Value = 0;
             GoToStep(1);
+
+            // verify all sensors are online
+
+            processData.AddToLog("Verifying sensors...");
+            await Task.Delay(500);
+            processData.AddToLog("Sensors verified");
 
             if (doPrePhoto || doPostPhoto)
             {
@@ -111,6 +122,8 @@ namespace DDMAutoGUI.windows
 
             if (doPrePhoto)
             {
+                // take photo before process
+
                 processData.AddToLog("Taking photo...");
                 processData.AddToLog($"Moving to [{settings.all_sizes.camera.x}, {settings.all_sizes.camera.th}]");
                 await Task.Delay(1000);
@@ -119,6 +132,8 @@ namespace DDMAutoGUI.windows
             }
             if (doRingMeasure)
             {
+                // measure magnet ring displacement
+
                 processData.AddToLog("Measuring ring...");
                 processData.AddToLog($"Moving to [{motor.laser_ring.x}, {motor.laser_ring.th}]");
                 await Task.Delay(1000);
@@ -127,6 +142,8 @@ namespace DDMAutoGUI.windows
             }
             if (doMagMeasure)
             {
+                // measure magnet (and concentrator?) displacement
+
                 processData.AddToLog("Measuring magnets...");
                 processData.AddToLog($"Moving to [{motor.laser_mag.x}, {motor.laser_mag.th}]");
                 await Task.Delay(1000);
@@ -136,6 +153,8 @@ namespace DDMAutoGUI.windows
             }
             if (doDispense)
             {
+                // dispense cyanoacrylate
+
                 processData.AddToLog("Dispensing...");
                 processData.AddToLog($"Using ID [{motor.disp_id.x}, {motor.disp_id.th}] and OD [{motor.disp_od.x}, {motor.disp_od.th}]");
                 await Task.Delay(1000);
@@ -148,6 +167,8 @@ namespace DDMAutoGUI.windows
             }
             if (doPostPhoto)
             {
+                // take photo after process
+
                 processData.AddToLog("Taking photo...");
                 processData.AddToLog($"Moving to [{settings.all_sizes.camera.x}, {settings.all_sizes.camera.th}]");
                 await Task.Delay(1000);
@@ -168,7 +189,6 @@ namespace DDMAutoGUI.windows
 
 
             GoToStep(2);
-
         }
 
 
@@ -176,17 +196,19 @@ namespace DDMAutoGUI.windows
 
 
 
-        public void ProcessData_UpdateProcessLog(object sender, EventArgs e)
-        {
-            logTextBox.Text = processData.processLog;
-            logTextBox.CaretIndex = logTextBox.Text.Length;
-            logTextBox.ScrollToEnd();
-        }
 
 
 
 
 
+
+
+
+
+
+
+
+        // ================ Helpers
 
         private void GoToStep(int step)
         {
@@ -218,6 +240,68 @@ namespace DDMAutoGUI.windows
             processData.AddToLog($"Moved to step {step}");
         }
 
+        private bool ConfirmAbortAndClose()
+        {
+            AbortProcessConfirmation abortWindow = new AbortProcessConfirmation();
+            abortWindow.Owner = this;
+            abortWindow.ShowDialog();
+            if (abortWindow.confirm)
+            {
+                // do any clean up logic
+                // save log?
+
+                //UIState state = new UIState();
+                //state = RobotManager.Instance.GetUIState();
+                //state.isDispenseWizardActive = false;
+                //RobotManager.Instance.SetUIState(state);
+
+                return true;
+            }
+            return false;
+        }
+
+
+
+
+
+
+        // ================ Button clicks
+
+        private async void beginButton_Click(object sender, RoutedEventArgs e)
+        {
+            DoProcess();
+        }
+
+        private void logBtn_Click(object sender, RoutedEventArgs e)
+        {
+            TextDataViewer viewer = new TextDataViewer();
+            viewer.Owner = this;
+            viewer.PopulateData(processData.processLog, "Process Log");
+            viewer.ShowDialog();
+        }
+
+        private void saveLogBtn_Click(object sender, RoutedEventArgs e)
+        {
+            processData.SaveLogToFile();
+        }
+
+        private void openFolderBtn_Click(object sender, RoutedEventArgs e)
+        {
+            processData.OpenBrowserToDirectory();
+        }
+
+
+
+
+
+        // ================ Other events
+
+        public void ProcessData_UpdateProcessLog(object sender, EventArgs e)
+        {
+            logTextBox.Text = processData.processLog;
+            logTextBox.CaretIndex = logTextBox.Text.Length;
+            logTextBox.ScrollToEnd();
+        }
 
         private void dispTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -239,34 +323,6 @@ namespace DDMAutoGUI.windows
                     e.Cancel = true;
                 }
             }
-        }
-
-        private bool ConfirmAbortAndClose()
-        {
-            AbortProcessConfirmation abortWindow = new AbortProcessConfirmation();
-            abortWindow.Owner = this;
-            abortWindow.ShowDialog();
-            if (abortWindow.confirm)
-            {
-                // do any clean up logic
-                // save log?
-
-                //UIState state = new UIState();
-                //state = RobotManager.Instance.GetUIState();
-                //state.isDispenseWizardActive = false;
-                //RobotManager.Instance.SetUIState(state);
-
-                return true;
-            }
-            return false;
-        }
-
-        private void logBtn_Click(object sender, RoutedEventArgs e)
-        {
-            TextDataViewer viewer = new TextDataViewer();
-            viewer.Owner = this;
-            viewer.PopulateData(processData.processLog, "Process Log");
-            viewer.ShowDialog();
         }
     }
 }
