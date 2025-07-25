@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DDMAutoGUI.windows"
         mc:Ignorable="d"
-        Title="Controller Connection Manager" Height="519" Width="421" Background="WhiteSmoke" ResizeMode="NoResize" Icon="/images/icons/down-left-and-up-right-to-center-solid.png" WindowStartupLocation="CenterScreen">
+        Title="Controller Connection Manager" Height="519" Width="421" Background="WhiteSmoke" ResizeMode="NoResize" Icon="/resources/icons/lan.ico" WindowStartupLocation="CenterScreen">
 
     <Grid Margin="0,0,0,3">
 

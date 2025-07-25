@@ -69,7 +69,7 @@ namespace DDMAutoGUI.windows
 
             // pull data from settings
 
-            DDMSettingsOneSize motor = new DDMSettingsOneSize();
+            DDMSettingsSingleSize motor = new DDMSettingsSingleSize();
 
             switch (motorSelection)
             {
@@ -125,7 +125,7 @@ namespace DDMAutoGUI.windows
                 // take photo before process
 
                 processData.AddToLog("Taking photo...");
-                processData.AddToLog($"Moving to [{settings.all_sizes.camera.x}, {settings.all_sizes.camera.th}]");
+                processData.AddToLog($"Moving to [{settings.common.camera.x}, {settings.common.camera.th}]");
                 await Task.Delay(1000);
                 processData.AddToLog("Photo saved");
                 processProgressBar.Value = 20;
@@ -170,7 +170,7 @@ namespace DDMAutoGUI.windows
                 // take photo after process
 
                 processData.AddToLog("Taking photo...");
-                processData.AddToLog($"Moving to [{settings.all_sizes.camera.x}, {settings.all_sizes.camera.th}]");
+                processData.AddToLog($"Moving to [{settings.common.camera.x}, {settings.common.camera.th}]");
                 await Task.Delay(1000);
                 processData.AddToLog("Photo saved");
                 processProgressBar.Value = 90;
@@ -179,7 +179,7 @@ namespace DDMAutoGUI.windows
 
 
             processData.AddToLog("Moving back to unload position...");
-            processData.AddToLog($"Moving to [{settings.all_sizes.load.x}, {settings.all_sizes.load.th}]");
+            processData.AddToLog($"Moving to [{settings.common.load.x}, {settings.common.load.th}]");
             processProgressBar.Value = 100;
             await Task.Delay(1000);
 

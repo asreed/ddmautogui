@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-	<ApplicationIcon>images\logos\b.ico</ApplicationIcon>
+	<ApplicationIcon>resources\logos\b.ico</ApplicationIcon>
 	<Platforms>AnyCPU;x86</Platforms>
 
 	<!-- 1.1.0
@@ -83,94 +83,119 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" />
 	
   <ItemGroup>
-    <None Remove="images\dispenseDiagrams\load_position.jpg" />
-    <None Remove="images\dispenseDiagrams\sn_example.jpg" />
-    <None Remove="images\icons\ban-solid.png" />
-    <None Remove="images\icons\cad-disp-valve-2-white.png" />
-    <None Remove="images\icons\cad-disp-valve-2.png" />
-    <None Remove="images\icons\cad-splash-2.PNG" />
-    <None Remove="images\icons\cad-splash-3.png" />
-    <None Remove="images\icons\cad-splash-4.png" />
-    <None Remove="images\icons\cad-splash-5.PNG" />
-    <None Remove="images\icons\camera-solid copy.png" />
-    <None Remove="images\icons\camera-solid.png" />
-    <None Remove="images\icons\circle-info-solid.png" />
-    <None Remove="images\icons\triangle-exclamation-solid.png" />
+    <Compile Remove="process_data\**" />
+    <Compile Remove="resources\icons\small\**" />
+    <Compile Remove="resources\icons\svg\**" />
+    <EmbeddedResource Remove="process_data\**" />
+    <EmbeddedResource Remove="resources\icons\small\**" />
+    <EmbeddedResource Remove="resources\icons\svg\**" />
+    <None Remove="process_data\**" />
+    <None Remove="resources\icons\small\**" />
+    <None Remove="resources\icons\svg\**" />
+    <Page Remove="process_data\**" />
+    <Page Remove="resources\icons\small\**" />
+    <Page Remove="resources\icons\svg\**" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <None Remove="resources\dispenseDiagrams\load_position.jpg" />
+    <None Remove="resources\dispenseDiagrams\sn_example.jpg" />
+    <None Remove="resources\icons\alert-triangle.ico" />
+    <None Remove="resources\icons\book.ico" />
+    <None Remove="resources\icons\cable.ico" />
+    <None Remove="resources\icons\cad-splash-2.PNG" />
+    <None Remove="resources\icons\cad-splash-3.png" />
+    <None Remove="resources\icons\cad-splash-4.png" />
+    <None Remove="resources\icons\cad-splash-5.PNG" />
+    <None Remove="resources\icons\camera-solid copy.png" />
     <None Remove="libraries\ArenaNET_v142.dll" />
     <None Remove="libraries\SaveNET_v142.dll" />
+    <None Remove="resources\icons\camera.ico" />
+    <None Remove="resources\icons\connect.ico" />
+    <None Remove="resources\icons\document.ico" />
+    <None Remove="resources\icons\info-circle-ph.png" />
+    <None Remove="resources\icons\info-circle.ico" />
+    <None Remove="resources\icons\info-circle.png" />
+    <None Remove="resources\icons\info.ico" />
+    <None Remove="resources\icons\lan.ico" />
+    <None Remove="resources\icons\list-2.ico" />
+    <None Remove="resources\icons\list.ico" />
+    <None Remove="resources\icons\plug.ico" />
+    <None Remove="resources\icons\sliders.ico" />
+    <None Remove="resources\icons\svg-cr\alert.png" />
+    <None Remove="resources\icons\svg-cr\camera-big.png" />
+    <None Remove="resources\icons\svg-cr\camera.ico" />
+    <None Remove="resources\icons\svg-cr\camera.png" />
+    <None Remove="resources\icons\svg-cr\connect.ico" />
+    <None Remove="resources\icons\svg-cr\connect.png" />
+    <None Remove="resources\icons\svg-cr\info-circle.ico" />
+    <None Remove="resources\icons\svg-cr\info.png" />
+    <None Remove="resources\icons\svg-cr\list.ico" />
+    <None Remove="resources\icons\svg-cr\list.png" />
+    <None Remove="resources\icons\svg-cr\tools.ico" />
+    <None Remove="resources\icons\svg-cr\tools.png" />
+    <None Remove="resources\icons\tools.ico" />
+    <None Remove="resources\icons\tools.png" />
+    <None Remove="resources\icons\tune.ico" />
+    <None Remove="resources\icons\warning.ico" />
     <None Remove="settings\settings.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="images\icons\arrow-right-solid.png">
+    <Content Include="resources\icons\book.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\icons\cable.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\icons\camera.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\icons\document.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\icons\info.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\icons\lan.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\icons\plug.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\icons\tools.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\icons\tune.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\icons\warning.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\logos\b.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="images\icons\sliders-solid.png">
+    <Content Include="resources\dispenseDiagrams\load_position.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="images\logos\b.ico">
+    <Content Include="resources\dispenseDiagrams\sn_example.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="images\icons\backward-solid.png">
+    <Content Include="resources\logos\brooks-logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="images\icons\ban-solid.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\icons\book-solid.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\dispenseDiagrams\load_position.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\dispenseDiagrams\sn_example.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\logos\brooks-logo.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\icons\cad-disp-valve-2-white.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\icons\cad-disp-valve-2.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\splash\cad-splash-4.png">
+    <Content Include="resources\splash\cad-splash-4.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="settings\settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="images\splash\cad-splash-5.PNG">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\icons\camera-solid.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\icons\circle-info-solid.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\icons\down-left-and-up-right-to-center-solid.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\icons\forward-solid.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\icons\screwdriver-wrench-solid.png">
+    <Content Include="resources\splash\cad-splash-5.PNG">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="images\icons\stop-solid.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\icons\syringe-solid.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="images\icons\triangle-exclamation-solid.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Resource Include="libraries\ArenaNET_v142.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
@@ -180,9 +205,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="windows\dispenseSteps\dispenseStep2.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Update="windows\TextDataViewer.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -200,7 +222,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="process_data\" />
+    <None Update="resources\icons\svg-cr\connect.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 

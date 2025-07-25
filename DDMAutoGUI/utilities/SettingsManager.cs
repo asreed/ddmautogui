@@ -8,20 +8,28 @@ using System.IO;
 
 namespace DDMAutoGUI.utilities
 {
-
-
     public class DDMSettingsLocation
     {
         public float x { get; set; }
         public float th { get; set; }
     }
-    public class DDMSettingsAllSizes
+    public class DDMSettingShotCalibration
+    {
+        public float? time_id { get; set; }
+        public float? time_od { get; set; }
+        public float? pressure_id { get; set; }
+        public float? pressure_od { get; set; }
+        public float? target_vol_id { get; set; }
+        public float? target_vol_od { get; set; }
+    }
+    public class DDMSettingsCommon
     {
         public DDMSettingsLocation? load { get; set; }
         public DDMSettingsLocation? camera { get; set; }
     }
-    public class DDMSettingsOneSize
+    public class DDMSettingsSingleSize
     {
+        public DDMSettingShotCalibration? shot_calibration { get; set; }
         public DDMSettingsLocation? disp_id { get; set; }
         public DDMSettingsLocation? disp_od { get; set; }
         public DDMSettingsLocation? laser_mag { get; set; }
@@ -30,12 +38,12 @@ namespace DDMAutoGUI.utilities
     public class DDMSettings
     {
         public DateTime? last_saved { get; set; }
-        public DDMSettingsAllSizes? all_sizes { get; set; }
-        public DDMSettingsOneSize? ddm_57 { get; set; }
-        public DDMSettingsOneSize? ddm_95 { get; set; }
-        public DDMSettingsOneSize? ddm_116 { get; set; }
-        public DDMSettingsOneSize? ddm_170 { get; set; }
-        public DDMSettingsOneSize? ddm_170_tall { get; set; }
+        public DDMSettingsCommon? common { get; set; }
+        public DDMSettingsSingleSize? ddm_57 { get; set; }
+        public DDMSettingsSingleSize? ddm_95 { get; set; }
+        public DDMSettingsSingleSize? ddm_116 { get; set; }
+        public DDMSettingsSingleSize? ddm_170 { get; set; }
+        public DDMSettingsSingleSize? ddm_170_tall { get; set; }
     }
 
 

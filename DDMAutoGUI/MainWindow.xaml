@@ -9,8 +9,14 @@
         Height="400" 
         Width="600" 
         ResizeMode="CanMinimize" 
-        Icon="/images/logos/b.ico" 
+        Icon="/resources/logos/b.ico" 
         WindowStartupLocation="CenterScreen">
+
+
+    <Window.Resources>
+
+    </Window.Resources>
+
     <Window.Background>
         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
             <LinearGradientBrush.RelativeTransform>
@@ -37,21 +43,24 @@
         </Grid.RowDefinitions>
 
         <Menu VerticalAlignment="Top" Padding="4" Background="WhiteSmoke" Panel.ZIndex="10">
+
             <MenuItem Header="Tools">
+
                 <MenuItem 
-                    Header="Connection" 
+                    Header="Connection"
                     x:Name="dfdfdf"
                     Click="ConnectBtn_Click">
                     <MenuItem.Icon>
-                        <Image Source="/images/icons/down-left-and-up-right-to-center-solid.png" Height="12"/>
+                        <Image Source="/resources/icons/lan.ico" Opacity="0.8"/>
                     </MenuItem.Icon>
                 </MenuItem>
+
                 <MenuItem 
-                    Header="Cell Control" 
+                    Header="Control Panel"
                     x:Name="ahha"
                     Click="DebugBtn_Click">
                     <MenuItem.Icon>
-                        <Image Source="/images/icons/screwdriver-wrench-solid.png" Height="12"/>
+                        <Image Source="/resources/icons/tools.ico" Opacity="0.8"/>
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem 
@@ -59,7 +68,7 @@
                     x:Name="asdf"
                     Click="CameraBtn_Click">
                     <MenuItem.Icon>
-                        <Image Source="/images/icons/camera-solid.png" Height="12"/>
+                        <Image Source="/resources/icons/camera.ico" Opacity="0.8"/>
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem 
@@ -67,14 +76,16 @@
                     x:Name="sdfs"
                     Click="SettingsBtn_Click">
                     <MenuItem.Icon>
-                        <Image Source="/images/icons/sliders-solid.png" Height="12"/>
+                        <Image Source="/resources/icons/tune.ico" Opacity="0.8"/>
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
+            
             <MenuItem Header="About">
+
                 <MenuItem Header="Version Infomation" Click="AboutMenuItem_Click">
                     <MenuItem.Icon>
-                        <Image Source="/images/icons/circle-info-solid.png" Height="12"/>
+                        <Image Source="/resources/icons/info.ico"/>
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
@@ -142,7 +153,8 @@
         <Grid Grid.Row="1" Panel.ZIndex="0">
 
 
-            <Image Source="/images/splash/cad-splash-5.png" Margin="308,-51,0,-36" Stretch="UniformToFill" />
+
+            <Image Source="/resources/splash/cad-splash-5.png" Margin="308,-51,0,-36" Stretch="UniformToFill" />
             <!--<Image Source="/images/logos/brooks-logo.png" Margin="26,55,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="30" Width="131"/>-->
             <!--<Label Content="DDM Automation Cell Manager" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,16,0,0" FontSize="22" Foreground="#FF0072BC"/>-->
             <!--<Label Content="Intended for Gen 1 Phase 1a (ENG TEST ONLY)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,113,0,0" Foreground="#FF0072BC"/>-->
@@ -150,10 +162,10 @@
             <!--<Label x:Name="splashVersionLabel" Content="(version info)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="80,129,0,0" Foreground="#FF0072BC"/>-->
 
             <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="45,106,0,0">
-                <Grid VerticalAlignment="Top" Width="200">
+                <Grid VerticalAlignment="Top" Width="220">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="90"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -162,8 +174,35 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <TextBox Grid.Row="0" Grid.Column="0" x:Name="splashIPTextBox" Text="192.168.0.1" Margin="0,4,4,4" Padding="3"/>
-                    <Button Grid.Row="0" Grid.Column="1" x:Name="splashConnectBtn" Content="Connect" Margin="4,4,0,4" Width="80" Click="splashConnectBtn_Click"/>
-                    <Label Grid.Row="1" Grid.ColumnSpan="2" x:Name="splashErrorLabel" Content="Connection error." Padding="0" FontSize="10" Margin="0,0,0,4" Visibility="Collapsed"/>
+                    <Button Grid.Row="0" Grid.Column="1" x:Name="splashConnectBtn" Content="Connect" Margin="4,4,0,4" Click="splashConnectBtn_Click"/>
+
+                    <Grid
+                        x:Name="splashErrorBox" 
+                        Margin="0,4,0,4"
+                        Grid.Row="1" 
+                        Grid.ColumnSpan="2">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <Image 
+                            Grid.Column="0"
+                            Source="/resources/icons/warning.ico" 
+                            Height="16" 
+                            Margin="0,0,6,0" 
+                            VerticalAlignment="Center"/>
+                        <TextBlock 
+                            Grid.Column="1"
+                            x:Name="splashErrorLabel" 
+                            Text="Connection error. Verify IP is correct and TCS is running." 
+                            TextWrapping="Wrap" 
+                            FontSize="10" 
+                            Margin="0" 
+                            Visibility="Visible" 
+                            VerticalAlignment="Center"/>
+                    </Grid>
 
                     <Button Grid.Row="2" 
                             Grid.ColumnSpan="2" 

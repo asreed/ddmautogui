@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DDMAutoGUI.windows"
         mc:Ignorable="d"
         Closing="Window_Closing"
-        Title="Debug Window" Height="850" Width="750" Background="WhiteSmoke" Icon="/images/icons/screwdriver-wrench-solid.png" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip">
+        Title="Debug Window" Height="850" Width="750" Background="WhiteSmoke" Icon="/resources/icons/tools.png" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip">
 
     <Grid>
         <StackPanel Orientation="Vertical">

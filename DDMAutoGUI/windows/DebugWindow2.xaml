@@ -7,11 +7,11 @@
         mc:Ignorable="d"
         
         Closing="Window_Closing"
-        Title="Controller Tools" 
-        Height="658" 
+        Title="Cell Control Panel" 
+        Height="650" 
         Width="1000" 
         Background="WhiteSmoke" 
-        Icon="/images/icons/screwdriver-wrench-solid.png" 
+        Icon="/resources/icons/tools.ico" 
         WindowStartupLocation="CenterScreen" 
         ResizeMode="CanResizeWithGrip">
 

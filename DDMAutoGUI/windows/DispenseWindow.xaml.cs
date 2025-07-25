@@ -1,5 +1,4 @@
-﻿using DDMAutoGUI.dispenseSteps;
-using DDMAutoGUI.utilities;
+﻿using DDMAutoGUI.utilities;
 using DDMAutoGUI.windows;
 using Microsoft.Win32;
 using System;
@@ -25,9 +24,6 @@ namespace DDMAutoGUI
     public partial class DispenseWindow : Window
     {
 
-        dispenseStep1 s1;
-        dispenseStep2 s2;
-        dispenseStep3 s3;
 
         private int currentStep = 0;
         private bool tabLock = true; // prevent user from clicking tabs directly
@@ -42,12 +38,12 @@ namespace DDMAutoGUI
             InitializeComponent();
 
             // load in steps
-            s1 = new dispenseStep1(this);
-            s2 = new dispenseStep2();
-            s3 = new dispenseStep3();
-            tabContainer1.Children.Add(s1);
-            tabContainer2.Children.Add(s2);
-            tabContainer3.Children.Add(s3);
+            //s1 = new dispenseStep1(this);
+            //s2 = new dispenseStep2();
+            //s3 = new dispenseStep3();
+            //tabContainer1.Children.Add(s1);
+            //tabContainer2.Children.Add(s2);
+            //tabContainer3.Children.Add(s3);
 
 
             //RobotManager.Instance.UpdateUIState += dispenseWindow_OnUpdateUIState;
@@ -71,9 +67,9 @@ namespace DDMAutoGUI
             {
                 case 0:
 
-                    string sn = s1.GetSN();
-                    processData.ringSN = sn;
-                    processData.AddToLog($"Ring SN entered: {sn}");
+                    //string sn = s1.GetSN();
+                    //processData.ringSN = sn;
+                    //processData.AddToLog($"Ring SN entered: {sn}");
 
                     break;
                 case 1:

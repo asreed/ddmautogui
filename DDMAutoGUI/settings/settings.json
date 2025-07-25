@@ -1,6 +1,6 @@
 {
   "last_saved" : "2025-07-23",
-  "all_sizes": {
+  "common": {
     "load": {
       "x": 590.00,
       "t": 0
@@ -11,6 +11,14 @@
     }
   },
   "ddm_57": {
+    "shot_calibration": {
+      "time_id": 5.0,
+      "time_od": 5.0,
+      "pressure_id": 23.1,
+      "pressure_od": 45.3,
+      "target_vol_id": 0.77,
+      "target_vol_od": 0.84
+    },
     "disp_id": {
       "x": 134.00,
       "t": 0
@@ -29,6 +37,14 @@
     }
   },
   "ddm_116": {
+    "shot_calibration": {
+      "time_id": 5.0,
+      "time_od": 5.0,
+      "pressure_id": 23.1,
+      "pressure_od": 45.3,
+      "target_vol_id": 0.77,
+      "target_vol_od": 0.84
+    },
     "disp_id": {
       "x": 134.00,
       "t": 0

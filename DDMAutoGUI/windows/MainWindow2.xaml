@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DDMAutoGUI.windows"
         mc:Ignorable="d"
         Title="MainWindow2" 
-        Icon="/images/logos/b.ico" 
+        Icon="/resources/logos/b.ico" 
         Height="600" 
         Width="1000" 
         Background="WhiteSmoke"
@@ -32,31 +32,31 @@
 
             <MenuItem Header="Tools">
                 <MenuItem Header="Connection">
-                    <MenuItem.Icon>
+                    <!--<MenuItem.Icon>
                         <Image Source="/images/icons/down-left-and-up-right-to-center-solid.png" Height="12"/>
-                    </MenuItem.Icon>
+                    </MenuItem.Icon>-->
                 </MenuItem>
                 <MenuItem Header="Cell Control">
-                    <MenuItem.Icon>
+                    <!--<MenuItem.Icon>
                         <Image Source="/images/icons/screwdriver-wrench-solid.png" Height="12"/>
-                    </MenuItem.Icon>
+                    </MenuItem.Icon>-->
                 </MenuItem>
                 <MenuItem Header="Camera">
-                    <MenuItem.Icon>
+                    <!--<MenuItem.Icon>
                         <Image Source="/images/icons/camera-solid.png" Height="12"/>
-                    </MenuItem.Icon>
+                    </MenuItem.Icon>-->
                 </MenuItem>
                 <MenuItem Header="Cell Settings">
-                    <MenuItem.Icon>
+                    <!--<MenuItem.Icon>
                         <Image Source="/images/icons/sliders-solid.png" Height="12"/>
-                    </MenuItem.Icon>
+                    </MenuItem.Icon>-->
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="About">
                 <MenuItem Header="Version Infomation">
-                    <MenuItem.Icon>
+                    <!--<MenuItem.Icon>
                         <Image Source="/images/icons/circle-info-solid.png" Height="12"/>
-                    </MenuItem.Icon>
+                    </MenuItem.Icon>-->
                 </MenuItem>
             </MenuItem>
 

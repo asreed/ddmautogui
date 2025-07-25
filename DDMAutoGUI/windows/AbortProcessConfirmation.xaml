@@ -17,7 +17,7 @@
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Image Source="/images/icons/triangle-exclamation-solid.png" Width="50" Height="50"/>
+            <Image Source="/resources/icons/alert-triangle.png" Width="50" Height="50"/>
             <!--<Label Content="!" HorizontalAlignment="Center" VerticalAlignment="Center"/>-->
             <TextBlock Grid.Column="1" Text="Are you sure you want to abort the current process? You will need to manually reset the system." TextWrapping="Wrap" VerticalAlignment="Center"/>
         </Grid>

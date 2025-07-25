@@ -54,10 +54,9 @@ namespace DDMAutoGUI
 
             var v = Assembly.GetExecutingAssembly().GetName().Version;
             string formattedVersion = $"{v.Major}.{v.Minor}.{v.Build}";
-
             this.Title += $" {formattedVersion}";
-            //versionLabel.Content = formattedVersion;
-            //splashVersionLabel.Content = formattedVersion;
+
+            splashErrorBox.Visibility = Visibility.Collapsed;
             UpdateButtonLocks();
         }
 
@@ -67,15 +66,17 @@ namespace DDMAutoGUI
         {
             splashConnectBtn.IsEnabled = false;
             splashConnectBtn.Content = "Connecting...";
+            splashErrorBox.Visibility = Visibility.Collapsed;
 
             await RobotManager.Instance.ConnectAsync(splashIPTextBox.Text);
             if (RobotManager.Instance.GetUIState().isConnected)
             {
-                splashErrorLabel.Visibility = Visibility.Collapsed;
+                splashErrorBox.Visibility = Visibility.Collapsed;
             }
             else
             {
-                splashErrorLabel.Visibility = Visibility.Visible;
+                splashErrorBox.Visibility = Visibility.Visible;
+                splashErrorLabel.Text = "Connection failed. Verify IP is correct and TCS is running.";
                 splashConnectBtn.IsEnabled = true;
             }
         }
@@ -159,7 +160,7 @@ namespace DDMAutoGUI
             if (state.isConnected)
             {
                 splashConnectBtn.Content = "Connected";
-                splashErrorLabel.Visibility = Visibility.Collapsed;
+                splashErrorBox.Visibility = Visibility.Collapsed;
                 splashConnectBtn.IsEnabled = false;
                 //debugBtn.IsEnabled = true;
                 //debugMenuItem.IsEnabled = true;
