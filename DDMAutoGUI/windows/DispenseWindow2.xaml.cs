@@ -40,6 +40,7 @@ namespace DDMAutoGUI.windows
             processData.AddToLog("Process window opened");
             processData.UpdateProcessLog += ProcessData_UpdateProcessLog;
 
+            SettingsManager.Instance.LoadSettingsFile();
             settings = new DDMSettings();
             settings = SettingsManager.Instance.GetSettings();
             processData.AddToLog($"Settings loaded (last saved {settings.last_saved})");
@@ -54,9 +55,11 @@ namespace DDMAutoGUI.windows
         {
             // pull data from user config (validate?)
 
-            string sn = snTextBox.Text.Trim();
+            //string sn = snTextBox.Text.Trim();
+            string sn = "no_sn";
             int motorSelection = motorSizeComboBox.SelectedIndex;
 
+            bool doSNPhoto = snPhotoCheckBox.IsChecked ?? false;
             bool doPrePhoto = prePhotoCheckBox.IsChecked ?? false;
             bool doRingMeasure = measureRingCheckBox.IsChecked ?? false;
             bool doMagMeasure = measureMagCheckBox.IsChecked ?? false;
@@ -109,13 +112,24 @@ namespace DDMAutoGUI.windows
             await Task.Delay(500);
             processData.AddToLog("Sensors verified");
 
+            if (doSNPhoto)
+            {
+                // connect to side camera
+
+                processData.AddToLog("Connecting to side camera...");
+                await Task.Delay(500);
+                processData.AddToLog("Camera connected");
+                processProgressBar.Value = 5;
+
+            }
+
             if (doPrePhoto || doPostPhoto)
             {
-                // connect to camera
+                // connect to top camera
 
-                processData.AddToLog("Connecting to cameras...");
-                await Task.Delay(1000);
-                processData.AddToLog("Cameras connected");
+                processData.AddToLog("Connecting to top camera...");
+                await Task.Delay(500);
+                processData.AddToLog("Camera connected");
                 processProgressBar.Value = 10;
 
             }
@@ -125,7 +139,7 @@ namespace DDMAutoGUI.windows
                 // take photo before process
 
                 processData.AddToLog("Taking photo...");
-                processData.AddToLog($"Moving to [{settings.common.camera.x}, {settings.common.camera.th}]");
+                processData.AddToLog($"Moving to [{settings.common.camera_top.x}, {settings.common.camera_top.th}]");
                 await Task.Delay(1000);
                 processData.AddToLog("Photo saved");
                 processProgressBar.Value = 20;
@@ -170,7 +184,7 @@ namespace DDMAutoGUI.windows
                 // take photo after process
 
                 processData.AddToLog("Taking photo...");
-                processData.AddToLog($"Moving to [{settings.common.camera.x}, {settings.common.camera.th}]");
+                processData.AddToLog($"Moving to [{settings.common.camera_top.x}, {settings.common.camera_top.th}]");
                 await Task.Delay(1000);
                 processData.AddToLog("Photo saved");
                 processProgressBar.Value = 90;

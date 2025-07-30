@@ -18,95 +18,62 @@ using System.Web;
 namespace DDMAutoGUI.utilities
 {
 
-    // Manages connection to PCR robot controller running TCS
-    // Also handles events for robot state so GUI can be locked/unlocked accordingly
-
-
-    public class UIState
-    {
-        public bool isConnected = false;
-        public bool isProcessWizardOpen = false;
-        public bool isAutoControllerStateRequesting = false;
-
-        public UIState() { }
-
-        public UIState (UIState state) {
-            isConnected = state.isConnected;
-            isProcessWizardOpen= state.isProcessWizardOpen;
-            isAutoControllerStateRequesting= state.isAutoControllerStateRequesting;
-        }
-
-    }
-
     public class ControllerState
     {
         // general
-
-        public bool parseError = false;
-        public string parseErrorMessage = string.Empty;
-
+        public bool parseError { get; set; }
+        public string parseErrorMessage { get; set; }
 
         // from controller
+        public bool isPowerEnabled { get; set; }
+        public bool isRobotHomed { get; set; }
+        public float posLinear { get; set; }
+        public float posRotary { get; set; }
+        public bool isLinearIn1 { get; set; }
+        public bool isLinearIn2 { get; set; }
+        public bool isLinearIn3 { get; set; }
+        public float pressureCommand1 { get; set; }
+        public float pressureMeasurement1 { get; set; }
+        public float pressureCommand2 { get; set; }
+        public float pressureMeasurement2 { get; set; }
+        public float flowVolume1 { get; set; }
+        public int flowError1 { get; set; }
+        public float flowVolume2 { get; set; }
+        public int flowError2 { get; set; }
 
-        public bool isPowerEnabled = false;
-        public bool isRobotHomed = false;
-
-        public float posLinear = 0;
-        public float posRotary = 0;
-
-        public bool isLinearIn1 = false;
-        public bool isLinearIn2 = false;
-        public bool isLinearIn3 = false;
-
-        public float pressureCommand1 = 0;
-        public float pressureMeasurement1 = 0;
-        public float pressureCommand2 = 0;
-        public float pressureMeasurement2 = 0;
-
-        public float flowVolume1 = 0;
-        public float flowError1 = 0;
-        public float flowVolume2 = 0;
-        public float flowError2 = 0;
-
-        public ControllerState() { }
-
-        public ControllerState(ControllerState state)
+        public void Reset()
         {
-            parseError = state.parseError;
-            parseErrorMessage = state.parseErrorMessage;
-            isPowerEnabled = state.isPowerEnabled;
-            isRobotHomed= state.isRobotHomed;
-            posLinear = state.posLinear;
-            posRotary = state.posRotary;
-            isLinearIn1 = state.isLinearIn1;
-            isLinearIn2 = state.isLinearIn2;
-            isLinearIn3 = state.isLinearIn3;
-            pressureCommand1 = state.pressureCommand1;
-            pressureMeasurement1 = state.pressureMeasurement1;
-            pressureCommand2 = state.pressureCommand2;
-            pressureMeasurement2 = state.pressureMeasurement2;
-            flowVolume1 = state.flowVolume1;
-            flowError1 = state.flowError1;
-            flowVolume2 = state.flowVolume2;
-            flowError2 = state.flowError2;
+            parseError = false;
+            parseErrorMessage = string.Empty;
+            isPowerEnabled = false;
+            isRobotHomed = false;
+            posLinear = 0.0f;
+            posRotary = 0.0f;
+            isLinearIn1 = false;
+            isLinearIn2 = false;
+            isLinearIn3 = false;
+            pressureCommand1 = 0.0f;
+            pressureMeasurement1 = 0.0f;
+            pressureCommand2 = 0.0f;
+            pressureMeasurement2 = 0.0f;
+            flowVolume1 = 0.0f;
+            flowError1 = 0;
+            flowVolume2 = 0.0f;
+            flowError2 = 0;
         }
-
     }
 
 
 
-    public sealed class RobotManager
+    public sealed class ControllerManager
     {
+
         // singleton pattern (maybe not the best idea?)
-        private static readonly Lazy<RobotManager> lazy =
-            new Lazy<RobotManager>(() => new RobotManager());
-        public static RobotManager Instance { get { return lazy.Value; } }
-
-
+        private static readonly Lazy<ControllerManager> lazy = new Lazy<ControllerManager>(() => new ControllerManager());
+        public static ControllerManager Instance { get { return lazy.Value; } }
 
 
         public const string CORRECT_TCS_VERSION = "Tcs_ddm_cell_1_1_4"; // ???? ?????????????
-
 
         private string statusLog = string.Empty;
         private string robotLog = string.Empty;
@@ -123,18 +90,16 @@ namespace DDMAutoGUI.utilities
 
         public event EventHandler ControllerConnected;
         public event EventHandler ControllerDisconnected;
+        public event EventHandler ControllerStateChanged;
+        public event EventHandler StatusLogUpdated;
+        public event EventHandler RobotLogUpdated;
 
-        public event EventHandler UpdateUIState;
-        public event EventHandler UpdateControllerState;
-        public event EventHandler ChangeStatusLog;
-        public event EventHandler ChangeRobotLog;
+        public ControllerState CONTROLLER_STATE { get; private set; }
 
-        private UIState UI_STATE = new UIState();
-        private ControllerState CONTROLLER_STATE = new ControllerState();
-
-        public RobotManager()
+        public ControllerManager()
         {
-            //
+            CONTROLLER_STATE = new ControllerState();
+            CONTROLLER_STATE.Reset();
 
         }
 
@@ -313,7 +278,7 @@ namespace DDMAutoGUI.utilities
         // ==================================================================
         // General TCS messaging (port 10000 and 10100)
 
-        public async Task<bool> ConnectAsync(string ip)
+        private async Task<bool> ConnectAsync(string ip)
         {
             IPEndPoint statusEP = new IPEndPoint(IPAddress.Parse(ip), 10000);
             IPEndPoint robotEP = new IPEndPoint(IPAddress.Parse(ip), 10100);
@@ -344,10 +309,9 @@ namespace DDMAutoGUI.utilities
 
                 UpdateBothLogs("Connection succeeded");
 
-                UIState newState = new UIState(UI_STATE);
-                newState.isConnected = true;
-                SetUIState(newState);
-
+                ControllerConnected?.Invoke(this, EventArgs.Empty);
+                UIManager.Instance.UI_STATE.isConnected = true;
+                UIManager.Instance.TriggerUIStateChanged();
                 return true;
 
             }
@@ -359,15 +323,14 @@ namespace DDMAutoGUI.utilities
                 UpdateBothLogs("Connection failed");
                 UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
 
-                UIState newState = new UIState(UI_STATE);
-                newState.isConnected = false;
-                SetUIState(newState);
-
+                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
+                UIManager.Instance.UI_STATE.isConnected = false;
+                UIManager.Instance.TriggerUIStateChanged();
                 return false;
             }
         }
 
-        public async Task DisconnectAsync()
+        private async Task DisconnectAsync()
         {
             UpdateBothLogs("Disconnecting...");
             try
@@ -388,13 +351,12 @@ namespace DDMAutoGUI.utilities
                 UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
             }
 
-            UIState newState = new UIState(UI_STATE);
-            newState.isConnected = false;
-            SetUIState(newState);
-
+            ControllerDisconnected?.Invoke(this, EventArgs.Empty);
+            UIManager.Instance.UI_STATE.isConnected = false;
+            UIManager.Instance.TriggerUIStateChanged();
         }
 
-        public async Task<string> SendRobotCommandAsync(string command)
+        private async Task<string> SendRobotCommandAsync(string command)
         {
             UpdateRobotLog($">> {command}");
 
@@ -433,16 +395,15 @@ namespace DDMAutoGUI.utilities
                 UpdateRobotLog($"{e.ErrorCode}: {e.Message}");
                 response = new StringBuilder();
 
-                UIState newState = new UIState(UI_STATE);
-                newState.isConnected = false;
-                SetUIState(newState);
+                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
+                UIManager.Instance.UI_STATE.isConnected = false;
+                UIManager.Instance.TriggerUIStateChanged();
 
             }
             return response.ToString().Trim();
         }
 
-
-        public async Task<string> SendStatusCommandAsync(string command)
+        private async Task<string> SendStatusCommandAsync(string command)
         {
             UpdateStatusLog($">> {command}");
 
@@ -463,9 +424,9 @@ namespace DDMAutoGUI.utilities
                 UpdateStatusLog($"{e.ErrorCode}: {e.Message}");
                 response = string.Empty;
 
-                UIState newState = new UIState(UI_STATE);
-                newState.isConnected = false;
-                SetUIState(newState);
+                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
+                UIManager.Instance.UI_STATE.isConnected = false;
+                UIManager.Instance.TriggerUIStateChanged();
             }
             return response;
         }
@@ -490,65 +451,67 @@ namespace DDMAutoGUI.utilities
             return response.Trim();
         }
 
-        private ControllerState ParseControllerStateString(string newStatusString)
+        private void UpdateControllerStateFromString(string newStatusString)
         {
-            ControllerState newStatus = new ControllerState();
             string[] status = newStatusString.Split(" ");
             if (status.Length > 1)
             {
                 try
                 {
-                    newStatus.isPowerEnabled = status[1] != "0";
-                    newStatus.isRobotHomed = status[2] != "0";
+                    CONTROLLER_STATE = new ControllerState
+                    {
+                        isPowerEnabled = status[1] != "0",
+                        isRobotHomed = status[2] != "0",
 
-                    newStatus.posLinear = float.Parse(status[3]);
-                    newStatus.posRotary = float.Parse(status[4]);
+                        posLinear = float.Parse(status[3]),
+                        posRotary = float.Parse(status[4]),
 
-                    newStatus.isLinearIn1 = status[5] != "0";
-                    newStatus.isLinearIn2 = status[6] != "0";
-                    newStatus.isLinearIn3 = status[7] != "0";
+                        isLinearIn1 = status[5] != "0",
+                        isLinearIn2 = status[6] != "0",
+                        isLinearIn3 = status[7] != "0",
 
-                    newStatus.pressureCommand1 = float.Parse(status[8]);
-                    newStatus.pressureMeasurement1 = float.Parse(status[9]);
-                    newStatus.pressureCommand2 = float.Parse(status[10]);
-                    newStatus.pressureMeasurement2 = float.Parse(status[11]);
+                        pressureCommand1 = float.Parse(status[8]),
+                        pressureMeasurement1 = float.Parse(status[9]),
+                        pressureCommand2 = float.Parse(status[10]),
+                        pressureMeasurement2 = float.Parse(status[11]),
 
-                    newStatus.flowVolume1 = float.Parse(status[12]);
-                    newStatus.flowError1 = int.Parse(status[13]);
-                    newStatus.flowVolume2 = float.Parse(status[14]);
-                    newStatus.flowError2 = int.Parse(status[15]);
+                        flowVolume1 = float.Parse(status[12]),
+                        flowError1 = int.Parse(status[13]),
+                        flowVolume2 = float.Parse(status[14]),
+                        flowError2 = int.Parse(status[15]),
 
-                    newStatus.parseError = false;
+                        parseError = false,
+                        parseErrorMessage = "",
+                    };
                 }
                 catch
                 {
-                    // likely version mismatch
-
-                    newStatus.parseError = true;
-                    newStatus.parseErrorMessage = "Could not parse data into structure";
+                    // error. likely version mismatch
+                    CONTROLLER_STATE.Reset();
+                    CONTROLLER_STATE.parseError = true;
+                    CONTROLLER_STATE.parseErrorMessage = "Error while parsing data";
                 }
             }
             else
             {
-                // likely error from controller
-
-                newStatus.parseError = true;
-                newStatus.parseErrorMessage = status[0];
+                // error. likely error from controller
+                CONTROLLER_STATE.Reset();
+                CONTROLLER_STATE.parseError = true;
+                CONTROLLER_STATE.parseErrorMessage = $"Unable to parse: {status[0]}";
             }
-            return newStatus;
-
+            ControllerStateChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void UpdateStatusLog(string logLine)
         {
             statusLog += logLine + "\n";
-            ChangeStatusLog?.Invoke(this, EventArgs.Empty);
+            StatusLogUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         private void UpdateRobotLog(string logLine)
         {
             robotLog += logLine + "\n";
-            ChangeRobotLog?.Invoke(this, EventArgs.Empty);
+            RobotLogUpdated?.Invoke(this, EventArgs.Empty);
 
         }
 
@@ -567,27 +530,26 @@ namespace DDMAutoGUI.utilities
 
         public void StartAutoControllerState()
         {
-            if (UI_STATE.isConnected)
+            if (UIManager.Instance.UI_STATE.isConnected)
             {
-                if (UI_STATE.isAutoControllerStateRequesting == false)
+                if (UIManager.Instance.UI_STATE.isAutoControllerStateRequesting == false)
                 {
                     _timer = new DispatcherTimer();
                     _timer.Interval = TimeSpan.FromSeconds(autoStatusInterval);
                     _timer.Tick += Timer_Tick;
                     _timer.Start();
 
-                    UIState newState = new UIState(UI_STATE);
-                    newState.isAutoControllerStateRequesting = true;
-                    SetUIState(newState);
+                    UIManager.Instance.UI_STATE.isAutoControllerStateRequesting = true;
+                    UIManager.Instance.TriggerUIStateChanged();
                 }
             }
         }
 
         public void StopAutoControllerState()
         {
-            if (UI_STATE.isConnected)
+            if (UIManager.Instance.UI_STATE.isConnected)
             {
-                if (UI_STATE.isAutoControllerStateRequesting == true)
+                if (UIManager.Instance.UI_STATE.isAutoControllerStateRequesting == true)
                 {
                     if (_timer != null)
                     {
@@ -595,9 +557,8 @@ namespace DDMAutoGUI.utilities
                         _timer.Tick -= Timer_Tick;
                         _timer = null;
 
-                        UIState newState = new UIState(UI_STATE);
-                        newState.isAutoControllerStateRequesting = false;
-                        SetUIState(newState);
+                        UIManager.Instance.UI_STATE.isAutoControllerStateRequesting = false;
+                        UIManager.Instance.TriggerUIStateChanged();
                     }
                 }
             }
@@ -605,10 +566,8 @@ namespace DDMAutoGUI.utilities
 
         private async void Timer_Tick(object sender, EventArgs e)
         {
-            string response = await GetControllerStateRemote();
-            ControllerState newState = ParseControllerStateString(response);
-            CONTROLLER_STATE = newState;
-            SetControllerState(newState);
+            string response = await GetSystemStateRemote();
+            UpdateControllerStateFromString(response);
         }
 
 
@@ -621,38 +580,6 @@ namespace DDMAutoGUI.utilities
         // ==================================================================
         // Public state set/get methods
 
-        public UIState GetUIState()
-        {
-            return UI_STATE;
-        }
-
-        public void SetUIState(UIState newState)
-        {
-            UIState prevState = UI_STATE;
-            UI_STATE = new UIState(newState);
-
-            if (prevState.isConnected ^ newState.isConnected)
-            {
-                if (newState.isConnected)
-                {
-                    ControllerConnected?.Invoke(this, EventArgs.Empty);
-                } else
-                {
-                    ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-                }
-            }
-            UpdateUIState?.Invoke(this, EventArgs.Empty);
-        }
-        public ControllerState GetControllerState()
-        {
-            return CONTROLLER_STATE;
-        }
-
-        public void SetControllerState(ControllerState newState)
-        {
-            CONTROLLER_STATE = new ControllerState(newState);
-            UpdateControllerState?.Invoke(this, EventArgs.Empty);
-        }
 
         public string GetStatusLog()
         {
@@ -675,19 +602,18 @@ namespace DDMAutoGUI.utilities
 
 
 
-
         // ==================================================================
         // Public robot routines
 
-        public async Task<string> GetControllerStateRemote()
+        public async Task<string> GetSystemStateRemote()
         {
-            string response = await SendStatusCommandAsync("systemstatus");
+            string response = await SendStatusCommandAsync("DDM_GetSystemState");
             return response;
         }
 
-        public async Task<string> GetControllerSoftwareVersionAsync()
+        public async Task<string> GetTCSVersion()
         {
-            string response = await SendStatusCommandAsync("getversion");
+            string response = await SendStatusCommandAsync("DDM_GetTCSVersion");
             string version = string.Empty;
             if (response.Split(" ").Length > 1)
             {
@@ -696,9 +622,9 @@ namespace DDMAutoGUI.utilities
             return version;
         }
 
-        public async Task<string> GetControllerConfigVersionAsync()
+        public async Task<string> GetPACVersion()
         {
-            string response = await SendStatusCommandAsync("getconfigversion");
+            string response = await SendStatusCommandAsync("DDM_GetPACVersion");
             string[] fullversion = response.Split(" ");
             string version = string.Empty;
             if (fullversion.Length > 1)
@@ -755,6 +681,48 @@ namespace DDMAutoGUI.utilities
         public async Task<string> SpinInPlace(float spinTime, float spinSpeed)
         {
             string input = $"DDM_SpinInPlace {spinTime} {spinSpeed}";
+            string response = await SendRobotCommandAsync(input);
+            return response;
+        }
+
+        public async Task<string> OpenValveTimed(int index, float openTime)
+        {
+            string input = $"DDM_OpenValveTimed {index} {openTime}";
+            string response = await SendRobotCommandAsync(input);
+            return response;
+        }
+
+        public async Task<string> CloseAllValves()
+        {
+            string input = $"DDM_CloseAllValves";
+            string response = await SendRobotCommandAsync(input);
+            return response;
+        }
+
+        public async Task<string> SetRegulatorPressure(int index, float pressure)
+        {
+            string input = $"DDM_SetRegulatorPressure {index} {pressure}";
+            string response = await SendRobotCommandAsync(input);
+            return response;
+        }
+
+        public async Task<string> GetRegulatorPressure(int index)
+        {
+            string input = $"DDM_GetRegulatorPressure {index}";
+            string response = await SendRobotCommandAsync(input);
+            return response;
+        }
+
+        public async Task<string> GetRegulatorPressureSetpoint(int index)
+        {
+            string input = $"DDM_GetRegulatorPressureSetpoint {index}";
+            string response = await SendRobotCommandAsync(input);
+            return response;
+        }
+
+        public async Task<string> MeasureHeights(float xPos, float thStart, int nMeasurements)
+        {
+            string input = $"DDM_MeasureHeights {xPos} {thStart} {nMeasurements}";
             string response = await SendRobotCommandAsync(input);
             return response;
         }

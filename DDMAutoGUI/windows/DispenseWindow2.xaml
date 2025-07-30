@@ -41,7 +41,7 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
-                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="350"/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
@@ -52,30 +52,34 @@
 
                             <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
                                 <GroupBox Header="Motor Size">
-                                    <StackPanel Orientation="Vertical">
-                                        <ComboBox x:Name="motorSizeComboBox">
-                                            
-                                            <!-- Settings selected based on index. Be careful changing these items: -->
-                                            <!-- --><ComboBoxItem Content="DDM 57" IsEnabled="False"/>
-                                            <!-- --><ComboBoxItem Content="DDM 95" IsEnabled="False"/>
-                                            <!-- --><ComboBoxItem Content="DDM 116" IsEnabled="True" IsSelected="True"/>
-                                            <!-- --><ComboBoxItem Content="DDM 170" IsEnabled="False"/>
-                                            <!-- --><ComboBoxItem Content="DDM 170 Tall" IsEnabled="False"/>
-                                            <!-- -->
-                                            
-                                        </ComboBox>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <ComboBox Grid.Column="0" x:Name="motorSizeComboBox" VerticalContentAlignment="Center">
 
-                                        <Label x:Name="locLabel" Content="asdf"/>
-                                    </StackPanel>
+                                            <!-- Settings selected based on index. Be careful changing these items: -->
+                                            <!-- --> <ComboBoxItem Content="DDM 57" IsEnabled="False"/>
+                                            <!-- --> <ComboBoxItem Content="DDM 95" IsEnabled="False"/>
+                                            <!-- --> <ComboBoxItem Content="DDM 116" IsEnabled="True" IsSelected="True"/>
+                                            <!-- --> <ComboBoxItem Content="DDM 170" IsEnabled="False"/>
+                                            <!-- --> <ComboBoxItem Content="DDM 170 Tall" IsEnabled="False"/>
+                                            <!-- -->
+
+                                        </ComboBox>
+                                        <Button Grid.Column="1" Content="View" Margin="8,0,0,0"/>
+                                    </Grid>
                                 </GroupBox>
-                                <GroupBox Header="Motor SN">
+                                <!--<GroupBox Header="Motor SN">
                                     <TextBox x:Name="snTextBox" Padding="6"/>
-                                </GroupBox>
+                                </GroupBox>-->
                                 <GroupBox Header="Options">
                                     <StackPanel Orientation="Vertical">
+                                        <CheckBox IsChecked="True" x:Name="snPhotoCheckBox" Content="Serial number photo"/>
                                         <CheckBox IsChecked="True" x:Name="prePhotoCheckBox" Content="Pre-process photo"/>
-                                        <CheckBox IsChecked="True" x:Name="measureRingCheckBox" Content="Ring measurement"/>
-                                        <CheckBox IsChecked="True" x:Name="measureMagCheckBox" Content="Magnet and concentrator measurement"/>
+                                        <CheckBox IsChecked="True" x:Name="measureRingCheckBox" Content="Ring height measurement"/>
+                                        <CheckBox IsChecked="True" x:Name="measureMagCheckBox" Content="Magnet and concentrator height measurement"/>
                                         <CheckBox IsChecked="True" x:Name="dispenseCheckBox" Content="Dispense cyanoacrylate"/>
                                         <CheckBox IsChecked="True" x:Name="postPhotoCheckBox" Content="Post-process photo"/>
                                     </StackPanel>
@@ -102,7 +106,7 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
-                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="450"/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
@@ -118,13 +122,14 @@
                                    Style="{DynamicResource PrimaryRedButton}" 
                                    Margin="7,4,7,4"/>
                                 <GroupBox Header="Process Log">
+
                                     <TextBox 
                                         x:Name="logTextBox" 
                                         Text="(no data)"
                                         Height="200" 
-                                        Padding="3"
+                                        Padding="6,5"
                                         FontFamily="Consolas" 
-                                        FontSize="11" 
+                                        FontSize="10" 
                                         IsReadOnly="True" 
                                         TextWrapping="Wrap"
                                         VerticalContentAlignment="Top" 

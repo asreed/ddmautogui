@@ -55,10 +55,5 @@ namespace DDMAutoGUI.windows
             CameraManager.Instance.OpenExplorerToImages();
         }
 
-
-
-
-
-
     }
 }

@@ -28,22 +28,49 @@ namespace DDMAutoGUI.windows
         public SettingsWindow()
         {
             InitializeComponent();
+            filePathText.Text = SettingsManager.Instance.GetSettingsFilePath();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void viewRawBtn_Click(object sender, RoutedEventArgs e)
         {
+
+            string rawString = string.Empty;
+            string filePath = SettingsManager.Instance.GetSettingsFilePath();
+            rawString = File.ReadAllText(filePath);
+            if (rawString == string.Empty)
+            {
+                rawString = $"Unable to read from file ({filePath})";
+            }
+
+            TextDataViewer viewer = new TextDataViewer();
+            viewer.PopulateData(rawString, "Raw Settings");
+            viewer.Owner = this;
+            viewer.Show();
+        }
+
+        private void loadParseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Instance.LoadSettingsFile();
             DDMSettings settings = SettingsManager.Instance.GetSettings();
+            string settingsString = string.Empty;
             if (settings != null)
             {
                 var options = new JsonSerializerOptions { WriteIndented = true };
-                string settingsString = JsonSerializer.Serialize(settings, options);
-                output.Text = settingsString;
-
+                settingsString = JsonSerializer.Serialize(settings, options);
             }
             else
             {
-                output.Text = "No settings loaded";
+                settingsString = "No settings parsed from file.";
             }
+            TextDataViewer viewer = new TextDataViewer();
+            viewer.PopulateData(settingsString, "Parsed Settings");
+            viewer.Owner = this;
+            viewer.Show();
+        }
+
+        private void openFolderBtn_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Instance.OpenFolderToSettingsFile();
         }
     }
 }

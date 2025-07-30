@@ -50,7 +50,7 @@ namespace DDMAutoGUI
 
 
             InitializeComponent();
-            RobotManager.Instance.UpdateUIState += mainWindow_OnChangeState;
+            UIManager.Instance.UIStateChanged += mainWindow_OnChangeState;
 
             var v = Assembly.GetExecutingAssembly().GetName().Version;
             string formattedVersion = $"{v.Major}.{v.Minor}.{v.Build}";
@@ -68,8 +68,8 @@ namespace DDMAutoGUI
             splashConnectBtn.Content = "Connecting...";
             splashErrorBox.Visibility = Visibility.Collapsed;
 
-            await RobotManager.Instance.ConnectAsync(splashIPTextBox.Text);
-            if (RobotManager.Instance.GetUIState().isConnected)
+            //await ControllerManager.Instance.ConnectAsync(splashIPTextBox.Text);
+            if (UIManager.Instance.UI_STATE.isConnected)
             {
                 splashErrorBox.Visibility = Visibility.Collapsed;
             }
@@ -86,6 +86,7 @@ namespace DDMAutoGUI
             {
                 connectionWindow = new RobotConnectionWindow();
                 connectionWindow.Closed += (s, e) => connectionWindow = null;
+                connectionWindow.Owner = this;
                 connectionWindow.Show();
             }
             else
@@ -102,6 +103,7 @@ namespace DDMAutoGUI
             //RobotManager.Instance.SetUIState(state);
 
             dispenseWindow2 = new DispenseWindow2();
+            dispenseWindow2.Owner = this;
             dispenseWindow2.Show();
         }
 
@@ -111,7 +113,9 @@ namespace DDMAutoGUI
             {
                 debugWindow = new DebugWindow2();
                 debugWindow.Closed += (s, e) => debugWindow = null;
+                debugWindow.Owner = this;
                 debugWindow.Show();
+
             }
             else
             {
@@ -125,6 +129,7 @@ namespace DDMAutoGUI
             {
                 cameraWindow = new CameraWindow();
                 cameraWindow.Closed += (s, e) => cameraWindow = null;
+                cameraWindow.Owner = this;
                 cameraWindow.Show();
             }
             else
@@ -141,6 +146,7 @@ namespace DDMAutoGUI
             {
                 settingsWindow = new SettingsWindow();
                 settingsWindow.Closed += (s, e) => settingsWindow = null;
+                settingsWindow.Owner = this;
                 settingsWindow.Show();
             }
             else
@@ -156,8 +162,7 @@ namespace DDMAutoGUI
 
         private void UpdateButtonLocks()
         {
-            UIState state = RobotManager.Instance.GetUIState();
-            if (state.isConnected)
+            if (UIManager.Instance.UI_STATE.isConnected)
             {
                 splashConnectBtn.Content = "Connected";
                 splashErrorBox.Visibility = Visibility.Collapsed;

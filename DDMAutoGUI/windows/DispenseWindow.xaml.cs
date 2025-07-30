@@ -141,9 +141,9 @@ namespace DDMAutoGUI
                 // save log?
 
                 UIState state = new UIState();
-                state = RobotManager.Instance.GetUIState();
+                //state = ControllerManager.Instance.GetUIState();
                 //state.isDispenseWizardActive = false;
-                RobotManager.Instance.SetUIState(state);
+                //ControllerManager.Instance.SetUIState(state);
                 return true;
             }
             return false;

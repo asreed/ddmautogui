@@ -27,7 +27,7 @@ namespace DDMAutoGUI.windows
         {
             InitializeComponent();
             stopAutoStatusBtn.IsEnabled = false;
-            RobotManager.Instance.UpdateControllerState += debugWindow_OnUpdateAutoStatus;
+            ControllerManager.Instance.ControllerStateChanged += debugWindow_OnUpdateAutoStatus;
             debugWindow_OnUpdateAutoStatus(this, EventArgs.Empty);
             startAutoStatusBtn_Click(this, null);
             UpdateVersion();
@@ -44,26 +44,26 @@ namespace DDMAutoGUI.windows
             var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             managerVersionLabel.Content = $"Manager UI version: {v.Major}.{v.Minor}.{v.Build}";
 
-            string response = await RobotManager.Instance.GetControllerSoftwareVersionAsync();
+            string response = await ControllerManager.Instance.GetTCSVersion();
             tcsVersionLabel.Content = $"Controller TCS version: {response}";
 
-            response = await RobotManager.Instance.GetControllerConfigVersionAsync();
+            response = await ControllerManager.Instance.GetPACVersion();
             configVersionLabel.Content = $"Controller config version: {response}";
         }
 
         private async void statusBtn_Click(object sender, RoutedEventArgs e)
         {
             LockStatusButtons(true);
-            string response = await RobotManager.Instance.SendStatusCommandAsync("systemstatus");
-            statusOutput.Content = response;
+            //string response = await ControllerManager.Instance.SendStatusCommandAsync("systemstatus");
+            //statusOutput.Content = response;
             LockStatusButtons(false);
         }
 
         private async void closeValvesBtn_Click(object sender, RoutedEventArgs e)
         {
             LockStatusButtons(true);
-            string response = await RobotManager.Instance.SendStatusCommandAsync("closeallvalves");
-            closeValvesOutput.Content = response;
+            //string response = await ControllerManager.Instance.SendStatusCommandAsync("closeallvalves");
+            //closeValvesOutput.Content = response;
             LockStatusButtons(false);
         }
 
@@ -73,13 +73,13 @@ namespace DDMAutoGUI.windows
         {
             startAutoStatusBtn.IsEnabled = false;
             stopAutoStatusBtn.IsEnabled = true;
-            RobotManager.Instance.StartAutoControllerState();
+            ControllerManager.Instance.StartAutoControllerState();
         }
         private void stopAutoStatusBtn_Click(object sender, RoutedEventArgs e)
         {
             startAutoStatusBtn.IsEnabled = true;
             stopAutoStatusBtn.IsEnabled = false;
-            RobotManager.Instance.StopAutoControllerState();
+            ControllerManager.Instance.StopAutoControllerState();
         }
 
 
@@ -111,23 +111,23 @@ namespace DDMAutoGUI.windows
             string response;
             int timeout = 0;
 
-            response = await RobotManager.Instance.SendRobotCommandAsync("hp 1");
-            while (true)
-            {
-                response = await RobotManager.Instance.SendRobotCommandAsync("hp");
-                if (response == "0 1")
-                {
-                    break;
-                }
-                timeout++;
-                if (timeout > 20)
-                {
-                    response = "Timeout";
-                    break;
-                }
-                Thread.Sleep(500);
-            }
-            enableOutput.Content = response;
+            //response = await ControllerManager.Instance.SendRobotCommandAsync("hp 1");
+            //while (true)
+            //{
+            //    response = await ControllerManager.Instance.SendRobotCommandAsync("hp");
+            //    if (response == "0 1")
+            //    {
+            //        break;
+            //    }
+            //    timeout++;
+            //    if (timeout > 20)
+            //    {
+            //        response = "Timeout";
+            //        break;
+            //    }
+            //    Thread.Sleep(500);
+            //}
+            //enableOutput.Content = response;
             LockRobotButtons(false);
         }
 
@@ -135,8 +135,8 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = init1Input.Text;
-            string response = await RobotManager.Instance.SendRobotCommandAsync($"init1 {input}");
-            init1Output.Content = response;
+            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"init1 {input}");
+            //init1Output.Content = response;
             LockRobotButtons(false);
         }
 
@@ -144,16 +144,16 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = init2Input.Text;
-            string response = await RobotManager.Instance.SendRobotCommandAsync($"init2 {input}");
-            init2Output.Content = response;
+            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"init2 {input}");
+            //init2Output.Content = response;
             LockRobotButtons(false);
         }
         private async void initBothBtn_Click(object sender, RoutedEventArgs e)
         {
             LockRobotButtons(true);
             string input = initBothInput.Text;
-            string response = await RobotManager.Instance.SendRobotCommandAsync($"initBoth {input}");
-            initBothOutput.Content = response;
+            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"initBoth {input}");
+            //initBothOutput.Content = response;
             LockRobotButtons(false);
         }
 
@@ -161,8 +161,8 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = dispenseInput.Text;
-            string response = await RobotManager.Instance.SendRobotCommandAsync($"dispense {input}");
-            dispenseOutput.Content = response;
+            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"dispense {input}");
+            //dispenseOutput.Content = response;
             LockRobotButtons(false);
         }
 
@@ -170,8 +170,8 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = spinOnlyInput.Text;
-            string response = await RobotManager.Instance.SendRobotCommandAsync($"spinonly {input}");
-            spinOnlyOutput.Content = response;
+            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"spinonly {input}");
+            //spinOnlyOutput.Content = response;
             LockRobotButtons(false);
         }
 
@@ -179,8 +179,8 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = moveDispInput.Text;
-            string response = await RobotManager.Instance.SendRobotCommandAsync($"moveToDispense {input}");
-            moveDispOutput.Content = response;
+            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"moveToDispense {input}");
+            //moveDispOutput.Content = response;
             LockRobotButtons(false);
         }
 
@@ -188,8 +188,8 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = moveLoadInput.Text;
-            string response = await RobotManager.Instance.SendRobotCommandAsync($"moveToLoad {input}");
-            moveLoadOutput.Content = response;
+            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"moveToLoad {input}");
+            //moveLoadOutput.Content = response;
             LockRobotButtons(false);
         }
 
@@ -197,8 +197,8 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = movePosInput.Text;
-            string response = await RobotManager.Instance.SendRobotCommandAsync($"moveToPosition {input}");
-            movePosOutput.Content = response;
+            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"moveToPosition {input}");
+            //movePosOutput.Content = response;
             LockRobotButtons(false);
         }
 
@@ -206,8 +206,8 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = spinToPosInput.Text;
-            string response = await RobotManager.Instance.SendRobotCommandAsync($"spinToPosition {input}");
-            spinToPosOutput.Content = response;
+            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"spinToPosition {input}");
+            //spinToPosOutput.Content = response;
             LockRobotButtons(false);
         }
 

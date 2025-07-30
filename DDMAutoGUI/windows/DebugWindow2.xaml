@@ -27,36 +27,47 @@
         <Grid Grid.Row="0">
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="200"/>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <GroupBox Grid.Column="0" Header="Connection">
-                <TextBlock
-                    x:Name="connectedBox"
-                    Text="Not connected" 
-                    Foreground="Red"
-                    Width="100"
-                    TextWrapping="Wrap"
-                    TextAlignment="Center"
-                    HorizontalAlignment="Center" 
-                    VerticalAlignment="Center"/>
-            </GroupBox>
+            <StackPanel Grid.Column="0" Orientation="Vertical">
+                
+                <GroupBox Header="Connection">
+                    <TextBlock
+                        x:Name="connectedBox"
+                        Text="Not connected" 
+                        Foreground="Red"
+                        TextWrapping="Wrap"
+                        TextAlignment="Left"
+                        HorizontalAlignment="Left" 
+                        VerticalAlignment="Center"/>
+                </GroupBox>
             
-            <GroupBox Grid.Column="1" Header="Auto Status">
-                <TextBlock
-                    x:Name="statusBox"
-                    Text="No status" 
-                    Foreground="Red"
-                    Width="100"
-                    TextWrapping="Wrap"
-                    TextAlignment="Center"
-                    HorizontalAlignment="Center" 
-                    VerticalAlignment="Center"/>
+                <GroupBox Header="Auto Status">
+                    <TextBlock
+                        x:Name="statusBox"
+                        Text="No status" 
+                        Foreground="Red"
+                        TextWrapping="Wrap"
+                        TextAlignment="Left"
+                        HorizontalAlignment="Left" 
+                        VerticalAlignment="Center"/>
+                </GroupBox>
+            </StackPanel>
+
+            <GroupBox Grid.Column="1" Header="Settings">
+                <ComboBox VerticalContentAlignment="Center">
+                    <ComboBoxItem Content="DDM 57" />
+                    <ComboBoxItem Content="DDM 95" />
+                    <ComboBoxItem Content="DDM 116" />
+                    <ComboBoxItem Content="DDM 170" />
+                    <ComboBoxItem Content="DDM 170 Tall"/>
+                </ComboBox>
             </GroupBox>
-            
+
             <GroupBox Header="Version Information" Grid.Column="2">
                 <Grid>
                     <Grid.RowDefinitions>

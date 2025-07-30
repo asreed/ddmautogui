@@ -6,22 +6,39 @@
         xmlns:local="clr-namespace:DDMAutoGUI.windows"
         mc:Ignorable="d"
         Icon="/resources/icons/tune.ico"
-        Title="Cell Settings" Height="198" Width="314">
+        Title="Cell Settings" Height="250" Width="250">
     <Grid>
-
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <ScrollViewer Margin="6">
-            <TextBlock Grid.Row="0" x:Name="output" Text=""/>
-        </ScrollViewer>
-        <Button Grid.Row="1" Click="Button_Click" Content="JSON"/>
+        <StackPanel Orientation="Vertical">
+
+            <TextBlock Text="File path:" Margin="4"/>
+            <TextBlock 
+                x:Name="filePathText" 
+                Text="(file path)" 
+                Margin="4"
+                TextWrapping="Wrap"/>
+
+            <Button
+                Content="Open folder"
+                Click="openFolderBtn_Click"/>
+
+            <Button 
+                Content="View raw settings file" 
+                Click="viewRawBtn_Click"
+                Padding="4"/>
+            
+            <Button 
+                Content="Load and parse settings file" 
+                Click="loadParseBtn_Click" 
+                Style="{DynamicResource PrimaryBlackButton}" 
+                Padding="4"/>
+
+        </StackPanel>
+
 
     </Grid>
 </Window>

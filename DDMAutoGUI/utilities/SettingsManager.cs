@@ -25,11 +25,12 @@ namespace DDMAutoGUI.utilities
     public class DDMSettingsCommon
     {
         public DDMSettingsLocation? load { get; set; }
-        public DDMSettingsLocation? camera { get; set; }
+        public DDMSettingsLocation? camera_top { get; set; }
     }
     public class DDMSettingsSingleSize
     {
         public DDMSettingShotCalibration? shot_calibration { get; set; }
+        public DDMSettingsLocation? camera_side { get; set; }
         public DDMSettingsLocation? disp_id { get; set; }
         public DDMSettingsLocation? disp_od { get; set; }
         public DDMSettingsLocation? laser_mag { get; set; }
@@ -66,10 +67,10 @@ namespace DDMAutoGUI.utilities
 
         public SettingsManager()
         {
-            LoadSettingsFile(settingsFilePath);
+            
         }
 
-        public void LoadSettingsFile(string path)
+        public void LoadSettingsFile()
         {
             string rawJson = File.ReadAllText(settingsFilePath);
             settings = JsonSerializer.Deserialize<DDMSettings>(rawJson);
@@ -78,6 +79,18 @@ namespace DDMAutoGUI.utilities
         public DDMSettings GetSettings()
         {
             return settings;
+        }
+
+        public string GetSettingsFilePath()
+        {
+            return settingsFilePath;
+        }
+
+        public void OpenFolderToSettingsFile()
+        {
+            string folderPath = Path.GetDirectoryName(settingsFilePath);
+            System.Diagnostics.Process.Start("explorer.exe", folderPath);
+
         }
     }
 }
