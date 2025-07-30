@@ -24,7 +24,7 @@ namespace DDMAutoGUI.windows
     /// <summary>
     /// Interaction logic for DebugWindow2.xaml
     /// </summary>
-    public partial class DebugWindow2 : Window
+    public partial class ControlPanelWindow : Window
     {
 
         public string laserRingData;
@@ -32,7 +32,7 @@ namespace DDMAutoGUI.windows
         public string laserCustomData;
 
 
-        public DebugWindow2()
+        public ControlPanelWindow()
         {
             InitializeComponent();
 

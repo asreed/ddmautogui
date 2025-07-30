@@ -25,8 +25,8 @@ namespace DDMAutoGUI
     public partial class MainWindow : Window
     {
 
-        private static RobotConnectionWindow connectionWindow;
-        private static DebugWindow2 debugWindow;
+        private static ConnectionWindow connectionWindow;
+        private static ControlPanelWindow debugWindow;
         private static DispenseWindow dispenseWindow;
         private static DispenseWindow2 dispenseWindow2;
         private static CameraWindow cameraWindow;
@@ -84,7 +84,7 @@ namespace DDMAutoGUI
         {
             if (connectionWindow == null || !connectionWindow.IsVisible)
             {
-                connectionWindow = new RobotConnectionWindow();
+                connectionWindow = new ConnectionWindow();
                 connectionWindow.Closed += (s, e) => connectionWindow = null;
                 connectionWindow.Owner = this;
                 connectionWindow.Show();
@@ -111,7 +111,7 @@ namespace DDMAutoGUI
         {
             if (debugWindow == null || !debugWindow.IsVisible)
             {
-                debugWindow = new DebugWindow2();
+                debugWindow = new ControlPanelWindow();
                 debugWindow.Closed += (s, e) => debugWindow = null;
                 debugWindow.Owner = this;
                 debugWindow.Show();

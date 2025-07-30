@@ -19,11 +19,11 @@ namespace DDMAutoGUI.windows
     /// <summary>
     /// Interaction logic for RobotConnectionWindow.xaml
     /// </summary>
-    public partial class RobotConnectionWindow : Window
+    public partial class ConnectionWindow : Window
     {
 
 
-        public RobotConnectionWindow()
+        public ConnectionWindow()
         {
             InitializeComponent();
             //RobotManager.Instance.SetMessageLog(statusLogTextBox);

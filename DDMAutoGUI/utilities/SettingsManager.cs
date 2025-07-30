@@ -10,8 +10,8 @@ namespace DDMAutoGUI.utilities
 {
     public class DDMSettingsLocation
     {
-        public float x { get; set; }
-        public float th { get; set; }
+        public float? x { get; set; }
+        public float? th { get; set; }
     }
     public class DDMSettingShotCalibration
     {
