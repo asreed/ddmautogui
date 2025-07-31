@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.IO;
+using System.Diagnostics;
 
 namespace DDMAutoGUI.utilities
 {
@@ -52,33 +53,52 @@ namespace DDMAutoGUI.utilities
 
 
 
-    class SettingsManager
+    public class SettingsManager
     {
 
         private string settingsFilePath = AppDomain.CurrentDomain.BaseDirectory + "settings\\settings.json";
-        private DDMSettings settings;
+
+        public enum DDMSize
+        {
+            none,
+            ddm_57,
+            ddm_95,
+            ddm_116,
+            ddm_170,
+            ddm_170_tall
+        }
+
+        private DDMSize selectedSize;
+        private DDMSettings SETTINGS;
 
 
 
-
-        private static readonly Lazy<SettingsManager> lazy =
-            new Lazy<SettingsManager>(() => new SettingsManager());
-        public static SettingsManager Instance { get { return lazy.Value; } }
 
         public SettingsManager()
         {
-            
+            SETTINGS = new DDMSettings();
+            SETTINGS = ReadSettingsFile();
+            selectedSize = DDMSize.none;
+            Debug.Print("Settings manager initialized");
         }
 
-        public void LoadSettingsFile()
+        public DDMSettings ReadSettingsFile()
         {
             string rawJson = File.ReadAllText(settingsFilePath);
-            settings = JsonSerializer.Deserialize<DDMSettings>(rawJson);
+            try
+            {
+                return JsonSerializer.Deserialize<DDMSettings>(rawJson);
+            }
+            catch (JsonException ex)
+            {
+                Debug.Print("Error deserializing settings file: " + ex.Message);
+                return new DDMSettings();
+            }
         }
 
-        public DDMSettings GetSettings()
+        public DDMSettings GetAllSettings(DDMSize size)
         {
-            return settings;
+            return SETTINGS;
         }
 
         public string GetSettingsFilePath()

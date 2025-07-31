@@ -37,12 +37,12 @@ namespace DDMAutoGUI.windows
             displayLabel.Content = "Acquiring image...";
 
             CameraAcquisitionResult result = new CameraAcquisitionResult();
-            result = await Task.Run(() => CameraManager.Instance.AcquireAndSave(acquiredImageDisplay));
+            result = await Task.Run(() => App.CameraManager.AcquireAndSave(acquiredImageDisplay));
 
             if (result.success)
             {
                 displayLabel.Content = "Image acquired";
-                CameraManager.Instance.DisplayImage(acquiredImageDisplay, result.filePath);
+                App.CameraManager.DisplayImage(acquiredImageDisplay, result.filePath);
 
             } else
             {
@@ -52,7 +52,7 @@ namespace DDMAutoGUI.windows
 
         private void openFolderBtn_Click(object sender, RoutedEventArgs e)
         {
-            CameraManager.Instance.OpenExplorerToImages();
+            App.CameraManager.OpenExplorerToImages();
         }
 
     }

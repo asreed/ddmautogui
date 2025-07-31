@@ -50,7 +50,7 @@ namespace DDMAutoGUI
 
 
             InitializeComponent();
-            UIManager.Instance.UIStateChanged += mainWindow_OnChangeState;
+            App.UIManager.UIStateChanged += mainWindow_OnChangeState;
 
             var v = Assembly.GetExecutingAssembly().GetName().Version;
             string formattedVersion = $"{v.Major}.{v.Minor}.{v.Build}";
@@ -69,7 +69,7 @@ namespace DDMAutoGUI
             splashErrorBox.Visibility = Visibility.Collapsed;
 
             //await ControllerManager.Instance.ConnectAsync(splashIPTextBox.Text);
-            if (UIManager.Instance.UI_STATE.isConnected)
+            if (App.UIManager.UI_STATE.isConnected)
             {
                 splashErrorBox.Visibility = Visibility.Collapsed;
             }
@@ -162,7 +162,7 @@ namespace DDMAutoGUI
 
         private void UpdateButtonLocks()
         {
-            if (UIManager.Instance.UI_STATE.isConnected)
+            if (App.UIManager.UI_STATE.isConnected)
             {
                 splashConnectBtn.Content = "Connected";
                 splashErrorBox.Visibility = Visibility.Collapsed;

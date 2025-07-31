@@ -27,25 +27,25 @@ namespace DDMAutoGUI.windows
         {
             InitializeComponent();
             //RobotManager.Instance.SetMessageLog(statusLogTextBox);
-            UIManager.Instance.UIStateChanged += connectionWindow_OnUpdateUIState;
-            ControllerManager.Instance.StatusLogUpdated += connectionWindow_OnChangeStatusLog;
-            ControllerManager.Instance.RobotLogUpdated += connectionWindow_OnChangeRobotLog;
+            App.UIManager.UIStateChanged += connectionWindow_OnUpdateUIState;
+            App.ControllerManager.StatusLogUpdated += connectionWindow_OnChangeStatusLog;
+            App.ControllerManager.RobotLogUpdated += connectionWindow_OnChangeRobotLog;
 
             connectionWindow_OnUpdateUIState(this, EventArgs.Empty);
             connectionWindow_OnChangeStatusLog(this, EventArgs.Empty);
             connectionWindow_OnChangeRobotLog(this, EventArgs.Empty);
 
-            loadTCSBtn.Content += ControllerManager.Instance.GetCorrectTCSVersion();
+            loadTCSBtn.Content += App.ControllerManager.GetCorrectTCSVersion();
             UpdateButtonLocks();
         }
 
         private async void connectBtn_ClickAsync(object sender, RoutedEventArgs e)
         {
             connectBtn.IsEnabled = false;
-            //await ControllerManager.Instance.ConnectAsync(ipTextBox.Text);
-            //if (ControllerManager.Instance.GetUIState().isConnected)
+            //await App.ControllerManager.ConnectAsync(ipTextBox.Text);
+            //if (App.ControllerManager.GetUIState().isConnected)
             //{
-            //    versionLabel.Content = await ControllerManager.Instance.GetTCSVersion();
+            //    versionLabel.Content = await App.ControllerManager.GetTCSVersion();
             //}
             UpdateButtonLocks();
         }
@@ -54,7 +54,7 @@ namespace DDMAutoGUI.windows
         {
             disconnectBtn.IsEnabled = false;
             statusSendBtn.IsEnabled = false;
-            //await ControllerManager.Instance.DisconnectAsync();
+            //await App.ControllerManager.DisconnectAsync();
             versionLabel.Content = "(no version info)";
             UpdateButtonLocks();
 
@@ -66,7 +66,7 @@ namespace DDMAutoGUI.windows
         {
             loadTCSBtn.IsEnabled = false;
             loadTCSLabel.Content = "Attempting...";
-            string response = await ControllerManager.Instance.AttemptLoadTCS(ipTextBox.Text);
+            string response = await App.ControllerManager.AttemptLoadTCS(ipTextBox.Text);
             loadTCSLabel.Content = response;
             loadTCSBtn.IsEnabled = true;
         }
@@ -74,13 +74,13 @@ namespace DDMAutoGUI.windows
         private async void statusSendBtn_ClickAsync(object sender, RoutedEventArgs e)
         {
             statusSendBtn.IsEnabled = false;
-            //string response = await ControllerManager.Instance.SendStatusCommandAsync(statusMessageTextBox.Text);
+            //string response = await App.ControllerManager.SendStatusCommandAsync(statusMessageTextBox.Text);
             UpdateButtonLocks();
         }
         private async void robotSendBtn_ClickAsync(object sender, RoutedEventArgs e)
         {
             robotSendBtn.IsEnabled = false;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync(robotMessageTextBox.Text);
+            //string response = await App.ControllerManager.SendRobotCommandAsync(robotMessageTextBox.Text);
             UpdateButtonLocks();
         }
 
@@ -117,18 +117,18 @@ namespace DDMAutoGUI.windows
 
         public void connectionWindow_OnChangeStatusLog(object sender, EventArgs e)
         {
-            statusLogTextBox.Text = ControllerManager.Instance.GetStatusLog();
+            statusLogTextBox.Text = App.ControllerManager.GetStatusLog();
             statusLogTextBox.ScrollToEnd();
         }
         public void connectionWindow_OnChangeRobotLog(object sender, EventArgs e)
         {
-            robotLogTextBox.Text = ControllerManager.Instance.GetRobotLog();
+            robotLogTextBox.Text = App.ControllerManager.GetRobotLog();
             robotLogTextBox.ScrollToEnd();
         }
 
         public void UpdateButtonLocks()
         {
-            if (UIManager.Instance.UI_STATE.isConnected)
+            if (App.UIManager.UI_STATE.isConnected)
             {
                 connectBtn.IsEnabled = false;
                 disconnectBtn.IsEnabled = true;

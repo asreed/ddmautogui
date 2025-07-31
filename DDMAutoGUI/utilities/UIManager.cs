@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,11 +19,8 @@ namespace DDMAutoGUI.utilities
 
     }
 
-    public sealed class UIManager
+    public class UIManager
     {
-        // singleton pattern (maybe not the best idea?)
-        private static readonly Lazy<UIManager> lazy = new Lazy<UIManager>(() => new UIManager());
-        public static UIManager Instance { get { return lazy.Value; } }
 
         public event EventHandler UIStateChanged;
         public UIState UI_STATE;
@@ -35,6 +33,8 @@ namespace DDMAutoGUI.utilities
                 isProcessWizardOpen = false,
                 isAutoControllerStateRequesting = false
             };
+
+            Debug.Print("UI manager initialized");
         }
 
         public void TriggerUIStateChanged()

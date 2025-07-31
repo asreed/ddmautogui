@@ -65,13 +65,8 @@ namespace DDMAutoGUI.utilities
 
 
 
-    public sealed class ControllerManager
+    public class ControllerManager
     {
-
-        // singleton pattern (maybe not the best idea?)
-        private static readonly Lazy<ControllerManager> lazy = new Lazy<ControllerManager>(() => new ControllerManager());
-        public static ControllerManager Instance { get { return lazy.Value; } }
-
 
         public const string CORRECT_TCS_VERSION = "Tcs_ddm_cell_1_1_4"; // ???? ?????????????
 
@@ -100,6 +95,8 @@ namespace DDMAutoGUI.utilities
         {
             CONTROLLER_STATE = new ControllerState();
             CONTROLLER_STATE.Reset();
+
+            Debug.Print("Controller manager initialized");
 
         }
 
@@ -310,8 +307,8 @@ namespace DDMAutoGUI.utilities
                 UpdateBothLogs("Connection succeeded");
 
                 ControllerConnected?.Invoke(this, EventArgs.Empty);
-                UIManager.Instance.UI_STATE.isConnected = true;
-                UIManager.Instance.TriggerUIStateChanged();
+                App.UIManager.UI_STATE.isConnected = true;
+                App.UIManager.TriggerUIStateChanged();
                 return true;
 
             }
@@ -324,8 +321,8 @@ namespace DDMAutoGUI.utilities
                 UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
 
                 ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-                UIManager.Instance.UI_STATE.isConnected = false;
-                UIManager.Instance.TriggerUIStateChanged();
+                App.UIManager.UI_STATE.isConnected = false;
+                App.UIManager.TriggerUIStateChanged();
                 return false;
             }
         }
@@ -352,8 +349,8 @@ namespace DDMAutoGUI.utilities
             }
 
             ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-            UIManager.Instance.UI_STATE.isConnected = false;
-            UIManager.Instance.TriggerUIStateChanged();
+            App.UIManager.UI_STATE.isConnected = false;
+            App.UIManager.TriggerUIStateChanged();
         }
 
         private async Task<string> SendRobotCommandAsync(string command)
@@ -396,8 +393,8 @@ namespace DDMAutoGUI.utilities
                 response = new StringBuilder();
 
                 ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-                UIManager.Instance.UI_STATE.isConnected = false;
-                UIManager.Instance.TriggerUIStateChanged();
+                App.UIManager.UI_STATE.isConnected = false;
+                App.UIManager.TriggerUIStateChanged();
 
             }
             return response.ToString().Trim();
@@ -425,8 +422,8 @@ namespace DDMAutoGUI.utilities
                 response = string.Empty;
 
                 ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-                UIManager.Instance.UI_STATE.isConnected = false;
-                UIManager.Instance.TriggerUIStateChanged();
+                App.UIManager.UI_STATE.isConnected = false;
+                App.UIManager.TriggerUIStateChanged();
             }
             return response;
         }
@@ -530,26 +527,26 @@ namespace DDMAutoGUI.utilities
 
         public void StartAutoControllerState()
         {
-            if (UIManager.Instance.UI_STATE.isConnected)
+            if (App.UIManager.UI_STATE.isConnected)
             {
-                if (UIManager.Instance.UI_STATE.isAutoControllerStateRequesting == false)
+                if (App.UIManager.UI_STATE.isAutoControllerStateRequesting == false)
                 {
                     _timer = new DispatcherTimer();
                     _timer.Interval = TimeSpan.FromSeconds(autoStatusInterval);
                     _timer.Tick += Timer_Tick;
                     _timer.Start();
 
-                    UIManager.Instance.UI_STATE.isAutoControllerStateRequesting = true;
-                    UIManager.Instance.TriggerUIStateChanged();
+                    App.UIManager.UI_STATE.isAutoControllerStateRequesting = true;
+                    App.UIManager.TriggerUIStateChanged();
                 }
             }
         }
 
         public void StopAutoControllerState()
         {
-            if (UIManager.Instance.UI_STATE.isConnected)
+            if (App.UIManager.UI_STATE.isConnected)
             {
-                if (UIManager.Instance.UI_STATE.isAutoControllerStateRequesting == true)
+                if (App.UIManager.UI_STATE.isAutoControllerStateRequesting == true)
                 {
                     if (_timer != null)
                     {
@@ -557,8 +554,8 @@ namespace DDMAutoGUI.utilities
                         _timer.Tick -= Timer_Tick;
                         _timer = null;
 
-                        UIManager.Instance.UI_STATE.isAutoControllerStateRequesting = false;
-                        UIManager.Instance.TriggerUIStateChanged();
+                        App.UIManager.UI_STATE.isAutoControllerStateRequesting = false;
+                        App.UIManager.TriggerUIStateChanged();
                     }
                 }
             }

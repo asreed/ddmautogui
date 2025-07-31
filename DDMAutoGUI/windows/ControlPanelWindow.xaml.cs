@@ -36,13 +36,13 @@ namespace DDMAutoGUI.windows
         {
             InitializeComponent();
 
-            UIManager.Instance.UIStateChanged += debugWindow_OnUpdateUIState;
-            ControllerManager.Instance.ControllerStateChanged += debugWindow_OnUpdateAutoControllerState;
+            App.UIManager.UIStateChanged += debugWindow_OnUpdateUIState;
+            App.ControllerManager.ControllerStateChanged += debugWindow_OnUpdateAutoControllerState;
 
             var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             versionManagerLabel.Content = $"{v.Major}.{v.Minor}.{v.Build}";
 
-            if (UIManager.Instance.UI_STATE.isConnected)
+            if (App.UIManager.UI_STATE.isConnected)
             {
                 debugWindow_OnControllerConnected(this, EventArgs.Empty);
                 debugWindow_OnUpdateAutoControllerState(this, EventArgs.Empty);
@@ -57,7 +57,7 @@ namespace DDMAutoGUI.windows
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            ControllerManager.Instance.StopAutoControllerState();
+            App.ControllerManager.StopAutoControllerState();
         }
 
 
@@ -68,8 +68,8 @@ namespace DDMAutoGUI.windows
             connectedBox.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
             connectedBox.Text = "Connected";
 
-            versionTCSLabel.Content = await ControllerManager.Instance.GetTCSVersion();
-            versionConfigLabel.Content = await ControllerManager.Instance.GetPACVersion();
+            versionTCSLabel.Content = await App.ControllerManager.GetTCSVersion();
+            versionConfigLabel.Content = await App.ControllerManager.GetPACVersion();
 
             lockRobotButtons(false);
             lockStatusButtons(false);
@@ -77,7 +77,7 @@ namespace DDMAutoGUI.windows
             eStopBtn.IsEnabled = true;
             eCloseValvesBtn.IsEnabled = true;
 
-            ControllerManager.Instance.StartAutoControllerState();
+            App.ControllerManager.StartAutoControllerState();
         }
 
         private void debugWindow_OnControllerDisconnected(object sender, EventArgs e)
@@ -96,7 +96,7 @@ namespace DDMAutoGUI.windows
             eStopBtn.IsEnabled = false;
             eCloseValvesBtn.IsEnabled = false;
 
-            ControllerManager.Instance.StopAutoControllerState();
+            App.ControllerManager.StopAutoControllerState();
         }
 
         private async void debugWindow_OnUpdateUIState(object sender, EventArgs e)
@@ -110,7 +110,7 @@ namespace DDMAutoGUI.windows
         private void debugWindow_OnUpdateAutoControllerState(object sender, EventArgs e)
         {
 
-            ControllerState contState = ControllerManager.Instance.CONTROLLER_STATE;
+            ControllerState contState = App.ControllerManager.CONTROLLER_STATE;
 
             if (!contState.parseError)
             {
@@ -242,7 +242,7 @@ namespace DDMAutoGUI.windows
         private async void enablePowerBtn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            string response = await ControllerManager.Instance.EnablePower();
+            string response = await App.ControllerManager.EnablePower();
             enablePowerOutput.Content = response;
             lockRobotButtons(false);
         }
@@ -274,7 +274,7 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             //string input = moveLinearLoadInput.Text;
-            string response = await ControllerManager.Instance.MoveOneAxis(1, 100); //
+            string response = await App.ControllerManager.MoveOneAxis(1, 100); //
             moveLinearLoadOutput.Content = response;
             lockRobotButtons(false);
         }
@@ -287,7 +287,7 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             string input = moveLinearCamInput.Text;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"moveToCamera {input}");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"moveToCamera {input}");
             //moveLinearCamOutput.Content = response;
             lockRobotButtons(false);
         }
@@ -296,7 +296,7 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             string input = moveLinearDisp1Input.Text;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"moveToDispense1 {input}");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"moveToDispense1 {input}");
             //moveLinearDisp1Output.Content = response;
             lockRobotButtons(false);
         }
@@ -305,7 +305,7 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             string input = moveLinearDisp2Input.Text;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"moveToDispense2 {input}");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"moveToDispense2 {input}");
             //moveLinearDisp2Output.Content = response;
             lockRobotButtons(false);
         }
@@ -314,7 +314,7 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             string input = spinTimeInput.Text;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"spinonly {input}");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"spinonly {input}");
             //spinTimeOutput.Content = response;
             lockRobotButtons(false);
         }
@@ -323,7 +323,7 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             string input = openValve1Input.Text;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"init1 {input}");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"init1 {input}");
             //openValve1Output.Content = response;
             lockRobotButtons(false);
         }
@@ -332,7 +332,7 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             string input = openValve2Input.Text;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"init2 {input}");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"init2 {input}");
             //openValve2Output.Content = response;
             lockRobotButtons(false);
         }
@@ -340,7 +340,7 @@ namespace DDMAutoGUI.windows
         private async void closeValvesBtn_Click(object sender, RoutedEventArgs e)
         {
             lockStatusButtons(true);
-            //string response = await ControllerManager.Instance.SendStatusCommandAsync("closeallvalves");
+            //string response = await App.ControllerManager.SendStatusCommandAsync("closeallvalves");
             ////closeValvesOutput.Content = response;
             lockStatusButtons(false);
         }
@@ -348,7 +348,7 @@ namespace DDMAutoGUI.windows
         private async void setZeroBothBtn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync("zeroshiftboth");
+            //string response = await App.ControllerManager.SendRobotCommandAsync("zeroshiftboth");
             //setZeroBothOutput.Content = response;
             lockRobotButtons(false);
         }
@@ -356,7 +356,7 @@ namespace DDMAutoGUI.windows
         private async void startMeasure1Btn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync("startmeasureflow1");
+            //string response = await App.ControllerManager.SendRobotCommandAsync("startmeasureflow1");
             //startMeasure1Output.Content = response;
             lockRobotButtons(false);
         }
@@ -364,7 +364,7 @@ namespace DDMAutoGUI.windows
         private async void startMeasure2Btn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync("startmeasureflow2");
+            //string response = await App.ControllerManager.SendRobotCommandAsync("startmeasureflow2");
             //startMeasure2Output.Content = response;
             lockRobotButtons(false);
         }
@@ -372,7 +372,7 @@ namespace DDMAutoGUI.windows
         private async void stopMeasure1Btn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync("stopmeasureflow1");
+            //string response = await App.ControllerManager.SendRobotCommandAsync("stopmeasureflow1");
             //stopMeasure1Output.Content = response;
             lockRobotButtons(false);
         }
@@ -380,7 +380,7 @@ namespace DDMAutoGUI.windows
         private async void stopMeasure2Btn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync("stopmeasureflow2");
+            //string response = await App.ControllerManager.SendRobotCommandAsync("stopmeasureflow2");
             //stopMeasure2Output.Content = response;
             lockRobotButtons(false);
         }
@@ -389,7 +389,7 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             string input = setPressure1Input.Text;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"setpressure1 {input}");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"setpressure1 {input}");
             //setPressure1Output.Content = response;
             lockRobotButtons(false);
         }
@@ -398,7 +398,7 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             string input = setPressure2Input.Text;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"setpressure2 {input}");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"setpressure2 {input}");
             //setPressure2Output.Content = response;
             lockRobotButtons(false);
         }
@@ -407,7 +407,7 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             string input = shot1Input.Text;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"measuredShot1 {input}");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"measuredShot1 {input}");
             //shot1Output.Content = response;
             lockRobotButtons(false);
         }
@@ -416,7 +416,7 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             string input = shot2Input.Text;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"measuredShot2 {input}");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"measuredShot2 {input}");
             //shot2Output.Content = response;
             lockRobotButtons(false);
         }
@@ -424,7 +424,7 @@ namespace DDMAutoGUI.windows
         private async void connectLaserBtn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"connectToLaser");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"connectToLaser");
             //connectLaserOutput.Content = response;
             lockRobotButtons(false);
         }
@@ -432,7 +432,7 @@ namespace DDMAutoGUI.windows
         private async void disconnectLaserBtn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"disconnectFromLaser");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"disconnectFromLaser");
             //disconnectLaserBtn.Content = response;
             lockRobotButtons(false);
         }
@@ -440,7 +440,7 @@ namespace DDMAutoGUI.windows
         private async void getLaserSingleBtn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"getLaserSingleMeasurement");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"getLaserSingleMeasurement");
             //getLaserSingleOutput.Content = response;
             lockRobotButtons(false);
         }
@@ -448,7 +448,7 @@ namespace DDMAutoGUI.windows
         private async void getLaserRingBtn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"getLaserRingMeasurements");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"getLaserRingMeasurements");
             //if (response.Split(" ").Length > 1)
             //{
             //    laserRingData = response.Split(" ")[1].Replace(";", "\n");
@@ -464,7 +464,7 @@ namespace DDMAutoGUI.windows
         private async void getLaserMagBtn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"getLaserMagMeasurements");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"getLaserMagMeasurements");
             //if (response.Split(" ").Length > 1)
             //{
             //    laserMagData = response.Split(" ")[1].Replace(";", "\n");
@@ -481,7 +481,7 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             string input = getLaserCustomInput.Text;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"getLaserCustomMeasurements {input}");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"getLaserCustomMeasurements {input}");
             //if (response.Split(" ").Length > 1)
             //{
             //    laserCustomData = response.Split(" ")[1].Replace(";", "\n");
@@ -522,15 +522,15 @@ namespace DDMAutoGUI.windows
         {
             lockRobotButtons(true);
             string input = dispShotsInput.Text;
-            //string response = await ControllerManager.Instance.SendRobotCommandAsync($"dispenseShotsToRing {input}");
+            //string response = await App.ControllerManager.SendRobotCommandAsync($"dispenseShotsToRing {input}");
             //dispShotsOutput.Content = response;
             lockRobotButtons(false);
         }
 
         private async void eStopBtn_Click(object sender, RoutedEventArgs e)
         {
-            //string response = await ControllerManager.Instance.SendStatusCommandAsync($"halt");
-            //response = await ControllerManager.Instance.SendStatusCommandAsync($"hp 0");
+            //string response = await App.ControllerManager.SendStatusCommandAsync($"halt");
+            //response = await App.ControllerManager.SendStatusCommandAsync($"hp 0");
         }
     }
 }

@@ -28,14 +28,14 @@ namespace DDMAutoGUI.windows
         public SettingsWindow()
         {
             InitializeComponent();
-            filePathText.Text = SettingsManager.Instance.GetSettingsFilePath();
+            filePathText.Text = App.SettingsManager.GetSettingsFilePath();
         }
 
         private void viewRawBtn_Click(object sender, RoutedEventArgs e)
         {
 
             string rawString = string.Empty;
-            string filePath = SettingsManager.Instance.GetSettingsFilePath();
+            string filePath = App.SettingsManager.GetSettingsFilePath();
             rawString = File.ReadAllText(filePath);
             if (rawString == string.Empty)
             {
@@ -50,27 +50,27 @@ namespace DDMAutoGUI.windows
 
         private void loadParseBtn_Click(object sender, RoutedEventArgs e)
         {
-            SettingsManager.Instance.LoadSettingsFile();
-            DDMSettings settings = SettingsManager.Instance.GetSettings();
-            string settingsString = string.Empty;
-            if (settings != null)
-            {
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                settingsString = JsonSerializer.Serialize(settings, options);
-            }
-            else
-            {
-                settingsString = "No settings parsed from file.";
-            }
-            TextDataViewer viewer = new TextDataViewer();
-            viewer.PopulateData(settingsString, "Parsed Settings");
-            viewer.Owner = this;
-            viewer.Show();
+            //SettingsManager.Instance.LoadSettingsFile();
+            //DDMSettings settings = SettingsManager.Instance.GetSettings();
+            //string settingsString = string.Empty;
+            //if (settings != null)
+            //{
+            //    var options = new JsonSerializerOptions { WriteIndented = true };
+            //    settingsString = JsonSerializer.Serialize(settings, options);
+            //}
+            //else
+            //{
+            //    settingsString = "No settings parsed from file.";
+            //}
+            //TextDataViewer viewer = new TextDataViewer();
+            //viewer.PopulateData(settingsString, "Parsed Settings");
+            //viewer.Owner = this;
+            //viewer.Show();
         }
 
         private void openFolderBtn_Click(object sender, RoutedEventArgs e)
         {
-            SettingsManager.Instance.OpenFolderToSettingsFile();
+            App.SettingsManager.OpenFolderToSettingsFile();
         }
     }
 }

@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 namespace DDMAutoGUI.utilities
 {
 
-    class CameraAcquisitionResult
+    public class CameraAcquisitionResult
     {
         public bool success = false;
         public string errorMsg = "";
@@ -22,16 +22,13 @@ namespace DDMAutoGUI.utilities
 
 
 
-    class CameraManager
+    public class CameraManager
     {
-
-        private static readonly Lazy<CameraManager> lazy =
-            new Lazy<CameraManager>(() => new CameraManager());
-        public static CameraManager Instance { get { return lazy.Value; } }
 
         public CameraManager()
         {
             //
+            Debug.Print("Camera manager initialized");
         }
 
 

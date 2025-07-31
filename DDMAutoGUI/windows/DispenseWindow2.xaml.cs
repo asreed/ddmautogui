@@ -40,10 +40,10 @@ namespace DDMAutoGUI.windows
             processData.AddToLog("Process window opened");
             processData.UpdateProcessLog += ProcessData_UpdateProcessLog;
 
-            SettingsManager.Instance.LoadSettingsFile();
-            settings = new DDMSettings();
-            settings = SettingsManager.Instance.GetSettings();
-            processData.AddToLog($"Settings loaded (last saved {settings.last_saved})");
+            App.SettingsManager.ReadSettingsFile();
+
+
+            this.processData.AddToLog($"Settings loaded (last saved {settings.last_saved})");
 
             GoToStep(0);
         }
