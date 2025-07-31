@@ -23,7 +23,7 @@ namespace DDMAutoGUI.utilities
     {
 
         public event EventHandler UIStateChanged;
-        public UIState UI_STATE;
+        public UIState UI_STATE { get; set; } = new UIState();
 
         public UIManager()
         {

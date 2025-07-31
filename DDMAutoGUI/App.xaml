@@ -153,10 +153,10 @@
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="Padding" Value="3"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Margin" Value="3"/>
 
             <Setter Property="Template">
                 
@@ -217,10 +217,10 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryBlueDarkDark}"/>
-            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Padding" Value="3"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Margin" Value="3"/>
             <Setter Property="Template">
 
                 <Setter.Value>
@@ -304,10 +304,10 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryGreenDarkDark}"/>
-            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Padding" Value="3"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Margin" Value="3"/>
             <Setter Property="Template">
 
                 <Setter.Value>
@@ -393,10 +393,10 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryOrangeDarkDark}"/>
-            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Padding" Value="3"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Margin" Value="3"/>
             <Setter Property="Template">
 
                 <Setter.Value>
@@ -481,10 +481,10 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryRedDarkDark}"/>
-            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Padding" Value="3"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Margin" Value="3"/>
             <Setter Property="Template">
 
                 <Setter.Value>
@@ -571,10 +571,10 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Padding" Value="3"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Margin" Value="3"/>
             <Setter Property="Template">
 
                 <Setter.Value>

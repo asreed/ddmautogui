@@ -41,7 +41,7 @@ namespace DDMAutoGUI.utilities
         public float flowVolume2 { get; set; }
         public int flowError2 { get; set; }
 
-        public void Reset()
+        public void Initialize()
         {
             parseError = false;
             parseErrorMessage = string.Empty;
@@ -68,7 +68,7 @@ namespace DDMAutoGUI.utilities
     public class ControllerManager
     {
 
-        public const string CORRECT_TCS_VERSION = "Tcs_ddm_cell_1_1_4"; // ???? ?????????????
+        public string CORRECT_TCS_VERSION = "Tcs_ddm_cell_1_1_4"; // ???? ?????????????
 
         private string statusLog = string.Empty;
         private string robotLog = string.Empty;
@@ -89,13 +89,11 @@ namespace DDMAutoGUI.utilities
         public event EventHandler StatusLogUpdated;
         public event EventHandler RobotLogUpdated;
 
-        public ControllerState CONTROLLER_STATE { get; private set; }
+        public ControllerState CONTROLLER_STATE { get; private set; } = new ControllerState();
 
         public ControllerManager()
         {
-            CONTROLLER_STATE = new ControllerState();
-            CONTROLLER_STATE.Reset();
-
+            CONTROLLER_STATE.Initialize();
             Debug.Print("Controller manager initialized");
 
         }
@@ -484,7 +482,7 @@ namespace DDMAutoGUI.utilities
                 catch
                 {
                     // error. likely version mismatch
-                    CONTROLLER_STATE.Reset();
+                    CONTROLLER_STATE.Initialize();
                     CONTROLLER_STATE.parseError = true;
                     CONTROLLER_STATE.parseErrorMessage = "Error while parsing data";
                 }
@@ -492,7 +490,7 @@ namespace DDMAutoGUI.utilities
             else
             {
                 // error. likely error from controller
-                CONTROLLER_STATE.Reset();
+                CONTROLLER_STATE.Initialize();
                 CONTROLLER_STATE.parseError = true;
                 CONTROLLER_STATE.parseErrorMessage = $"Unable to parse: {status[0]}";
             }

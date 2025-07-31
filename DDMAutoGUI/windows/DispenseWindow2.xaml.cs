@@ -139,7 +139,7 @@ namespace DDMAutoGUI.windows
                 // take photo before process
 
                 processData.AddToLog("Taking photo...");
-                processData.AddToLog($"Moving to [{settings.common.camera_top.x}, {settings.common.camera_top.th}]");
+                processData.AddToLog($"Moving to [{settings.common.camera_top.x}, {settings.common.camera_top.t}]");
                 await Task.Delay(1000);
                 processData.AddToLog("Photo saved");
                 processProgressBar.Value = 20;
@@ -149,7 +149,7 @@ namespace DDMAutoGUI.windows
                 // measure magnet ring displacement
 
                 processData.AddToLog("Measuring ring...");
-                processData.AddToLog($"Moving to [{motor.laser_ring.x}, {motor.laser_ring.th}]");
+                processData.AddToLog($"Moving to [{motor.laser_ring.x}, {motor.laser_ring.t}]");
                 await Task.Delay(1000);
                 processData.AddToLog("Data collected");
                 processProgressBar.Value = 30;
@@ -159,7 +159,7 @@ namespace DDMAutoGUI.windows
                 // measure magnet (and concentrator?) displacement
 
                 processData.AddToLog("Measuring magnets...");
-                processData.AddToLog($"Moving to [{motor.laser_mag.x}, {motor.laser_mag.th}]");
+                processData.AddToLog($"Moving to [{motor.laser_mag.x}, {motor.laser_mag.t}]");
                 await Task.Delay(1000);
                 processData.AddToLog("Data collected");
                 processProgressBar.Value = 40;
@@ -170,7 +170,7 @@ namespace DDMAutoGUI.windows
                 // dispense cyanoacrylate
 
                 processData.AddToLog("Dispensing...");
-                processData.AddToLog($"Using ID [{motor.disp_id.x}, {motor.disp_id.th}] and OD [{motor.disp_od.x}, {motor.disp_od.th}]");
+                processData.AddToLog($"Using ID [{motor.disp_id.x}, {motor.disp_id.t}] and OD [{motor.disp_od.x}, {motor.disp_od.t}]");
                 await Task.Delay(1000);
                 processData.AddToLog("...");
                 await Task.Delay(1000);
@@ -184,7 +184,7 @@ namespace DDMAutoGUI.windows
                 // take photo after process
 
                 processData.AddToLog("Taking photo...");
-                processData.AddToLog($"Moving to [{settings.common.camera_top.x}, {settings.common.camera_top.th}]");
+                processData.AddToLog($"Moving to [{settings.common.camera_top.x}, {settings.common.camera_top.t}]");
                 await Task.Delay(1000);
                 processData.AddToLog("Photo saved");
                 processProgressBar.Value = 90;
@@ -193,7 +193,7 @@ namespace DDMAutoGUI.windows
 
 
             processData.AddToLog("Moving back to unload position...");
-            processData.AddToLog($"Moving to [{settings.common.load.x}, {settings.common.load.th}]");
+            processData.AddToLog($"Moving to [{settings.common.load.x}, {settings.common.load.t}]");
             processProgressBar.Value = 100;
             await Task.Delay(1000);
 

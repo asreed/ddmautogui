@@ -1,6 +1,8 @@
 {
   "last_saved" : "2025-07-23",
   "common": {
+    "linear_axis_num": 1,
+    "rotary_axis_num": 2,
     "load": {
       "x": 590.00,
       "t": 0
@@ -21,7 +23,7 @@
     },
     "camera_side": {
       "x": 280,
-      "t": 0
+      "t": 45
     },
     "disp_id": {
       "x": 134.00,
@@ -50,15 +52,15 @@
       "target_vol_od": 0.84
     },
     "camera_side": {
-      "x": 280,
-      "t": 0
+      "x": 302,
+      "t": 45
     },
     "disp_id": {
-      "x": 134.00,
+      "x": 135.00,
       "t": 0
     },
     "disp_od": {
-      "x": 67.23,
+      "x": 87.23,
       "t": 0
     },
     "laser_mag": {

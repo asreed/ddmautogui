@@ -53,6 +53,47 @@ namespace DDMAutoGUI.windows
                 debugWindow_OnUpdateAutoControllerState(this, EventArgs.Empty);
             }
 
+            motorSizeSelect.SelectedIndex = SizeIdxFromEnum(App.SettingsManager.selectedSize);
+            DisplaySettingsToPanel();
+
+        }
+ 
+        private int SizeIdxFromEnum(SettingsManager.DDMSize size)
+        {
+            switch (size)
+            {
+                case SettingsManager.DDMSize.ddm_57:
+                    return 0;
+                case SettingsManager.DDMSize.ddm_95:
+                    return 1;
+                case SettingsManager.DDMSize.ddm_116:
+                    return 2;
+                case SettingsManager.DDMSize.ddm_170:
+                    return 3;
+                case SettingsManager.DDMSize.ddm_170_tall:
+                    return 4;
+                default:
+                    return -1;
+            }
+        }
+
+        private SettingsManager.DDMSize SizeEnumFromIdx(int idx)
+        {
+            switch (idx)
+            {
+                case 0:
+                    return SettingsManager.DDMSize.ddm_57;
+                case 1:
+                    return SettingsManager.DDMSize.ddm_95;
+                case 2:
+                    return SettingsManager.DDMSize.ddm_116;
+                case 3:
+                    return SettingsManager.DDMSize.ddm_170;
+                case 4:
+                    return SettingsManager.DDMSize.ddm_170_tall;
+                default:
+                    return SettingsManager.DDMSize.none;
+            }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -198,11 +239,14 @@ namespace DDMAutoGUI.windows
         {
             enablePowerBtn.IsEnabled = !state;
             homeBtn.IsEnabled = !state;
-            moveLinearLoadBtn.IsEnabled = !state;
-            moveLinearCamBtn.IsEnabled = !state;
-            moveLinearDisp1Btn.IsEnabled = !state;
-            moveLinearDisp2Btn.IsEnabled = !state;
-            spinTimeBtn.IsEnabled = !state;
+            moveLoadBtn.IsEnabled = !state;
+            moveCamTopBtn.IsEnabled = !state;
+            moveCamSideBtn.IsEnabled = !state;
+            moveLaserRingBtn.IsEnabled = !state;
+            moveLaserMagBtn.IsEnabled = !state;
+            moveDispIDBtn.IsEnabled = !state;
+            moveDispODBtn.IsEnabled = !state;
+            moveSpinBtn.IsEnabled = !state;
 
             connectLaserBtn.IsEnabled = !state;
             disconnectLaserBtn.IsEnabled= !state;
@@ -226,6 +270,24 @@ namespace DDMAutoGUI.windows
             dispShotsBtn.IsEnabled = !state;
         }
 
+        private void DisplaySettingsToPanel()
+        {
+            DDMSettings s = App.SettingsManager.SETTINGS;
+            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+
+            if (m != null)
+            {
+                moveLoadInput.Content = $"[{s.common.load.x}, {s.common.load.t}]";
+                moveCamTopInput.Content = $"[{s.common.camera_top.x}, {s.common.camera_top.t}]";
+                moveCamSideInput.Content = $"[{m.camera_side.x}, {m.camera_side.t}]";
+                moveLaserRingInput.Content = $"[{m.laser_ring.x}, {m.laser_ring.t}]";
+                moveLaserMagInput.Content = $"[{m.laser_mag.x}, {m.laser_mag.t}]";
+                moveDispIDInput.Content = $"[{m.disp_id.x}, {m.disp_id.t}]";
+                moveDispODInput.Content = $"[{m.disp_od.x}, {m.disp_od.t}]";
+            }
+
+        }
+
         private void lockStatusButtons(bool state)
         {
             //
@@ -235,6 +297,17 @@ namespace DDMAutoGUI.windows
 
 
 
+
+
+
+
+
+
+        private void motorSizeSelect_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            App.SettingsManager.selectedSize = SizeEnumFromIdx(motorSizeSelect.SelectedIndex);
+            DisplaySettingsToPanel();
+        }
 
 
         // =========== BUTTON HANDLERS
@@ -252,70 +325,114 @@ namespace DDMAutoGUI.windows
             homeOutput.Content = "(not implemented)";
         }
 
-        //private async void moveLinearBtn_Click(object sender, RoutedEventArgs e)
-        //{
-        //    lockRobotButtons(true);
-        //    string input = moveLinearInput.Text;
-        //    string response = await RobotManager.Instance.SendRobotCommandAsync($"moveToPosition {input}");
-        //    moveLinearOutput.Content = response;
-        //    lockRobotButtons(false);
-        //}
 
-        //private async void moveRotaryBtn_Click(object sender, RoutedEventArgs e)
-        //{
-        //    lockRobotButtons(true);
-        //    string input = moveRotaryInput.Text;
-        //    string response = await RobotManager.Instance.SendRobotCommandAsync($"spinToPosition {input}");
-        //    moveRotaryOutput.Content = response;
-        //    lockRobotButtons(false);
-        //}
-
-        private async void moveLinearLoadBtn_Click(object sender, RoutedEventArgs e)
+        private async void moveLoadBtn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            //string input = moveLinearLoadInput.Text;
-            string response = await App.ControllerManager.MoveOneAxis(1, 100); //
-            moveLinearLoadOutput.Content = response;
+
+            DDMSettings s = App.SettingsManager.SETTINGS;
+            float x = s.common.load.x.Value;
+            float th = s.common.load.t.Value;
+
+            string response = await App.ControllerManager.MoveJ(x, th);
+            moveLoadOutput.Content = response;
+
             lockRobotButtons(false);
         }
 
 
-
-        
-
-        private async void moveLinearCamBtn_Click(object sender, RoutedEventArgs e)
+        private async void moveCamTopBtn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            string input = moveLinearCamInput.Text;
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"moveToCamera {input}");
-            //moveLinearCamOutput.Content = response;
+
+            DDMSettings s = App.SettingsManager.SETTINGS;
+            float x = s.common.camera_top.x.Value;
+            float th = s.common.camera_top.t.Value;
+
+            string response = await App.ControllerManager.MoveJ(x, th);
+            moveCamTopOutput.Content = response;
+
             lockRobotButtons(false);
         }
 
-        private async void moveLinearDisp1Btn_Click(object sender, RoutedEventArgs e)
+        private async void moveCamSideBtn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            string input = moveLinearDisp1Input.Text;
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"moveToDispense1 {input}");
-            //moveLinearDisp1Output.Content = response;
+
+            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            float x = m.camera_side.x.Value;
+            float th = m.camera_side.t.Value;
+
+            string response = await App.ControllerManager.MoveJ(x, th);
+            moveCamSideOutput.Content = response;
+
             lockRobotButtons(false);
         }
 
-        private async void moveLinearDisp2Btn_Click(object sender, RoutedEventArgs e)
+        private async void moveLaserRingBtn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            string input = moveLinearDisp2Input.Text;
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"moveToDispense2 {input}");
-            //moveLinearDisp2Output.Content = response;
+
+            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            float x = m.laser_ring.x.Value;
+            float th = m.laser_ring.t.Value;
+
+            string response = await App.ControllerManager.MoveJ(x, th);
+            moveLaserRingOutput.Content = response;
+
+            lockRobotButtons(false);
+        }
+        private async void moveLaserMagBtn_Click(object sender, RoutedEventArgs e)
+        {
+            lockRobotButtons(true);
+
+            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            float x = m.laser_mag.x.Value;
+            float th = m.laser_mag.t.Value;
+
+            string response = await App.ControllerManager.MoveJ(x, th);
+            moveLaserMagOutput.Content = response;
+
+            lockRobotButtons(false);
+        }
+        private async void moveDispIDBtn_Click(object sender, RoutedEventArgs e)
+        {
+            lockRobotButtons(true);
+
+            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            float x = m.disp_id.x.Value;
+            float th = m.disp_id.t.Value;
+
+            string response = await App.ControllerManager.MoveJ(x, th);
+            moveDispIDOutput.Content = response;
+
+            lockRobotButtons(false);
+        }
+        private async void moveDispODBtn_Click(object sender, RoutedEventArgs e)
+        {
+            lockRobotButtons(true);
+
+            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            float x = m.disp_od.x.Value;
+            float th = m.disp_od.t.Value;
+
+            string response = await App.ControllerManager.MoveJ(x, th);
+            moveDispODOutput.Content = response;
+
             lockRobotButtons(false);
         }
 
-        private async void spinTimeBtn_Click(object sender, RoutedEventArgs e)
+        private async void moveSpinBtn_Click(object sender, RoutedEventArgs e)
         {
             lockRobotButtons(true);
-            string input = spinTimeInput.Text;
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"spinonly {input}");
-            //spinTimeOutput.Content = response;
+
+            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            float time = 4;
+            float speed = 150;
+
+            string response = await App.ControllerManager.SpinInPlace(time, speed);
+            moveDispIDOutput.Content = response;
+
             lockRobotButtons(false);
         }
 

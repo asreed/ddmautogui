@@ -59,12 +59,12 @@
             </StackPanel>
 
             <GroupBox Grid.Column="1" Header="Settings" >
-                <ComboBox VerticalContentAlignment="Center" VerticalAlignment="Top">
+                <ComboBox x:Name="motorSizeSelect" VerticalContentAlignment="Center" VerticalAlignment="Top" SelectionChanged="motorSizeSelect_SelectionChanged">
                     <ComboBoxItem Content="DDM 57" />
                     <ComboBoxItem Content="DDM 95" />
-                    <ComboBoxItem Content="DDM 116" IsSelected="True"/>
+                    <ComboBoxItem Content="DDM 116" />
                     <ComboBoxItem Content="DDM 170" />
-                    <ComboBoxItem Content="DDM 170 Tall"/>
+                    <ComboBoxItem Content="DDM 170 Tall" />
                 </ComboBox>
             </GroupBox>
 
@@ -129,12 +129,11 @@
                                             <RowDefinition/>
                                         </Grid.RowDefinitions>
 
-                                        <Button  Grid.Row="0" Grid.Column="1" x:Name="enablePowerBtn" Content="Enable power" Style="{DynamicResource PrimaryGreenButton}" Padding="0,3,0,3" Click="enablePowerBtn_Click"/>
-                                        <Label   Grid.Row="0" Grid.Column="2" x:Name="enablePowerOutput" Content="-" Padding="3" Margin="4" VerticalContentAlignment="Center"/>
+                                        <Button Grid.Row="0" Grid.Column="1" x:Name="enablePowerBtn" Content="Enable power" Click="enablePowerBtn_Click" Style="{DynamicResource PrimaryGreenButton}" />
+                                        <Label Grid.Row="0" Grid.Column="2" x:Name="enablePowerOutput" Content="-" Padding="3" Margin="4" VerticalContentAlignment="Center"/>
 
-                                        <Button  Grid.Row="1" Grid.Column="1" x:Name="homeBtn" Content="Home" Style="{DynamicResource PrimaryGreenButton}" Padding="0,3,0,3" Click="homeBtn_Click"/>
-                                        <Label   Grid.Row="1" Grid.Column="2" x:Name="homeOutput" Content="-" Padding="3" Margin="4" VerticalContentAlignment="Center"/>
-
+                                        <Button Grid.Row="1" Grid.Column="1" x:Name="homeBtn" Content="Home" Click="homeBtn_Click" Style="{DynamicResource PrimaryGreenButton}" />
+                                        <Label Grid.Row="1" Grid.Column="2" x:Name="homeOutput" Content="-" Padding="3" Margin="4" VerticalContentAlignment="Center"/>
 
                                     </Grid>
                                 </GroupBox>
@@ -159,25 +158,37 @@
                                             <RowDefinition/>
                                         </Grid.RowDefinitions>
 
-                                        <TextBox Grid.Row="3" Grid.Column="0" x:Name="moveLinearLoadInput" Text="20" Padding="3" Margin="4"/>
-                                        <Button  Grid.Row="3" Grid.Column="1" x:Name="moveLinearLoadBtn" Content="Move rail to load" Style="{DynamicResource PrimaryGreenButton}" Padding="0,3,0,3" Click="moveLinearLoadBtn_Click"/>
-                                        <Label   Grid.Row="3" Grid.Column="2" x:Name="moveLinearLoadOutput" Content="-" VerticalContentAlignment="Center"/>
-                                        
-                                        <TextBox Grid.Row="4" Grid.Column="0" x:Name="moveLinearCamInput" Text="20" Padding="3" Margin="4"/>
-                                        <Button  Grid.Row="4" Grid.Column="1" x:Name="moveLinearCamBtn" Content="Move rail to camera" Style="{DynamicResource PrimaryGreenButton}" Padding="0,3,0,3" Click="moveLinearCamBtn_Click"/>
-                                        <Label   Grid.Row="4" Grid.Column="2" x:Name="moveLinearCamOutput" Content="-"  VerticalContentAlignment="Center"/>
+                                        <Label Grid.Row="0" Grid.Column="0" x:Name="moveLoadInput" Content="-" Padding="3" Margin="4"/>
+                                        <Button Grid.Row="0" Grid.Column="1" x:Name="moveLoadBtn" Content="Move, load" Click="moveLoadBtn_Click" Style="{DynamicResource PrimaryGreenButton}" />
+                                        <Label Grid.Row="0" Grid.Column="2" x:Name="moveLoadOutput" Content="-" VerticalContentAlignment="Center"/>
 
-                                        <TextBox Grid.Row="5" Grid.Column="0" x:Name="moveLinearDisp1Input" Text="20" Padding="3" Margin="4"/>
-                                        <Button  Grid.Row="5" Grid.Column="1" x:Name="moveLinearDisp1Btn" Content="Move rail to dispense ID" Style="{DynamicResource PrimaryGreenButton}" Padding="0,3,0,3" Click="moveLinearDisp1Btn_Click"/>
-                                        <Label   Grid.Row="5" Grid.Column="2" x:Name="moveLinearDisp1Output" Content="-"  VerticalContentAlignment="Center"/>
+                                        <Label Grid.Row="1" Grid.Column="0" x:Name="moveCamTopInput" Content="-" Padding="3" Margin="4"/>
+                                        <Button Grid.Row="1" Grid.Column="1" x:Name="moveCamTopBtn" Content="Move, camera top" Click="moveCamTopBtn_Click" Style="{DynamicResource PrimaryGreenButton}" />
+                                        <Label Grid.Row="1" Grid.Column="2" x:Name="moveCamTopOutput" Content="-" VerticalContentAlignment="Center"/>
 
-                                        <TextBox Grid.Row="6" Grid.Column="0" x:Name="moveLinearDisp2Input" Text="20" Padding="3" Margin="4"/>
-                                        <Button  Grid.Row="6" Grid.Column="1" x:Name="moveLinearDisp2Btn" Content="Move rail to dispense OD" Style="{DynamicResource PrimaryGreenButton}" Padding="0,3,0,3" Click="moveLinearDisp2Btn_Click"/>
-                                        <Label   Grid.Row="6" Grid.Column="2" x:Name="moveLinearDisp2Output" Content="-"  VerticalContentAlignment="Center"/>
+                                        <Label Grid.Row="2" Grid.Column="0" x:Name="moveCamSideInput" Content="-" Padding="3" Margin="4"/>
+                                        <Button Grid.Row="2" Grid.Column="1" x:Name="moveCamSideBtn" Content="Move, camera side" Click="moveCamSideBtn_Click" Style="{DynamicResource PrimaryGreenButton}" />
+                                        <Label Grid.Row="2" Grid.Column="2" x:Name="moveCamSideOutput" Content="-" VerticalContentAlignment="Center"/>
 
-                                        <TextBox Grid.Row="7" Grid.Column="0" x:Name="spinTimeInput" Text="4.0 100" Padding="3" Margin="4"/>
-                                        <Button  Grid.Row="7" Grid.Column="1" x:Name="spinTimeBtn" Content="Spin by time" Style="{DynamicResource PrimaryGreenButton}" Padding="0,3,0,3" Click="spinTimeBtn_Click"/>
-                                        <Label   Grid.Row="7" Grid.Column="2" x:Name="spinTimeOutput" Content="-" VerticalContentAlignment="Center"/>
+                                        <Label Grid.Row="3" Grid.Column="0" x:Name="moveLaserRingInput" Content="-" Padding="3" Margin="4"/>
+                                        <Button Grid.Row="3" Grid.Column="1" x:Name="moveLaserRingBtn" Content="Move, laser ring" Click="moveLaserRingBtn_Click" Style="{DynamicResource PrimaryGreenButton}" />
+                                        <Label Grid.Row="3" Grid.Column="2" x:Name="moveLaserRingOutput" Content="-" VerticalContentAlignment="Center"/>
+
+                                        <Label Grid.Row="4" Grid.Column="0" x:Name="moveLaserMagInput" Content="-" Padding="3" Margin="4"/>
+                                        <Button Grid.Row="4" Grid.Column="1" x:Name="moveLaserMagBtn" Content="Move, laser mag/conc" Click="moveLaserMagBtn_Click" Style="{DynamicResource PrimaryGreenButton}" />
+                                        <Label Grid.Row="4" Grid.Column="2" x:Name="moveLaserMagOutput" Content="-" VerticalContentAlignment="Center"/>
+
+                                        <Label Grid.Row="5" Grid.Column="0" x:Name="moveDispIDInput" Content="-" Padding="3" Margin="4"/>
+                                        <Button Grid.Row="5" Grid.Column="1" x:Name="moveDispIDBtn" Content="Move, dispense ID" Click="moveDispIDBtn_Click" Style="{DynamicResource PrimaryGreenButton}" />
+                                        <Label Grid.Row="5" Grid.Column="2" x:Name="moveDispIDOutput" Content="-" VerticalContentAlignment="Center"/>
+
+                                        <Label Grid.Row="6" Grid.Column="0" x:Name="moveDispODInput" Content="-" Padding="3" Margin="4"/>
+                                        <Button Grid.Row="6" Grid.Column="1" x:Name="moveDispODBtn" Content="Move, dispense OD" Click="moveDispODBtn_Click" Style="{DynamicResource PrimaryGreenButton}" />
+                                        <Label Grid.Row="6" Grid.Column="2" x:Name="moveDispODOutput" Content="-" VerticalContentAlignment="Center"/>
+
+                                        <Label Grid.Row="7" Grid.Column="0" x:Name="moveSpinInput" Content="-" Padding="3" Margin="4"/>
+                                        <Button Grid.Row="7" Grid.Column="1" x:Name="moveSpinBtn" Content="Move, spin in place" Click="moveSpinBtn_Click" Style="{DynamicResource PrimaryGreenButton}" />
+                                        <Label Grid.Row="7" Grid.Column="2" x:Name="moveSpinOutput" Content="-" VerticalContentAlignment="Center"/>
                                         
                                     </Grid>
                                 </GroupBox>
