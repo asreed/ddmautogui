@@ -52,9 +52,7 @@ namespace DDMAutoGUI
             InitializeComponent();
             App.UIManager.UIStateChanged += mainWindow_OnChangeState;
 
-            var v = Assembly.GetExecutingAssembly().GetName().Version;
-            string formattedVersion = $"{v.Major}.{v.Minor}.{v.Build}";
-            this.Title += $" {formattedVersion}";
+            this.Title += App.UIManager.GetAppVersionString();
 
             splashErrorBox.Visibility = Visibility.Collapsed;
             UpdateButtonLocks();

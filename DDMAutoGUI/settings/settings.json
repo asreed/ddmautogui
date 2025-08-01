@@ -1,5 +1,5 @@
 {
-  "last_saved" : "2025-07-23",
+  "last_saved" : "2025-07-31",
   "common": {
     "linear_axis_num": 1,
     "rotary_axis_num": 2,
@@ -16,10 +16,14 @@
     "shot_calibration": {
       "time_id": 5.0,
       "time_od": 5.0,
+      "valve_num_id": 1,
+      "valve_num_od": 2,
       "pressure_id": 23.1,
       "pressure_od": 45.3,
       "target_vol_id": 0.77,
-      "target_vol_od": 0.84
+      "target_vol_od": 0.84,
+      "spin_time": 4.0,
+      "spin_speed": 150.0
     },
     "camera_side": {
       "x": 280,
@@ -46,10 +50,14 @@
     "shot_calibration": {
       "time_id": 5.0,
       "time_od": 5.0,
+      "valve_num_id": 1,
+      "valve_num_od": 2,
       "pressure_id": 23.1,
       "pressure_od": 45.3,
       "target_vol_id": 0.77,
-      "target_vol_od": 0.84
+      "target_vol_od": 0.84,
+      "spin_time": 4.0,
+      "spin_speed": 150.0
     },
     "camera_side": {
       "x": 302,

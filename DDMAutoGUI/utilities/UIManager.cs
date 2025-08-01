@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,6 +41,12 @@ namespace DDMAutoGUI.utilities
         public void TriggerUIStateChanged()
         {
             UIStateChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public string GetAppVersionString()
+        {
+            var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            return $"{v.Major}.{v.Minor}.{v.Build}";
         }
 
     }

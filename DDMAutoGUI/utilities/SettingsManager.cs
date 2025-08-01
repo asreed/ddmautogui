@@ -18,10 +18,14 @@ namespace DDMAutoGUI.utilities
     {
         public float? time_id { get; set; }
         public float? time_od { get; set; }
+        public float? valve_num_id { get; set; }
+        public float? valve_num_od { get; set; }
         public float? pressure_id { get; set; }
         public float? pressure_od { get; set; }
         public float? target_vol_id { get; set; }
         public float? target_vol_od { get; set; }
+        public float? spin_time { get; set; }
+        public float? spin_speed { get; set; }
     }
     public class DDMSettingsCommon
     {
@@ -36,6 +40,20 @@ namespace DDMAutoGUI.utilities
         public DDMSettingsLocation? disp_od { get; set; }
         public DDMSettingsLocation? laser_mag { get; set; }
         public DDMSettingsLocation? laser_ring { get; set; }
+
+        public bool IsValid()
+        {
+            // validate logic. might want to expand checks
+
+            if (disp_id == null || disp_od == null || laser_mag == null || laser_ring == null)
+            {
+                return false; // invalid if any location is null ...?
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
     public class DDMSettings
     {

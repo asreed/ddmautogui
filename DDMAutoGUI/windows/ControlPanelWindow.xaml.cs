@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -37,24 +38,21 @@ namespace DDMAutoGUI.windows
             InitializeComponent();
 
             App.UIManager.UIStateChanged += debugWindow_OnUpdateUIState;
+            App.ControllerManager.ControllerConnected += debugWindow_OnControllerConnected;
+            App.ControllerManager.ControllerDisconnected += debugWindow_OnControllerDisconnected;
             App.ControllerManager.ControllerStateChanged += debugWindow_OnUpdateAutoControllerState;
 
-            var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            versionManagerLabel.Content = $"{v.Major}.{v.Minor}.{v.Build}";
+            versionManagerLabel.Content = App.UIManager.GetAppVersionString();
 
             if (App.UIManager.UI_STATE.isConnected)
             {
                 debugWindow_OnControllerConnected(this, EventArgs.Empty);
-                debugWindow_OnUpdateAutoControllerState(this, EventArgs.Empty);
             }
             else
             {
                 debugWindow_OnControllerDisconnected(this, EventArgs.Empty);
-                debugWindow_OnUpdateAutoControllerState(this, EventArgs.Empty);
             }
 
-            motorSizeSelect.SelectedIndex = SizeIdxFromEnum(App.SettingsManager.selectedSize);
-            DisplaySettingsToPanel();
 
         }
  
@@ -112,8 +110,10 @@ namespace DDMAutoGUI.windows
             versionTCSLabel.Content = await App.ControllerManager.GetTCSVersion();
             versionConfigLabel.Content = await App.ControllerManager.GetPACVersion();
 
-            lockRobotButtons(false);
-            lockStatusButtons(false);
+            LockRobotButtons(false);
+            LockStatusButtons(false);
+            motorSizeSelect.IsEnabled = true;
+            PopulateMotorSettings(motorSizeSelect);
 
             eStopBtn.IsEnabled = true;
             eCloseValvesBtn.IsEnabled = true;
@@ -123,6 +123,9 @@ namespace DDMAutoGUI.windows
 
         private void debugWindow_OnControllerDisconnected(object sender, EventArgs e)
         {
+
+            Debug.Print("Disconnected event called");
+
             connectedBox.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
             connectedBox.Text = "Not connected";
             statusBox.Text = "-";
@@ -130,9 +133,11 @@ namespace DDMAutoGUI.windows
             versionTCSLabel.Content = "-";
             versionConfigLabel.Content = "-";
 
-            lockRobotButtons(true);
-            lockStatusButtons(true);
-            disableAllReadouts();
+            LockRobotButtons(true);
+            LockStatusButtons(true);
+            motorSizeSelect.IsEnabled = false;
+            DisableAllReadouts();
+            BlankOutMotorSettings();
 
             eStopBtn.IsEnabled = false;
             eCloseValvesBtn.IsEnabled = false;
@@ -155,30 +160,39 @@ namespace DDMAutoGUI.windows
 
             if (!contState.parseError)
             {
-                statusBox.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
-                statusBox.Text = "Parse OK";
-                formatAllReadouts(contState);
+                if (App.UIManager.UI_STATE.isConnected)
+                {
+                    statusBox.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
+                    statusBox.Text = "Parse OK";
+                    FormatAllReadouts(contState);
+                }
+                else
+                {
+                    statusBox.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
+                    statusBox.Text = "-";
+                    DisableAllReadouts();
+                }
             }
             else
             {
                 statusBox.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
                 statusBox.Text = $"Parse error: {contState.parseErrorMessage}";
-                disableAllReadouts();
+                DisableAllReadouts();
             }
 
         }
 
-        private void formatReadout(Label label, float value)
+        private void FormatReadout(Label label, float value)
         {
             label.Content = value.ToString();
 
         }
-        private void formatReadout(Label label, float value, string unit)
+        private void FormatReadout(Label label, float value, string unit)
         {
             label.Content = value.ToString() + " " + unit;
 
         }
-        private void formatReadout(Label label, bool value)
+        private void FormatReadout(Label label, bool value)
         {
             label.Content = value ? "Yes" : "No";
             if (value)
@@ -191,51 +205,51 @@ namespace DDMAutoGUI.windows
 
         }
 
-        private void formatAllReadouts(ControllerState contState)
+        private void FormatAllReadouts(ControllerState contState)
         {
-            formatReadout(roPowerEnabled, contState.isPowerEnabled);
-            formatReadout(roRobotHomed, contState.isRobotHomed);
-            formatReadout(roLinPos, contState.posLinear);
-            formatReadout(roRotPos, contState.posRotary);
-            formatReadout(roLinFlag1, !contState.isLinearIn1); // rail sensors are low when part present
-            formatReadout(roLinFlag2, !contState.isLinearIn2);
-            formatReadout(roLinFlag3, !contState.isLinearIn3);
-            formatReadout(roPresCmd1, contState.pressureCommand1, "psi");
-            formatReadout(roPresMeas1, contState.pressureMeasurement1, "psi");
-            formatReadout(roPresCmd2, contState.pressureCommand2, "psi");
-            formatReadout(roPresMeas2, contState.pressureMeasurement2, "psi");
-            formatReadout(roFlowVol1, contState.flowVolume1, "mL");
-            formatReadout(roFlowErr1, contState.flowError1);
-            formatReadout(roFlowVol2, contState.flowVolume2, "mL");
-            formatReadout(roFlowErr2, contState.flowError2);
+            FormatReadout(roPowerEnabled, contState.isPowerEnabled);
+            FormatReadout(roRobotHomed, contState.isRobotHomed);
+            FormatReadout(roLinPos, contState.posLinear);
+            FormatReadout(roRotPos, contState.posRotary);
+            FormatReadout(roLinFlag1, !contState.isLinearIn1); // rail sensors are low when part present
+            FormatReadout(roLinFlag2, !contState.isLinearIn2);
+            FormatReadout(roLinFlag3, !contState.isLinearIn3);
+            FormatReadout(roPresCmd1, contState.pressureCommand1, "psi");
+            FormatReadout(roPresMeas1, contState.pressureMeasurement1, "psi");
+            FormatReadout(roPresCmd2, contState.pressureCommand2, "psi");
+            FormatReadout(roPresMeas2, contState.pressureMeasurement2, "psi");
+            FormatReadout(roFlowVol1, contState.flowVolume1, "mL");
+            FormatReadout(roFlowErr1, contState.flowError1);
+            FormatReadout(roFlowVol2, contState.flowVolume2, "mL");
+            FormatReadout(roFlowErr2, contState.flowError2);
         }
 
-        private void disableReadout(Label label)
+        private void DisableReadout(Label label)
         {
             label.Foreground = new BrushConverter().ConvertFrom("#AAA") as SolidColorBrush;
             label.Background = new BrushConverter().ConvertFrom("WhiteSmoke") as SolidColorBrush;
         }
 
-        private void disableAllReadouts()
+        private void DisableAllReadouts()
         {
-            disableReadout(roPowerEnabled);
-            disableReadout(roRobotHomed);
-            disableReadout(roLinPos);
-            disableReadout(roRotPos);
-            disableReadout(roLinFlag1);
-            disableReadout(roLinFlag2);
-            disableReadout(roLinFlag3);
-            disableReadout(roPresCmd1);
-            disableReadout(roPresMeas1);
-            disableReadout(roPresCmd2);
-            disableReadout(roPresMeas2);
-            disableReadout(roFlowVol1);
-            disableReadout(roFlowErr1);
-            disableReadout(roFlowVol2);
-            disableReadout(roFlowErr2);
+            DisableReadout(roPowerEnabled);
+            DisableReadout(roRobotHomed);
+            DisableReadout(roLinPos);
+            DisableReadout(roRotPos);
+            DisableReadout(roLinFlag1);
+            DisableReadout(roLinFlag2);
+            DisableReadout(roLinFlag3);
+            DisableReadout(roPresCmd1);
+            DisableReadout(roPresMeas1);
+            DisableReadout(roPresCmd2);
+            DisableReadout(roPresMeas2);
+            DisableReadout(roFlowVol1);
+            DisableReadout(roFlowErr1);
+            DisableReadout(roFlowVol2);
+            DisableReadout(roFlowErr2);
         }
 
-        private void lockRobotButtons(bool state)
+        private void LockRobotButtons(bool state)
         {
             enablePowerBtn.IsEnabled = !state;
             homeBtn.IsEnabled = !state;
@@ -268,6 +282,26 @@ namespace DDMAutoGUI.windows
             stopMeasure2Btn.IsEnabled = !state;
 
             dispShotsBtn.IsEnabled = !state;
+
+            Debug.Print($"All buttons stated changed {state.ToString()}");
+        }
+
+        private void BlankOutMotorSettings()
+        {
+            string blank = "-";
+
+            moveLoadInput.Content = blank;
+            moveCamTopInput.Content = blank;
+            moveCamSideInput.Content = blank;
+            moveLaserRingInput.Content = blank;
+            moveLaserMagInput.Content = blank;
+            moveDispIDInput.Content = blank;
+            moveDispODInput.Content = blank;
+            moveSpinInput.Content = blank;
+
+            dispShotsInput.Content = blank;
+            dispShotsInput.Content += blank;
+
         }
 
         private void DisplaySettingsToPanel()
@@ -275,8 +309,13 @@ namespace DDMAutoGUI.windows
             DDMSettings s = App.SettingsManager.SETTINGS;
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
 
-            if (m != null)
+
+            if (m != null && m.IsValid())
             {
+                LockRobotButtons(false);
+
+                DDMSettingShotCalibration c = m.shot_calibration;
+
                 moveLoadInput.Content = $"[{s.common.load.x}, {s.common.load.t}]";
                 moveCamTopInput.Content = $"[{s.common.camera_top.x}, {s.common.camera_top.t}]";
                 moveCamSideInput.Content = $"[{m.camera_side.x}, {m.camera_side.t}]";
@@ -284,13 +323,29 @@ namespace DDMAutoGUI.windows
                 moveLaserMagInput.Content = $"[{m.laser_mag.x}, {m.laser_mag.t}]";
                 moveDispIDInput.Content = $"[{m.disp_id.x}, {m.disp_id.t}]";
                 moveDispODInput.Content = $"[{m.disp_od.x}, {m.disp_od.t}]";
+                moveSpinInput.Content = $"{c.spin_time}s, {c.spin_speed}%";
+
+                dispShotsInput.Content = $"ID: Valve {c.valve_num_id}, x={m.disp_id.x} mm, {c.time_id} s, target {c.target_vol_id }mL\n";
+                dispShotsInput.Content += $"OD: Valve {c.valve_num_od}, x={m.disp_od.x} mm, {c.time_od} s, target {c.target_vol_od} mL";
+            }
+            else
+            {
+                LockRobotButtons(true);
+                BlankOutMotorSettings();
             }
 
         }
 
-        private void lockStatusButtons(bool state)
+        private void LockStatusButtons(bool state)
         {
             //
+        }
+
+        private void PopulateMotorSettings(ComboBox selection)
+        {
+            App.SettingsManager.selectedSize = SizeEnumFromIdx(selection.SelectedIndex);
+            DisplaySettingsToPanel();
+
         }
 
 
@@ -305,19 +360,28 @@ namespace DDMAutoGUI.windows
 
         private void motorSizeSelect_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            App.SettingsManager.selectedSize = SizeEnumFromIdx(motorSizeSelect.SelectedIndex);
-            DisplaySettingsToPanel();
+            if (this.IsLoaded)
+            {
+                PopulateMotorSettings(motorSizeSelect);
+            }
         }
+
+
+
+
+
+
+
 
 
         // =========== BUTTON HANDLERS
 
         private async void enablePowerBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             string response = await App.ControllerManager.EnablePower();
             enablePowerOutput.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void homeBtn_Click(object sender, RoutedEventArgs e)
@@ -328,7 +392,7 @@ namespace DDMAutoGUI.windows
 
         private async void moveLoadBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
 
             DDMSettings s = App.SettingsManager.SETTINGS;
             float x = s.common.load.x.Value;
@@ -337,13 +401,13 @@ namespace DDMAutoGUI.windows
             string response = await App.ControllerManager.MoveJ(x, th);
             moveLoadOutput.Content = response;
 
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
 
         private async void moveCamTopBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
 
             DDMSettings s = App.SettingsManager.SETTINGS;
             float x = s.common.camera_top.x.Value;
@@ -352,12 +416,12 @@ namespace DDMAutoGUI.windows
             string response = await App.ControllerManager.MoveJ(x, th);
             moveCamTopOutput.Content = response;
 
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void moveCamSideBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
 
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.camera_side.x.Value;
@@ -366,12 +430,12 @@ namespace DDMAutoGUI.windows
             string response = await App.ControllerManager.MoveJ(x, th);
             moveCamSideOutput.Content = response;
 
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void moveLaserRingBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
 
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.laser_ring.x.Value;
@@ -380,11 +444,11 @@ namespace DDMAutoGUI.windows
             string response = await App.ControllerManager.MoveJ(x, th);
             moveLaserRingOutput.Content = response;
 
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
         private async void moveLaserMagBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
 
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.laser_mag.x.Value;
@@ -393,11 +457,11 @@ namespace DDMAutoGUI.windows
             string response = await App.ControllerManager.MoveJ(x, th);
             moveLaserMagOutput.Content = response;
 
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
         private async void moveDispIDBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
 
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.disp_id.x.Value;
@@ -406,11 +470,11 @@ namespace DDMAutoGUI.windows
             string response = await App.ControllerManager.MoveJ(x, th);
             moveDispIDOutput.Content = response;
 
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
         private async void moveDispODBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
 
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.disp_od.x.Value;
@@ -419,152 +483,152 @@ namespace DDMAutoGUI.windows
             string response = await App.ControllerManager.MoveJ(x, th);
             moveDispODOutput.Content = response;
 
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void moveSpinBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
 
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
-            float time = 4;
-            float speed = 150;
+            float time = m.shot_calibration.spin_time.Value;
+            float speed = m.shot_calibration.spin_speed.Value;
 
             string response = await App.ControllerManager.SpinInPlace(time, speed);
             moveDispIDOutput.Content = response;
 
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void openValve1Btn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             string input = openValve1Input.Text;
             //string response = await App.ControllerManager.SendRobotCommandAsync($"init1 {input}");
             //openValve1Output.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void openValve2Btn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             string input = openValve2Input.Text;
             //string response = await App.ControllerManager.SendRobotCommandAsync($"init2 {input}");
             //openValve2Output.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void closeValvesBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockStatusButtons(true);
+            LockStatusButtons(true);
             //string response = await App.ControllerManager.SendStatusCommandAsync("closeallvalves");
             ////closeValvesOutput.Content = response;
-            lockStatusButtons(false);
+            LockStatusButtons(false);
         }
 
         private async void setZeroBothBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             //string response = await App.ControllerManager.SendRobotCommandAsync("zeroshiftboth");
             //setZeroBothOutput.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void startMeasure1Btn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             //string response = await App.ControllerManager.SendRobotCommandAsync("startmeasureflow1");
             //startMeasure1Output.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void startMeasure2Btn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             //string response = await App.ControllerManager.SendRobotCommandAsync("startmeasureflow2");
             //startMeasure2Output.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void stopMeasure1Btn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             //string response = await App.ControllerManager.SendRobotCommandAsync("stopmeasureflow1");
             //stopMeasure1Output.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void stopMeasure2Btn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             //string response = await App.ControllerManager.SendRobotCommandAsync("stopmeasureflow2");
             //stopMeasure2Output.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void setPressure1Btn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             string input = setPressure1Input.Text;
             //string response = await App.ControllerManager.SendRobotCommandAsync($"setpressure1 {input}");
             //setPressure1Output.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void setPressure2Btn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             string input = setPressure2Input.Text;
             //string response = await App.ControllerManager.SendRobotCommandAsync($"setpressure2 {input}");
             //setPressure2Output.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void shot1Btn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             string input = shot1Input.Text;
             //string response = await App.ControllerManager.SendRobotCommandAsync($"measuredShot1 {input}");
             //shot1Output.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void shot2Btn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             string input = shot2Input.Text;
             //string response = await App.ControllerManager.SendRobotCommandAsync($"measuredShot2 {input}");
             //shot2Output.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void connectLaserBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             //string response = await App.ControllerManager.SendRobotCommandAsync($"connectToLaser");
             //connectLaserOutput.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void disconnectLaserBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             //string response = await App.ControllerManager.SendRobotCommandAsync($"disconnectFromLaser");
             //disconnectLaserBtn.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void getLaserSingleBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             //string response = await App.ControllerManager.SendRobotCommandAsync($"getLaserSingleMeasurement");
             //getLaserSingleOutput.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void getLaserRingBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             //string response = await App.ControllerManager.SendRobotCommandAsync($"getLaserRingMeasurements");
             //if (response.Split(" ").Length > 1)
             //{
@@ -575,12 +639,12 @@ namespace DDMAutoGUI.windows
             //{
             //    getLaserRingOutput.Content = $"error: {response}";
             //}
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void getLaserMagBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             //string response = await App.ControllerManager.SendRobotCommandAsync($"getLaserMagMeasurements");
             //if (response.Split(" ").Length > 1)
             //{
@@ -591,12 +655,12 @@ namespace DDMAutoGUI.windows
             //{
             //    getLaserMagOutput.Content = $"error: {response}";
             //}
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private async void getLaserCustomBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
+            LockRobotButtons(true);
             string input = getLaserCustomInput.Text;
             //string response = await App.ControllerManager.SendRobotCommandAsync($"getLaserCustomMeasurements {input}");
             //if (response.Split(" ").Length > 1)
@@ -608,7 +672,7 @@ namespace DDMAutoGUI.windows
             //{
             //    getLaserCustomOutput.Content = $"error: {response}";
             //}
-            lockRobotButtons(false);
+            LockRobotButtons(false);
         }
 
         private void showRingBtn_Click(object sender, RoutedEventArgs e)
@@ -637,11 +701,31 @@ namespace DDMAutoGUI.windows
 
         private async void dispShotsBtn_Click(object sender, RoutedEventArgs e)
         {
-            lockRobotButtons(true);
-            string input = dispShotsInput.Text;
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"dispenseShotsToRing {input}");
-            //dispShotsOutput.Content = response;
-            lockRobotButtons(false);
+            LockRobotButtons(true);
+
+            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            DDMSettingShotCalibration c = m.shot_calibration;
+
+            float x_id = m.disp_id.x.Value;
+            float t_id = m.disp_id.t.Value;
+            float time_id = c.time_id.Value;
+            float valve_num_id = c.valve_num_id.Value;
+            float pressure_id = c.pressure_id.Value;
+            float target_vol_id = c.target_vol_id.Value;
+
+            float x_od = m.disp_od.x.Value;
+            float t_od = m.disp_od.t.Value;
+            float time_od = c.time_od.Value;
+            float valve_num_od = c.valve_num_od.Value;
+            float pressure_od = c.pressure_od.Value;
+            float target_vol_od = c.target_vol_od.Value;
+
+
+            //string response = await App.ControllerManager.SpinInPlace(time, speed);
+            string response = string.Empty;
+            dispShotsOutput.Content = response;
+
+            LockRobotButtons(false);
         }
 
         private async void eStopBtn_Click(object sender, RoutedEventArgs e)

@@ -16,7 +16,7 @@
         ResizeMode="CanResizeWithGrip">
 
 
-    
+
     <Grid Margin="0,0,0,20">
 
         <Grid.RowDefinitions>
@@ -27,14 +27,14 @@
         <Grid Grid.Row="0">
 
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
                 <ColumnDefinition Width="150"/>
-                <ColumnDefinition Width="200"/>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Vertical">
-                
+
                 <GroupBox Header="Connection">
                     <TextBlock
                         x:Name="connectedBox"
@@ -45,7 +45,7 @@
                         HorizontalAlignment="Left" 
                         VerticalAlignment="Center"/>
                 </GroupBox>
-            
+
                 <GroupBox Header="Auto Status">
                     <TextBlock
                         x:Name="statusBox"
@@ -58,11 +58,11 @@
                 </GroupBox>
             </StackPanel>
 
-            <GroupBox Grid.Column="1" Header="Settings" >
+            <GroupBox Grid.Column="1" Header="Motor Settings" >
                 <ComboBox x:Name="motorSizeSelect" VerticalContentAlignment="Center" VerticalAlignment="Top" SelectionChanged="motorSizeSelect_SelectionChanged">
                     <ComboBoxItem Content="DDM 57" />
                     <ComboBoxItem Content="DDM 95" />
-                    <ComboBoxItem Content="DDM 116" />
+                    <ComboBoxItem Content="DDM 116" IsSelected="True"/>
                     <ComboBoxItem Content="DDM 170" />
                     <ComboBoxItem Content="DDM 170 Tall" />
                 </ComboBox>
@@ -71,18 +71,18 @@
             <GroupBox Header="Version Information" Grid.Column="2">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
 
-                    <Label Grid.Row="0" Grid.Column="0" Content="Manager UI version:" Padding="1" Margin="0,0,8,0"/>
-                    <Label Grid.Row="1" Grid.Column="0" Content="Controller TCS version:" Padding="1" Margin="0,0,8,0"/>
-                    <Label Grid.Row="2" Grid.Column="0" Content="Controller config version:" Padding="1" Margin="0,0,8,0"/>
+                    <Label Grid.Row="0" Grid.Column="0" Content="Manager UI:" Padding="1" Margin="0,0,8,0"/>
+                    <Label Grid.Row="1" Grid.Column="0" Content="Controller TCS:" Padding="1" Margin="0,0,8,0"/>
+                    <Label Grid.Row="2" Grid.Column="0" Content="Controller config:" Padding="1" Margin="0,0,8,0"/>
 
                     <Label Grid.Row="0" Grid.Column="1" x:Name="versionManagerLabel" Content="-" Padding="1"/>
                     <Label Grid.Row="1" Grid.Column="1" x:Name="versionTCSLabel" Content="-" Padding="1"/>
@@ -91,8 +91,8 @@
             </GroupBox>
             <GroupBox Header="Emergency" Grid.Column="3">
                 <StackPanel Orientation="Horizontal" Grid.Column="1">
-                    <Button x:Name="eCloseValvesBtn" Content="CLOSE VALVES" Style="{DynamicResource PrimaryRedButton}" Click="closeValvesBtn_Click"/>
-                    <Button x:Name="eStopBtn" Content="E STOP"  Style="{DynamicResource PrimaryRedButton}" Click="eStopBtn_Click"/>
+                    <Button x:Name="eCloseValvesBtn" Content="CLOSE VALVES" Style="{DynamicResource PrimaryRedButton}" Click="closeValvesBtn_Click" Padding="15" VerticalAlignment="Top"/>
+                    <Button x:Name="eStopBtn" Content="E STOP"  Style="{DynamicResource PrimaryRedButton}" Click="eStopBtn_Click" Padding="15" VerticalAlignment="Top"/>
                 </StackPanel>
             </GroupBox>
         </Grid>
@@ -107,7 +107,7 @@
 
 
                 <TabControl>
-                    
+
                     <TabItem Header="Robot">
 
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -115,7 +115,7 @@
 
                                 <GroupBox Header="Pendant">
                                     <Grid>
-                                        
+
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="100"/>
                                             <ColumnDefinition Width="160"/>
@@ -189,13 +189,13 @@
                                         <Label Grid.Row="7" Grid.Column="0" x:Name="moveSpinInput" Content="-" Padding="3" Margin="4"/>
                                         <Button Grid.Row="7" Grid.Column="1" x:Name="moveSpinBtn" Content="Move, spin in place" Click="moveSpinBtn_Click" Style="{DynamicResource PrimaryGreenButton}" />
                                         <Label Grid.Row="7" Grid.Column="2" x:Name="moveSpinOutput" Content="-" VerticalContentAlignment="Center"/>
-                                        
+
                                     </Grid>
                                 </GroupBox>
 
-                                
 
-                                
+
+
 
 
                             </StackPanel>
@@ -271,7 +271,7 @@
 
                                         <Button  Grid.Row="3" Grid.Column="1" x:Name="n44" Content="Show mag and conc data" Padding="0,3,0,3" Click="showMagBtn_Click"/>
 
-                                        
+
                                         <TextBox Grid.Row="4" Grid.Column="0" x:Name="getLaserCustomInput" Text="6 232.99" Padding="3" Margin="4"/>
                                         <Button  Grid.Row="4" Grid.Column="1" x:Name="getLaserCustomBtn" Content="Measure custom" Style="{DynamicResource PrimaryBlackButton}" Padding="0,3,0,3" Click="getLaserCustomBtn_Click"/>
                                         <Label   Grid.Row="4" Grid.Column="2" x:Name="getLaserCustomOutput" Content="-" Padding="3" Margin="4" VerticalContentAlignment="Center"/>
@@ -353,10 +353,10 @@
                                             Grid.Column="0" 
                                             Grid.ColumnSpan="3"
                                             Margin="0,0,0,8">
-                                            
+
                                             <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="This will open a valve and trigger the flow sensor to measure the dispensed volume." TextWrapping="Wrap"/>
                                         </StackPanel>
-                                        
+
                                         <TextBox Grid.Row="1" Grid.Column="0" x:Name="shot1Input"  Text="0.5" Padding="3" Margin="4"/>
                                         <Button  Grid.Row="1" Grid.Column="1" x:Name="shot1Btn" Content="Measure shot from valve 1" Style="{DynamicResource PrimaryBlackButton}" Padding="0,3,0,3" Click="shot1Btn_Click"/>
                                         <Label   Grid.Row="1" Grid.Column="2" x:Name="shot1Output" Content="-" Padding="3" Margin="4" VerticalContentAlignment="Center"/>
@@ -459,7 +459,6 @@
                                     <Grid>
 
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100"/>
                                             <ColumnDefinition Width="160"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
@@ -469,19 +468,7 @@
                                             <RowDefinition/>
                                             <RowDefinition/>
                                             <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
                                         </Grid.RowDefinitions>
-
-                                        <!--<TextBox Grid.Row="0" Grid.Column="0" Text="Input" Padding="3" Margin="4"/>--><!--
-                                        <Button  Grid.Row="0" Grid.Column="1" Content="Move rail to load" Style="{DynamicResource PrimaryGreenButton}" Padding="0,3,0,3"/>
-                                        <Label   Grid.Row="0" Grid.Column="2" Content="-" Padding="3" Margin="4" VerticalContentAlignment="Center"/>
-
-                                        --><!--<TextBox Grid.Row="1" Grid.Column="0" Text="Input" Padding="3" Margin="4"/>--><!--
-                                        <Button  Grid.Row="1" Grid.Column="1" Content="Move rail to dispense" Style="{DynamicResource PrimaryGreenButton}" Padding="0,3,0,3"/>
-                                        <Label   Grid.Row="1" Grid.Column="2" Content="-" Padding="3" Margin="4" VerticalContentAlignment="Center"/>-->
-
 
                                         <StackPanel 
                                             Orientation="Vertical"
@@ -489,24 +476,18 @@
                                             Grid.Column="0" 
                                             Grid.ColumnSpan="3"
                                             Margin="0,0,0,8">
-                                            
+
                                             <TextBlock TextWrapping="Wrap" Text="This will do the following:"/>
-                                            <!--<TextBlock TextWrapping="Wrap" Text="1. Move under camera and take a photo"/>-->
-                                            <TextBlock TextWrapping="Wrap" Text="1. Move under valve 1 and dispense"/>
-                                            <TextBlock TextWrapping="Wrap" Text="2. Move under valve 2 and dispense"/>
-                                            <!--<TextBlock TextWrapping="Wrap" Text="4. Move under camera and take another photo"/>-->
-                                            <TextBlock TextWrapping="Wrap" Text="3. Move to unload position"/>
+                                            <TextBlock TextWrapping="Wrap" Text="1. Move to ID position and dispense shot"/>
+                                            <TextBlock TextWrapping="Wrap" Text="2. Move to OD position and dispense shot"/>
 
                                         </StackPanel>
 
-                                        <TextBox Grid.Row="2" Grid.Column="0" x:Name="dispShotsInput" Text="5 45 45 8" Padding="3" Margin="4"/>
-                                        <Button  Grid.Row="2" Grid.Column="1" x:Name="dispShotsBtn" Content="Dispense Shots to Ring" Style="{DynamicResource PrimaryBlackButton}" Padding="0,3,0,3" Click="dispShotsBtn_Click"/>
-                                        <Label   Grid.Row="2" Grid.Column="2" x:Name="dispShotsOutput" Content="-" Padding="3" Margin="4" VerticalContentAlignment="Center"/>
+                                        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="dispShotsInput" Content="-" Padding="3" Margin="4"/>
 
-                                        <!--<TextBox Grid.Row="3" Grid.Column="0" Text="Input" Padding="3" Margin="4"/>
-                                        <Button  Grid.Row="3" Grid.Column="1" Content="Spin by time" Style="{DynamicResource PrimaryGreenButton}" Padding="0,3,0,3"/>
-                                        <Label   Grid.Row="3" Grid.Column="2" Content="-" Padding="3" Margin="4" VerticalContentAlignment="Center"/>-->
-                                        
+                                        <Button Grid.Row="2" Grid.Column="0" x:Name="dispShotsBtn" Content="Dispense shots" Click="dispShotsBtn_Click" Style="{DynamicResource PrimaryBlackButton}" />
+                                        <Label Grid.Row="2" Grid.Column="1" x:Name="dispShotsOutput" Content="-" VerticalContentAlignment="Center"/>
+
                                     </Grid>
 
 
@@ -515,7 +496,7 @@
                         </ScrollViewer>
 
                     </TabItem>
-                    
+
                 </TabControl>
 
             </GroupBox>

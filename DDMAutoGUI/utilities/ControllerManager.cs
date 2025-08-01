@@ -273,7 +273,7 @@ namespace DDMAutoGUI.utilities
         // ==================================================================
         // General TCS messaging (port 10000 and 10100)
 
-        private async Task<bool> ConnectAsync(string ip)
+        public async Task<bool> ConnectAsync(string ip)
         {
             IPEndPoint statusEP = new IPEndPoint(IPAddress.Parse(ip), 10000);
             IPEndPoint robotEP = new IPEndPoint(IPAddress.Parse(ip), 10100);
@@ -325,7 +325,7 @@ namespace DDMAutoGUI.utilities
             }
         }
 
-        private async Task DisconnectAsync()
+        public async Task DisconnectAsync()
         {
             UpdateBothLogs("Disconnecting...");
             try
@@ -351,7 +351,7 @@ namespace DDMAutoGUI.utilities
             App.UIManager.TriggerUIStateChanged();
         }
 
-        private async Task<string> SendRobotCommandAsync(string command)
+        public async Task<string> SendRobotCommandAsync(string command)
         {
             UpdateRobotLog($">> {command}");
 
@@ -398,7 +398,7 @@ namespace DDMAutoGUI.utilities
             return response.ToString().Trim();
         }
 
-        private async Task<string> SendStatusCommandAsync(string command)
+        public async Task<string> SendStatusCommandAsync(string command)
         {
             UpdateStatusLog($">> {command}");
 
