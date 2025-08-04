@@ -66,7 +66,7 @@ namespace DDMAutoGUI
             splashConnectBtn.Content = "Connecting...";
             splashErrorBox.Visibility = Visibility.Collapsed;
 
-            //await ControllerManager.Instance.ConnectAsync(splashIPTextBox.Text);
+            await App.ControllerManager.ConnectAsync(splashIPTextBox.Text);
             if (App.UIManager.UI_STATE.isConnected)
             {
                 splashErrorBox.Visibility = Visibility.Collapsed;
@@ -84,7 +84,7 @@ namespace DDMAutoGUI
             {
                 connectionWindow = new ConnectionWindow();
                 connectionWindow.Closed += (s, e) => connectionWindow = null;
-                connectionWindow.Owner = this;
+                //connectionWindow.Owner = this;
                 connectionWindow.Show();
             }
             else
@@ -95,13 +95,8 @@ namespace DDMAutoGUI
 
         private void DispenseBtn_Click(object sender, RoutedEventArgs e)
         {
-            //UIState state = new UIState();
-            //state = RobotManager.Instance.GetUIState();
-            //state.isDispenseWizardActive = true;
-            //RobotManager.Instance.SetUIState(state);
-
             dispenseWindow2 = new DispenseWindow2();
-            dispenseWindow2.Owner = this;
+            //dispenseWindow2.Owner = this;
             dispenseWindow2.Show();
         }
 
@@ -111,7 +106,7 @@ namespace DDMAutoGUI
             {
                 debugWindow = new ControlPanelWindow();
                 debugWindow.Closed += (s, e) => debugWindow = null;
-                debugWindow.Owner = this;
+                //debugWindow.Owner = this;
                 debugWindow.Show();
 
             }
@@ -127,7 +122,7 @@ namespace DDMAutoGUI
             {
                 cameraWindow = new CameraWindow();
                 cameraWindow.Closed += (s, e) => cameraWindow = null;
-                cameraWindow.Owner = this;
+                //cameraWindow.Owner = this;
                 cameraWindow.Show();
             }
             else
@@ -136,15 +131,13 @@ namespace DDMAutoGUI
             }
         }
 
-
-
         private void SettingsBtn_Click(object sender, RoutedEventArgs e)
         {
             if (settingsWindow == null || !settingsWindow.IsVisible)
             {
                 settingsWindow = new SettingsWindow();
                 settingsWindow.Closed += (s, e) => settingsWindow = null;
-                settingsWindow.Owner = this;
+                //settingsWindow.Owner = this;
                 settingsWindow.Show();
             }
             else

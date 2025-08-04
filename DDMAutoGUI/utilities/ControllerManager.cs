@@ -63,8 +63,6 @@ namespace DDMAutoGUI.utilities
         }
     }
 
-
-
     public class ControllerManager
     {
 
@@ -438,6 +436,21 @@ namespace DDMAutoGUI.utilities
 
 
         // ==================================================================
+        // Public helpers
+
+        public string ParseHeightData(string rawString)
+        {
+            string[] parts = rawString.Split(" ");
+            string formattedData = string.Empty;
+            if (parts[0] == "0")
+            {
+                formattedData = parts[1].Replace(";", "\n");
+            }
+            return formattedData;
+        }
+
+
+        // ==================================================================
         // Private helpers
 
         private async Task<string> TestStatusConnection()
@@ -518,8 +531,6 @@ namespace DDMAutoGUI.utilities
 
 
 
-
-
         // ==================================================================
         // Auto update for controller state start/stop
 
@@ -567,14 +578,8 @@ namespace DDMAutoGUI.utilities
 
 
 
-
-
-
-
-
         // ==================================================================
         // Public state set/get methods
-
 
         public string GetStatusLog()
         {
@@ -590,10 +595,6 @@ namespace DDMAutoGUI.utilities
         {
             return CORRECT_TCS_VERSION;
         }
-
-
-
-
 
 
 
@@ -629,6 +630,11 @@ namespace DDMAutoGUI.utilities
             return version;
         }
 
+        public async Task<string> EStop()
+        {
+            return await SendRobotCommandAsync($"halt");
+        }
+
         public async Task<string> EnablePower()
         {
             string response;
@@ -662,64 +668,73 @@ namespace DDMAutoGUI.utilities
         public async Task<string> MoveOneAxis(int axisNumber, float position)
         {
             string input = $"DDM_MoveOneAxis {axisNumber} {position}";
-            string response = await SendRobotCommandAsync(input);
-            return response;
+            return await SendRobotCommandAsync(input);
         }
 
         public async Task<string> MoveJ(float xPosition, float thPosition)
         {
             string input = $"DDM_MoveJ {xPosition} {thPosition}";
-            string response = await SendRobotCommandAsync(input);
-            return response;
+            return await SendRobotCommandAsync(input);
         }
 
         public async Task<string> SpinInPlace(float spinTime, float spinSpeed)
         {
             string input = $"DDM_SpinInPlace {spinTime} {spinSpeed}";
-            string response = await SendRobotCommandAsync(input);
-            return response;
+            return await SendRobotCommandAsync(input);
         }
 
         public async Task<string> OpenValveTimed(int index, float openTime)
         {
             string input = $"DDM_OpenValveTimed {index} {openTime}";
-            string response = await SendRobotCommandAsync(input);
-            return response;
+            return await SendRobotCommandAsync(input);
         }
 
         public async Task<string> CloseAllValves()
         {
             string input = $"DDM_CloseAllValves";
-            string response = await SendRobotCommandAsync(input);
-            return response;
+            return await SendRobotCommandAsync(input);
         }
 
         public async Task<string> SetRegulatorPressure(int index, float pressure)
         {
             string input = $"DDM_SetRegulatorPressure {index} {pressure}";
-            string response = await SendRobotCommandAsync(input);
-            return response;
+            return await SendRobotCommandAsync(input);
         }
 
         public async Task<string> GetRegulatorPressure(int index)
         {
             string input = $"DDM_GetRegulatorPressure {index}";
-            string response = await SendRobotCommandAsync(input);
-            return response;
+            return await SendRobotCommandAsync(input);
         }
 
         public async Task<string> GetRegulatorPressureSetpoint(int index)
         {
             string input = $"DDM_GetRegulatorPressureSetpoint {index}";
-            string response = await SendRobotCommandAsync(input);
-            return response;
+            return await SendRobotCommandAsync(input);
         }
 
         public async Task<string> MeasureHeights(float xPos, float thStart, int nMeasurements)
         {
             string input = $"DDM_MeasureHeights {xPos} {thStart} {nMeasurements}";
-            string response = await SendRobotCommandAsync(input);
-            return response;
+            return await SendRobotCommandAsync(input);
+        }
+
+        public async Task<string> SetZeroShift(float timeAvg)
+        {
+            string input = $"DDM_SetZeroShift {timeAvg}";
+            return await SendRobotCommandAsync(input);
+        }
+
+        public async Task<string> SetShotTrigger(int index, bool state)
+        {
+            string input = $"DDM_SetShotTrigger {index} {state}";
+            return await SendRobotCommandAsync(input);
+        }
+
+        public async Task<string> MeasureShotTimed(int index, float time)
+        {
+            string input = $"DDM_MeasureShotTimed {index} {time}";
+            return await SendRobotCommandAsync(input);
         }
 
     }

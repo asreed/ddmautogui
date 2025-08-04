@@ -1,5 +1,5 @@
 {
-  "last_saved" : "2025-07-31",
+  "last_saved" : "2025-08-01",
   "common": {
     "linear_axis_num": 1,
     "rotary_axis_num": 2,
@@ -10,7 +10,9 @@
     "camera_top": {
       "x": 293.33,
       "t": 0
-    }
+    },
+    "laser_ring_num": 6,
+    "laser_mag_num": 40
   },
   "ddm_57": {
     "shot_calibration": {

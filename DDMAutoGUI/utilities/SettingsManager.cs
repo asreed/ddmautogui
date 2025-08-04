@@ -29,8 +29,12 @@ namespace DDMAutoGUI.utilities
     }
     public class DDMSettingsCommon
     {
+        public int? linear_axis_num { get; set; }
+        public int? rotary_axis_num { get; set; }
         public DDMSettingsLocation? load { get; set; }
         public DDMSettingsLocation? camera_top { get; set; }
+        public int? laser_ring_num { get; set; }
+        public int? laser_mag_num { get; set; }
     }
     public class DDMSettingsSingleSize
     {

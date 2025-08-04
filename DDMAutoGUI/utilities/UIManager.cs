@@ -13,11 +13,9 @@ namespace DDMAutoGUI.utilities
 
     public class UIState
     {
-
         public bool isConnected { get; set; }
         public bool isProcessWizardOpen { get; set; }
         public bool isAutoControllerStateRequesting { get; set; }
-
     }
 
     public class UIManager

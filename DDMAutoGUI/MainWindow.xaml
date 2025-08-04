@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="DDM Automation Cell Manager" 
         Height="400" 
-        Width="600" 
+        Width="700" 
         ResizeMode="CanMinimize" 
         Icon="/resources/logos/b.ico" 
         WindowStartupLocation="CenterScreen">
@@ -154,7 +154,7 @@
 
 
 
-            <Image Source="/resources/splash/cad-splash-5.png" Margin="308,-51,0,-36" Stretch="UniformToFill" />
+            <Image Source="/resources/splash/cad-splash-5.png" Margin="325,-51,0,-36" Stretch="UniformToFill" />
             <!--<Image Source="/images/logos/brooks-logo.png" Margin="26,55,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="30" Width="131"/>-->
             <!--<Label Content="DDM Automation Cell Manager" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,16,0,0" FontSize="22" Foreground="#FF0072BC"/>-->
             <!--<Label Content="Intended for Gen 1 Phase 1a (ENG TEST ONLY)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,113,0,0" Foreground="#FF0072BC"/>-->

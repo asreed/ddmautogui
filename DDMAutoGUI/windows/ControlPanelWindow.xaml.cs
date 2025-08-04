@@ -37,7 +37,6 @@ namespace DDMAutoGUI.windows
         {
             InitializeComponent();
 
-            App.UIManager.UIStateChanged += debugWindow_OnUpdateUIState;
             App.ControllerManager.ControllerConnected += debugWindow_OnControllerConnected;
             App.ControllerManager.ControllerDisconnected += debugWindow_OnControllerDisconnected;
             App.ControllerManager.ControllerStateChanged += debugWindow_OnUpdateAutoControllerState;
@@ -52,7 +51,6 @@ namespace DDMAutoGUI.windows
             {
                 debugWindow_OnControllerDisconnected(this, EventArgs.Empty);
             }
-
 
         }
  
@@ -143,14 +141,6 @@ namespace DDMAutoGUI.windows
             eCloseValvesBtn.IsEnabled = false;
 
             App.ControllerManager.StopAutoControllerState();
-        }
-
-        private async void debugWindow_OnUpdateUIState(object sender, EventArgs e)
-        {
-            
-
-
-            // ... ?
         }
 
         private void debugWindow_OnUpdateAutoControllerState(object sender, EventArgs e)
@@ -262,18 +252,13 @@ namespace DDMAutoGUI.windows
             moveDispODBtn.IsEnabled = !state;
             moveSpinBtn.IsEnabled = !state;
 
-            connectLaserBtn.IsEnabled = !state;
-            disconnectLaserBtn.IsEnabled= !state;
-            getLaserSingleBtn.IsEnabled = !state;
-            getLaserRingBtn.IsEnabled = !state;
-            getLaserMagBtn.IsEnabled = !state;
+            laserRingBtn.IsEnabled = !state;
+            laserMagBtn.IsEnabled = !state;
 
             setPressure1Btn.IsEnabled = !state;
             setPressure2Btn.IsEnabled = !state;
             shot1Btn.IsEnabled = !state;
             shot2Btn.IsEnabled = !state;
-            openValve1Btn.IsEnabled = !state;
-            openValve2Btn.IsEnabled = !state;
 
             setZeroBothBtn.IsEnabled = !state;
             startMeasure1Btn.IsEnabled = !state;
@@ -298,6 +283,9 @@ namespace DDMAutoGUI.windows
             moveDispIDInput.Content = blank;
             moveDispODInput.Content = blank;
             moveSpinInput.Content = blank;
+
+            laserRingInput.Content = blank;
+            laserMagInput.Content = blank;
 
             dispShotsInput.Content = blank;
             dispShotsInput.Content += blank;
@@ -324,6 +312,9 @@ namespace DDMAutoGUI.windows
                 moveDispIDInput.Content = $"[{m.disp_id.x}, {m.disp_id.t}]";
                 moveDispODInput.Content = $"[{m.disp_od.x}, {m.disp_od.t}]";
                 moveSpinInput.Content = $"{c.spin_time}s, {c.spin_speed}%";
+
+                laserRingInput.Content = $"{s.common.laser_ring_num} places";
+                laserMagInput.Content = $"{s.common.laser_mag_num} places";
 
                 dispShotsInput.Content = $"ID: Valve {c.valve_num_id}, x={m.disp_id.x} mm, {c.time_id} s, target {c.target_vol_id }mL\n";
                 dispShotsInput.Content += $"OD: Valve {c.valve_num_od}, x={m.disp_od.x} mm, {c.time_od} s, target {c.target_vol_od} mL";
@@ -500,69 +491,50 @@ namespace DDMAutoGUI.windows
             LockRobotButtons(false);
         }
 
-        private async void openValve1Btn_Click(object sender, RoutedEventArgs e)
-        {
-            LockRobotButtons(true);
-            string input = openValve1Input.Text;
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"init1 {input}");
-            //openValve1Output.Content = response;
-            LockRobotButtons(false);
-        }
-
-        private async void openValve2Btn_Click(object sender, RoutedEventArgs e)
-        {
-            LockRobotButtons(true);
-            string input = openValve2Input.Text;
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"init2 {input}");
-            //openValve2Output.Content = response;
-            LockRobotButtons(false);
-        }
-
-        private async void closeValvesBtn_Click(object sender, RoutedEventArgs e)
+        private async void eCloseAllValvesBtn_Click(object sender, RoutedEventArgs e)
         {
             LockStatusButtons(true);
-            //string response = await App.ControllerManager.SendStatusCommandAsync("closeallvalves");
-            ////closeValvesOutput.Content = response;
+            string response = await App.ControllerManager.CloseAllValves();
             LockStatusButtons(false);
         }
 
         private async void setZeroBothBtn_Click(object sender, RoutedEventArgs e)
         {
             LockRobotButtons(true);
-            //string response = await App.ControllerManager.SendRobotCommandAsync("zeroshiftboth");
-            //setZeroBothOutput.Content = response;
+            string response = await App.ControllerManager.SetZeroShift(3.0f);
+            setZeroBothOutput.Content = response;
             LockRobotButtons(false);
         }
 
         private async void startMeasure1Btn_Click(object sender, RoutedEventArgs e)
         {
             LockRobotButtons(true);
-            //string response = await App.ControllerManager.SendRobotCommandAsync("startmeasureflow1");
-            //startMeasure1Output.Content = response;
+            string response = await App.ControllerManager.SetShotTrigger(1, true);
+            startMeasure1Output.Content = response;
             LockRobotButtons(false);
         }
 
         private async void startMeasure2Btn_Click(object sender, RoutedEventArgs e)
         {
             LockRobotButtons(true);
-            //string response = await App.ControllerManager.SendRobotCommandAsync("startmeasureflow2");
-            //startMeasure2Output.Content = response;
+            string response = await App.ControllerManager.SetShotTrigger(2, true);
+            startMeasure1Output.Content = response;
             LockRobotButtons(false);
         }
 
         private async void stopMeasure1Btn_Click(object sender, RoutedEventArgs e)
         {
             LockRobotButtons(true);
-            //string response = await App.ControllerManager.SendRobotCommandAsync("stopmeasureflow1");
-            //stopMeasure1Output.Content = response;
+            string response = await App.ControllerManager.SetShotTrigger(1, false);
+            startMeasure1Output.Content = response;
             LockRobotButtons(false);
         }
 
         private async void stopMeasure2Btn_Click(object sender, RoutedEventArgs e)
         {
             LockRobotButtons(true);
-            //string response = await App.ControllerManager.SendRobotCommandAsync("stopmeasureflow2");
-            //stopMeasure2Output.Content = response;
+            string response = await App.ControllerManager.SetShotTrigger(2, false);
+            startMeasure1Output.Content = response;
             LockRobotButtons(false);
         }
 
@@ -570,8 +542,8 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = setPressure1Input.Text;
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"setpressure1 {input}");
-            //setPressure1Output.Content = response;
+            string response = await App.ControllerManager.SetRegulatorPressure(1, float.Parse(input));
+            startMeasure1Output.Content = response;
             LockRobotButtons(false);
         }
 
@@ -579,8 +551,8 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = setPressure2Input.Text;
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"setpressure2 {input}");
-            //setPressure2Output.Content = response;
+            string response = await App.ControllerManager.SetRegulatorPressure(2, float.Parse(input));
+            setPressure2Output.Content = response;
             LockRobotButtons(false);
         }
 
@@ -588,8 +560,8 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = shot1Input.Text;
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"measuredShot1 {input}");
-            //shot1Output.Content = response;
+            string response = await App.ControllerManager.MeasureShotTimed(1, float.Parse(input));
+            shot1Output.Content = response;
             LockRobotButtons(false);
         }
 
@@ -597,83 +569,58 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = shot2Input.Text;
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"measuredShot2 {input}");
-            //shot2Output.Content = response;
+            string response = await App.ControllerManager.MeasureShotTimed(2, float.Parse(input));
+            shot1Output.Content = response;
             LockRobotButtons(false);
         }
 
-        private async void connectLaserBtn_Click(object sender, RoutedEventArgs e)
+        private async void laserRingBtn_Click(object sender, RoutedEventArgs e)
         {
-            LockRobotButtons(true);
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"connectToLaser");
-            //connectLaserOutput.Content = response;
-            LockRobotButtons(false);
-        }
+            DDMSettings s = App.SettingsManager.SETTINGS;
+            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            float xPos = m.laser_ring.x.Value;
+            float tPos = m.laser_ring.t.Value;
+            int n = s.common.laser_ring_num.Value;
 
-        private async void disconnectLaserBtn_Click(object sender, RoutedEventArgs e)
-        {
             LockRobotButtons(true);
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"disconnectFromLaser");
-            //disconnectLaserBtn.Content = response;
-            LockRobotButtons(false);
-        }
+            string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n);
+            laserRingData = App.ControllerManager.ParseHeightData(response);
 
-        private async void getLaserSingleBtn_Click(object sender, RoutedEventArgs e)
-        {
-            LockRobotButtons(true);
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"getLaserSingleMeasurement");
-            //getLaserSingleOutput.Content = response;
-            LockRobotButtons(false);
-        }
+            if (laserRingData.Length > 0)
+            {
+                laserRingOutput.Content = $"(data collected)";
+            }
+            else
+            {
+                laserRingOutput.Content = $"error: {response}";
+            }
 
-        private async void getLaserRingBtn_Click(object sender, RoutedEventArgs e)
-        {
-            LockRobotButtons(true);
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"getLaserRingMeasurements");
-            //if (response.Split(" ").Length > 1)
-            //{
-            //    laserRingData = response.Split(" ")[1].Replace(";", "\n");
-            //    getLaserRingOutput.Content = "(data collected)";
-            //}
-            //else
-            //{
-            //    getLaserRingOutput.Content = $"error: {response}";
-            //}
             LockRobotButtons(false);
         }
 
         private async void getLaserMagBtn_Click(object sender, RoutedEventArgs e)
         {
+            DDMSettings s = App.SettingsManager.SETTINGS;
+            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            float xPos = m.laser_mag.x.Value;
+            float tPos = m.laser_mag.t.Value;
+            int n = s.common.laser_mag_num.Value;
+
             LockRobotButtons(true);
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"getLaserMagMeasurements");
-            //if (response.Split(" ").Length > 1)
-            //{
-            //    laserMagData = response.Split(" ")[1].Replace(";", "\n");
-            //    getLaserMagOutput.Content = "(data collected)";
-            //}
-            //else
-            //{
-            //    getLaserMagOutput.Content = $"error: {response}";
-            //}
+            string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n);
+            laserMagData = App.ControllerManager.ParseHeightData(response);
+
+            if (laserMagData.Length > 0)
+            {
+                laserMagOutput.Content = $"(data collected)";
+            }
+            else
+            {
+                laserMagOutput.Content = $"error: {response}";
+            }
             LockRobotButtons(false);
         }
 
-        private async void getLaserCustomBtn_Click(object sender, RoutedEventArgs e)
-        {
-            LockRobotButtons(true);
-            string input = getLaserCustomInput.Text;
-            //string response = await App.ControllerManager.SendRobotCommandAsync($"getLaserCustomMeasurements {input}");
-            //if (response.Split(" ").Length > 1)
-            //{
-            //    laserCustomData = response.Split(" ")[1].Replace(";", "\n");
-            //    getLaserCustomOutput.Content = "(data collected)";
-            //}
-            //else
-            //{
-            //    getLaserCustomOutput.Content = $"error: {response}";
-            //}
-            LockRobotButtons(false);
-        }
 
         private void showRingBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -691,13 +638,6 @@ namespace DDMAutoGUI.windows
             viewer.Show();
         }
 
-        private void showCustomBtn_Click(object sender, RoutedEventArgs e)
-        {
-            TextDataViewer viewer = new TextDataViewer();
-            viewer.Owner = this;
-            viewer.PopulateData(laserCustomData, "Custom Displacement Measurements");
-            viewer.Show();
-        }
 
         private async void dispShotsBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -730,8 +670,7 @@ namespace DDMAutoGUI.windows
 
         private async void eStopBtn_Click(object sender, RoutedEventArgs e)
         {
-            //string response = await App.ControllerManager.SendStatusCommandAsync($"halt");
-            //response = await App.ControllerManager.SendStatusCommandAsync($"hp 0");
+            await App.ControllerManager.EStop();
         }
     }
 }
