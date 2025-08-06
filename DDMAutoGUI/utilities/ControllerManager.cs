@@ -632,7 +632,8 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> EStop()
         {
-            return await SendRobotCommandAsync($"halt");
+            await SendRobotCommandAsync($"halt");
+            return await SendRobotCommandAsync($"hp 0");
         }
 
         public async Task<string> EnablePower()
@@ -671,9 +672,9 @@ namespace DDMAutoGUI.utilities
             return await SendRobotCommandAsync(input);
         }
 
-        public async Task<string> MoveJ(float xPosition, float thPosition)
+        public async Task<string> MoveJ(float xPosition, float tPosition)
         {
-            string input = $"DDM_MoveJ {xPosition} {thPosition}";
+            string input = $"DDM_MoveJ {xPosition} {tPosition}";
             return await SendRobotCommandAsync(input);
         }
 
@@ -695,27 +696,33 @@ namespace DDMAutoGUI.utilities
             return await SendRobotCommandAsync(input);
         }
 
-        public async Task<string> SetRegulatorPressure(int index, float pressure)
+        public async Task<string> SetRegPressure(int index, float pressure)
         {
-            string input = $"DDM_SetRegulatorPressure {index} {pressure}";
+            string input = $"DDM_SetRegPressure {index} {pressure}";
             return await SendRobotCommandAsync(input);
         }
 
-        public async Task<string> GetRegulatorPressure(int index)
+        public async Task<string> SetRegPressureAndWait(int index, float pressure, float timeout)
         {
-            string input = $"DDM_GetRegulatorPressure {index}";
+            string input = $"DDM_SetRegPressureAndWait {index} {pressure} {timeout}";
             return await SendRobotCommandAsync(input);
         }
 
-        public async Task<string> GetRegulatorPressureSetpoint(int index)
+        public async Task<string> GetRegPressure(int index)
         {
-            string input = $"DDM_GetRegulatorPressureSetpoint {index}";
+            string input = $"DDM_GetRegPressure {index}";
             return await SendRobotCommandAsync(input);
         }
 
-        public async Task<string> MeasureHeights(float xPos, float thStart, int nMeasurements)
+        public async Task<string> GetRegPressureSetpoint(int index)
         {
-            string input = $"DDM_MeasureHeights {xPos} {thStart} {nMeasurements}";
+            string input = $"DDM_GetRegPressureSetpoint {index}";
+            return await SendRobotCommandAsync(input);
+        }
+
+        public async Task<string> MeasureHeights(float xPos, float tStart, int nMeasurements)
+        {
+            string input = $"DDM_MeasureHeights {xPos} {tStart} {nMeasurements}";
             return await SendRobotCommandAsync(input);
         }
 

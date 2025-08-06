@@ -542,7 +542,7 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = setPressure1Input.Text;
-            string response = await App.ControllerManager.SetRegulatorPressure(1, float.Parse(input));
+            string response = await App.ControllerManager.SetRegPressure(1, float.Parse(input));
             startMeasure1Output.Content = response;
             LockRobotButtons(false);
         }
@@ -551,7 +551,7 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
             string input = setPressure2Input.Text;
-            string response = await App.ControllerManager.SetRegulatorPressure(2, float.Parse(input));
+            string response = await App.ControllerManager.SetRegPressure(2, float.Parse(input));
             setPressure2Output.Content = response;
             LockRobotButtons(false);
         }
@@ -598,7 +598,7 @@ namespace DDMAutoGUI.windows
             LockRobotButtons(false);
         }
 
-        private async void getLaserMagBtn_Click(object sender, RoutedEventArgs e)
+        private async void laserMagBtn_Click(object sender, RoutedEventArgs e)
         {
             DDMSettings s = App.SettingsManager.SETTINGS;
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
