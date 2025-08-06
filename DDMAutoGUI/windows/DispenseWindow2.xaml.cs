@@ -27,7 +27,7 @@ namespace DDMAutoGUI.windows
         private bool tabLock = true; // prevent user from clicking tabs directly
         private bool abortPreConfirmed = false;
 
-        private DispenseProcessData processData;
+        private ProcessResults processData;
         private DDMSettings settings;
 
 
@@ -36,12 +36,12 @@ namespace DDMAutoGUI.windows
         {
             InitializeComponent();
 
-            processData = new DispenseProcessData();
+            processData = new ProcessResults();
             processData.AddToLog("Process window opened");
             processData.UpdateProcessLog += ProcessData_UpdateProcessLog;
 
             App.SettingsManager.ReadSettingsFile();
-
+            settings = App.SettingsManager.SETTINGS;
 
             this.processData.AddToLog($"Settings loaded (last saved {settings.last_saved})");
 
@@ -56,7 +56,7 @@ namespace DDMAutoGUI.windows
             // pull data from user config (validate?)
 
             //string sn = snTextBox.Text.Trim();
-            string sn = "no_sn";
+            string sn = "TEST-SN-123456789";
             int motorSelection = motorSizeComboBox.SelectedIndex;
 
             bool doSNPhoto = snPhotoCheckBox.IsChecked ?? false;
@@ -68,7 +68,7 @@ namespace DDMAutoGUI.windows
 
             // store relevant data in processData object
 
-            processData.ringSN = sn;
+            processData.results.ring_sn = sn;
 
             // pull data from settings
 
@@ -176,6 +176,21 @@ namespace DDMAutoGUI.windows
                 await Task.Delay(1000);
                 processData.AddToLog("...");
                 await Task.Delay(1000);
+
+                processData.results.shot_id = new DDMResultsShot()
+                {
+                    valve_num = motor.shot_calibration.valve_num_id,
+                    vol = 0.005f,
+                    time = motor.shot_calibration.time_id,
+                    pressure = motor.shot_calibration.pressure_id
+                };
+                processData.results.shot_od = new DDMResultsShot()
+                {
+                    valve_num = motor.shot_calibration.valve_num_od,
+                    vol = 0.006f,
+                    time = motor.shot_calibration.time_od,
+                    pressure = motor.shot_calibration.pressure_od
+                };
                 processData.AddToLog("Dispense complete");
                 processProgressBar.Value = 80;
             }
@@ -290,13 +305,13 @@ namespace DDMAutoGUI.windows
         {
             TextDataViewer viewer = new TextDataViewer();
             viewer.Owner = this;
-            viewer.PopulateData(processData.processLog, "Process Log");
+            //viewer.PopulateData(processData.processLog, "Process Log");
             viewer.ShowDialog();
         }
 
         private void saveLogBtn_Click(object sender, RoutedEventArgs e)
         {
-            processData.SaveLogToFile();
+            processData.SaveDataToFile();
         }
 
         private void openFolderBtn_Click(object sender, RoutedEventArgs e)
@@ -312,7 +327,7 @@ namespace DDMAutoGUI.windows
 
         public void ProcessData_UpdateProcessLog(object sender, EventArgs e)
         {
-            logTextBox.Text = processData.processLog;
+            logTextBox.Text += "\n" + processData.results.process_log.Last().message;
             logTextBox.CaretIndex = logTextBox.Text.Length;
             logTextBox.ScrollToEnd();
         }

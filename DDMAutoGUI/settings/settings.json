@@ -18,7 +18,7 @@
     "shot_calibration": {
       "time_id": 5.0,
       "time_od": 5.0,
-      "valve_num_id": 1,
+      "valve_num_id": 2,
       "valve_num_od": 2,
       "pressure_id": 23.1,
       "pressure_od": 45.3,

@@ -18,8 +18,8 @@ namespace DDMAutoGUI.utilities
     {
         public float? time_id { get; set; }
         public float? time_od { get; set; }
-        public float? valve_num_id { get; set; }
-        public float? valve_num_od { get; set; }
+        public int? valve_num_id { get; set; }
+        public int? valve_num_od { get; set; }
         public float? pressure_id { get; set; }
         public float? pressure_od { get; set; }
         public float? target_vol_id { get; set; }

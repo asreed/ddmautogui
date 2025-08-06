@@ -28,7 +28,7 @@ namespace DDMAutoGUI
         private int currentStep = 0;
         private bool tabLock = true; // prevent user from clicking tabs directly
         
-        public  DispenseProcessData processData;
+        public  ProcessResults processData;
 
         private bool abortPreConfirmed = false;
 
@@ -47,7 +47,7 @@ namespace DDMAutoGUI
 
 
             //RobotManager.Instance.UpdateUIState += dispenseWindow_OnUpdateUIState;
-            processData = new DispenseProcessData();
+            processData = new ProcessResults();
             processData.AddToLog("Process started");
             abortPreConfirmed = false;
             GoToStep(0);
@@ -177,7 +177,7 @@ namespace DDMAutoGUI
         {
             TextDataViewer viewer = new TextDataViewer();
             viewer.Owner = this;
-            viewer.PopulateData(processData.processLog, "Process Log");
+            //viewer.PopulateData(processData.processLog, "Process Log");
             viewer.ShowDialog();
         }
 

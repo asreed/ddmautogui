@@ -58,7 +58,7 @@
 			Display notes:
 			Intended for Gen 1 Phase 1a. ENGINEERING TESTING ONLY.
 	-->
-	<!-- 1.1.5
+	<!-- 1.2.0
 	        (in progress)
 			Release notes:
 			...
@@ -67,7 +67,7 @@
 			Intended for Gen 1 Phase 1b. ENGINEERING TESTING ONLY.
 	-->
 
-	<Version>1.1.4</Version> <!-- THIS IS THE VERSION NUMBER -->
+	<Version>1.2.0</Version> <!-- THIS IS THE VERSION NUMBER -->
 	<AssemblyName>DDMAutoGUI</AssemblyName>
 	<GenerateDocumentationFile>False</GenerateDocumentationFile>
 	<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
