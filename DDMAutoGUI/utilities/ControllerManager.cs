@@ -438,15 +438,37 @@ namespace DDMAutoGUI.utilities
         // ==================================================================
         // Public helpers
 
-        public string ParseHeightData(string rawString)
+        public List<DDMResultsSingleHeight> ParseHeightData(string rawString)
         {
-            string[] parts = rawString.Split(" ");
-            string formattedData = string.Empty;
-            if (parts[0] == "0")
+            string[] responseArray = rawString.Split(" ");
+            string[] measurementString;
+            List<DDMResultsSingleHeight> measurementList = new List<DDMResultsSingleHeight>();
+
+            if (responseArray[0] == "0")
             {
-                formattedData = parts[1].Replace(";", "\n");
+                measurementString = responseArray[1].Split(";");
+                for (int i = 0; i < measurementString.Length; i++)
+                {
+                    string[] singleMeasurement = measurementString[i].Split(",");
+                    DDMResultsSingleHeight measurement = new DDMResultsSingleHeight
+                    {
+                        t = float.Parse(singleMeasurement[0]),
+                        z = float.Parse(singleMeasurement[1])
+                    };
+                    measurementList.Add(measurement);
+                }
             }
-            return formattedData;
+            return measurementList;
+        }
+
+        public string ParseHeightDataToString(List<DDMResultsSingleHeight> measurementList)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < measurementList.Count; i++)
+            {
+                sb.Append($"{measurementList[i].t}, {measurementList[i].z}\n");
+            }
+            return sb.ToString();
         }
 
 

@@ -28,9 +28,8 @@ namespace DDMAutoGUI.windows
     public partial class ControlPanelWindow : Window
     {
 
-        public string laserRingData;
-        public string laserMagData;
-        public string laserCustomData;
+        public List<DDMResultsSingleHeight> laserRingData;
+        public List<DDMResultsSingleHeight> laserMagData;
 
 
         public ControlPanelWindow()
@@ -586,7 +585,7 @@ namespace DDMAutoGUI.windows
             string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n);
             laserRingData = App.ControllerManager.ParseHeightData(response);
 
-            if (laserRingData.Length > 0)
+            if (laserRingData.Count > 0)
             {
                 laserRingOutput.Content = $"(data collected)";
             }
@@ -610,7 +609,7 @@ namespace DDMAutoGUI.windows
             string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n);
             laserMagData = App.ControllerManager.ParseHeightData(response);
 
-            if (laserMagData.Length > 0)
+            if (laserMagData.Count > 0)
             {
                 laserMagOutput.Content = $"(data collected)";
             }
@@ -624,18 +623,18 @@ namespace DDMAutoGUI.windows
 
         private void showRingBtn_Click(object sender, RoutedEventArgs e)
         {
-            TextDataViewer viewer = new TextDataViewer();
-            viewer.Owner = this;
-            viewer.PopulateData(laserRingData, "Ring Displacement Measurements");
-            viewer.Show();
+            //TextDataViewer viewer = new TextDataViewer();
+            //viewer.Owner = this;
+            //viewer.PopulateData(laserRingData, "Ring Displacement Measurements");
+            //viewer.Show();
         }
 
         private void showMagBtn_Click(object sender, RoutedEventArgs e)
         {
-            TextDataViewer viewer = new TextDataViewer();
-            viewer.Owner = this;
-            viewer.PopulateData(laserMagData, "Magnet Displacement Measurements");
-            viewer.Show();
+            //TextDataViewer viewer = new TextDataViewer();
+            //viewer.Owner = this;
+            //viewer.PopulateData(laserMagData, "Magnet Displacement Measurements");
+            //viewer.Show();
         }
 
 

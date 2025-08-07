@@ -79,6 +79,14 @@
                         <Image Source="/resources/icons/tune.ico" Opacity="0.8"/>
                     </MenuItem.Icon>
                 </MenuItem>
+                <MenuItem 
+                    Header="Matlab Processing" 
+                    x:Name="asfddf"
+                    Click="MatlabBtn_Click">
+                    <MenuItem.Icon>
+                        <Image Source="/resources/icons/tune.ico" Opacity="0.8"/>
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
             
             <MenuItem Header="About">
@@ -180,7 +188,8 @@
                         x:Name="splashErrorBox" 
                         Margin="0,4,0,4"
                         Grid.Row="1" 
-                        Grid.ColumnSpan="2">
+                        Grid.ColumnSpan="2"
+                        Visibility="Collapsed">
 
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

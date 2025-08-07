@@ -151,6 +151,10 @@ namespace DDMAutoGUI.windows
                 processData.AddToLog("Measuring ring...");
                 processData.AddToLog($"Moving to [{motor.laser_ring.x}, {motor.laser_ring.t}]");
                 await Task.Delay(1000);
+
+                string fakeResponse = "0 0.00,0.10;0.10,0.11;0.20,0.09;0.30,0.10";
+                processData.results.ring_heights = App.ControllerManager.ParseHeightData(fakeResponse);
+
                 processData.AddToLog("Data collected");
                 processProgressBar.Value = 30;
             }
@@ -161,6 +165,10 @@ namespace DDMAutoGUI.windows
                 processData.AddToLog("Measuring magnets...");
                 processData.AddToLog($"Moving to [{motor.laser_mag.x}, {motor.laser_mag.t}]");
                 await Task.Delay(1000);
+
+                string fakeResponse = "0 0.00,0.10;0.10,0.11;0.20,0.09;0.30,0.10;0.40,0.12;0.50,0.11";
+                processData.results.mag_heights = App.ControllerManager.ParseHeightData(fakeResponse);
+
                 processData.AddToLog("Data collected");
                 processProgressBar.Value = 40;
 

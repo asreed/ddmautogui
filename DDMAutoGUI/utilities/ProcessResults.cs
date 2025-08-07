@@ -24,7 +24,7 @@ namespace DDMAutoGUI.utilities
     public class DDMResultsSingleHeight
     {
         public float? t { get; set; }
-        public float? y { get; set; }
+        public float? z { get; set; }
     }
 
     public class DDMResultsLogLine

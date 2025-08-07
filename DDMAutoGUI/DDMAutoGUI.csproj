@@ -205,6 +205,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="windows\MatlabWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="windows\TextDataViewer.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -225,6 +228,10 @@
     <None Update="resources\icons\svg-cr\connect.svg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="results\" />
   </ItemGroup>
 
 

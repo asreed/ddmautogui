@@ -75,7 +75,7 @@ namespace DDMAutoGUI
                 Random r = new Random();
                 float ti = 360f / ring_heights.Capacity * i;
                 float yi = 0.100f + 0.05f * (float)r.NextDouble();
-                ring_heights.Insert(i, new DDMResultsSingleHeight() { t = ti, y = yi });
+                ring_heights.Insert(i, new DDMResultsSingleHeight() { t = ti, z = yi });
             }
             results.ring_heights = ring_heights;
             List<DDMResultsSingleHeight> mag_heights = new List<DDMResultsSingleHeight>(50);
@@ -84,7 +84,7 @@ namespace DDMAutoGUI
                 Random r = new Random();
                 float ti = 360f / mag_heights.Capacity * i;
                 float yi = 0.200f + 0.05f * (float)r.NextDouble();
-                mag_heights.Insert(i, new DDMResultsSingleHeight() { t = ti, y = yi });
+                mag_heights.Insert(i, new DDMResultsSingleHeight() { t = ti, z = yi });
             }
             results.mag_heights = mag_heights;
             List<DDMResultsLogLine> process_log = new List<DDMResultsLogLine>();

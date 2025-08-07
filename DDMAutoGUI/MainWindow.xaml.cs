@@ -31,6 +31,8 @@ namespace DDMAutoGUI
         private static DispenseWindow2 dispenseWindow2;
         private static CameraWindow cameraWindow;
         private static SettingsWindow settingsWindow;
+        private static MatlabWindow matlabWindow;
+
 
         public MainWindow()
         {
@@ -143,6 +145,21 @@ namespace DDMAutoGUI
             else
             {
                 settingsWindow.Activate();
+            }
+        }
+
+        private void MatlabBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (matlabWindow == null || !matlabWindow.IsVisible)
+            {
+                matlabWindow = new MatlabWindow();
+                matlabWindow.Closed += (s, e) => matlabWindow = null;
+                //matlabWindow.Owner = this;
+                matlabWindow.Show();
+            }
+            else
+            {
+                matlabWindow.Activate();
             }
         }
 
