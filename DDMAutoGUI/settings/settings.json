@@ -1,8 +1,11 @@
 {
-  "last_saved" : "2025-08-01",
+  "last_saved": "2025-08-01",
+  "path_matlab_exe" : "",
   "common": {
     "linear_axis_num": 1,
     "rotary_axis_num": 2,
+    "system_1_content": "Permabond 825",
+    "system_2_content": "Permabond 801",
     "load": {
       "x": 590.00,
       "t": 0
@@ -16,16 +19,16 @@
   },
   "ddm_57": {
     "shot_calibration": {
-      "time_id": 5.0,
-      "time_od": 5.0,
+      "time_id": 0.84,
+      "time_od": 1.10,
       "valve_num_id": 2,
       "valve_num_od": 2,
-      "pressure_id": 23.1,
-      "pressure_od": 45.3,
-      "target_vol_id": 0.77,
-      "target_vol_od": 0.84,
-      "spin_time": 4.0,
-      "spin_speed": 150.0
+      "pressure_id": 12.5,
+      "pressure_od": 12.5,
+      "target_vol_id": 0.10,
+      "target_vol_od": 0.13,
+      "post_spin_time": 4.0,
+      "post_spin_speed": 150.0
     },
     "camera_side": {
       "x": 280,
@@ -50,16 +53,16 @@
   },
   "ddm_116": {
     "shot_calibration": {
-      "time_id": 5.0,
-      "time_od": 5.0,
+      "time_id": 5.00,
+      "time_od": 5.00,
       "valve_num_id": 1,
       "valve_num_od": 2,
       "pressure_id": 23.1,
       "pressure_od": 45.3,
       "target_vol_id": 0.77,
       "target_vol_od": 0.84,
-      "spin_time": 4.0,
-      "spin_speed": 150.0
+      "post_spin_time": 4.0,
+      "post_spin_speed": 150.0
     },
     "camera_side": {
       "x": 302,

@@ -22,7 +22,7 @@ namespace DDMAutoGUI.windows {
     public class MatlabResult
     {
         public string? sn {  get; set; }
-        public string? result { get; set; }
+        public bool? sn_detected { get; set; }
         public string? file_path_top_input { get; set; }
         public string? file_path_side_input { get; set; }
     }
@@ -57,7 +57,7 @@ namespace DDMAutoGUI.windows {
             string resultsFilePath = AppDomain.CurrentDomain.BaseDirectory + "results\\matlab_results.json";
 
             MatlabResult result = new MatlabResult();
-            Debug.Print("Reading settings file from: " + resultsFilePath);
+            Debug.Print("Reading Matlab results file from: " + resultsFilePath);
             try
             {
                 if (File.Exists(resultsFilePath))
@@ -67,19 +67,19 @@ namespace DDMAutoGUI.windows {
                 }
                 else
                 {
-                    Debug.Print("Settings file does not exist!");
+                    Debug.Print("Matlab results file does not exist!");
                 }
             }
             catch (JsonException ex)
             {
-                Debug.Print("Error deserializing settings file: " + ex.Message);
+                Debug.Print("Error deserializing Matlab results file: " + ex.Message);
             }
 
             resultText.Text = "";
+            resultText.Text += $"serial number detected: {result.sn_detected}\n";
             resultText.Text += $"serial number: {result.sn}\n";
-            resultText.Text += $"serial number: {result.result}\n";
-            resultText.Text += $"serial number: {result.file_path_top_input}\n";
-            resultText.Text += $"serial number: {result.file_path_side_input}\n";
+            resultText.Text += $"file path top (in): {result.file_path_top_input}\n";
+            resultText.Text += $"file path side (in): {result.file_path_side_input}\n";
 
         }
 

@@ -1,0 +1,419 @@
+﻿<Window x:Class="DDMAutoGUI.MainWindowSingle"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DDMAutoGUI"
+        mc:Ignorable="d"
+        Background="WhiteSmoke"
+        Title="DDM Automation Cell Manager" Height="768" Width="1024" ResizeMode="CanResizeWithGrip">
+    
+    <Grid Margin="6">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="1">
+            
+        <TabControl TabStripPlacement="Left">
+            <TabItem Header="Connect" Padding="40">
+
+                    <Grid Margin="6">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="400"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Row="1" Grid.Column="1">
+                            <StackPanel Orientation="Vertical">
+                                <TextBox Grid.Row="0" Grid.Column="0" x:Name="splashIPTextBox" Text="192.168.0.1" Margin="6" Padding="12"/>
+                                <Button Grid.Row="0" Grid.Column="1" x:Name="splashConnectBtn" Content="Connect" Margin="6" Padding="12"/>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+
+            </TabItem>
+            <TabItem Header="Dispense" Padding="40">
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <Grid Margin="6">
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="500"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+
+                            <Grid Grid.Row="1" Grid.Column="1">
+                                <TabControl x:Name="dispTabControl" Grid.Row="1" Margin="6">
+
+                                    <TabItem Header="1: Configuration">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                            <Grid x:Name="tabContainer1">
+
+                                                <Grid>
+
+                                                    <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
+                                                        <GroupBox Header="Motor Size">
+                                                            <Grid>
+                                                                <ComboBox Grid.Column="0" x:Name="motorSizeComboBox" VerticalContentAlignment="Center" Padding="10">
+
+                                                                    <!-- Settings selected based on index. Be careful changing these items: -->
+                                                                    <!-- -->
+                                                                    <ComboBoxItem Content="DDM 57" IsEnabled="False" Padding="10"/>
+                                                                    <!-- -->
+                                                                    <ComboBoxItem Content="DDM 95" IsEnabled="False" Padding="10"/>
+                                                                    <!-- -->
+                                                                    <ComboBoxItem Content="DDM 116" IsEnabled="True" IsSelected="True" Padding="10"/>
+                                                                    <!-- -->
+                                                                    <ComboBoxItem Content="DDM 170" IsEnabled="False" Padding="10"/>
+                                                                    <!-- -->
+                                                                    <ComboBoxItem Content="DDM 170 Tall" IsEnabled="False" Padding="10"/>
+                                                                    <!-- -->
+
+                                                                </ComboBox>
+                                                                <!--<Button Grid.Column="1" Content="View" Margin="8,0,0,0"/>-->
+                                                            </Grid>
+                                                        </GroupBox>
+                                                        <!--<GroupBox Header="Motor SN">
+                                                            <TextBox x:Name="snTextBox" Padding="6"/>
+                                                        </GroupBox>-->
+                                                        <GroupBox Header="Options">
+                                                            <StackPanel Orientation="Vertical">
+                                                                <CheckBox IsChecked="True" x:Name="snPhotoCheckBox" Content="Serial number photo" VerticalContentAlignment="Center" Padding="8"/>
+                                                                <CheckBox IsChecked="True" x:Name="prePhotoCheckBox" Content="Pre-process photo" VerticalContentAlignment="Center" Padding="8"/>
+                                                                <CheckBox IsChecked="True" x:Name="measureRingCheckBox" Content="Ring height measurement" VerticalContentAlignment="Center" Padding="8"/>
+                                                                <CheckBox IsChecked="True" x:Name="measureMagCheckBox" Content="Magnet and concentrator height measurement" VerticalContentAlignment="Center" Padding="8"/>
+                                                                <CheckBox IsChecked="True" x:Name="dispenseCheckBox" Content="Dispense cyanoacrylate" VerticalContentAlignment="Center" Padding="8"/>
+                                                                <CheckBox IsChecked="True" x:Name="postPhotoCheckBox" Content="Post-process photo" VerticalContentAlignment="Center" Padding="8"/>
+                                                            </StackPanel>
+                                                        </GroupBox>
+                                                        <Button 
+                                                            x:Name="beginButton"
+                                                            Content="Begin" 
+                                                            Style="{DynamicResource PrimaryBlueButton}" 
+                                                            Padding="8"
+                                                            Margin="7,4,7,4"/>
+                                                    </StackPanel>
+
+                                                </Grid>
+
+
+                                            </Grid>
+                                        </ScrollViewer>
+                                    </TabItem>
+
+                                    <TabItem Header="2: Process">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                            <Grid x:Name="tabContainer2">
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
+                                                        <Button 
+                                                           x:Name="estopButton" 
+                                                           Content="E STOP" 
+                                                           Style="{DynamicResource PrimaryRedButton}" 
+                                                           Margin="7,4,7,4"/>
+                                                        <GroupBox Header="Process Log">
+
+                                                            <TextBox 
+                                                                x:Name="logTextBox" 
+                                                                Text="(no data)"
+                                                                Height="200" 
+                                                                Padding="6,5"
+                                                                FontFamily="Consolas" 
+                                                                FontSize="10" 
+                                                                IsReadOnly="True" 
+                                                                TextWrapping="Wrap"
+                                                                VerticalContentAlignment="Top" 
+                                                                VerticalScrollBarVisibility="Auto"/>
+                                                        </GroupBox>
+                                                        <ProgressBar 
+                                                            x:Name="processProgressBar" 
+                                                            Height="20" 
+                                                            Margin="7,4,7,4" 
+                                                            IsIndeterminate="False"
+                                                            Value="0" LargeChange="0"/>
+                                                        <!--<Button 
+                                                           x:Name="resultsButton" 
+                                                           Content="See results" 
+                                                           Style="{DynamicResource PrimaryBlueButton}" 
+                                                           Margin="7,4,7,4"/>-->
+
+
+                                                    </StackPanel>
+
+                                                </Grid>
+
+
+
+                                            </Grid>
+                                        </ScrollViewer>
+                                    </TabItem>
+
+                                    <TabItem Header="3. Results">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                            <Grid x:Name="tabContainer3">
+                                                <Grid>
+
+                                                    <StackPanel>
+                                                        <Button
+                                                            x:Name="saveLogBtn"
+                                                            Content="Save log"
+                                                            Style="{DynamicResource PrimaryBlackButton}"/>
+                                                        <Button
+                                                            x:Name="logBtn"
+                                                            Content="View log"
+                                                            Style="{DynamicResource PrimaryBlackButton}"/>
+                                                        <Button
+                                                            x:Name="openFolderBtn"
+                                                            Content="Open folder"/>
+                                                    </StackPanel>
+
+
+                                                </Grid>
+
+                                            </Grid>
+                                        </ScrollViewer>
+                                    </TabItem>
+
+                                </TabControl>
+
+                            </Grid>
+                        </Grid>
+                    </ScrollViewer>
+                </TabItem>
+            <TabItem Header="Advanced" Padding="40">
+
+                <Grid>
+
+                    <TabControl TabStripPlacement="Left" Margin="6,0,0,0">
+                        <TabItem Header="Connection" Padding="15">
+
+                                <Grid>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+
+                                    <GroupBox Grid.Row="0" Height="Auto" Header="TCS Connection">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <TextBox Grid.Column="0" Grid.Row="0" x:Name="ipTextBox" Text="192.168.0.1" Margin="4" Padding="10"/>
+                                            <Button Grid.Column="1" Grid.Row="0" x:Name="connectBtn" Content="Connect to TCS" Padding="10"/>
+                                            <Button Grid.Column="2" Grid.Row="0" x:Name="disconnectBtn" Content="Disconnect from TCS" Padding="10"/>
+                                            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
+                                                <Label Content="Controller software version:" Padding="5,2"/>
+                                                <Label x:Name="versionLabel" Content="(no version info)" Padding="5,2"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </GroupBox>
+
+                                    <GroupBox Grid.Row="1" Height="Auto" Header="Troubleshoot Connection" Foreground="#CCC" Visibility="Collapsed">
+                                        <StackPanel Orientation="Vertical">
+                                            <Button x:Name="loadTCSBtn" Content="Attempt to load " HorizontalAlignment="Left"/>
+                                            <Label x:Name="loadTCSLabel" Content="(result)" Padding="2" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </GroupBox>
+
+                                    <Grid Grid.Row="2">
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <GroupBox Grid.Column="0" Header="Status Connection">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <!--
+                                                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                                    <Button x:Name="startAutoBtn" Content="Start Auto" Click="startAutoBtn_Click" IsEnabled="False"/>
+                                                    <Button x:Name="stopAutoBtn" Content="Stop Auto" Click="stopAutoBtn_Click" IsEnabled="False"/>
+                                                </StackPanel>
+                                                -->
+                                                <TextBox Grid.Row="1" x:Name="statusLogTextBox" Margin="4" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" IsReadOnly="True" FontSize="10" FontFamily="Consolas" VerticalContentAlignment="Top"/>
+                                                <Grid Grid.Row="2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox Grid.Column="0" x:Name="statusMessageTextBox" Margin="4" Text="" Padding="10"/>
+                                                    <Button Grid.Column="1" x:Name="statusSendBtn" Content="Send" Padding="10"/>
+                                                </Grid>
+                                            </Grid>
+                                        </GroupBox>
+
+                                        <GroupBox Grid.Column="1" Header="Robot Connection">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <TextBox Grid.Row="0" x:Name="robotLogTextBox" Margin="4" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" IsReadOnly="True" FontSize="10" FontFamily="Consolas" VerticalContentAlignment="Top"/>
+                                                <Grid Grid.Row="1">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox Grid.Column="0" x:Name="robotMessageTextBox" Margin="4" Text="" Padding="10"/>
+                                                    <Button Grid.Column="1" x:Name="robotSendBtn" Content="Send" Padding="10"/>
+                                                </Grid>
+
+                                            </Grid>
+                                        </GroupBox>
+                                    </Grid>
+
+
+
+                                </Grid>
+
+
+
+                            </TabItem>
+                        <TabItem Header="Cell Control Panel" Padding="15">
+
+                        </TabItem>
+                            <TabItem Header="Camera" Padding="15">
+
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+
+                                    <Grid Grid.Row="0" Background="White" Margin="6,6,6,0">
+                                        <Border BorderBrush="#DDD" BorderThickness="1">
+                                            <Image x:Name="acquiredImageDisplay" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        </Border>
+                                        <Label x:Name="displayLabel" Content="No image" Foreground="#FFD4D4D4" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="-1"/>
+                                    </Grid>
+
+
+
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <GroupBox Header="Acquisition" Grid.Column="0">
+                                            <Button x:Name="acquireBtn" Content="Connect and acquire" Style="{DynamicResource PrimaryBlackButton}" Padding="10"/>
+                                        </GroupBox>
+                                        <GroupBox Header="Other" Grid.Column="1">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="Open folder" Padding="10"/>
+                                            </StackPanel>
+                                        </GroupBox>
+                                    </Grid>
+
+                                    <!--<StackPanel Grid.Row="2">
+                                        <Label x:Name="label1" Content="Ready" Margin="8,0,0,0"/>
+                                    </StackPanel>-->
+
+                                </Grid>
+                            </TabItem>
+                            <TabItem Header="Settings" Padding="15">
+
+                        </TabItem>
+                        <TabItem Header="Image Process" Padding="15">
+
+                        </TabItem>
+                        <TabItem Header="About" Padding="15">
+                                <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+
+                                    <Grid Margin="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Image Source="/resources/logos/b.ico" Width="40" VerticalAlignment="Center" Margin="0,6,0,0"/>
+
+                                        <Grid Grid.Column="1" VerticalAlignment="Center">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+
+                                            <Label Grid.Row="0" 
+                                               Content="DDM Automation Cell Manager" 
+                                               Padding="0" 
+                                               Foreground="{StaticResource BrooksBlue}" 
+                                               FontSize="16" FontWeight="Bold"/>
+
+                                            <TextBlock Grid.Row="1"
+                                               Name="infoTextBox" 
+                                               Text="(application info)" 
+                                               Padding="0" 
+                                               TextWrapping="Wrap" 
+                                               Foreground="{StaticResource BrooksBlue}" 
+                                               FontSize="10" VerticalAlignment="Top"/>
+
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </TabItem>
+                        </TabControl>
+
+                </Grid>
+
+
+            </TabItem>
+            </TabControl>
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="0,6,0,0">
+            <StatusBar Background="Transparent">
+                <StatusBarItem Padding="0">
+                    <Label Content="Version" Padding="0"/>
+                </StatusBarItem>
+            </StatusBar>
+        </Grid>
+        
+    </Grid>
+</Window>

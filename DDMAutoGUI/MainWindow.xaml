@@ -84,7 +84,7 @@
                     x:Name="asfddf"
                     Click="MatlabBtn_Click">
                     <MenuItem.Icon>
-                        <Image Source="/resources/icons/tune.ico" Opacity="0.8"/>
+                        <Image Source="/resources/icons/image_search.ico" Opacity="0.8"/>
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>

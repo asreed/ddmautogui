@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DDMAutoGUI.windows"
         mc:Ignorable="d"
-        Icon="/resources/icons/tune.ico"
+        Icon="/resources/icons/image_search.ico"
         Title="Matlab Image Processing" Height="250" Width="250">
     <Grid>
 

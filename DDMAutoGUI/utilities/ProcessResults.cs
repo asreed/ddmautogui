@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using System.Text.Json;
 
 namespace DDMAutoGUI.utilities
@@ -70,6 +71,9 @@ namespace DDMAutoGUI.utilities
         public string fileNamePhotoBefore = "before";
         public string fileNamePhotoAfter = "after";
 
+        public string dateFormatLong = "MM-dd-yyy HH:mm:ss.fff";
+        public string dateFormatShort = "HH:mm:ss.fff";
+
         public event EventHandler UpdateProcessLog;
 
         public DDMResults results;
@@ -114,6 +118,19 @@ namespace DDMAutoGUI.utilities
         {
             string fullDirectory = saveMainDirectory + saveFolderPrefix + results.ring_sn + "\\";
             Process.Start("explorer.exe", fullDirectory);
+        }
+        
+        public string GetLogAsString()
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < results.process_log?.Count; i++)
+            {
+                sb.Append(results.process_log[i].date?.ToString(dateFormatLong));
+                sb.Append(": ");
+                sb.Append(results.process_log[i].message?.ToString());
+                sb.Append('\n');
+            }
+            return sb.ToString();
         }
     }
 }

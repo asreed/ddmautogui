@@ -54,7 +54,7 @@ namespace DDMAutoGUI
             InitializeComponent();
             App.UIManager.UIStateChanged += mainWindow_OnChangeState;
 
-            this.Title += App.UIManager.GetAppVersionString();
+            this.Title += " " + App.UIManager.GetAppVersionString();
 
             splashErrorBox.Visibility = Visibility.Collapsed;
             UpdateButtonLocks();

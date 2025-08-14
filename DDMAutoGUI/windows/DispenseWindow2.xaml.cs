@@ -44,6 +44,7 @@ namespace DDMAutoGUI.windows
             settings = App.SettingsManager.SETTINGS;
 
             this.processData.AddToLog($"Settings loaded (last saved {settings.last_saved})");
+            logTextBox.Text = "";
 
             GoToStep(0);
         }
@@ -55,7 +56,6 @@ namespace DDMAutoGUI.windows
         {
             // pull data from user config (validate?)
 
-            //string sn = snTextBox.Text.Trim();
             string sn = "TEST-SN-123456789";
             int motorSelection = motorSizeComboBox.SelectedIndex;
 
@@ -313,7 +313,7 @@ namespace DDMAutoGUI.windows
         {
             TextDataViewer viewer = new TextDataViewer();
             viewer.Owner = this;
-            //viewer.PopulateData(processData.processLog, "Process Log");
+            viewer.PopulateData(processData.GetLogAsString(), "Process Log");
             viewer.ShowDialog();
         }
 
@@ -335,7 +335,8 @@ namespace DDMAutoGUI.windows
 
         public void ProcessData_UpdateProcessLog(object sender, EventArgs e)
         {
-            logTextBox.Text += "\n" + processData.results.process_log.Last().message;
+            DDMResultsLogLine logline = processData.results.process_log.Last();
+            logTextBox.Text += logline.date?.ToString(processData.dateFormatShort) + ": " + logline.message + "\n";
             logTextBox.CaretIndex = logTextBox.Text.Length;
             logTextBox.ScrollToEnd();
         }

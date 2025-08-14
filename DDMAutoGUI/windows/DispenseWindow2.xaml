@@ -68,7 +68,7 @@
                                             <!-- -->
 
                                         </ComboBox>
-                                        <Button Grid.Column="1" Content="View" Margin="8,0,0,0"/>
+                                        <!--<Button Grid.Column="1" Content="View" Margin="8,0,0,0"/>-->
                                     </Grid>
                                 </GroupBox>
                                 <!--<GroupBox Header="Motor SN">
@@ -175,14 +175,14 @@
                             
                             <StackPanel Grid.Column="1" Grid.Row="1">
                                 <Button
-                                    x:Name="logBtn"
-                                    Click="logBtn_Click"
-                                    Content="View log"
-                                    Style="{DynamicResource PrimaryBlackButton}"/>
-                                <Button
                                     x:Name="saveLogBtn"
                                     Click="saveLogBtn_Click"
                                     Content="Save log"
+                                    Style="{DynamicResource PrimaryBlackButton}"/>
+                                <Button
+                                    x:Name="logBtn"
+                                    Click="logBtn_Click"
+                                    Content="View log"
                                     Style="{DynamicResource PrimaryBlackButton}"/>
                                 <Button
                                     x:Name="openFolderBtn"
