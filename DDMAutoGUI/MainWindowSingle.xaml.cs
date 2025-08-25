@@ -1,4 +1,5 @@
 ﻿using DDMAutoGUI.utilities;
+using DDMAutoGUI.windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -655,12 +656,30 @@ namespace DDMAutoGUI
 
         private async void Adv_Cell_ShowRingBtn_Click(object sender, RoutedEventArgs e)
         {
-
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < laserRingData.Count; i++)
+            {
+                DDMResultsSingleHeight d = laserRingData[i];
+                sb.AppendLine($"{d.t}, {d.z}");
+            }
+            TextDataViewer viewer = new TextDataViewer();
+            viewer.Owner = this;
+            viewer.PopulateData(sb.ToString(), "Ring Displacement Measurements");
+            viewer.Show();
         }
 
         private async void Adv_Cell_ShowMagBtn_Click(object sender, RoutedEventArgs e)
         {
-
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < laserMagData.Count; i++)
+            {
+                DDMResultsSingleHeight d = laserMagData[i];
+                sb.AppendLine($"{d.t}, {d.z}");
+            }
+            TextDataViewer viewer = new TextDataViewer();
+            viewer.Owner = this;
+            viewer.PopulateData(sb.ToString(), "Ring Displacement Measurements");
+            viewer.Show();
         }
 
         private async void Adv_Cell_SetPres1Btn_Click(object sender, RoutedEventArgs e)

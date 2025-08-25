@@ -7,11 +7,11 @@
     "system_1_content": "Permabond 825",
     "system_2_content": "Permabond 801",
     "load": {
-      "x": 590.00,
+      "x": 0,
       "t": 0
     },
     "camera_top": {
-      "x": 293.33,
+      "x": 262.936,
       "t": 0
     },
     "laser_ring_num": 6,
@@ -77,11 +77,11 @@
       "t": 0
     },
     "laser_mag": {
-      "x": 226,
+      "x": 308.391,
       "t": 0
     },
     "laser_ring": {
-      "x": 223.33,
+      "x": 308.391,
       "t": 0
     }
   }

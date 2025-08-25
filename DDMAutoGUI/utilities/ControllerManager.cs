@@ -447,7 +447,9 @@ namespace DDMAutoGUI.utilities
             if (responseArray[0] == "0")
             {
                 measurementString = responseArray[1].Split(";");
-                for (int i = 0; i < measurementString.Length; i++)
+
+                // string ends with ";" so last entry is empty. Only iterate to Length-1
+                for (int i = 0; i < measurementString.Length - 1; i++)
                 {
                     string[] singleMeasurement = measurementString[i].Split(",");
                     DDMResultsSingleHeight measurement = new DDMResultsSingleHeight
