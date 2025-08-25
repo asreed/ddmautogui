@@ -369,6 +369,7 @@
                                                     <ComboBoxItem Content="DDM 170" />
                                                     <ComboBoxItem Content="DDM 170 Tall" />
                                                 </ComboBox>
+                                                <Button x:Name="Adv_Cell_OpenSettingsBtn" Content="Open file" Click="Adv_Cell_OpenSettingsBtn_Click"/>
                                                 <Button x:Name="Adv_Cell_ReloadSettingsBtn" Content="Reload" Click="Adv_Cell_ReloadSettingsBtn_Click"/>
                                             </StackPanel>
                                         </GroupBox>

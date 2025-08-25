@@ -160,7 +160,6 @@ namespace DDMAutoGUI.utilities
         {
             string folderPath = Path.GetDirectoryName(settingsFilePath);
             System.Diagnostics.Process.Start("explorer.exe", folderPath);
-
         }
 
         public void ReloadSettings()

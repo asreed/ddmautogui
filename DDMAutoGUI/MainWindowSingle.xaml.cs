@@ -483,6 +483,11 @@ namespace DDMAutoGUI
 
 
 
+        private void Adv_Cell_OpenSettingsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string folderPath = App.SettingsManager.GetSettingsFilePath();
+            System.Diagnostics.Process.Start("notepad.exe", folderPath);
+        }
         private void Adv_Cell_ReloadSettingsBtn_Click(object sender, RoutedEventArgs e)
         {
             App.SettingsManager.ReloadSettings();
