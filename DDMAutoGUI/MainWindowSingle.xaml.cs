@@ -243,8 +243,8 @@ namespace DDMAutoGUI
                 Adv_Cell_MoveDispODInLbl.Content = $"[{m.disp_od.x}, {m.disp_od.t}]";
                 Adv_Cell_MoveSpinInLbl.Content = $"{c.spin_time}s, {c.spin_speed}%";
 
-                Adv_Cell_MeasureRingInLbl.Content = $"{s.common.laser_ring_num} places";
-                Adv_Cell_MeasureMagInLbl.Content = $"{s.common.laser_mag_num} places";
+                Adv_Cell_MeasureRingInLbl.Content = $"{s.common.laser_ring_num} places, {s.common.laser_delay} s each";
+                Adv_Cell_MeasureMagInLbl.Content = $"{s.common.laser_mag_num} places, {s.common.laser_delay} s each";
 
                 Adv_Cell_DispShotsInLbl.Content = $"ID: Valve {c.valve_num_id}, x={m.disp_id.x} mm, {c.time_id} s, target {c.target_vol_id}mL\n";
                 Adv_Cell_DispShotsInLbl.Content += $"OD: Valve {c.valve_num_od}, x={m.disp_od.x} mm, {c.time_od} s, target {c.target_vol_od} mL";
@@ -482,6 +482,13 @@ namespace DDMAutoGUI
 
 
 
+
+        private void Adv_Cell_ReloadSettingsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            App.SettingsManager.ReloadSettings();
+            PopulateMotorSettings(Adv_Cell_MotorSizeCmb);
+        }
+
         private async void Adv_Cell_EnableBtn_Click(object sender, RoutedEventArgs e)
         {
             LockRobotButtons(true);
@@ -501,9 +508,9 @@ namespace DDMAutoGUI
 
             DDMSettings s = App.SettingsManager.SETTINGS;
             float x = s.common.load.x.Value;
-            float th = s.common.load.t.Value;
+            float t = s.common.load.t.Value;
 
-            string response = await App.ControllerManager.MoveJ(x, th);
+            string response = await App.ControllerManager.MoveJ(x, t);
             Adv_Cell_MoveLoadOutLbl.Content = response;
 
             LockRobotButtons(false);
@@ -515,9 +522,9 @@ namespace DDMAutoGUI
 
             DDMSettings s = App.SettingsManager.SETTINGS;
             float x = s.common.camera_top.x.Value;
-            float th = s.common.camera_top.t.Value;
+            float t = s.common.camera_top.t.Value;
 
-            string response = await App.ControllerManager.MoveJ(x, th);
+            string response = await App.ControllerManager.MoveJ(x, t);
             Adv_Cell_MoveCamTopOutLbl.Content = response;
 
             LockRobotButtons(false);
@@ -529,9 +536,9 @@ namespace DDMAutoGUI
 
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.camera_side.x.Value;
-            float th = m.camera_side.t.Value;
+            float t = m.camera_side.t.Value;
 
-            string response = await App.ControllerManager.MoveJ(x, th);
+            string response = await App.ControllerManager.MoveJ(x, t);
             Adv_Cell_MoveCamSideOutLbl.Content = response;
 
             LockRobotButtons(false);
@@ -543,9 +550,9 @@ namespace DDMAutoGUI
 
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.laser_ring.x.Value;
-            float th = m.laser_ring.t.Value;
+            float t = m.laser_ring.t.Value;
 
-            string response = await App.ControllerManager.MoveJ(x, th);
+            string response = await App.ControllerManager.MoveJ(x, t);
             Adv_Cell_MoveLaserRingOutLbl.Content = response;
 
             LockRobotButtons(false);
@@ -557,9 +564,9 @@ namespace DDMAutoGUI
 
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.laser_mag.x.Value;
-            float th = m.laser_mag.t.Value;
+            float t = m.laser_mag.t.Value;
 
-            string response = await App.ControllerManager.MoveJ(x, th);
+            string response = await App.ControllerManager.MoveJ(x, t);
             Adv_Cell_MoveLaserMagOutLbl.Content = response;
 
             LockRobotButtons(false);
@@ -571,9 +578,9 @@ namespace DDMAutoGUI
 
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.disp_id.x.Value;
-            float th = m.disp_id.t.Value;
+            float t = m.disp_id.t.Value;
 
-            string response = await App.ControllerManager.MoveJ(x, th);
+            string response = await App.ControllerManager.MoveJ(x, t);
             Adv_Cell_MoveDispIDOutLbl.Content = response;
 
             LockRobotButtons(false);
@@ -585,9 +592,9 @@ namespace DDMAutoGUI
 
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.disp_od.x.Value;
-            float th = m.disp_od.t.Value;
+            float t = m.disp_od.t.Value;
 
-            string response = await App.ControllerManager.MoveJ(x, th);
+            string response = await App.ControllerManager.MoveJ(x, t);
             Adv_Cell_MoveDispODOutLbl.Content = response;
 
             LockRobotButtons(false);
@@ -614,9 +621,10 @@ namespace DDMAutoGUI
             float xPos = m.laser_ring.x.Value;
             float tPos = m.laser_ring.t.Value;
             int n = s.common.laser_ring_num.Value;
+            float d = s.common.laser_delay.Value;
 
             LockRobotButtons(true);
-            string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n);
+            string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n, d);
             laserRingData = App.ControllerManager.ParseHeightData(response);
 
             if (laserRingData.Count > 0)
@@ -638,9 +646,10 @@ namespace DDMAutoGUI
             float xPos = m.laser_mag.x.Value;
             float tPos = m.laser_mag.t.Value;
             int n = s.common.laser_mag_num.Value;
+            float d = s.common.laser_delay.Value;
 
             LockRobotButtons(true);
-            string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n);
+            string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n, d);
             laserMagData = App.ControllerManager.ParseHeightData(response);
 
             if (laserMagData.Count > 0)

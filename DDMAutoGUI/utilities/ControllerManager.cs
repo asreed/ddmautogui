@@ -744,9 +744,9 @@ namespace DDMAutoGUI.utilities
             return await SendRobotCommandAsync(input);
         }
 
-        public async Task<string> MeasureHeights(float xPos, float tStart, int nMeasurements)
+        public async Task<string> MeasureHeights(float xPos, float tStart, int nMeasurements, float delay)
         {
-            string input = $"DDM_MeasureHeights {xPos} {tStart} {nMeasurements}";
+            string input = $"DDM_MeasureHeights {xPos} {tStart} {nMeasurements} {delay}";
             return await SendRobotCommandAsync(input);
         }
 

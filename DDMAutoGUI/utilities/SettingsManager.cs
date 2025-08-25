@@ -35,6 +35,7 @@ namespace DDMAutoGUI.utilities
         public DDMSettingsLocation? camera_top { get; set; }
         public int? laser_ring_num { get; set; }
         public int? laser_mag_num { get; set; }
+        public float? laser_delay { get; set; }
     }
     public class DDMSettingsSingleSize
     {
@@ -160,6 +161,11 @@ namespace DDMAutoGUI.utilities
             string folderPath = Path.GetDirectoryName(settingsFilePath);
             System.Diagnostics.Process.Start("explorer.exe", folderPath);
 
+        }
+
+        public void ReloadSettings()
+        {
+            SETTINGS = ReadSettingsFile();
         }
     }
 }

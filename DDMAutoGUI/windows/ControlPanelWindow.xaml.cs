@@ -580,9 +580,10 @@ namespace DDMAutoGUI.windows
             float xPos = m.laser_ring.x.Value;
             float tPos = m.laser_ring.t.Value;
             int n = s.common.laser_ring_num.Value;
+            float d = s.common.laser_delay.Value;
 
             LockRobotButtons(true);
-            string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n);
+            string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n, d);
             laserRingData = App.ControllerManager.ParseHeightData(response);
 
             if (laserRingData.Count > 0)
@@ -604,9 +605,10 @@ namespace DDMAutoGUI.windows
             float xPos = m.laser_mag.x.Value;
             float tPos = m.laser_mag.t.Value;
             int n = s.common.laser_mag_num.Value;
+            float d = s.common.laser_delay.Value;
 
             LockRobotButtons(true);
-            string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n);
+            string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n, d);
             laserMagData = App.ControllerManager.ParseHeightData(response);
 
             if (laserMagData.Count > 0)

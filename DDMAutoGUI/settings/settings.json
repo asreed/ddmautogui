@@ -1,5 +1,5 @@
 {
-  "last_saved": "2025-08-01",
+  "last_saved": "2025-08-25",
   "path_matlab_exe" : "",
   "common": {
     "linear_axis_num": 1,
@@ -15,7 +15,8 @@
       "t": 0
     },
     "laser_ring_num": 6,
-    "laser_mag_num": 40
+    "laser_mag_num": 40,
+    "laser_delay": 0.050
   },
   "ddm_57": {
     "shot_calibration": {
@@ -65,19 +66,19 @@
       "post_spin_speed": 150.0
     },
     "camera_side": {
-      "x": 302,
-      "t": 45
+      "x": 490.017,
+      "t": 157.389
     },
     "disp_id": {
-      "x": 135.00,
+      "x": 604.084,
       "t": 0
     },
     "disp_od": {
-      "x": 87.23,
+      "x": 696.941,
       "t": 0
     },
     "laser_mag": {
-      "x": 308.391,
+      "x": 359.432,
       "t": 0
     },
     "laser_ring": {
