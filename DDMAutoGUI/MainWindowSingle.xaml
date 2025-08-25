@@ -36,8 +36,8 @@
 
                         <Grid Grid.Row="1" Grid.Column="1">
                             <StackPanel Orientation="Vertical">
-                                <TextBox Grid.Row="0" Grid.Column="0" x:Name="Con_IPTxt" Text="192.168.0.1" Margin="6" Padding="12"/>
-                                <Button Grid.Row="0" Grid.Column="1" x:Name="Con_ConnectBtn" Content="Connect" Margin="6" Padding="12"/>
+                                <TextBox Grid.Row="0" Grid.Column="0" x:Name="Con_IPTxt" Text="192.168.0.1"/>
+                                <Button Grid.Row="0" Grid.Column="1" x:Name="Con_ConnectBtn" Content="Connect" Click="Con_ConnectBtn_Click"/>
                             </StackPanel>
                         </Grid>
                     </Grid>
@@ -211,7 +211,7 @@
 
                 <Grid>
 
-                    <TabControl TabStripPlacement="Left" Margin="6,0,0,0">
+                    <TabControl TabStripPlacement="Left" Margin="12">
                         <TabItem Header="Connection" Padding="15">
 
                                 <Grid>
@@ -233,12 +233,12 @@
                                                 <RowDefinition/>
                                                 <RowDefinition/>
                                             </Grid.RowDefinitions>
-                                            <TextBox Grid.Column="0" Grid.Row="0" x:Name="Adv_Con_IPTxt" Text="192.168.0.1" Margin="4"/>
-                                            <Button Grid.Column="1" Grid.Row="0" x:Name="Adv_Con_ConnectBtn" Content="Connect to TCS"/>
-                                            <Button Grid.Column="2" Grid.Row="0" x:Name="Adv_Con_DisconnectBtn" Content="Disconnect from TCS"/>
+                                            <TextBox Grid.Column="0" Grid.Row="0" x:Name="Adv_Con_IPTxt" Text="192.168.0.1"/>
+                                            <Button Grid.Column="1" Grid.Row="0" x:Name="Adv_Con_ConnectBtn" Content="Connect to TCS" Click="Adv_Con_ConnectBtn_Click"/>
+                                            <Button Grid.Column="2" Grid.Row="0" x:Name="Adv_Con_DisconnectBtn" Content="Disconnect from TCS" Click="Adv_Con_DisconnectBtn_Click"/>
                                             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
-                                                <Label Content="Controller software version:" Padding="5,2"/>
-                                                <Label x:Name="Adv_Con_ContVersionTxt" Content="(no version info)" Padding="5,2"/>
+                                                <Label Content="Controller software version:"/>
+                                                <Label x:Name="Adv_Con_ContVersionTxt" Content="(no version info)"/>
                                             </StackPanel>
                                         </Grid>
                                     </GroupBox>
@@ -277,8 +277,8 @@
                                                         <ColumnDefinition/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBox Grid.Column="0" x:Name="Adv_Con_StatusMsgTxt" Margin="4" Text=""/>
-                                                    <Button Grid.Column="1" x:Name="Adv_Con_StatusSendBtn" Content="Send"/>
+                                                    <TextBox Grid.Column="0" x:Name="Adv_Con_StatusMsgTxt" Text="" KeyDown="Adv_Con_StatusLogTxt_KeyDown"/>
+                                                    <Button Grid.Column="1" x:Name="Adv_Con_StatusSendBtn" Content="Send" Click="Adv_Con_StatusSendBtn_Click"/>
                                                 </Grid>
                                             </Grid>
                                         </GroupBox>
@@ -296,8 +296,8 @@
                                                         <ColumnDefinition/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBox Grid.Column="0" x:Name="Adv_Con_RobotMsgTxt" Margin="4" Text=""/>
-                                                    <Button Grid.Column="1" x:Name="Adv_Con_RobotSendBtn" Content="Send"/>
+                                                    <TextBox Grid.Column="0" x:Name="Adv_Con_RobotMsgTxt" Text="" KeyDown="Adv_Con_RobotLogTxt_KeyDown"/>
+                                                    <Button Grid.Column="1" x:Name="Adv_Con_RobotSendBtn" Content="Send" Click="Adv_Con_RobotSendBtn_Click"/>
                                                 </Grid>
 
                                             </Grid>
@@ -343,19 +343,25 @@
                                             </GroupBox>
 
                                             <GroupBox Header="Auto Status">
-                                                <TextBlock
-                                                    x:Name="Adv_Cell_AutoStatusTxt"
-                                                    Text="No status" 
-                                                    Foreground="Red"
-                                                    TextWrapping="Wrap"
-                                                    TextAlignment="Left"
-                                                    HorizontalAlignment="Left" 
-                                                    VerticalAlignment="Center"/>
+                                                <StackPanel Orientation="Vertical">
+                                                    <TextBlock
+                                                        x:Name="Adv_Cell_AutoStatusTxt"
+                                                        Text="No status" 
+                                                        Foreground="Red"
+                                                        TextWrapping="Wrap"
+                                                        TextAlignment="Left"
+                                                        HorizontalAlignment="Left" 
+                                                        VerticalAlignment="Center"/>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Button x:Name="Adv_Cell_AutoStartBtn" Content="Start" Click="Adv_Cell_AutoStartBtn_Click"/>
+                                                        <Button x:Name="Adv_Cell_AutoStopBtn" Content="Stop" Click="Adv_Cell_AutoStopBtn_Click"/>
+                                                    </StackPanel>
+                                                </StackPanel>
                                             </GroupBox>
                                         </StackPanel>
 
                                         <GroupBox Grid.Column="1" Header="Motor Settings" >
-                                            <ComboBox x:Name="Adv_Cell_MotorSizeCmb" VerticalAlignment="Top">
+                                            <ComboBox x:Name="Adv_Cell_MotorSizeCmb" VerticalAlignment="Top" SelectionChanged="Adv_Cell_MotorSizeCmb_OnSelectionChanged">
                                                 <ComboBoxItem Content="DDM 57" />
                                                 <ComboBoxItem Content="DDM 95" />
                                                 <ComboBoxItem Content="DDM 116" IsSelected="True"/>
@@ -387,8 +393,8 @@
                                         </GroupBox>
                                         <GroupBox Header="Emergency" Grid.Column="3">
                                             <StackPanel Orientation="Vertical" Grid.Column="1">
-                                                <Button x:Name="Adv_Cell_EStopBtn" Content="E STOP" Style="{DynamicResource PrimaryRedButton}" Padding="10"/>
-                                                <Button x:Name="Adv_Cell_ECloseValvesBtn" Content="CLOSE VALVES" Style="{DynamicResource PrimaryRedButton}" Padding="10"/>
+                                                <Button x:Name="Adv_Cell_EStopBtn" Content="E STOP" Style="{DynamicResource PrimaryRedButton}" Padding="10" Click="Adv_Cell_EStopBtn_Click"/>
+                                                <Button x:Name="Adv_Cell_ECloseValvesBtn" Content="CLOSE VALVES" Style="{DynamicResource PrimaryRedButton}" Padding="10" Click="Adv_Cell_ECloseValvesBtn_Click"/>
                                             </StackPanel>
                                         </GroupBox>
                                     </Grid>
@@ -425,10 +431,10 @@
                                                                         <RowDefinition/>
                                                                     </Grid.RowDefinitions>
 
-                                                                    <Button Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_EnableBtn" Content="Enable power" Style="{DynamicResource PrimaryGreenButton}" />
+                                                                    <Button Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_EnableBtn" Content="Enable power" Style="{DynamicResource PrimaryGreenButton}" Click="Adv_Cell_EnableBtn_Click" />
                                                                     <Label  Grid.Row="0" Grid.Column="2" x:Name="Adv_Cell_EnableOutLbl" Content="-"/>
 
-                                                                    <Button Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_HomeBtn" Content="Home" Style="{DynamicResource PrimaryGreenButton}" />
+                                                                    <Button Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_HomeBtn" Content="Home" Style="{DynamicResource PrimaryGreenButton}" Click="Adv_Cell_HomeBtn_Click"/>
                                                                     <Label  Grid.Row="1" Grid.Column="2" x:Name="Adv_Cell_HomeOutLbl" Content="-"/>
 
                                                                 </Grid>
@@ -455,35 +461,35 @@
                                                                     </Grid.RowDefinitions>
 
                                                                     <Label  Grid.Row="0" Grid.Column="0" x:Name="Adv_Cell_MoveLoadInLbl" Content="-"/>
-                                                                    <Button Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_MoveLoadBtn" Content="Move, load" Style="{DynamicResource PrimaryGreenButton}" />
+                                                                    <Button Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_MoveLoadBtn" Content="Move, load" Style="{DynamicResource PrimaryGreenButton}" Click="Adv_Cell_MoveLoadBtn_Click"/>
                                                                     <Label  Grid.Row="0" Grid.Column="2" x:Name="Adv_Cell_MoveLoadOutLbl" Content="-"/>
 
                                                                     <Label  Grid.Row="1" Grid.Column="0" x:Name="Adv_Cell_MoveCamTopInLbl" Content="-"/>
-                                                                    <Button Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_MoveCamTopBtn" Content="Move, camera top" Style="{DynamicResource PrimaryGreenButton}" />
+                                                                    <Button Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_MoveCamTopBtn" Content="Move, camera top" Style="{DynamicResource PrimaryGreenButton}" Click="Adv_Cell_MoveCamTopBtn_Click"/>
                                                                     <Label  Grid.Row="1" Grid.Column="2" x:Name="Adv_Cell_MoveCamTopOutLbl" Content="-"/>
 
                                                                     <Label  Grid.Row="2" Grid.Column="0" x:Name="Adv_Cell_MoveCamSideInLbl" Content="-"/>
-                                                                    <Button Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_MoveCamSideBtn" Content="Move, camera side" Style="{DynamicResource PrimaryGreenButton}" />
+                                                                    <Button Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_MoveCamSideBtn" Content="Move, camera side" Style="{DynamicResource PrimaryGreenButton}" Click="Adv_Cell_MoveCamSideBtn_Click"/>
                                                                     <Label  Grid.Row="2" Grid.Column="2" x:Name="Adv_Cell_MoveCamSideOutLbl" Content="-"/>
 
                                                                     <Label  Grid.Row="3" Grid.Column="0" x:Name="Adv_Cell_MoveLaserRingInLbl" Content="-"/>
-                                                                    <Button Grid.Row="3" Grid.Column="1" x:Name="Adv_Cell_MoveLaserRingBtn" Content="Move, laser ring" Style="{DynamicResource PrimaryGreenButton}" />
+                                                                    <Button Grid.Row="3" Grid.Column="1" x:Name="Adv_Cell_MoveLaserRingBtn" Content="Move, laser ring" Style="{DynamicResource PrimaryGreenButton}" Click="Adv_Cell_MoveLaserRingBtn_Click"/>
                                                                     <Label  Grid.Row="3" Grid.Column="2" x:Name="Adv_Cell_MoveLaserRingOutLbl" Content="-"/>
 
                                                                     <Label  Grid.Row="4" Grid.Column="0" x:Name="Adv_Cell_MoveLaserMagInLbl" Content="-"/>
-                                                                    <Button Grid.Row="4" Grid.Column="1" x:Name="Adv_Cell_MoveLaserMagBtn" Content="Move, laser mag/conc" Style="{DynamicResource PrimaryGreenButton}" />
+                                                                    <Button Grid.Row="4" Grid.Column="1" x:Name="Adv_Cell_MoveLaserMagBtn" Content="Move, laser mag/conc" Style="{DynamicResource PrimaryGreenButton}" Click="Adv_Cell_MoveLaserMagBtn_Click"/>
                                                                     <Label  Grid.Row="4" Grid.Column="2" x:Name="Adv_Cell_MoveLaserMagOutLbl" Content="-"/>
 
-                                                                    <Label  Grid.Row="5" Grid.Column="0" x:Name="Adv_Cell_MoveDispIDLbl" Content="-"/>
-                                                                    <Button Grid.Row="5" Grid.Column="1" x:Name="Adv_Cell_MoveDispIDBtn" Content="Move, dispense ID" Style="{DynamicResource PrimaryGreenButton}" />
+                                                                    <Label  Grid.Row="5" Grid.Column="0" x:Name="Adv_Cell_MoveDispIDInLbl" Content="-"/>
+                                                                    <Button Grid.Row="5" Grid.Column="1" x:Name="Adv_Cell_MoveDispIDBtn" Content="Move, dispense ID" Style="{DynamicResource PrimaryGreenButton}" Click="Adv_Cell_MoveDispIDBtn_Click"/>
                                                                     <Label  Grid.Row="5" Grid.Column="2" x:Name="Adv_Cell_MoveDispIDOutLbl" Content="-"/>
 
-                                                                    <Label  Grid.Row="6" Grid.Column="0" x:Name="Adv_Cell_MoveDispODLbl" Content="-"/>
-                                                                    <Button Grid.Row="6" Grid.Column="1" x:Name="Adv_Cell_MoveDispODBtn" Content="Move, dispense OD" Style="{DynamicResource PrimaryGreenButton}" />
+                                                                    <Label  Grid.Row="6" Grid.Column="0" x:Name="Adv_Cell_MoveDispODInLbl" Content="-"/>
+                                                                    <Button Grid.Row="6" Grid.Column="1" x:Name="Adv_Cell_MoveDispODBtn" Content="Move, dispense OD" Style="{DynamicResource PrimaryGreenButton}" Click="Adv_Cell_MoveDispODBtn_Click"/>
                                                                     <Label  Grid.Row="6" Grid.Column="2" x:Name="Adv_Cell_MoveDispODOutLbl" Content="-"/>
 
                                                                     <Label  Grid.Row="7" Grid.Column="0" x:Name="Adv_Cell_MoveSpinInLbl" Content="-"/>
-                                                                    <Button Grid.Row="7" Grid.Column="1" x:Name="Adv_Cell_MoveSpinBtn" Content="Move, spin in place" Style="{DynamicResource PrimaryGreenButton}" />
+                                                                    <Button Grid.Row="7" Grid.Column="1" x:Name="Adv_Cell_MoveSpinBtn" Content="Move, spin in place" Style="{DynamicResource PrimaryGreenButton}" Click="Adv_Cell_MoveSpinBtn_Click"/>
                                                                     <Label  Grid.Row="7" Grid.Column="2" x:Name="Adv_Cell_MoveSpinOutLbl" Content="-"/>
 
                                                                 </Grid>
@@ -523,16 +529,16 @@
                                                                     </Grid.RowDefinitions>
 
                                                                     <Label  Grid.Row="0" Grid.Column="0" x:Name="Adv_Cell_MeasureRingInLbl" Content="-"/>
-                                                                    <Button Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_MeasureRingBtn" Content="Measure ring" Style="{DynamicResource PrimaryBlackButton}" Padding="0,3,0,3"/>
+                                                                    <Button Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_MeasureRingBtn" Content="Measure ring" Style="{DynamicResource PrimaryBlackButton}" Click="Adv_Cell_MeasureRingBtn_Click"/>
                                                                     <Label  Grid.Row="0" Grid.Column="2" x:Name="Adv_Cell_MeasureRingOutLbl" Content="-"/>
 
                                                                     <Label  Grid.Row="1" Grid.Column="0" x:Name="Adv_Cell_MeasureMagInLbl" Content="-"/>
-                                                                    <Button Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_MeasureMagBtn" Content="Measure mag and conc" Style="{DynamicResource PrimaryBlackButton}" Padding="0,3,0,3"/>
+                                                                    <Button Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_MeasureMagBtn" Content="Measure mag and conc" Style="{DynamicResource PrimaryBlackButton}" Click="Adv_Cell_MeasureMagBtn_Click"/>
                                                                     <Label  Grid.Row="1" Grid.Column="2" x:Name="Adv_Cell_MeasureMagOutLbl" Content="-"/>
 
-                                                                    <Button Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_ShowRingBtn" Content="Show ring data" Padding="0,3,0,3"/>
+                                                                    <Button Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_ShowRingBtn" Content="Show ring data" Click="Adv_Cell_ShowRingBtn_Click"/>
 
-                                                                    <Button Grid.Row="3" Grid.Column="1" x:Name="Adv_Cell_ShowMagBtn" Content="Show mag and conc data" Padding="0,3,0,3"/>
+                                                                    <Button Grid.Row="3" Grid.Column="1" x:Name="Adv_Cell_ShowMagBtn" Content="Show mag and conc data" Click="Adv_Cell_ShowMagBtn_Click"/>
 
 
                                                                 </Grid>
@@ -570,11 +576,11 @@
                                                                     </Grid.RowDefinitions>
 
                                                                     <TextBox Grid.Row="0" Grid.Column="0" x:Name="Adv_Cell_SetPres1InTxt" Text="30.0"/>
-                                                                    <Button  Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_SetPres1Btn" Content="Set pressure 1" Style="{DynamicResource PrimaryOrangeButton}" Padding="0,3,0,3"/>
+                                                                    <Button  Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_SetPres1Btn" Content="Set pressure 1" Style="{DynamicResource PrimaryOrangeButton}" Click="Adv_Cell_SetPres1Btn_Click"/>
                                                                     <Label   Grid.Row="0" Grid.Column="2" x:Name="Adv_Cell_SetPres1OutLbl" Content="-"/>
 
                                                                     <TextBox Grid.Row="1" Grid.Column="0" x:Name="Adv_Cell_SetPres2InTxt" Text="30.0"/>
-                                                                    <Button  Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_SetPres2Btn" Content="Set pressure 2" Style="{DynamicResource PrimaryOrangeButton}" Padding="0,3,0,3"/>
+                                                                    <Button  Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_SetPres2Btn" Content="Set pressure 2" Style="{DynamicResource PrimaryOrangeButton}" Click="Adv_Cell_SetPres2Btn_Click"/>
                                                                     <Label   Grid.Row="1" Grid.Column="2" x:Name="Adv_Cell_SetPres2OutLbl" Content="-"/>
 
                                                                 </Grid>
@@ -610,11 +616,11 @@
                                                                     </StackPanel>
 
                                                                     <TextBox Grid.Row="1" Grid.Column="0" x:Name="Adv_Cell_Shot1InTxt"  Text="0.5"/>
-                                                                    <Button  Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_Shot1Btn" Content="Measure shot from valve 1" Style="{DynamicResource PrimaryBlackButton}" Padding="0,3,0,3"/>
+                                                                    <Button  Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_Shot1Btn" Content="Measure shot from valve 1" Style="{DynamicResource PrimaryBlackButton}" Click="Adv_Cell_Shot1Btn_Click"/>
                                                                     <Label   Grid.Row="1" Grid.Column="2" x:Name="Adv_Cell_Shot1OutLbl" Content="-"/>
 
                                                                     <TextBox Grid.Row="2" Grid.Column="0" x:Name="Adv_Cell_Shot2InTxt"  Text="0.5"/>
-                                                                    <Button  Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_Shot2Btn" Content="Measure shot from valve 2" Style="{DynamicResource PrimaryBlackButton}" Padding="0,3,0,3"/>
+                                                                    <Button  Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_Shot2Btn" Content="Measure shot from valve 2" Style="{DynamicResource PrimaryBlackButton}" Click="Adv_Cell_Shot2Btn_Click"/>
                                                                     <Label   Grid.Row="2" Grid.Column="2" x:Name="Adv_Cell_Shot2OutLbl" Content="-"/>
                                                                 </Grid>
 
@@ -642,19 +648,19 @@
 
                                                                     <!--<TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="..." TextWrapping="Wrap"/>-->
 
-                                                                    <Button Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_SetZeroBothBtn" Content="Set Zero Shift" Style="{DynamicResource PrimaryBlackButton}" Padding="0,3,0,3"/>
+                                                                    <Button Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_SetZeroBothBtn" Content="Set Zero Shift" Style="{DynamicResource PrimaryBlackButton}" Click="Adv_Cell_SetZeroBothBtn_Click"/>
                                                                     <Label  Grid.Row="1" Grid.Column="2" x:Name="Adv_Cell_SetZeroBothLbl" Content="-"/>
 
-                                                                    <Button Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_StartMeas1Btn" Content="Start measure 1" Style="{DynamicResource PrimaryGreenButton}" Padding="0,3,0,3"/>
+                                                                    <Button Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_StartMeas1Btn" Content="Start measure 1" Style="{DynamicResource PrimaryGreenButton}" Click="Adv_Cell_StartMeas1Btn_Click"/>
                                                                     <Label  Grid.Row="2" Grid.Column="2" x:Name="Adv_Cell_StartMeas1OutLbl" Content="-"/>
 
-                                                                    <Button Grid.Row="3" Grid.Column="1" x:Name="Adv_Cell_StopMeas1Btn" Content="Stop measure 1" Style="{DynamicResource PrimaryRedButton}" Padding="0,3,0,3"/>
+                                                                    <Button Grid.Row="3" Grid.Column="1" x:Name="Adv_Cell_StopMeas1Btn" Content="Stop measure 1" Style="{DynamicResource PrimaryRedButton}" Click="Adv_Cell_StopMeas1Btn_Click"/>
                                                                     <Label  Grid.Row="3" Grid.Column="2" x:Name="Adv_Cell_StopMeas1OutLbl" Content="-"/>
 
-                                                                    <Button Grid.Row="4" Grid.Column="1" x:Name="Adv_Cell_StartMeas2Btn" Content="Start measure 2" Style="{DynamicResource PrimaryGreenButton}" Padding="0,3,0,3"/>
+                                                                    <Button Grid.Row="4" Grid.Column="1" x:Name="Adv_Cell_StartMeas2Btn" Content="Start measure 2" Style="{DynamicResource PrimaryGreenButton}" Click="Adv_Cell_StartMeas2Btn_Click"/>
                                                                     <Label  Grid.Row="4" Grid.Column="2" x:Name="Adv_Cell_StartMeas2OutLbl" Content="-"/>
 
-                                                                    <Button Grid.Row="5" Grid.Column="1" x:Name="Adv_Cell_StopMeas2Btn" Content="Stop measure 2" Style="{DynamicResource PrimaryRedButton}" Padding="0,3,0,3"/>
+                                                                    <Button Grid.Row="5" Grid.Column="1" x:Name="Adv_Cell_StopMeas2Btn" Content="Stop measure 2" Style="{DynamicResource PrimaryRedButton}" Click="Adv_Cell_StopMeas2Btn_Click"/>
                                                                     <Label  Grid.Row="5" Grid.Column="2" x:Name="Adv_Cell_StopMeas2OutLbl" Content="-"/>
 
 
@@ -699,9 +705,9 @@
 
                                                                     </StackPanel>
 
-                                                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="dispShotsInput" Content="-"/>
+                                                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="Adv_Cell_DispShotsInLbl" Content="-"/>
 
-                                                                    <Button Grid.Row="2" Grid.Column="0" x:Name="Adv_Cell_DispShotsBtn" Content="Dispense shots" Style="{DynamicResource PrimaryBlackButton}" />
+                                                                    <Button Grid.Row="2" Grid.Column="0" x:Name="Adv_Cell_DispShotsBtn" Content="Dispense shots" Style="{DynamicResource PrimaryBlackButton}" Click="Adv_Cell_DispShotsBtn_Click"/>
                                                                     <Label Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_DispShotsOutLbl" Content="-"/>
 
                                                                 </Grid>
