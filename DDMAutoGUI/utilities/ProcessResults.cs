@@ -111,7 +111,7 @@ namespace DDMAutoGUI.utilities
             Directory.CreateDirectory(fullDirectory);
             File.WriteAllText(fullPath, resultsString);
 
-            ZipFile.CreateFromDirectory(fullDirectory, saveMainDirectory + saveFolderPrefix + results.ring_sn + ".zip");
+            //ZipFile.CreateFromDirectory(fullDirectory, saveMainDirectory + saveFolderPrefix + results.ring_sn + ".zip");
         }
 
         public void OpenBrowserToDirectory()

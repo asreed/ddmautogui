@@ -758,7 +758,8 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> SetShotTrigger(int index, bool state)
         {
-            string input = $"DDM_SetShotTrigger {index} {state}";
+            int stateInt = state ? 1 : 0;
+            string input = $"DDM_SetShotTrigger {index} {stateInt}";
             return await SendRobotCommandAsync(input);
         }
 
@@ -767,6 +768,21 @@ namespace DDMAutoGUI.utilities
             string input = $"DDM_MeasureShotTimed {index} {time}";
             return await SendRobotCommandAsync(input);
         }
+
+        public async Task<string> DispenseToRing(
+            int id_valveNum, 
+            float id_time, 
+            float id_xPos,
+            float id_tPos,
+            int od_valveNum,
+            float od_time,
+            float od_xPos,
+            float od_tPos)
+        {
+            string input = $"DDM_DispenseToRing {id_valveNum} {id_time} {id_xPos} {id_tPos} {od_valveNum} {od_time} {od_xPos} {od_tPos}";
+            return await SendRobotCommandAsync(input);
+        }
+
 
     }
 }

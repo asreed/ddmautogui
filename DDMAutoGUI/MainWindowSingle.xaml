@@ -61,7 +61,7 @@
 
 
                             <Grid Grid.Row="1" Grid.Column="1">
-                                <TabControl x:Name="dispTabControl" Grid.Row="1">
+                                <TabControl x:Name="dispTabControl" Grid.Row="1" SelectionChanged="MainWindowSingle_Disp_TabSelectionChanged">
 
                                     <TabItem Header="1: Configuration">
                                         <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -72,19 +72,19 @@
                                                     <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
                                                         <GroupBox Header="Motor Size">
                                                             <Grid>
-                                                                <ComboBox Grid.Column="0" x:Name="Disp_MotorSizeCmb" Padding="10">
+                                                                <ComboBox Grid.Column="0" x:Name="Disp_MotorSizeCmb">
 
                                                                     <!-- Settings selected based on index. Be careful changing these items: -->
                                                                     <!-- -->
-                                                                    <ComboBoxItem Content="DDM 57" IsEnabled="False" Padding="10"/>
+                                                                    <ComboBoxItem Content="DDM 57"/>
                                                                     <!-- -->
-                                                                    <ComboBoxItem Content="DDM 95" IsEnabled="False" Padding="10"/>
+                                                                    <ComboBoxItem Content="DDM 95"/>
                                                                     <!-- -->
-                                                                    <ComboBoxItem Content="DDM 116" IsEnabled="True" IsSelected="True" Padding="10"/>
+                                                                    <ComboBoxItem Content="DDM 116" IsSelected="True"/>
                                                                     <!-- -->
-                                                                    <ComboBoxItem Content="DDM 170" IsEnabled="False" Padding="10"/>
+                                                                    <ComboBoxItem Content="DDM 170"/>
                                                                     <!-- -->
-                                                                    <ComboBoxItem Content="DDM 170 Tall" IsEnabled="False" Padding="10"/>
+                                                                    <ComboBoxItem Content="DDM 170 Tall"/>
                                                                     <!-- -->
 
                                                                 </ComboBox>
@@ -96,20 +96,19 @@
                                                         </GroupBox>-->
                                                         <GroupBox Header="Options">
                                                             <StackPanel Orientation="Vertical">
-                                                                <CheckBox IsChecked="True" x:Name="Disp_SNPhotoChk" Content="Serial number photo" Padding="8"/>
-                                                                <CheckBox IsChecked="True" x:Name="Disp_PrePhotoChk" Content="Pre-process photo" Padding="8"/>
-                                                                <CheckBox IsChecked="True" x:Name="Disp_MeasureRingChk" Content="Ring height measurement" Padding="8"/>
-                                                                <CheckBox IsChecked="True" x:Name="Disp_MeasureMagChk" Content="Magnet and concentrator height measurement" Padding="8"/>
-                                                                <CheckBox IsChecked="True" x:Name="Disp_DispenseChk" Content="Dispense cyanoacrylate" Padding="8"/>
-                                                                <CheckBox IsChecked="True" x:Name="Disp_PostPhotoChk" Content="Post-process photo" Padding="8"/>
+                                                                <CheckBox IsChecked="False" x:Name="Disp_SNPhotoChk" Content="Serial number photo" Padding="8"/>
+                                                                <CheckBox IsChecked="False" x:Name="Disp_PrePhotoChk" Content="Pre-process photo" Padding="8"/>
+                                                                <CheckBox IsChecked="False" x:Name="Disp_MeasureRingChk" Content="Ring height measurement" Padding="8"/>
+                                                                <CheckBox IsChecked="False" x:Name="Disp_MeasureMagChk" Content="Magnet and concentrator height measurement" Padding="8"/>
+                                                                <CheckBox IsChecked="False" x:Name="Disp_DispenseChk" Content="Dispense cyanoacrylate" Padding="8"/>
+                                                                <CheckBox IsChecked="False" x:Name="Disp_PostPhotoChk" Content="Post-process photo" Padding="8"/>
                                                             </StackPanel>
                                                         </GroupBox>
                                                         <Button 
                                                             x:Name="Disp_BeginBtn"
                                                             Content="Begin" 
                                                             Style="{DynamicResource PrimaryBlueButton}" 
-                                                            Padding="8"
-                                                            Margin="7,4,7,4"/>
+                                                            Click="Disp_BeginBtn_Click"/>
                                                     </StackPanel>
 
                                                 </Grid>
@@ -184,14 +183,17 @@
                                                         <Button
                                                             x:Name="Disp_SaveLogBtn"
                                                             Content="Save log"
-                                                            Style="{DynamicResource PrimaryBlackButton}"/>
+                                                            Style="{DynamicResource PrimaryBlackButton}"
+                                                            Click="Disp_SaveLogBtn_Click"/>
                                                         <Button
                                                             x:Name="Disp_ViewLogBtn"
                                                             Content="View log"
-                                                            Style="{DynamicResource PrimaryBlackButton}"/>
+                                                            Style="{DynamicResource PrimaryBlackButton}"
+                                                            Click="Disp_ViewLogBtn_Click"/>
                                                         <Button
                                                             x:Name="Disp_OpenFolderBtn"
-                                                            Content="Open folder"/>
+                                                            Content="Open folder"
+                                                            Click="Disp_OpenFolderBtn_Click"/>
                                                     </StackPanel>
 
 
@@ -901,11 +903,14 @@
                                         </Grid.ColumnDefinitions>
 
                                         <GroupBox Header="Acquisition" Grid.Column="0">
-                                            <Button x:Name="Adv_Cam_AcqurieBtn" Content="Connect and acquire" Style="{DynamicResource PrimaryBlackButton}" Padding="10"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button x:Name="Adv_Cam_AcqurieTopBtn" Content="Acquire Top" Style="{DynamicResource PrimaryBlackButton}" Click="Adv_Cam_AcqurieTopBtn_Click"/>
+                                                <Button x:Name="Adv_Cam_AcqurieSideBtn" Content="Acquire Side" Style="{DynamicResource PrimaryBlackButton}" Click="Adv_Cam_AcqurieSideBtn_Click"/>
+                                            </StackPanel>
                                         </GroupBox>
                                         <GroupBox Header="Other" Grid.Column="1">
                                             <StackPanel Orientation="Horizontal">
-                                                <Button Content="Open folder" Padding="10"/>
+                                                <Button Content="Open folder"/>
                                             </StackPanel>
                                         </GroupBox>
                                     </Grid>
