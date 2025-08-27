@@ -24,8 +24,8 @@
       "time_od": 0.820,
       "valve_num_id": 1,
       "valve_num_od": 1,
-      "pressure_id": 0,
-      "pressure_od": 0,
+      "pressure_1": 12.0,
+      "pressure_2": 0,
       "target_vol_id": 0.157,
       "target_vol_od": 0.205,
       "post_spin_time": 4.0,
@@ -44,7 +44,7 @@
       "t": 0
     },
     "laser_mag": {
-      "x": 0,
+      "x": 372.27,
       "t": 0
     },
     "laser_ring": {
@@ -58,8 +58,8 @@
       "time_od": 2.232,
       "valve_num_id": 1,
       "valve_num_od": 1,
-      "pressure_id": 0,
-      "pressure_od": 0,
+      "pressure_1": 12.0,
+      "pressure_2": 0,
       "target_vol_id": 0.453,
       "target_vol_od": 0.558,
       "post_spin_time": 4.0,
@@ -78,7 +78,7 @@
       "t": 0
     },
     "laser_mag": {
-      "x": 0,
+      "x": 352.49,
       "t": 0
     },
     "laser_ring": {
@@ -90,10 +90,10 @@
     "shot_calibration": {
       "time_id": 1.875,
       "time_od": 2.125,
-      "valve_num_id": 1,
-      "valve_num_od": 2,
-      "pressure_id": 0,
-      "pressure_od": 0,
+      "valve_num_id": 2,
+      "valve_num_od": 1,
+      "pressure_1": 26,
+      "pressure_2": 34,
       "target_vol_id": 0.750,
       "target_vol_od": 0.850,
       "post_spin_time": 4.0,
@@ -104,15 +104,15 @@
       "t": 157.389
     },
     "disp_id": {
-      "x": 594.526,
+      "x": 694.305,
       "t": 0
     },
     "disp_od": {
-      "x": 686.855,
+      "x": 584.841,
       "t": 0
     },
     "laser_mag": {
-      "x": 0,
+      "x": 341.94,
       "t": 0
     },
     "laser_ring": {
@@ -123,11 +123,11 @@
   "ddm_170": {
     "shot_calibration": {
       "time_id": 1.887,
-      "time_od": 2.264,
+      "time_od": 5.095,
       "valve_num_id": 1,
       "valve_num_od": 2,
-      "pressure_id": 0,
-      "pressure_od": 0,
+      "pressure_1": 39,
+      "pressure_2": 40,
       "target_vol_id": 1.698,
       "target_vol_od": 2.038,
       "post_spin_time": 4.0,
@@ -138,15 +138,15 @@
       "t": 0
     },
     "disp_id": {
-      "x": 568.593,
+      "x": 569.207,
       "t": 0
     },
     "disp_od": {
-      "x": 659.359,
+      "x": 661.300,
       "t": 0
     },
     "laser_mag": {
-      "x": 0,
+      "x": 314.59,
       "t": 0
     },
     "laser_ring": {

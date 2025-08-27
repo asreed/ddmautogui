@@ -651,14 +651,14 @@ namespace DDMAutoGUI.windows
             float t_id = m.disp_id.t.Value;
             float time_id = c.time_id.Value;
             float valve_num_id = c.valve_num_id.Value;
-            float pressure_id = c.pressure_id.Value;
+            float pressure_id = c.pressure_1.Value;
             float target_vol_id = c.target_vol_id.Value;
 
             float x_od = m.disp_od.x.Value;
             float t_od = m.disp_od.t.Value;
             float time_od = c.time_od.Value;
             float valve_num_od = c.valve_num_od.Value;
-            float pressure_od = c.pressure_od.Value;
+            float pressure_od = c.pressure_2.Value;
             float target_vol_od = c.target_vol_od.Value;
 
 

@@ -252,14 +252,14 @@ namespace DDMAutoGUI
                 float id_time = c.time_id.Value;
                 float id_x = m.disp_id.x.Value;
                 float id_t = m.disp_id.t.Value;
-                float id_pressure = c.pressure_id.Value;
+                float id_pressure = c.pressure_1.Value;
                 float id_targetVol = c.target_vol_id.Value;
 
                 int od_valve = c.valve_num_od.Value;
                 float od_time = c.time_od.Value;
                 float od_x = m.disp_od.x.Value;
                 float od_t = m.disp_od.t.Value;
-                float od_pressure = c.pressure_od.Value;
+                float od_pressure = c.pressure_2.Value;
                 float od_targetVol = c.target_vol_od.Value;
 
                 processData.AddToLog($"Using ID [{id_x}, {id_t}] for {id_time} seconds and OD [{od_x}, {od_t}] for {od_time} seconds");
@@ -275,14 +275,14 @@ namespace DDMAutoGUI
                     valve_num = motor.shot_calibration.valve_num_id,
                     vol = 0.005f,
                     time = motor.shot_calibration.time_id,
-                    pressure = motor.shot_calibration.pressure_id
+                    pressure = motor.shot_calibration.pressure_1
                 };
                 processData.results.shot_od = new DDMResultsShot()
                 {
                     valve_num = motor.shot_calibration.valve_num_od,
                     vol = 0.006f,
                     time = motor.shot_calibration.time_od,
-                    pressure = motor.shot_calibration.pressure_od
+                    pressure = motor.shot_calibration.pressure_2
                 };
                 processData.AddToLog("Dispense complete");
                 Disp_ProcessPrg.Value = 80;
@@ -1124,14 +1124,14 @@ namespace DDMAutoGUI
             float t_id = m.disp_id.t.Value;
             float time_id = c.time_id.Value;
             float valve_num_id = c.valve_num_id.Value;
-            float pressure_id = c.pressure_id.Value;
+            float pressure_id = c.pressure_1.Value;
             float target_vol_id = c.target_vol_id.Value;
 
             float x_od = m.disp_od.x.Value;
             float t_od = m.disp_od.t.Value;
             float time_od = c.time_od.Value;
             float valve_num_od = c.valve_num_od.Value;
-            float pressure_od = c.pressure_od.Value;
+            float pressure_od = c.pressure_2.Value;
             float target_vol_od = c.target_vol_od.Value;
 
 
