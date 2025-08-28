@@ -37,7 +37,7 @@ namespace DDMAutoGUI.windows
             displayLabel.Content = "Acquiring image...";
 
             CameraAcquisitionResult result = new CameraAcquisitionResult();
-            result = await Task.Run(() => App.CameraManager.AcquireAndSave(acquiredImageDisplay));
+            //result = await Task.Run(() => App.CameraManager.AcquireAndSave(acquiredImageDisplay));
 
             if (result.success)
             {

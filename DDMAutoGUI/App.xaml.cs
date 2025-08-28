@@ -27,8 +27,8 @@ namespace DDMAutoGUI
             base.OnStartup(e);
             Debug.Print("App starting up");
 
+            App.SettingsManager = new SettingsManager(); // settings first (for camera sn at least)
             App.UIManager = new UIManager();
-            App.SettingsManager = new SettingsManager();
             App.ControllerManager = new ControllerManager();
             App.CameraManager = new CameraManager();
 

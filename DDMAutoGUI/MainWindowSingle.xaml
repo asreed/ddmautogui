@@ -875,7 +875,7 @@
 
 
                             </TabItem>
-                            <TabItem Header="Camera" Padding="15" Visibility="Collapsed">
+                        <TabItem Header="Camera" Padding="15">
 
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -908,7 +908,7 @@
                                         </GroupBox>
                                         <GroupBox Header="Other" Grid.Column="1">
                                             <StackPanel Orientation="Horizontal">
-                                                <Button Content="Open folder"/>
+                                                <Button x:Name="Adv_Cam_OpenFolderBtn" Content="Open folder" Click="Adv_Cam_OpenFolderBtn_Click"/>
                                             </StackPanel>
                                         </GroupBox>
                                     </Grid>

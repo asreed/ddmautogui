@@ -272,11 +272,8 @@ namespace DDMAutoGUI
 
                 DDMResultsShots shotData = App.ControllerManager.ParseDispenseResponse(response);
 
-                string real_id_pressure = await App.ControllerManager.GetRegPressureSetpoint(id_valve);
-                string real_od_pressure = await App.ControllerManager.GetRegPressureSetpoint(od_valve);
-
-                real_id_pressure = real_id_pressure.Split(' ').Last();
-                real_od_pressure = real_od_pressure.Split(' ').Last();
+                string id_pressure_sp = await App.ControllerManager.GetRegPressureSetpoint(id_valve);
+                string od_pressure_sp = await App.ControllerManager.GetRegPressureSetpoint(od_valve);
 
                 string tb = "  ";
 
@@ -286,12 +283,12 @@ namespace DDMAutoGUI
                 processData.AddToLog($"{tb}{tb}Valve {id_valve} ({id_substance})");
                 processData.AddToLog($"{tb}{tb}Dispense volume: {shotData.id_vol} mL ({Math.Round(shotData.id_vol.Value * 100 / c.target_vol_id.Value, 1)}% of target)");
                 processData.AddToLog($"{tb}{tb}Dispense time: {shotData.id_time} s");
-                processData.AddToLog($"{tb}{tb}Pressure: {real_id_pressure} psi");
+                processData.AddToLog($"{tb}{tb}Pressure: {id_pressure_sp} psi");
                 processData.AddToLog($"{tb}OD:");
                 processData.AddToLog($"{tb}{tb}Valve {od_valve} ({od_substance})");
                 processData.AddToLog($"{tb}{tb}Dispense volume: {shotData.od_vol} mL ({Math.Round(shotData.od_vol.Value * 100 / c.target_vol_od.Value, 1)}% of target)");
                 processData.AddToLog($"{tb}{tb}Dispense time: {shotData.od_time} s");
-                processData.AddToLog($"{tb}{tb}Pressure: {real_od_pressure} psi");
+                processData.AddToLog($"{tb}{tb}Pressure: {od_pressure_sp} psi");
 
                 Disp_ProcessPrg.Value = 80;
             }
@@ -1183,11 +1180,14 @@ namespace DDMAutoGUI
             Adv_Cam_StatusLbl.Content = "Acquiring image...";
 
             CameraAcquisitionResult result = new CameraAcquisitionResult();
-            result = await Task.Run(() => App.CameraManager.AcquireAndSave(acquiredImageDisplay));
+            CameraManager.CellCamera camera = CameraManager.CellCamera.top;
+
+            // something about Lucid driver can't be async; need to wrap
+            result = await Task.Run(() => App.CameraManager.AcquireAndSave(camera, acquiredImageDisplay)); 
 
             if (result.success)
             {
-                Adv_Cam_StatusLbl.Content = "Image acquired";
+                Adv_Cam_StatusLbl.Content = "Top image acquired";
                 App.CameraManager.DisplayImage(acquiredImageDisplay, result.filePath);
 
             }
@@ -1197,7 +1197,30 @@ namespace DDMAutoGUI
             }
         }
 
-        private void Adv_Cam_AcqurieSideBtn_Click(object sender, RoutedEventArgs e)
+        private async void Adv_Cam_AcqurieSideBtn_Click(object sender, RoutedEventArgs e)
+        {
+            acquiredImageDisplay.Source = null;
+            Adv_Cam_StatusLbl.Content = "Acquiring image...";
+
+            CameraAcquisitionResult result = new CameraAcquisitionResult();
+            CameraManager.CellCamera camera = CameraManager.CellCamera.side;
+
+            // something about Lucid driver can't be async; need to wrap
+            result = await Task.Run(() => App.CameraManager.AcquireAndSave(camera, acquiredImageDisplay));
+
+            if (result.success)
+            {
+                Adv_Cam_StatusLbl.Content = "Side image acquired";
+                App.CameraManager.DisplayImage(acquiredImageDisplay, result.filePath);
+
+            }
+            else
+            {
+                Adv_Cam_StatusLbl.Content = $"Error: {result.errorMsg}";
+            }
+        }
+
+        private void Adv_Cam_OpenFolderBtn_Click(object sender, RoutedEventArgs e)
         {
             App.CameraManager.OpenExplorerToImages();
         }

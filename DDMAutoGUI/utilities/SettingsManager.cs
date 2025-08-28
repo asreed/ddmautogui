@@ -68,6 +68,8 @@ namespace DDMAutoGUI.utilities
         public DateTime? last_saved { get; set; }
         public int? linear_axis_num { get; set; }
         public int? rotary_axis_num { get; set; }
+        public string? camera_top_sn { get; set; }
+        public string? camera_side_sn { get; set; }
         public DDMSettingsCommon? common { get; set; }
         public DDMSettingsSingleSize? ddm_57 { get; set; }
         public DDMSettingsSingleSize? ddm_95 { get; set; }

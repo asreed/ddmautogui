@@ -767,13 +767,25 @@ namespace DDMAutoGUI.utilities
         public async Task<string> GetRegPressure(int index)
         {
             string input = $"DDM_GetRegPressure {index}";
-            return await SendRobotCommand(input);
+            string response = await SendRobotCommand(input);
+            string pressure = string.Empty;
+            if (response.Split(" ").Length > 1)
+            {
+                pressure = response.Split(" ")[1];
+            }
+            return pressure;
         }
 
         public async Task<string> GetRegPressureSetpoint(int index)
         {
             string input = $"DDM_GetRegPressureSetpoint {index}";
-            return await SendRobotCommand(input);
+            string response = await SendRobotCommand(input);
+            string pressure = string.Empty;
+            if (response.Split(" ").Length > 1)
+            {
+                pressure = response.Split(" ")[1];
+            }
+            return pressure;
         }
 
         public async Task<string> MeasureHeights(float xPos, float tStart, int nMeasurements, float delay)

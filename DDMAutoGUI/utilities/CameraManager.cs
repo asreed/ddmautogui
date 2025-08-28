@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
@@ -28,9 +29,12 @@ namespace DDMAutoGUI.utilities
         public CameraManager()
         {
             //
+
+            DDMSettings settings = App.SettingsManager.GetAllSettings();
+            cameraTopSN = settings.camera_top_sn;
+            cameraSideSN = settings.camera_side_sn;
             Debug.Print("Camera manager initialized");
         }
-
 
 
         private const ArenaNET.EPfncFormat PIXEL_FORMAT = ArenaNET.EPfncFormat.BGR8;
@@ -38,7 +42,13 @@ namespace DDMAutoGUI.utilities
         private string acqFilePrefix = "acq_img";
         private string acqFileSuffix = ".png";
         private string acqFileDirectory = AppDomain.CurrentDomain.BaseDirectory + "acquisitions\\";
+        private string cameraTopSN, cameraSideSN = "";
 
+        public enum CellCamera
+        {
+            top,
+            side
+        }
 
         public void OpenExplorerToImages()
         {
@@ -46,7 +56,7 @@ namespace DDMAutoGUI.utilities
         }
 
 
-        public CameraAcquisitionResult AcquireAndSave(Image displayElement)
+        public CameraAcquisitionResult AcquireAndSave(CellCamera cellCamera, Image displayElement)
         {
             acqFilePath = acqFileDirectory + acqFilePrefix + GetTimestamp() + acqFileSuffix;
 
@@ -55,17 +65,54 @@ namespace DDMAutoGUI.utilities
             result.filePath = acqFilePath;
             result.fileName = acqFilePrefix + GetTimestamp() + acqFileSuffix;
 
+            ArenaNET.ISystem system = null;
+
             try
             {
                 // prepare
-                ArenaNET.ISystem system = ArenaNET.Arena.OpenSystem();
+                system = ArenaNET.Arena.OpenSystem();
                 system.UpdateDevices(100);
                 if (system.Devices.Count == 0)
                 {
                     Debug.Print("\nNo camera connected\nAborting");
                 }
 
-                ArenaNET.IDeviceInfo selectedDeviceInfo = system.Devices[0]; // assumes only 1 camera connected
+                Debug.Print($"Camera top SN from settings: {cameraTopSN}");
+                Debug.Print($"Camera side SN from settings: {cameraSideSN}");
+
+                Debug.Print($"Device 0 SN: {system.Devices[0].SerialNumber}");
+                Debug.Print($"Device 1 SN: {system.Devices[1].SerialNumber}");
+                Debug.Print($"Number of devices: {system.Devices.Count}");
+
+                ArenaNET.IDeviceInfo selectedDeviceInfo = null;
+
+                for (int i = 0; i < system.Devices.Count; i++)
+                {
+                    Debug.Print($"Device {i} SN: {system.Devices[i].SerialNumber}");
+                    if (system.Devices[i].SerialNumber == cameraTopSN && cellCamera == CellCamera.top)
+                    {
+                        selectedDeviceInfo = system.Devices[i];
+                        Debug.Print($"Selected top camera with SN {cameraTopSN}");
+                        break;
+                    }
+                    else if (system.Devices[i].SerialNumber == cameraSideSN && cellCamera == CellCamera.side)
+                    {
+                        selectedDeviceInfo = system.Devices[i];
+                        Debug.Print($"Selected side camera with SN {cameraSideSN}");
+                        break;
+                    }
+                }
+
+                if (selectedDeviceInfo == null)
+                {
+                    Debug.Print($"\nNo matching camera connected for {(cellCamera == CellCamera.top ? "top" : "side")}\nAborting");
+                    result.errorMsg = $"No matching camera connected for {(cellCamera == CellCamera.top ? "top" : "side")}";
+                    result.success = false;
+                    ArenaNET.Arena.CloseSystem(system);
+                    return result;
+                }
+
+
                 ArenaNET.IDevice device = system.CreateDevice(selectedDeviceInfo);
 
                 // enable stream auto negotiate packet size
@@ -97,8 +144,11 @@ namespace DDMAutoGUI.utilities
             {
 
                 Debug.Print("\nException thrown: {0}", ex.Message);
-                result.success = false;
                 result.errorMsg = ex.Message;
+                result.success = false;
+                if (system != null) { 
+                    ArenaNET.Arena.CloseSystem(system);
+                }
                 return result;
             }
 
