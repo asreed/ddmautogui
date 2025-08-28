@@ -473,6 +473,30 @@ namespace DDMAutoGUI.utilities
             return sb.ToString();
         }
 
+        public DDMResultsShots ParseDispenseResponse(string response)
+        {
+            DDMResultsShots results = new DDMResultsShots();
+
+            string[] parts = response.Split(' ');
+            if (parts[0] == "0")
+            {
+                if (parts.Length == 5)
+                {
+                    results.id_time = float.Parse(parts[1]);
+                    results.id_vol = float.Parse(parts[2]);
+                    results.od_time = float.Parse(parts[3]);
+                    results.od_vol = float.Parse(parts[4]);
+                    results.success = true;
+                    results.error_message = string.Empty;
+                }
+            } else {
+                results.success = false;
+                results.error_message = response;
+            }
+
+            return results;
+        }
+
 
         // ==================================================================
         // Private helpers

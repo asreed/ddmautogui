@@ -147,9 +147,9 @@ namespace DDMAutoGUI
 
             // verify all sensors are online
 
-            processData.AddToLog("Verifying sensors...");
-            await Task.Delay(500);
-            processData.AddToLog("Sensors verified");
+            //processData.AddToLog("Verifying sensors...");
+            //await Task.Delay(500);
+            //processData.AddToLog("Sensors verified");
 
             if (doSNPhoto)
             {
@@ -252,39 +252,41 @@ namespace DDMAutoGUI
                 float id_time = c.time_id.Value;
                 float id_x = m.disp_id.x.Value;
                 float id_t = m.disp_id.t.Value;
-                float id_pressure = c.pressure_1.Value;
-                float id_targetVol = c.target_vol_id.Value;
+                string id_substance = id_valve == 1 ? settings.common.system_1_contents : settings.common.system_2_contents;
 
                 int od_valve = c.valve_num_od.Value;
                 float od_time = c.time_od.Value;
                 float od_x = m.disp_od.x.Value;
                 float od_t = m.disp_od.t.Value;
-                float od_pressure = c.pressure_2.Value;
-                float od_targetVol = c.target_vol_od.Value;
+                string od_substance = od_valve == 1 ? settings.common.system_1_contents : settings.common.system_2_contents;
 
                 processData.AddToLog($"Using ID [{id_x}, {id_t}] for {id_time} seconds and OD [{od_x}, {od_t}] for {od_time} seconds");
 
 
-                processData.AddToLog("Dispensing...");
+                processData.AddToLog("Dispense started");
                 string response = await App.ControllerManager.DispenseToRing(id_valve, id_time, id_x, id_t, od_valve, od_time, od_x, od_t);
                 Debug.Print(response);
 
+                DDMResultsShots shotData = App.ControllerManager.ParseDispenseResponse(response);
 
-                processData.results.shot_id = new DDMResultsShot()
-                {
-                    valve_num = motor.shot_calibration.valve_num_id,
-                    vol = 0.005f,
-                    time = motor.shot_calibration.time_id,
-                    pressure = motor.shot_calibration.pressure_1
-                };
-                processData.results.shot_od = new DDMResultsShot()
-                {
-                    valve_num = motor.shot_calibration.valve_num_od,
-                    vol = 0.006f,
-                    time = motor.shot_calibration.time_od,
-                    pressure = motor.shot_calibration.pressure_2
-                };
+                string real_id_pressure = await App.ControllerManager.GetRegPressureSetpoint(id_valve);
+                string real_od_pressure = await App.ControllerManager.GetRegPressureSetpoint(od_valve);
+
+                string tb = "  ";
+
                 processData.AddToLog("Dispense complete");
+                processData.AddToLog("Results:");
+                processData.AddToLog($"{tb}ID:");
+                processData.AddToLog($"{tb}{tb}Valve {id_valve} ({id_substance})");
+                processData.AddToLog($"{tb}{tb}Dispense volume: {shotData.id_vol} mL ({Math.Round(shotData.id_vol.Value / c.target_vol_id.Value, 3) * 100}% of target)");
+                processData.AddToLog($"{tb}{tb}Dispense time: {shotData.id_time} s");
+                processData.AddToLog($"{tb}{tb}Pressure: {real_id_pressure} psi");
+                processData.AddToLog($"{tb}OD:");
+                processData.AddToLog($"{tb}{tb}Valve {od_valve} ({od_substance})");
+                processData.AddToLog($"{tb}{tb}Dispense volume: {shotData.od_vol} mL ({Math.Round(shotData.od_vol.Value / c.target_vol_od.Value, 3) * 100}% of target)");
+                processData.AddToLog($"{tb}{tb}Dispense time: {shotData.od_time} s");
+                processData.AddToLog($"{tb}{tb}Pressure: {real_od_pressure} psi");
+
                 Disp_ProcessPrg.Value = 80;
             }
             if (doPostPhoto)
@@ -1040,7 +1042,7 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
             string input = Adv_Cell_SetPres1InTxt.Text;
-            string response = await App.ControllerManager.SetRegPressure(1, float.Parse(input));
+            string response = await App.ControllerManager.SetRegPressureAndWait(1, float.Parse(input), 10);
             Adv_Cell_SetPres1OutLbl.Content = response;
             LockRobotButtons(false);
         }
@@ -1049,7 +1051,7 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
             string input = Adv_Cell_SetPres2InTxt.Text;
-            string response = await App.ControllerManager.SetRegPressure(2, float.Parse(input));
+            string response = await App.ControllerManager.SetRegPressureAndWait(2, float.Parse(input), 10);
             Adv_Cell_SetPres2OutLbl.Content = response;
             LockRobotButtons(false);
         }

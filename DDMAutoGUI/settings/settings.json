@@ -1,11 +1,11 @@
 {
-  "last_saved": "2025-08-26",
+  "last_saved": "2025-08-27",
   "path_matlab_exe": "",
   "common": {
     "linear_axis_num": 2,
     "rotary_axis_num": 1,
-    "system_1_content": "Permabond 801",
-    "system_2_content": "Permabond 825",
+    "system_1_contents": "Permabond 801",
+    "system_2_contents": "Permabond 825",
     "load": {
       "x": 0,
       "t": 0
@@ -24,11 +24,11 @@
       "time_od": 0.820,
       "valve_num_id": 1,
       "valve_num_od": 1,
-      "pressure_1": 12.0,
-      "pressure_2": 0,
+      "pressure_1": 15.0,
+      "pressure_2": -1,
       "target_vol_id": 0.157,
       "target_vol_od": 0.205,
-      "post_spin_time": 4.0,
+      "post_spin_time": 0,
       "post_spin_speed": 100.0
     },
     "camera_side": {
@@ -58,11 +58,11 @@
       "time_od": 2.232,
       "valve_num_id": 1,
       "valve_num_od": 1,
-      "pressure_1": 12.0,
-      "pressure_2": 0,
+      "pressure_1": 15.0,
+      "pressure_2": -1,
       "target_vol_id": 0.453,
       "target_vol_od": 0.558,
-      "post_spin_time": 4.0,
+      "post_spin_time": 0,
       "post_spin_speed": 100.0
     },
     "camera_side": {
@@ -92,7 +92,7 @@
       "time_od": 2.125,
       "valve_num_id": 2,
       "valve_num_od": 1,
-      "pressure_1": 26,
+      "pressure_1": 27,
       "pressure_2": 34,
       "target_vol_id": 0.750,
       "target_vol_od": 0.850,
@@ -127,7 +127,7 @@
       "valve_num_id": 1,
       "valve_num_od": 2,
       "pressure_1": 39,
-      "pressure_2": 40,
+      "pressure_2": 34,
       "target_vol_id": 1.698,
       "target_vol_od": 2.038,
       "post_spin_time": 4.0,

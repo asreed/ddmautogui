@@ -15,12 +15,14 @@ namespace DDMAutoGUI.utilities
         public bool shot_od { get; set; }
         public bool post_photo { get; set; }
     }
-    public class DDMResultsShot
+    public class DDMResultsShots
     {
-        public int? valve_num { get; set; }
-        public float? vol { get; set; }
-        public float? time { get; set; }
-        public float? pressure { get; set; }
+        public bool? success { get; set; }
+        public string? error_message { get; set; }
+        public float? id_vol { get; set; }
+        public float? id_time { get; set; }
+        public float? od_vol { get; set; }
+        public float? od_time { get; set; }
     }
     public class DDMResultsSingleHeight
     {
@@ -40,8 +42,7 @@ namespace DDMAutoGUI.utilities
         public string? ring_sn { get; set; }
         public DDMResultsOptions? selected_options { get; set; }
         public DDMResultsOptions? completed_options { get; set; }
-        public DDMResultsShot? shot_id { get; set; }
-        public DDMResultsShot? shot_od { get; set; }
+        public DDMResultsShots? shots { get; set; }
         public List<DDMResultsSingleHeight>? ring_heights { get; set; }
         public List<DDMResultsSingleHeight>? mag_heights { get; set; }
         public List<DDMResultsLogLine>? process_log { get; set; }
@@ -80,8 +81,9 @@ namespace DDMAutoGUI.utilities
 
 
         public ProcessResults()
-        { 
-            results = new DDMResults {
+        {
+            results = new DDMResults
+            {
                 process_log = new List<DDMResultsLogLine>(),
                 ring_heights = new List<DDMResultsSingleHeight>(),
                 mag_heights = new List<DDMResultsSingleHeight>()
@@ -119,7 +121,7 @@ namespace DDMAutoGUI.utilities
             string fullDirectory = saveMainDirectory + saveFolderPrefix + results.ring_sn + "\\";
             Process.Start("explorer.exe", fullDirectory);
         }
-        
+
         public string GetLogAsString()
         {
             StringBuilder sb = new StringBuilder();
@@ -132,5 +134,7 @@ namespace DDMAutoGUI.utilities
             }
             return sb.ToString();
         }
+
+
     }
 }

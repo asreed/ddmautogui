@@ -185,20 +185,20 @@ namespace DDMAutoGUI.windows
                 processData.AddToLog("...");
                 await Task.Delay(1000);
 
-                processData.results.shot_id = new DDMResultsShot()
-                {
-                    valve_num = motor.shot_calibration.valve_num_id,
-                    vol = 0.005f,
-                    time = motor.shot_calibration.time_id,
-                    pressure = motor.shot_calibration.pressure_1
-                };
-                processData.results.shot_od = new DDMResultsShot()
-                {
-                    valve_num = motor.shot_calibration.valve_num_od,
-                    vol = 0.006f,
-                    time = motor.shot_calibration.time_od,
-                    pressure = motor.shot_calibration.pressure_2
-                };
+                //processData.results.shot_id = new DDMResultsShot()
+                //{
+                //    valve_num = motor.shot_calibration.valve_num_id,
+                //    vol = 0.005f,
+                //    time = motor.shot_calibration.time_id,
+                //    pressure = motor.shot_calibration.pressure_1
+                //};
+                //processData.results.shot_od = new DDMResultsShot()
+                //{
+                //    valve_num = motor.shot_calibration.valve_num_od,
+                //    vol = 0.006f,
+                //    time = motor.shot_calibration.time_od,
+                //    pressure = motor.shot_calibration.pressure_2
+                //};
                 processData.AddToLog("Dispense complete");
                 processProgressBar.Value = 80;
             }

@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
+using System.Security.RightsManagement;
 
 namespace DDMAutoGUI.utilities
 {
@@ -36,6 +37,8 @@ namespace DDMAutoGUI.utilities
         public int? laser_ring_num { get; set; }
         public int? laser_mag_num { get; set; }
         public float? laser_delay { get; set; }
+        public string? system_1_contents { get; set; }
+        public string? system_2_contents { get; set; }
     }
     public class DDMSettingsSingleSize
     {
