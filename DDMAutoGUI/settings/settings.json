@@ -14,8 +14,6 @@
       "x": 262.936,
       "t": 0
     },
-    "laser_ring_num": 6,
-    "laser_mag_num": 40,
     "laser_delay": 0.050
   },
   "ddm_57": {
@@ -44,13 +42,15 @@
       "t": 0
     },
     "laser_mag": {
-      "x": 372.27,
+      "x": 374.18,
       "t": 0
     },
     "laser_ring": {
       "x": 0,
       "t": 0
-    }
+    },
+    "laser_ring_num": 6,
+    "laser_mag_num": 48
   },
   "ddm_95": {
     "shot_calibration": {
@@ -78,13 +78,15 @@
       "t": 0
     },
     "laser_mag": {
-      "x": 352.49,
+      "x": 355.90,
       "t": 0
     },
     "laser_ring": {
       "x": 0,
       "t": 0
-    }
+    },
+    "laser_ring_num": 6,
+    "laser_mag_num": 60
   },
   "ddm_116": {
     "shot_calibration": {
@@ -112,13 +114,15 @@
       "t": 0
     },
     "laser_mag": {
-      "x": 341.94,
+      "x": 346.85,
       "t": 0
     },
     "laser_ring": {
       "x": 0,
       "t": 0
-    }
+    },
+    "laser_ring_num": 6,
+    "laser_mag_num": 80
   },
   "ddm_170": {
     "shot_calibration": {
@@ -146,12 +150,14 @@
       "t": 0
     },
     "laser_mag": {
-      "x": 314.59,
+      "x": 320.50,
       "t": 0
     },
     "laser_ring": {
       "x": 0,
       "t": 0
-    }
+    },
+    "laser_ring_num": 6,
+    "laser_mag_num": 88
   }
 }

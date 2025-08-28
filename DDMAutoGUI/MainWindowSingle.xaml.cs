@@ -208,7 +208,7 @@ namespace DDMAutoGUI
                 
                 x = motor.laser_ring.x.Value;
                 t = motor.laser_ring.t.Value;
-                n = settings.common.laser_ring_num.Value;
+                n = motor.laser_ring_num.Value;
                 d = settings.common.laser_delay.Value;
 
                 processData.AddToLog("Measuring ring...");
@@ -228,7 +228,7 @@ namespace DDMAutoGUI
 
                 x = motor.laser_mag.x.Value;
                 t = motor.laser_mag.t.Value;
-                n = settings.common.laser_mag_num.Value;
+                n = motor.laser_mag_num.Value;
                 d = settings.common.laser_delay.Value;
 
                 processData.AddToLog("Measuring magnets...");
@@ -275,18 +275,21 @@ namespace DDMAutoGUI
                 string real_id_pressure = await App.ControllerManager.GetRegPressureSetpoint(id_valve);
                 string real_od_pressure = await App.ControllerManager.GetRegPressureSetpoint(od_valve);
 
+                real_id_pressure = real_id_pressure.Split(' ').Last();
+                real_od_pressure = real_od_pressure.Split(' ').Last();
+
                 string tb = "  ";
 
                 processData.AddToLog("Dispense complete");
                 processData.AddToLog("Results:");
                 processData.AddToLog($"{tb}ID:");
                 processData.AddToLog($"{tb}{tb}Valve {id_valve} ({id_substance})");
-                processData.AddToLog($"{tb}{tb}Dispense volume: {shotData.id_vol} mL ({Math.Round(shotData.id_vol.Value / c.target_vol_id.Value, 3) * 100}% of target)");
+                processData.AddToLog($"{tb}{tb}Dispense volume: {shotData.id_vol} mL ({Math.Round(shotData.id_vol.Value * 100 / c.target_vol_id.Value, 1)}% of target)");
                 processData.AddToLog($"{tb}{tb}Dispense time: {shotData.id_time} s");
                 processData.AddToLog($"{tb}{tb}Pressure: {real_id_pressure} psi");
                 processData.AddToLog($"{tb}OD:");
                 processData.AddToLog($"{tb}{tb}Valve {od_valve} ({od_substance})");
-                processData.AddToLog($"{tb}{tb}Dispense volume: {shotData.od_vol} mL ({Math.Round(shotData.od_vol.Value / c.target_vol_od.Value, 3) * 100}% of target)");
+                processData.AddToLog($"{tb}{tb}Dispense volume: {shotData.od_vol} mL ({Math.Round(shotData.od_vol.Value * 100 / c.target_vol_od.Value, 1)}% of target)");
                 processData.AddToLog($"{tb}{tb}Dispense time: {shotData.od_time} s");
                 processData.AddToLog($"{tb}{tb}Pressure: {real_od_pressure} psi");
 
@@ -553,8 +556,8 @@ namespace DDMAutoGUI
                 Adv_Cell_MoveDispODInLbl.Content = $"[{m.disp_od.x}, {m.disp_od.t}]";
                 Adv_Cell_MoveSpinInLbl.Content = $"{c.spin_time}s, {c.spin_speed}%";
 
-                Adv_Cell_MeasureRingInLbl.Content = $"{s.common.laser_ring_num} places, {s.common.laser_delay} s each";
-                Adv_Cell_MeasureMagInLbl.Content = $"{s.common.laser_mag_num} places, {s.common.laser_delay} s each";
+                Adv_Cell_MeasureRingInLbl.Content = $"{m.laser_ring_num} places, {s.common.laser_delay} s each";
+                Adv_Cell_MeasureMagInLbl.Content = $"{m.laser_mag_num} places, {s.common.laser_delay} s each";
 
                 Adv_Cell_DispShotsInLbl.Content = $"ID: Valve {c.valve_num_id}, x={m.disp_id.x} mm, {c.time_id} s, target {c.target_vol_id}mL\n";
                 Adv_Cell_DispShotsInLbl.Content += $"OD: Valve {c.valve_num_od}, x={m.disp_od.x} mm, {c.time_od} s, target {c.target_vol_od} mL";
@@ -979,7 +982,7 @@ namespace DDMAutoGUI
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float xPos = m.laser_ring.x.Value;
             float tPos = m.laser_ring.t.Value;
-            int n = s.common.laser_ring_num.Value;
+            int n = m.laser_ring_num.Value;
             float d = s.common.laser_delay.Value;
 
             LockRobotButtons(true);
@@ -1004,7 +1007,7 @@ namespace DDMAutoGUI
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float xPos = m.laser_mag.x.Value;
             float tPos = m.laser_mag.t.Value;
-            int n = s.common.laser_mag_num.Value;
+            int n = m.laser_mag_num.Value;
             float d = s.common.laser_delay.Value;
 
             LockRobotButtons(true);
@@ -1025,29 +1028,35 @@ namespace DDMAutoGUI
         private async void Adv_Cell_ShowRingBtn_Click(object sender, RoutedEventArgs e)
         {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < laserRingData.Count; i++)
+            if (laserRingData != null)
             {
-                DDMResultsSingleHeight d = laserRingData[i];
-                sb.AppendLine($"{d.t}, {d.z}");
+                for (int i = 0; i < laserRingData.Count; i++)
+                {
+                    DDMResultsSingleHeight d = laserRingData[i];
+                    sb.AppendLine($"{d.t}, {d.z}");
+                }
+                TextDataViewer viewer = new TextDataViewer();
+                viewer.Owner = this;
+                viewer.PopulateData(sb.ToString(), "Ring Displacement Measurements");
+                viewer.Show();
             }
-            TextDataViewer viewer = new TextDataViewer();
-            viewer.Owner = this;
-            viewer.PopulateData(sb.ToString(), "Ring Displacement Measurements");
-            viewer.Show();
         }
 
         private async void Adv_Cell_ShowMagBtn_Click(object sender, RoutedEventArgs e)
         {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < laserMagData.Count; i++)
+            if (laserMagData != null)
             {
-                DDMResultsSingleHeight d = laserMagData[i];
-                sb.AppendLine($"{d.t}, {d.z}");
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < laserMagData.Count; i++)
+                {
+                    DDMResultsSingleHeight d = laserMagData[i];
+                    sb.AppendLine($"{d.t}, {d.z}");
+                }
+                TextDataViewer viewer = new TextDataViewer();
+                viewer.Owner = this;
+                viewer.PopulateData(sb.ToString(), "Ring Displacement Measurements");
+                viewer.Show();
             }
-            TextDataViewer viewer = new TextDataViewer();
-            viewer.Owner = this;
-            viewer.PopulateData(sb.ToString(), "Ring Displacement Measurements");
-            viewer.Show();
         }
 
         private async void Adv_Cell_SetPres1Btn_Click(object sender, RoutedEventArgs e)

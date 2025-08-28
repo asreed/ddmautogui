@@ -312,8 +312,8 @@ namespace DDMAutoGUI.windows
                 moveDispODInput.Content = $"[{m.disp_od.x}, {m.disp_od.t}]";
                 moveSpinInput.Content = $"{c.spin_time}s, {c.spin_speed}%";
 
-                laserRingInput.Content = $"{s.common.laser_ring_num} places";
-                laserMagInput.Content = $"{s.common.laser_mag_num} places";
+                laserRingInput.Content = $"{m.laser_ring_num} places";
+                laserMagInput.Content = $"{m.laser_mag_num} places";
 
                 dispShotsInput.Content = $"ID: Valve {c.valve_num_id}, x={m.disp_id.x} mm, {c.time_id} s, target {c.target_vol_id }mL\n";
                 dispShotsInput.Content += $"OD: Valve {c.valve_num_od}, x={m.disp_od.x} mm, {c.time_od} s, target {c.target_vol_od} mL";
@@ -579,7 +579,7 @@ namespace DDMAutoGUI.windows
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float xPos = m.laser_ring.x.Value;
             float tPos = m.laser_ring.t.Value;
-            int n = s.common.laser_ring_num.Value;
+            int n = m.laser_ring_num.Value;
             float d = s.common.laser_delay.Value;
 
             LockRobotButtons(true);
@@ -604,7 +604,7 @@ namespace DDMAutoGUI.windows
             DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
             float xPos = m.laser_mag.x.Value;
             float tPos = m.laser_mag.t.Value;
-            int n = s.common.laser_mag_num.Value;
+            int n = m.laser_mag_num.Value;
             float d = s.common.laser_delay.Value;
 
             LockRobotButtons(true);

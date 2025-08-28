@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DDMAutoGUI"
         mc:Ignorable="d"
         Background="WhiteSmoke"
-        Title="DDM Automation Cell Manager" Height="750" Width="1000" ResizeMode="CanResizeWithGrip" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+        Title="DDM Automation Cell Manager" Height="750" Width="1100" ResizeMode="CanResizeWithGrip" WindowStartupLocation="CenterScreen" WindowState="Maximized">
     
     <Grid Margin="6">
 
@@ -420,7 +420,7 @@
                                                                 <Grid>
 
                                                                     <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="100"/>
+                                                                        <ColumnDefinition Width="130"/>
                                                                         <ColumnDefinition Width="180"/>
                                                                         <ColumnDefinition Width="*"/>
                                                                     </Grid.ColumnDefinitions>

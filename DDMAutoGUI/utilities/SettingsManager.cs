@@ -34,8 +34,6 @@ namespace DDMAutoGUI.utilities
         public int? rotary_axis_num { get; set; }
         public DDMSettingsLocation? load { get; set; }
         public DDMSettingsLocation? camera_top { get; set; }
-        public int? laser_ring_num { get; set; }
-        public int? laser_mag_num { get; set; }
         public float? laser_delay { get; set; }
         public string? system_1_contents { get; set; }
         public string? system_2_contents { get; set; }
@@ -48,6 +46,8 @@ namespace DDMAutoGUI.utilities
         public DDMSettingsLocation? disp_od { get; set; }
         public DDMSettingsLocation? laser_mag { get; set; }
         public DDMSettingsLocation? laser_ring { get; set; }
+        public int? laser_ring_num { get; set; }
+        public int? laser_mag_num { get; set; }
 
         public bool IsValid()
         {
