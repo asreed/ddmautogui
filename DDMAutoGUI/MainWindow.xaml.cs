@@ -68,7 +68,7 @@ namespace DDMAutoGUI
             splashConnectBtn.Content = "Connecting...";
             splashErrorBox.Visibility = Visibility.Collapsed;
 
-            await App.ControllerManager.ConnectAsync(splashIPTextBox.Text);
+            await App.ControllerManager.Connect(splashIPTextBox.Text);
             if (App.UIManager.UI_STATE.isConnected)
             {
                 splashErrorBox.Visibility = Visibility.Collapsed;

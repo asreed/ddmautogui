@@ -42,7 +42,7 @@ namespace DDMAutoGUI.windows
         private async void connectBtn_ClickAsync(object sender, RoutedEventArgs e)
         {
             connectBtn.IsEnabled = false;
-            await App.ControllerManager.ConnectAsync(ipTextBox.Text);
+            await App.ControllerManager.Connect(ipTextBox.Text);
             if (App.UIManager.UI_STATE.isConnected)
             {
                 versionLabel.Content = await App.ControllerManager.GetTCSVersion();
@@ -54,7 +54,7 @@ namespace DDMAutoGUI.windows
         {
             disconnectBtn.IsEnabled = false;
             statusSendBtn.IsEnabled = false;
-            await App.ControllerManager.DisconnectAsync();
+            await App.ControllerManager.Disconnect();
             versionLabel.Content = "(no version info)";
             UpdateButtonLocks();
 
@@ -72,13 +72,13 @@ namespace DDMAutoGUI.windows
         private async void statusSendBtn_ClickAsync(object sender, RoutedEventArgs e)
         {
             statusSendBtn.IsEnabled = false;
-            string response = await App.ControllerManager.SendStatusCommandAsync(statusMessageTextBox.Text);
+            string response = await App.ControllerManager.SendStatusCommand(statusMessageTextBox.Text);
             UpdateButtonLocks();
         }
         private async void robotSendBtn_ClickAsync(object sender, RoutedEventArgs e)
         {
             robotSendBtn.IsEnabled = false;
-            string response = await App.ControllerManager.SendRobotCommandAsync(robotMessageTextBox.Text);
+            string response = await App.ControllerManager.SendRobotCommand(robotMessageTextBox.Text);
             UpdateButtonLocks();
         }
 

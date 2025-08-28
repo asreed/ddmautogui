@@ -271,7 +271,7 @@ namespace DDMAutoGUI.utilities
         // ==================================================================
         // General TCS messaging (port 10000 and 10100)
 
-        public async Task<bool> ConnectAsync(string ip)
+        public async Task<bool> Connect(string ip)
         {
             IPEndPoint statusEP = new IPEndPoint(IPAddress.Parse(ip), 10000);
             IPEndPoint robotEP = new IPEndPoint(IPAddress.Parse(ip), 10100);
@@ -304,6 +304,9 @@ namespace DDMAutoGUI.utilities
 
                 ControllerConnected?.Invoke(this, EventArgs.Empty);
                 App.UIManager.UI_STATE.isConnected = true;
+
+                StartAutoControllerState();
+
                 App.UIManager.TriggerUIStateChanged();
                 return true;
 
@@ -323,15 +326,15 @@ namespace DDMAutoGUI.utilities
             }
         }
 
-        public async Task DisconnectAsync()
+        public async Task Disconnect()
         {
             UpdateBothLogs("Disconnecting...");
             try
             {
 
                 StopAutoControllerState();
-                await SendStatusCommandAsync("exit");
-                await SendRobotCommandAsync("exit");
+                await SendStatusCommand("exit");
+                await SendRobotCommand("exit");
                 statusClient.Shutdown(SocketShutdown.Both);
                 statusClient.Close();
                 robotClient.Shutdown(SocketShutdown.Both);
@@ -346,10 +349,13 @@ namespace DDMAutoGUI.utilities
 
             ControllerDisconnected?.Invoke(this, EventArgs.Empty);
             App.UIManager.UI_STATE.isConnected = false;
+
+            StopAutoControllerState();
+
             App.UIManager.TriggerUIStateChanged();
         }
 
-        public async Task<string> SendRobotCommandAsync(string command)
+        public async Task<string> SendRobotCommand(string command)
         {
             UpdateRobotLog($">> {command}");
 
@@ -396,7 +402,7 @@ namespace DDMAutoGUI.utilities
             return response.ToString().Trim();
         }
 
-        public async Task<string> SendStatusCommandAsync(string command)
+        public async Task<string> SendStatusCommand(string command)
         {
             UpdateStatusLog($">> {command}");
 
@@ -503,38 +509,39 @@ namespace DDMAutoGUI.utilities
 
         private async Task<string> TestStatusConnection()
         {
-            string response = await SendStatusCommandAsync("nop");
+            string response = await SendStatusCommand("nop");
             return response.Trim();
         }
 
-        private void UpdateControllerStateFromString(string newStatusString)
+        private async void UpdateControllerState()
         {
-            string[] status = newStatusString.Split(" ");
-            if (status.Length > 1)
+            string newStatusString = await GetSystemStateRemote();
+            string[] parts = newStatusString.Split(" ");
+            if (parts.Length > 1)
             {
                 try
                 {
                     CONTROLLER_STATE = new ControllerState
                     {
-                        isPowerEnabled = status[1] != "0",
-                        isRobotHomed = status[2] != "0",
+                        isPowerEnabled = parts[1] != "0",
+                        isRobotHomed = parts[2] != "0",
 
-                        posLinear = float.Parse(status[3]),
-                        posRotary = float.Parse(status[4]),
+                        posLinear = float.Parse(parts[3]),
+                        posRotary = float.Parse(parts[4]),
 
-                        isLinearIn1 = status[5] != "0",
-                        isLinearIn2 = status[6] != "0",
-                        isLinearIn3 = status[7] != "0",
+                        isLinearIn1 = parts[5] != "0",
+                        isLinearIn2 = parts[6] != "0",
+                        isLinearIn3 = parts[7] != "0",
 
-                        pressureCommand1 = float.Parse(status[8]),
-                        pressureMeasurement1 = float.Parse(status[9]),
-                        pressureCommand2 = float.Parse(status[10]),
-                        pressureMeasurement2 = float.Parse(status[11]),
+                        pressureCommand1 = float.Parse(parts[8]),
+                        pressureMeasurement1 = float.Parse(parts[9]),
+                        pressureCommand2 = float.Parse(parts[10]),
+                        pressureMeasurement2 = float.Parse(parts[11]),
 
-                        flowVolume1 = float.Parse(status[12]),
-                        flowError1 = int.Parse(status[13]),
-                        flowVolume2 = float.Parse(status[14]),
-                        flowError2 = int.Parse(status[15]),
+                        flowVolume1 = float.Parse(parts[12]),
+                        flowError1 = int.Parse(parts[13]),
+                        flowVolume2 = float.Parse(parts[14]),
+                        flowError2 = int.Parse(parts[15]),
 
                         parseError = false,
                         parseErrorMessage = "",
@@ -546,6 +553,7 @@ namespace DDMAutoGUI.utilities
                     CONTROLLER_STATE.Initialize();
                     CONTROLLER_STATE.parseError = true;
                     CONTROLLER_STATE.parseErrorMessage = "Error while parsing data";
+                    await Disconnect();
                 }
             }
             else
@@ -553,7 +561,8 @@ namespace DDMAutoGUI.utilities
                 // error. likely error from controller
                 CONTROLLER_STATE.Initialize();
                 CONTROLLER_STATE.parseError = true;
-                CONTROLLER_STATE.parseErrorMessage = $"Unable to parse: {status[0]}";
+                CONTROLLER_STATE.parseErrorMessage = $"Unable to parse: {parts[0]}";
+                await Disconnect();
             }
             ControllerStateChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -618,10 +627,9 @@ namespace DDMAutoGUI.utilities
             }
         }
 
-        private async void Timer_Tick(object sender, EventArgs e)
+        private void Timer_Tick(object sender, EventArgs e)
         {
-            string response = await GetSystemStateRemote();
-            UpdateControllerStateFromString(response);
+            UpdateControllerState();
         }
 
 
@@ -651,13 +659,13 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> GetSystemStateRemote()
         {
-            string response = await SendStatusCommandAsync("DDM_GetSystemState");
+            string response = await SendStatusCommand("DDM_GetSystemState");
             return response;
         }
 
         public async Task<string> GetTCSVersion()
         {
-            string response = await SendStatusCommandAsync("DDM_GetTCSVersion");
+            string response = await SendStatusCommand("DDM_GetTCSVersion");
             string version = string.Empty;
             if (response.Split(" ").Length > 1)
             {
@@ -668,7 +676,7 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> GetPACVersion()
         {
-            string response = await SendStatusCommandAsync("DDM_GetPACVersion");
+            string response = await SendStatusCommand("DDM_GetPACVersion");
             string[] fullversion = response.Split(" ");
             string version = string.Empty;
             if (fullversion.Length > 1)
@@ -680,8 +688,8 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> EStop()
         {
-            await SendRobotCommandAsync($"halt");
-            return await SendRobotCommandAsync($"hp 0");
+            await SendRobotCommand($"halt");
+            return await SendRobotCommand($"hp 0");
         }
 
         public async Task<string> EnablePower()
@@ -689,10 +697,10 @@ namespace DDMAutoGUI.utilities
             string response;
             int timeout = 0;
 
-            response = await SendRobotCommandAsync("hp 1");
+            response = await SendRobotCommand("hp 1");
             while (true)
             {
-                response = await SendRobotCommandAsync("hp");
+                response = await SendRobotCommand("hp");
                 if (response == "0 1")
                 {
                     break;
@@ -717,80 +725,80 @@ namespace DDMAutoGUI.utilities
         public async Task<string> MoveOneAxis(int axisNumber, float position)
         {
             string input = $"DDM_MoveOneAxis {axisNumber} {position}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> MoveJ(float xPosition, float tPosition)
         {
             string input = $"DDM_MoveJ {xPosition} {tPosition}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> SpinInPlace(float spinTime, float spinSpeed)
         {
             string input = $"DDM_SpinInPlace {spinTime} {spinSpeed}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> OpenValveTimed(int index, float openTime)
         {
             string input = $"DDM_OpenValveTimed {index} {openTime}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> CloseAllValves()
         {
             string input = $"DDM_CloseAllValves";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> SetRegPressure(int index, float pressure)
         {
             string input = $"DDM_SetRegPressure {index} {pressure}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> SetRegPressureAndWait(int index, float pressure, float timeout)
         {
             string input = $"DDM_SetRegPressureAndWait {index} {pressure} {timeout}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> GetRegPressure(int index)
         {
             string input = $"DDM_GetRegPressure {index}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> GetRegPressureSetpoint(int index)
         {
             string input = $"DDM_GetRegPressureSetpoint {index}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> MeasureHeights(float xPos, float tStart, int nMeasurements, float delay)
         {
             string input = $"DDM_MeasureHeights {xPos} {tStart} {nMeasurements} {delay}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> SetZeroShift(float timeAvg)
         {
             string input = $"DDM_SetZeroShift {timeAvg}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> SetShotTrigger(int index, bool state)
         {
             int stateInt = state ? 1 : 0;
             string input = $"DDM_SetShotTrigger {index} {stateInt}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> MeasureShotTimed(int index, float time)
         {
             string input = $"DDM_MeasureShotTimed {index} {time}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
         public async Task<string> DispenseToRing(
@@ -804,7 +812,7 @@ namespace DDMAutoGUI.utilities
             float od_tPos)
         {
             string input = $"DDM_DispenseToRing {id_valveNum} {id_time} {id_xPos} {id_tPos} {od_valveNum} {od_time} {od_xPos} {od_tPos}";
-            return await SendRobotCommandAsync(input);
+            return await SendRobotCommand(input);
         }
 
 

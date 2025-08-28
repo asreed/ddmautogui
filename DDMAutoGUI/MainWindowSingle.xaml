@@ -55,7 +55,7 @@
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="500"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
@@ -212,105 +212,6 @@
                 <Grid>
 
                     <TabControl TabStripPlacement="Left" Margin="12">
-                        <TabItem Header="Connection" Padding="15">
-
-                                <Grid>
-
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-
-                                    <GroupBox Grid.Row="0" Height="Auto" Header="TCS Connection">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition/>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition/>
-                                                <RowDefinition/>
-                                            </Grid.RowDefinitions>
-                                            <TextBox Grid.Column="0" Grid.Row="0" x:Name="Adv_Con_IPTxt" Text="192.168.0.1"/>
-                                            <Button Grid.Column="1" Grid.Row="0" x:Name="Adv_Con_ConnectBtn" Content="Connect to TCS" Click="Adv_Con_ConnectBtn_Click"/>
-                                            <Button Grid.Column="2" Grid.Row="0" x:Name="Adv_Con_DisconnectBtn" Content="Disconnect from TCS" Click="Adv_Con_DisconnectBtn_Click"/>
-                                            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
-                                                <Label Content="Controller software version:"/>
-                                                <Label x:Name="Adv_Con_ContVersionTxt" Content="(no version info)"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </GroupBox>
-
-                                    <!--<GroupBox Grid.Row="1" Height="Auto" Header="Troubleshoot Connection" Foreground="#CCC" Visibility="Collapsed">
-                                        <StackPanel Orientation="Vertical">
-                                            <Button x:Name="loadTCSBtn" Content="Attempt to load " HorizontalAlignment="Left"/>
-                                            <Label x:Name="loadTCSLbl" Content="(result)" Padding="2" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </GroupBox>-->
-
-                                    <Grid Grid.Row="2">
-
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <GroupBox Grid.Column="0" Header="Status Connection">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
-
-                                                <!--
-                                                <StackPanel Grid.Row="0" Orientation="Horizontal">
-                                                    <Button x:Name="startAutoBtn" Content="Start Auto" Click="startAutoBtn_Click" IsEnabled="False"/>
-                                                    <Button x:Name="stopAutoBtn" Content="Stop Auto" Click="stopAutoBtn_Click" IsEnabled="False"/>
-                                                </StackPanel>
-                                                -->
-                                                <TextBox Grid.Row="1" x:Name="Adv_Con_StatusLogTxt" Margin="4" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" IsReadOnly="True" FontSize="10" FontFamily="Consolas" VerticalContentAlignment="Top"/>
-                                                <Grid Grid.Row="2">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBox Grid.Column="0" x:Name="Adv_Con_StatusMsgTxt" Text="" KeyDown="Adv_Con_StatusLogTxt_KeyDown"/>
-                                                    <Button Grid.Column="1" x:Name="Adv_Con_StatusSendBtn" Content="Send" Click="Adv_Con_StatusSendBtn_Click"/>
-                                                </Grid>
-                                            </Grid>
-                                        </GroupBox>
-
-                                        <GroupBox Grid.Column="1" Header="Robot Connection">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
-
-                                                <TextBox Grid.Row="0" x:Name="Adv_Con_RobotLogTxt" Margin="4" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" IsReadOnly="True" FontSize="10" FontFamily="Consolas" VerticalContentAlignment="Top"/>
-                                                <Grid Grid.Row="1">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBox Grid.Column="0" x:Name="Adv_Con_RobotMsgTxt" Text="" KeyDown="Adv_Con_RobotLogTxt_KeyDown"/>
-                                                    <Button Grid.Column="1" x:Name="Adv_Con_RobotSendBtn" Content="Send" Click="Adv_Con_RobotSendBtn_Click"/>
-                                                </Grid>
-
-                                            </Grid>
-                                        </GroupBox>
-                                    </Grid>
-
-
-
-                                </Grid>
-
-
-
-                            </TabItem>
                         <TabItem Header="Cell Control Panel" Padding="15">
 
                                 <Grid>
@@ -353,8 +254,8 @@
                                                         HorizontalAlignment="Left" 
                                                         VerticalAlignment="Center"/>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <Button x:Name="Adv_Cell_AutoStartBtn" Content="Start" Click="Adv_Cell_AutoStartBtn_Click"/>
-                                                        <Button x:Name="Adv_Cell_AutoStopBtn" Content="Stop" Click="Adv_Cell_AutoStopBtn_Click"/>
+                                                        <!--<Button x:Name="Adv_Cell_AutoStartBtn" Content="Start" Click="Adv_Cell_AutoStartBtn_Click"/>-->
+                                                        <!--<Button x:Name="Adv_Cell_AutoStopBtn" Content="Stop" Click="Adv_Cell_AutoStopBtn_Click"/>-->
                                                     </StackPanel>
                                                 </StackPanel>
                                             </GroupBox>
@@ -875,7 +776,106 @@
 
 
                             </TabItem>
-                            <TabItem Header="Camera" Padding="15">
+                        <TabItem Header="Connection Monitor" Padding="15">
+
+                                <Grid>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+
+                                    <GroupBox Grid.Row="0" Height="Auto" Header="TCS Connection">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <TextBox Grid.Column="0" Grid.Row="0" x:Name="Adv_Con_IPTxt" Text="192.168.0.1"/>
+                                            <Button Grid.Column="1" Grid.Row="0" x:Name="Adv_Con_ConnectBtn" Content="Connect to TCS" Click="Adv_Con_ConnectBtn_Click"/>
+                                            <Button Grid.Column="2" Grid.Row="0" x:Name="Adv_Con_DisconnectBtn" Content="Disconnect from TCS" Click="Adv_Con_DisconnectBtn_Click"/>
+                                            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
+                                                <Label Content="Controller software version:"/>
+                                                <Label x:Name="Adv_Con_ContVersionTxt" Content="(no version info)"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </GroupBox>
+
+                                    <!--<GroupBox Grid.Row="1" Height="Auto" Header="Troubleshoot Connection" Foreground="#CCC" Visibility="Collapsed">
+                                        <StackPanel Orientation="Vertical">
+                                            <Button x:Name="loadTCSBtn" Content="Attempt to load " HorizontalAlignment="Left"/>
+                                            <Label x:Name="loadTCSLbl" Content="(result)" Padding="2" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </GroupBox>-->
+
+                                    <Grid Grid.Row="2">
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <GroupBox Grid.Column="0" Header="Status Connection">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <!--
+                                                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                                    <Button x:Name="startAutoBtn" Content="Start Auto" Click="startAutoBtn_Click" IsEnabled="False"/>
+                                                    <Button x:Name="stopAutoBtn" Content="Stop Auto" Click="stopAutoBtn_Click" IsEnabled="False"/>
+                                                </StackPanel>
+                                                -->
+                                                <TextBox Grid.Row="1" x:Name="Adv_Con_StatusLogTxt" Margin="4" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" IsReadOnly="True" FontSize="10" FontFamily="Consolas" VerticalContentAlignment="Top"/>
+                                                <Grid Grid.Row="2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox Grid.Column="0" x:Name="Adv_Con_StatusMsgTxt" Text="" KeyDown="Adv_Con_StatusLogTxt_KeyDown"/>
+                                                    <Button Grid.Column="1" x:Name="Adv_Con_StatusSendBtn" Content="Send" Click="Adv_Con_StatusSendBtn_Click"/>
+                                                </Grid>
+                                            </Grid>
+                                        </GroupBox>
+
+                                        <GroupBox Grid.Column="1" Header="Robot Connection">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <TextBox Grid.Row="0" x:Name="Adv_Con_RobotLogTxt" Margin="4" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" IsReadOnly="True" FontSize="10" FontFamily="Consolas" VerticalContentAlignment="Top"/>
+                                                <Grid Grid.Row="1">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox Grid.Column="0" x:Name="Adv_Con_RobotMsgTxt" Text="" KeyDown="Adv_Con_RobotLogTxt_KeyDown"/>
+                                                    <Button Grid.Column="1" x:Name="Adv_Con_RobotSendBtn" Content="Send" Click="Adv_Con_RobotSendBtn_Click"/>
+                                                </Grid>
+
+                                            </Grid>
+                                        </GroupBox>
+                                    </Grid>
+
+
+
+                                </Grid>
+
+
+
+                            </TabItem>
+                            <TabItem Header="Camera" Padding="15" Visibility="Collapsed">
 
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -918,11 +918,11 @@
                                     </StackPanel>-->
 
                                 </Grid>
-                            </TabItem>
-                            <TabItem Header="Settings" Padding="15">
+                        </TabItem>
+                        <TabItem Header="Settings" Padding="15" Visibility="Collapsed">
 
                         </TabItem>
-                        <TabItem Header="Image Process" Padding="15">
+                        <TabItem Header="Image Process" Padding="15" Visibility="Collapsed">
 
                         </TabItem>
                         <TabItem Header="About" Padding="15">

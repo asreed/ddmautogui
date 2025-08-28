@@ -66,11 +66,14 @@ namespace DDMAutoGUI
                 Adv_Con_DisconnectBtn,
                 Adv_Con_StatusSendBtn,
                 Adv_Con_RobotSendBtn,
-                Adv_Cell_AutoStartBtn,
-                Adv_Cell_AutoStopBtn,
+                //Adv_Cell_AutoStartBtn,
+                //Adv_Cell_AutoStopBtn,
                 Adv_Cell_EStopBtn,
-                Adv_Cell_ECloseValvesBtn
+                Adv_Cell_ECloseValvesBtn,
+
             };
+
+            UpdateButtonLocks();
         }
 
 
@@ -93,12 +96,12 @@ namespace DDMAutoGUI
             string sn = "TEST-SN-123456789";
             int motorSelection = Disp_MotorSizeCmb.SelectedIndex;
 
-            bool doSNPhoto = Disp_SNPhotoChk.IsChecked ?? false;
-            bool doPrePhoto = Disp_PrePhotoChk.IsChecked ?? false;
-            bool doRingMeasure = Disp_MeasureRingChk.IsChecked ?? false;
-            bool doMagMeasure = Disp_MeasureMagChk.IsChecked ?? false;
+            bool doSNPhoto = false; // Disp_SNPhotoChk.IsChecked ?? false;
+            bool doPrePhoto = false; // Disp_PrePhotoChk.IsChecked ?? false;
+            bool doRingMeasure = false; // Disp_MeasureRingChk.IsChecked ?? false;
+            bool doMagMeasure = false; // Disp_MeasureMagChk.IsChecked ?? false;
             bool doDispense = Disp_DispenseChk.IsChecked ?? false;
-            bool doPostPhoto = Disp_PostPhotoChk.IsChecked ?? false;
+            bool doPostPhoto = false; // Disp_PostPhotoChk.IsChecked ?? false;
 
             DDMSettings settings = App.SettingsManager.SETTINGS;
 
@@ -393,9 +396,11 @@ namespace DDMAutoGUI
                 }
             }
 
+            LockRobotButtons(!isConnected);
+
             // set auto buttons
-            Adv_Cell_AutoStartBtn.IsEnabled = !isAutoState && isConnected;
-            Adv_Cell_AutoStopBtn.IsEnabled = isAutoState && isConnected;
+            //Adv_Cell_AutoStartBtn.IsEnabled = !isAutoState && isConnected;
+            //Adv_Cell_AutoStopBtn.IsEnabled = isAutoState && isConnected;
 
             // set connect buttons
             Con_ConnectBtn.IsEnabled = !isConnected;
@@ -443,17 +448,20 @@ namespace DDMAutoGUI
 
         private void FormatReadout(Label label, float value)
         {
+            label.Foreground = new BrushConverter().ConvertFrom("#000") as SolidColorBrush;
             label.Content = value.ToString();
 
         }
         private void FormatReadout(Label label, float value, string unit)
         {
+            label.Foreground = new BrushConverter().ConvertFrom("#000") as SolidColorBrush;
             label.Content = value.ToString() + " " + unit;
 
         }
         private void FormatReadout(Label label, bool value)
         {
             label.Content = value ? "Yes" : "No";
+            label.Foreground = new BrushConverter().ConvertFrom("#000") as SolidColorBrush;
             if (value)
             {
                 label.Background = new BrushConverter().ConvertFrom("#ffd3ddf5") as SolidColorBrush;
@@ -743,7 +751,7 @@ namespace DDMAutoGUI
             Con_ConnectBtn.IsEnabled = false;
             Con_ConnectBtn.Content = "Connecting...";
 
-            await App.ControllerManager.ConnectAsync(Con_IPTxt.Text);
+            await App.ControllerManager.Connect(Con_IPTxt.Text);
             if (App.UIManager.UI_STATE.isConnected)
             {
                 Con_ConnectBtn.Content = "Connected";
@@ -757,7 +765,7 @@ namespace DDMAutoGUI
         private async void Adv_Con_ConnectBtn_Click(object sender, RoutedEventArgs e)
         {
             Adv_Con_ConnectBtn.IsEnabled = false;
-            await App.ControllerManager.ConnectAsync(Adv_Con_IPTxt.Text);
+            await App.ControllerManager.Connect(Adv_Con_IPTxt.Text);
             if (App.UIManager.UI_STATE.isConnected)
             {
                 Adv_Con_ContVersionTxt.Content = await App.ControllerManager.GetTCSVersion();
@@ -767,21 +775,21 @@ namespace DDMAutoGUI
         private async void Adv_Con_DisconnectBtn_Click(object sender, RoutedEventArgs e)
         {
             Adv_Con_DisconnectBtn.IsEnabled = false;
-            await App.ControllerManager.DisconnectAsync();
+            await App.ControllerManager.Disconnect();
             Adv_Con_ContVersionTxt.Content = "(no version info)";
         }
 
         private async void Adv_Con_StatusSendBtn_Click(object sender, RoutedEventArgs e)
         {
             Adv_Con_StatusSendBtn.IsEnabled = false;
-            string response = await App.ControllerManager.SendStatusCommandAsync(Adv_Con_StatusMsgTxt.Text);
+            string response = await App.ControllerManager.SendStatusCommand(Adv_Con_StatusMsgTxt.Text);
             UpdateButtonLocks();
         }
 
         private async void Adv_Con_RobotSendBtn_Click(object sender, RoutedEventArgs e)
         {
             Adv_Con_RobotSendBtn.IsEnabled = false;
-            string response = await App.ControllerManager.SendRobotCommandAsync(Adv_Con_RobotMsgTxt.Text);
+            string response = await App.ControllerManager.SendRobotCommand(Adv_Con_RobotMsgTxt.Text);
             UpdateButtonLocks();
         }
 
@@ -810,9 +818,13 @@ namespace DDMAutoGUI
         private void Disp_ViewLogBtn_Click(object sender, RoutedEventArgs e)
         {
             TextDataViewer viewer = new TextDataViewer();
-            viewer.Owner = this;
-            viewer.PopulateData(processData.GetLogAsString(), "Process Log");
-            viewer.ShowDialog();
+            string log = processData.GetLogAsString();
+            if (log != null)
+            {
+                viewer.Owner = this;
+                viewer.PopulateData(processData.GetLogAsString(), "Process Log");
+                viewer.ShowDialog();
+            }
         }
 
         private void Disp_OpenFolderBtn_Click(object sender, RoutedEventArgs e)
