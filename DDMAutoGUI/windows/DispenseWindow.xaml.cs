@@ -1,5 +1,4 @@
-﻿using DDMAutoGUI.dispenseSteps;
-using DDMAutoGUI.utilities;
+﻿using DDMAutoGUI.utilities;
 using DDMAutoGUI.windows;
 using Microsoft.Win32;
 using System;
@@ -25,14 +24,11 @@ namespace DDMAutoGUI
     public partial class DispenseWindow : Window
     {
 
-        dispenseStep1 s1;
-        dispenseStep2 s2;
-        dispenseStep3 s3;
 
         private int currentStep = 0;
         private bool tabLock = true; // prevent user from clicking tabs directly
         
-        public  DispenseProcessData processData;
+        public  ProcessResults processData;
 
         private bool abortPreConfirmed = false;
 
@@ -42,16 +38,16 @@ namespace DDMAutoGUI
             InitializeComponent();
 
             // load in steps
-            s1 = new dispenseStep1(this);
-            s2 = new dispenseStep2();
-            s3 = new dispenseStep3();
-            tabContainer1.Children.Add(s1);
-            tabContainer2.Children.Add(s2);
-            tabContainer3.Children.Add(s3);
+            //s1 = new dispenseStep1(this);
+            //s2 = new dispenseStep2();
+            //s3 = new dispenseStep3();
+            //tabContainer1.Children.Add(s1);
+            //tabContainer2.Children.Add(s2);
+            //tabContainer3.Children.Add(s3);
 
 
             //RobotManager.Instance.UpdateUIState += dispenseWindow_OnUpdateUIState;
-            processData = new DispenseProcessData();
+            processData = new ProcessResults();
             processData.AddToLog("Process started");
             abortPreConfirmed = false;
             GoToStep(0);
@@ -71,9 +67,9 @@ namespace DDMAutoGUI
             {
                 case 0:
 
-                    string sn = s1.GetSN();
-                    processData.ringSN = sn;
-                    processData.AddToLog($"Ring SN entered: {sn}");
+                    //string sn = s1.GetSN();
+                    //processData.ringSN = sn;
+                    //processData.AddToLog($"Ring SN entered: {sn}");
 
                     break;
                 case 1:
@@ -145,9 +141,9 @@ namespace DDMAutoGUI
                 // save log?
 
                 UIState state = new UIState();
-                state = RobotManager.Instance.GetUIState();
-                state.isDispenseWizardActive = false;
-                RobotManager.Instance.SetUIState(state);
+                //state = ControllerManager.Instance.GetUIState();
+                //state.isDispenseWizardActive = false;
+                //ControllerManager.Instance.SetUIState(state);
                 return true;
             }
             return false;
@@ -181,7 +177,7 @@ namespace DDMAutoGUI
         {
             TextDataViewer viewer = new TextDataViewer();
             viewer.Owner = this;
-            viewer.PopulateData(processData.processLog, "Process Log");
+            //viewer.PopulateData(processData.processLog, "Process Log");
             viewer.ShowDialog();
         }
 

@@ -1,48 +1,165 @@
 {
-  "all_sizes": {
+  "last_saved": "2025-08-27",
+  "path_matlab_exe": "",
+  "camera_top_sn": "252902469",
+  "camera_side_sn": "252902472",
+  "common": {
+    "linear_axis_num": 2,
+    "rotary_axis_num": 1,
+    "system_1_contents": "Permabond 801",
+    "system_2_contents": "Permabond 825",
     "load": {
-      "x": 590.00,
+      "x": 0,
       "t": 0
     },
-    "camera": {
-      "x": 293.33,
+    "camera_top": {
+      "x": 262.936,
       "t": 0
-    }
+    },
+    "laser_delay": 0.050
   },
   "ddm_57": {
+    "shot_calibration": {
+      "time_id": 0.628,
+      "time_od": 0.820,
+      "valve_num_id": 1,
+      "valve_num_od": 1,
+      "pressure_1": 4.5,
+      "pressure_2": -1,
+      "target_vol_id": 0.157,
+      "target_vol_od": 0.205,
+      "post_spin_time": 0,
+      "post_spin_speed": 100.0
+    },
+    "camera_side": {
+      "x": 0,
+      "t": 0
+    },
     "disp_id": {
-      "x": 134.00,
+      "x": 617.844,
       "t": 0
     },
     "disp_od": {
-      "x": 67.23,
+      "x": 613.206,
       "t": 0
     },
     "laser_mag": {
-      "x": 226,
+      "x": 374.18,
       "t": 0
     },
     "laser_ring": {
-      "x": 223.33,
+      "x": 0,
       "t": 0
-    }
+    },
+    "laser_ring_num": 6,
+    "laser_mag_num": 48
+  },
+  "ddm_95": {
+    "shot_calibration": {
+      "time_id": 1.808,
+      "time_od": 2.232,
+      "valve_num_id": 1,
+      "valve_num_od": 1,
+      "pressure_1": 4.5,
+      "pressure_2": -1,
+      "target_vol_id": 0.453,
+      "target_vol_od": 0.558,
+      "post_spin_time": 0,
+      "post_spin_speed": 100.0
+    },
+    "camera_side": {
+      "x": 0,
+      "t": 0
+    },
+    "disp_id": {
+      "x": 600.734,
+      "t": 0
+    },
+    "disp_od": {
+      "x": 596.067,
+      "t": 0
+    },
+    "laser_mag": {
+      "x": 355.90,
+      "t": 0
+    },
+    "laser_ring": {
+      "x": 0,
+      "t": 0
+    },
+    "laser_ring_num": 6,
+    "laser_mag_num": 60
   },
   "ddm_116": {
+    "shot_calibration": {
+      "time_id": 1.875,
+      "time_od": 2.125,
+      "valve_num_id": 2,
+      "valve_num_od": 1,
+      "pressure_1": 6.8,
+      "pressure_2": 33.5,
+      "target_vol_id": 0.750,
+      "target_vol_od": 0.850,
+      "post_spin_time": 0,
+      "post_spin_speed": 100.0
+    },
+    "camera_side": {
+      "x": 490.017,
+      "t": 157.389
+    },
     "disp_id": {
-      "x": 134.00,
+      "x": 694.305,
       "t": 0
     },
     "disp_od": {
-      "x": 67.23,
+      "x": 584.841,
       "t": 0
     },
     "laser_mag": {
-      "x": 226,
+      "x": 346.85,
       "t": 0
     },
     "laser_ring": {
-      "x": 223.33,
+      "x": 0,
       "t": 0
-    }
+    },
+    "laser_ring_num": 6,
+    "laser_mag_num": 80
+  },
+  "ddm_170": {
+    "shot_calibration": {
+      "time_id": 1.887,
+      "time_od": 5.095,
+      "valve_num_id": 1,
+      "valve_num_od": 2,
+      "pressure_1": 14.8,
+      "pressure_2": 33.5,
+      "target_vol_id": 1.698,
+      "target_vol_od": 2.038,
+      "post_spin_time": 0,
+      "post_spin_speed": 100.0
+    },
+    "camera_side": {
+      "x": 0,
+      "t": 0
+    },
+    "disp_id": {
+      "x": 569.207,
+      "t": 0
+    },
+    "disp_od": {
+      "x": 661.300,
+      "t": 0
+    },
+    "laser_mag": {
+      "x": 320.50,
+      "t": 0
+    },
+    "laser_ring": {
+      "x": 0,
+      "t": 0
+    },
+    "laser_ring_num": 6,
+    "laser_mag_num": 88
   }
 }

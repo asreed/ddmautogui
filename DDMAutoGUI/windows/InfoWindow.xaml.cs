@@ -23,13 +23,10 @@ namespace DDMAutoGUI.windows
         {
             InitializeComponent();
 
-            var assy = System.Reflection.Assembly.GetExecutingAssembly();
-            var v = assy.GetName().Version;
-
             string releaseDate = "July 17, 2025";
             string testNotes = "Intended for Gen 1 Phase 1a. ENGINEERING TESTING ONLY.";
 
-            string formattedVersion = $"{v.Major}.{v.Minor}.{v.Build}";
+            string formattedVersion = App.ReleaseInfoManager.GetCurrentVersion();
 
             StringBuilder infoString = new StringBuilder();
 

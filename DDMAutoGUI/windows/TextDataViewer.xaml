@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DDMAutoGUI.windows"
         mc:Ignorable="d"
-        Title="Text Data Viewer" Height="500" Width="300" WindowStartupLocation="CenterOwner">
+        Title="Text Data Viewer" Height="500" Width="500" WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

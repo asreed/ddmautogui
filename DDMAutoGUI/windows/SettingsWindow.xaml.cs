@@ -28,22 +28,49 @@ namespace DDMAutoGUI.windows
         public SettingsWindow()
         {
             InitializeComponent();
+            filePathText.Text = App.SettingsManager.GetSettingsFilePath();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void viewRawBtn_Click(object sender, RoutedEventArgs e)
         {
-            DDMSettings settings = SettingsManager.Instance.GetSettings();
-            if (settings != null)
-            {
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                string settingsString = JsonSerializer.Serialize(settings, options);
-                output.Text = settingsString;
 
-            }
-            else
+            string rawString = string.Empty;
+            string filePath = App.SettingsManager.GetSettingsFilePath();
+            rawString = File.ReadAllText(filePath);
+            if (rawString == string.Empty)
             {
-                output.Text = "No settings loaded";
+                rawString = $"Unable to read from file ({filePath})";
             }
+
+            TextDataViewer viewer = new TextDataViewer();
+            viewer.PopulateData(rawString, "Raw Settings");
+            viewer.Owner = this;
+            viewer.Show();
+        }
+
+        private void loadParseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            //SettingsManager.Instance.LoadSettingsFile();
+            //DDMSettings settings = SettingsManager.Instance.GetSettings();
+            //string settingsString = string.Empty;
+            //if (settings != null)
+            //{
+            //    var options = new JsonSerializerOptions { WriteIndented = true };
+            //    settingsString = JsonSerializer.Serialize(settings, options);
+            //}
+            //else
+            //{
+            //    settingsString = "No settings parsed from file.";
+            //}
+            //TextDataViewer viewer = new TextDataViewer();
+            //viewer.PopulateData(settingsString, "Parsed Settings");
+            //viewer.Owner = this;
+            //viewer.Show();
+        }
+
+        private void openFolderBtn_Click(object sender, RoutedEventArgs e)
+        {
+            App.SettingsManager.OpenFolderToSettingsFile();
         }
     }
 }

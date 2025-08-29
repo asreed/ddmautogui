@@ -5,33 +5,77 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.IO;
+using System.Diagnostics;
+using System.Security.RightsManagement;
 
 namespace DDMAutoGUI.utilities
 {
-
-
     public class DDMSettingsLocation
     {
-        public float x { get; set; }
-        public float th { get; set; }
+        public float? x { get; set; }
+        public float? t { get; set; }
     }
-    public class DDMSettingsAllSizes
+    public class DDMSettingShotCalibration
     {
+        public float? time_id { get; set; }
+        public float? time_od { get; set; }
+        public int? valve_num_id { get; set; }
+        public int? valve_num_od { get; set; }
+        public float? pressure_1 { get; set; }
+        public float? pressure_2 { get; set; }
+        public float? target_vol_id { get; set; }
+        public float? target_vol_od { get; set; }
+        public float? spin_time { get; set; }
+        public float? spin_speed { get; set; }
+    }
+    public class DDMSettingsCommon
+    {
+        public int? linear_axis_num { get; set; }
+        public int? rotary_axis_num { get; set; }
         public DDMSettingsLocation? load { get; set; }
-        public DDMSettingsLocation? camera { get; set; }
+        public DDMSettingsLocation? camera_top { get; set; }
+        public float? laser_delay { get; set; }
+        public string? system_1_contents { get; set; }
+        public string? system_2_contents { get; set; }
     }
-    public class DDMSettingsOneSize
+    public class DDMSettingsSingleSize
     {
+        public DDMSettingShotCalibration? shot_calibration { get; set; }
+        public DDMSettingsLocation? camera_side { get; set; }
         public DDMSettingsLocation? disp_id { get; set; }
         public DDMSettingsLocation? disp_od { get; set; }
         public DDMSettingsLocation? laser_mag { get; set; }
         public DDMSettingsLocation? laser_ring { get; set; }
+        public int? laser_ring_num { get; set; }
+        public int? laser_mag_num { get; set; }
+
+        public bool IsValid()
+        {
+            // validate logic. might want to expand checks
+
+            if (disp_id == null || disp_od == null || laser_mag == null || laser_ring == null)
+            {
+                return false; // invalid if any location is null ...?
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
     public class DDMSettings
     {
-        public DDMSettingsAllSizes? all_sizes { get; set; }
-        public DDMSettingsOneSize? ddm_57 { get; set; }
-        public DDMSettingsOneSize? ddm_116 { get; set; }
+        public DateTime? last_saved { get; set; }
+        public int? linear_axis_num { get; set; }
+        public int? rotary_axis_num { get; set; }
+        public string? camera_top_sn { get; set; }
+        public string? camera_side_sn { get; set; }
+        public DDMSettingsCommon? common { get; set; }
+        public DDMSettingsSingleSize? ddm_57 { get; set; }
+        public DDMSettingsSingleSize? ddm_95 { get; set; }
+        public DDMSettingsSingleSize? ddm_116 { get; set; }
+        public DDMSettingsSingleSize? ddm_170 { get; set; }
+        public DDMSettingsSingleSize? ddm_170_tall { get; set; }
     }
 
 
@@ -39,33 +83,93 @@ namespace DDMAutoGUI.utilities
 
 
 
-    class SettingsManager
+    public class SettingsManager
     {
-
         private string settingsFilePath = AppDomain.CurrentDomain.BaseDirectory + "settings\\settings.json";
-        private DDMSettings settings;
+
+        public enum DDMSize
+        {
+            none,
+            ddm_57,
+            ddm_95,
+            ddm_116,
+            ddm_170,
+            ddm_170_tall
+        }
+        public DDMSize selectedSize = DDMSize.ddm_116; // default to 116
+
+        public DDMSettings SETTINGS { get; private set; } = new DDMSettings();
 
 
-
-
-        private static readonly Lazy<SettingsManager> lazy =
-            new Lazy<SettingsManager>(() => new SettingsManager());
-        public static SettingsManager Instance { get { return lazy.Value; } }
 
         public SettingsManager()
         {
-            LoadSettingsFile(settingsFilePath);
+            SETTINGS = ReadSettingsFile();
+            Debug.Print("Settings manager initialized");
         }
 
-        public void LoadSettingsFile(string path)
+        public DDMSettings ReadSettingsFile()
         {
-            string rawJson = File.ReadAllText(settingsFilePath);
-            settings = JsonSerializer.Deserialize<DDMSettings>(rawJson);
+            DDMSettings settings = new DDMSettings();
+            Debug.Print("Reading settings file from: " + settingsFilePath);
+            try
+            {
+                if (File.Exists(settingsFilePath))
+                {
+                    string rawJson = File.ReadAllText(settingsFilePath);
+                    settings = JsonSerializer.Deserialize<DDMSettings>(rawJson);
+                    return settings;
+                }
+                else
+                {
+                    Debug.Print("Settings file does not exist!");
+                }
+            }
+            catch (JsonException ex)
+            {
+                Debug.Print("Error deserializing settings file: " + ex.Message);
+            }
+            return new DDMSettings();
         }
 
-        public DDMSettings GetSettings()
+        public DDMSettings GetAllSettings()
         {
-            return settings;
+            return SETTINGS;
+        }
+
+        public DDMSettingsSingleSize GetSettingsForSelectedSize()
+        {
+            switch (selectedSize)
+            {
+                case DDMSize.ddm_57:
+                    return SETTINGS.ddm_57;
+                case DDMSize.ddm_95:
+                    return SETTINGS.ddm_95;
+                case DDMSize.ddm_116:
+                    return SETTINGS.ddm_116;
+                case DDMSize.ddm_170:
+                    return SETTINGS.ddm_170;
+                case DDMSize.ddm_170_tall:
+                    return SETTINGS.ddm_170_tall;
+                default:
+                    throw new ArgumentException("Invalid DDM size specified."); // autogenerated ...?
+            }
+        }
+
+        public string GetSettingsFilePath()
+        {
+            return settingsFilePath;
+        }
+
+        public void OpenFolderToSettingsFile()
+        {
+            string folderPath = Path.GetDirectoryName(settingsFilePath);
+            System.Diagnostics.Process.Start("explorer.exe", folderPath);
+        }
+
+        public void ReloadSettings()
+        {
+            SETTINGS = ReadSettingsFile();
         }
     }
 }

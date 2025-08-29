@@ -1,0 +1,46 @@
+﻿{
+    "releases": [
+        {
+            "version": "1.2.0",
+            "releaseDate": "2025-08-28",
+            "releaseIntent": "ENGINEERING ONLY",
+            "releaseDisplayNotes": "Intended for Gen 1 Phase 1b cell built for production.",
+            "releaseNotes": "Significant changes to interface and TCS API. Changed to single window interface for touchscreen. Settings file added. Release history file added. Basic support for two cameras added. Tested on new cell intended for production floor."
+        },
+        {
+            "version": "1.1.4",
+            "releaseDate": "2025-07-17",
+            "releaseIntent": "ENGINEERING ONLY",
+            "releaseDisplayNotes": "Intended for Gen 1 Phase 1a. ENGINEERING TESTING ONLY.",
+            "releaseNotes": "Lots of new sensors added: flow sensors, pressure regulators, camera, I/O-Link master, AIO, laser displacement. Significant updates to TCS and PAC files as well. Camera tools window added to pull images from Triton camera through ArenaNET dll. Debug window 2 created to accommodate new sensor displays and controls. Physical layout of cell shifted."
+        },
+        {
+            "version": "1.1.3",
+            "releaseDate": "2025-06-27",
+            "releaseIntent": "ENGINEERING ONLY",
+            "releaseDisplayNotes": "Intended for Gen 1 Phase 1a. ENGINEERING TESTING ONLY.",
+            "releaseNotes": "Linear axis added to the setup along with its position sensors. TCS and PAC files were updated to match. Debug window was updated with new buttons and status displays."
+        },
+        {
+            "version": "1.1.2",
+            "releaseDate": "2025-06-03",
+            "releaseIntent": "ENGINEERING ONLY",
+            "releaseDisplayNotes": "Intended for Gen 1 Phase 1a. ENGINEERING TESTING ONLY.",
+            "releaseNotes": "Various minor visual changes, especially to the process window. Pop up dialogs polished somewhat."
+        },
+        {
+            "version": "1.1.1",
+            "releaseDate": "2025-05-23",
+            "releaseIntent": "ENGINEERING ONLY",
+            "releaseDisplayNotes": "",
+            "releaseNotes": "Small updates to load and verify correct TCS project is running. For internal engineering use only."
+        },
+        {
+            "version": "1.1.0",
+            "releaseDate": "2025-05-22",
+            "releaseIntent": "ENGINEERING ONLY",
+            "releaseDisplayNotes": "",
+            "releaseNotes": "Initial release. Minimal functionality: connect to controller and send TCS commands individually. Used for internal testing and calibrating of dispense heads only."
+        }
+    ]
+}

@@ -25,11 +25,14 @@ namespace DDMAutoGUI
     public partial class MainWindow : Window
     {
 
-        private static RobotConnectionWindow connectionWindow;
-        private static DebugWindow2 debugWindow;
+        private static ConnectionWindow connectionWindow;
+        private static ControlPanelWindow debugWindow;
         private static DispenseWindow dispenseWindow;
+        private static DispenseWindow2 dispenseWindow2;
         private static CameraWindow cameraWindow;
         private static SettingsWindow settingsWindow;
+        private static MatlabWindow matlabWindow;
+
 
         public MainWindow()
         {
@@ -49,12 +52,11 @@ namespace DDMAutoGUI
 
 
             InitializeComponent();
-            RobotManager.Instance.UpdateUIState += mainWindow_OnChangeState;
+            App.UIManager.UIStateChanged += mainWindow_OnChangeState;
 
-            var v = Assembly.GetExecutingAssembly().GetName().Version;
-            string formattedVersion = $"{v.Major}.{v.Minor}.{v.Build}";
-            //versionLabel.Content = formattedVersion;
-            splashVersionLabel.Content = formattedVersion;
+            this.Title += " " + App.ReleaseInfoManager.GetCurrentVersion();
+
+            splashErrorBox.Visibility = Visibility.Collapsed;
             UpdateButtonLocks();
         }
 
@@ -64,14 +66,17 @@ namespace DDMAutoGUI
         {
             splashConnectBtn.IsEnabled = false;
             splashConnectBtn.Content = "Connecting...";
-            await RobotManager.Instance.ConnectAsync(splashIPTextBox.Text);
-            if (RobotManager.Instance.GetUIState().isConnected)
+            splashErrorBox.Visibility = Visibility.Collapsed;
+
+            await App.ControllerManager.Connect(splashIPTextBox.Text);
+            if (App.UIManager.UI_STATE.isConnected)
             {
-                splashErrorLabel.Visibility = Visibility.Collapsed;
+                splashErrorBox.Visibility = Visibility.Collapsed;
             }
             else
             {
-                splashErrorLabel.Visibility = Visibility.Visible;
+                splashErrorBox.Visibility = Visibility.Visible;
+                splashErrorLabel.Text = "Connection failed. Verify IP is correct and TCS is running.";
                 splashConnectBtn.IsEnabled = true;
             }
         }
@@ -79,8 +84,9 @@ namespace DDMAutoGUI
         {
             if (connectionWindow == null || !connectionWindow.IsVisible)
             {
-                connectionWindow = new RobotConnectionWindow();
+                connectionWindow = new ConnectionWindow();
                 connectionWindow.Closed += (s, e) => connectionWindow = null;
+                //connectionWindow.Owner = this;
                 connectionWindow.Show();
             }
             else
@@ -91,22 +97,20 @@ namespace DDMAutoGUI
 
         private void DispenseBtn_Click(object sender, RoutedEventArgs e)
         {
-            UIState state = new UIState();
-            state = RobotManager.Instance.GetUIState();
-            state.isDispenseWizardActive = true;
-            RobotManager.Instance.SetUIState(state);
-
-            dispenseWindow = new DispenseWindow();
-            dispenseWindow.Show();
+            dispenseWindow2 = new DispenseWindow2();
+            //dispenseWindow2.Owner = this;
+            dispenseWindow2.Show();
         }
 
         private void DebugBtn_Click(object sender, RoutedEventArgs e)
         {
             if (debugWindow == null || !debugWindow.IsVisible)
             {
-                debugWindow = new DebugWindow2();
+                debugWindow = new ControlPanelWindow();
                 debugWindow.Closed += (s, e) => debugWindow = null;
+                //debugWindow.Owner = this;
                 debugWindow.Show();
+
             }
             else
             {
@@ -120,6 +124,7 @@ namespace DDMAutoGUI
             {
                 cameraWindow = new CameraWindow();
                 cameraWindow.Closed += (s, e) => cameraWindow = null;
+                //cameraWindow.Owner = this;
                 cameraWindow.Show();
             }
             else
@@ -128,19 +133,33 @@ namespace DDMAutoGUI
             }
         }
 
-
-
         private void SettingsBtn_Click(object sender, RoutedEventArgs e)
         {
             if (settingsWindow == null || !settingsWindow.IsVisible)
             {
                 settingsWindow = new SettingsWindow();
                 settingsWindow.Closed += (s, e) => settingsWindow = null;
+                //settingsWindow.Owner = this;
                 settingsWindow.Show();
             }
             else
             {
                 settingsWindow.Activate();
+            }
+        }
+
+        private void MatlabBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (matlabWindow == null || !matlabWindow.IsVisible)
+            {
+                matlabWindow = new MatlabWindow();
+                matlabWindow.Closed += (s, e) => matlabWindow = null;
+                //matlabWindow.Owner = this;
+                matlabWindow.Show();
+            }
+            else
+            {
+                matlabWindow.Activate();
             }
         }
 
@@ -151,33 +170,32 @@ namespace DDMAutoGUI
 
         private void UpdateButtonLocks()
         {
-            UIState state = RobotManager.Instance.GetUIState();
-            if (state.isConnected)
+            if (App.UIManager.UI_STATE.isConnected)
             {
                 splashConnectBtn.Content = "Connected";
+                splashErrorBox.Visibility = Visibility.Collapsed;
                 splashConnectBtn.IsEnabled = false;
-                splashErrorLabel.Visibility = Visibility.Collapsed;
-                debugBtn.IsEnabled = true;
+                //debugBtn.IsEnabled = true;
                 //debugMenuItem.IsEnabled = true;
-                debugToolbarBtn.IsEnabled = true;
+                //debugToolbarBtn.IsEnabled = true;
 
-                if (state.isDispenseWizardActive)
-                {
-                    dispenseBtn.IsEnabled = false;
-                }
-                else
-                {
-                    dispenseBtn.IsEnabled = true;
-                }
+                //if (state.isDispenseWizardActive)
+                //{
+                //    dispenseBtn.IsEnabled = false;
+                //}
+                //else
+                //{
+                //    dispenseBtn.IsEnabled = true;
+                //}
             }
             else
             {
                 splashConnectBtn.Content = "Connect";
                 splashConnectBtn.IsEnabled = true;
-                dispenseBtn.IsEnabled = false;
-                debugBtn.IsEnabled = false;
+                //dispenseBtn.IsEnabled = false;
+                //debugBtn.IsEnabled = false;
                 //debugMenuItem.IsEnabled = false;
-                debugToolbarBtn.IsEnabled = false;
+                //debugToolbarBtn.IsEnabled = false;
 
             }
 

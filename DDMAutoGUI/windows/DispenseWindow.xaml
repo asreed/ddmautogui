@@ -1,4 +1,4 @@
-﻿<Window xmlns:dispenseSteps="clr-namespace:DDMAutoGUI.dispenseSteps"  x:Class="DDMAutoGUI.DispenseWindow"
+﻿<Window x:Class="DDMAutoGUI.DispenseWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DDMAutoGUI"
         mc:Ignorable="d"
         Closing="DispenseWindow_WindowClosing"
-        Title="Process Window" Height="600" Width="900" Background="WhiteSmoke" ResizeMode="NoResize" Icon="/images/icons/b.ico" WindowStartupLocation="CenterScreen">
+        Title="Process Window" Height="600" Width="900" Background="WhiteSmoke" ResizeMode="NoResize" Icon="/resources/logos/b.ico" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal" Grid.Row="0">
-            <Image Source="/images/icons/cad-disp-valve-2.png" Height="30" Margin="6,6,6,6"/>
+            <Image Source="/resources/icons/tools.png" Height="30" Margin="6,6,6,6"/>
             <Label Content="Dispense Cyanoacrylate Process Guide" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="6,3,6,8" FontSize="18" Foreground="Black" Margin="0,3,0,0"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,6,0">
@@ -25,7 +25,7 @@
                     ToolTip="Show Log" 
                     VerticalAlignment="Center">
                 <StackPanel>
-                    <Image Source="/images/icons/book-solid.png"/>
+                    <!--<Image Source="/resou"/>-->
                     <Label Content="Log"/>
                 </StackPanel>
             </Button>
@@ -36,7 +36,7 @@
                     Width="Auto" 
                     VerticalAlignment="Center">
                 <StackPanel>
-                    <Image Source="/images/icons/ban-solid.png"/>
+                    <!--<Image Source="/images/icons/ban-solid.png"/>-->
                     <Label Content="Abort Process"/>
                 </StackPanel>
             </Button>

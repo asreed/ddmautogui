@@ -1,0 +1,31 @@
+﻿<Window x:Class="DDMAutoGUI.windows.MatlabWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DDMAutoGUI.windows"
+        mc:Ignorable="d"
+        Icon="/resources/icons/image_search.ico"
+        Title="Matlab Image Processing" Height="250" Width="250">
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Orientation="Vertical">
+
+            <Button 
+                Content="Run Matlab program" 
+                Click="runBtn_Click"
+                Padding="4"/>
+
+            <TextBlock
+                Name="resultText"
+                Text="placeholder"/>
+
+        </StackPanel>
+
+
+    </Grid>
+</Window>
