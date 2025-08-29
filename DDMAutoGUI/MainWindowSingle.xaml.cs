@@ -61,9 +61,10 @@ namespace DDMAutoGUI
             
             ReleaseInfoSingle currentRelease = App.ReleaseInfoManager.GetCurrentReleaseInfo();
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"{currentRelease.releaseIntent}");
+            sb.AppendLine();
             sb.AppendLine($"Version: {currentRelease.version}");
             sb.AppendLine($"Release Date: {currentRelease.releaseDate}");
-            sb.AppendLine($"{currentRelease.releaseIntent}");
             sb.AppendLine($"Notes: {currentRelease.releaseDisplayNotes}");
             Adv_Abt_InfoTxb.Text = sb.ToString();
 
