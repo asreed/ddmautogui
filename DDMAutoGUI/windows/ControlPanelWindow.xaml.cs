@@ -40,7 +40,7 @@ namespace DDMAutoGUI.windows
             App.ControllerManager.ControllerDisconnected += debugWindow_OnControllerDisconnected;
             App.ControllerManager.ControllerStateChanged += debugWindow_OnUpdateAutoControllerState;
 
-            versionManagerLabel.Content = App.UIManager.GetAppVersionString();
+            versionManagerLabel.Content = App.ReleaseInfoManager.GetCurrentVersion();
 
             if (App.UIManager.UI_STATE.isConnected)
             {

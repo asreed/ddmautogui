@@ -26,7 +26,7 @@ namespace DDMAutoGUI.windows
             string releaseDate = "July 17, 2025";
             string testNotes = "Intended for Gen 1 Phase 1a. ENGINEERING TESTING ONLY.";
 
-            string formattedVersion = App.UIManager.GetAppVersionString();
+            string formattedVersion = App.ReleaseInfoManager.GetCurrentVersion();
 
             StringBuilder infoString = new StringBuilder();
 

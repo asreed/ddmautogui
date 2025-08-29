@@ -57,7 +57,15 @@ namespace DDMAutoGUI
 
 
             InitializeComponent();
-            this.Title += " " + App.UIManager.GetAppVersionString();
+            this.Title += " " + App.ReleaseInfoManager.GetCurrentVersion();
+            
+            ReleaseInfoSingle currentRelease = App.ReleaseInfoManager.GetCurrentReleaseInfo();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Version: {currentRelease.version}");
+            sb.AppendLine($"Release Date: {currentRelease.releaseDate}");
+            sb.AppendLine($"{currentRelease.releaseIntent}");
+            sb.AppendLine($"Notes: {currentRelease.releaseDisplayNotes}");
+            Adv_Abt_InfoTxb.Text = sb.ToString();
 
             allButtons = new List<Button>()
             {
@@ -85,7 +93,7 @@ namespace DDMAutoGUI
 
         // ================ Main dispense process routine
 
-        private async void DoProcess()
+        private async void RunFullDispenseProcess()
         {
             // pull data from user config (validate?)
 
@@ -96,12 +104,12 @@ namespace DDMAutoGUI
             string sn = "TEST-SN-123456789";
             int motorSelection = Disp_MotorSizeCmb.SelectedIndex;
 
-            bool doSNPhoto = false; // Disp_SNPhotoChk.IsChecked ?? false;
-            bool doPrePhoto = false; // Disp_PrePhotoChk.IsChecked ?? false;
-            bool doRingMeasure = false; // Disp_MeasureRingChk.IsChecked ?? false;
-            bool doMagMeasure = false; // Disp_MeasureMagChk.IsChecked ?? false;
+            bool doSNPhoto = Disp_SNPhotoChk.IsChecked ?? false;
+            bool doPrePhoto = Disp_PrePhotoChk.IsChecked ?? false;
+            bool doRingMeasure = Disp_MeasureRingChk.IsChecked ?? false;
+            bool doMagMeasure = Disp_MeasureMagChk.IsChecked ?? false;
             bool doDispense = Disp_DispenseChk.IsChecked ?? false;
-            bool doPostPhoto = false; // Disp_PostPhotoChk.IsChecked ?? false;
+            bool doPostPhoto = Disp_PostPhotoChk.IsChecked ?? false;
 
             DDMSettings settings = App.SettingsManager.SETTINGS;
 
@@ -178,9 +186,8 @@ namespace DDMAutoGUI
             {
                 // connect to top camera
 
-                processData.AddToLog("Connecting to top camera...");
-                await Task.Delay(500);
-                processData.AddToLog("Camera connected");
+                //processData.AddToLog("Connecting to top camera...");
+                //processData.AddToLog("Camera connected");
                 Disp_ProcessPrg.Value = 10;
 
             }
@@ -196,8 +203,7 @@ namespace DDMAutoGUI
                 processData.AddToLog($"Moving to [{x}, {t}]");
 
                 await App.ControllerManager.MoveJ(x, t);
-
-                await Task.Delay(1000); 
+                App.CameraManager.AcquireAndSave(CameraManager.CellCamera.top, null);
 
                 processData.AddToLog("Photo saved");
                 Disp_ProcessPrg.Value = 20;
@@ -807,7 +813,7 @@ namespace DDMAutoGUI
 
         private async void Disp_BeginBtn_Click(object sender, RoutedEventArgs e)
         {
-            DoProcess();
+            RunFullDispenseProcess();
         }
 
         private void Disp_SaveLogBtn_Click(object sender, RoutedEventArgs e)

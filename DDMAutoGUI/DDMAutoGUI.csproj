@@ -8,71 +8,15 @@
     <UseWPF>true</UseWPF>
 	<ApplicationIcon>resources\logos\b.ico</ApplicationIcon>
 	<Platforms>AnyCPU;x86</Platforms>
-
-	<!-- 1.1.0
-	        May 22, 2025
-			Release notes:
-			Initial release. Minimal functionality: connect to controller and send TCS commands
-			individually. Used for internal testing and calibrating of dispense heads only.
-			
-			Display notes:
-			(none)
-	-->
-	<!-- 1.1.1
-	        May 23, 2025
-			Release notes:
-			Small updates to load and verify correct TCS project is running. For internal
-			engineering use only.
-			
-			Display notes:
-			(none)
-	-->
-	<!-- 1.1.2
-	        June 3, 2025
-			Release notes:
-			Various minor visual changes, especially to the process window. Pop up dialogs
-			polished somewhat.
-			
-			Display notes:
-			Intended for Gen 1 Phase 1a. ENGINEERING TESTING ONLY.
-	-->
-	<!-- 1.1.3
-	        June 27, 2025
-			Release notes:
-			Linear axis added to the setup along with its position sensors. TCS and PAC files
-			were updated to match. Debug window was updated with new buttons and status 
-			displays.
-			
-			Display notes:
-			Intended for Gen 1 Phase 1a. ENGINEERING TESTING ONLY.
-	-->
-	<!-- 1.1.4
-	        July 17, 2025
-			Release notes:
-			Lots of new sensors added: flow sensors, pressure regulators, camera, I/O-Link
-			master, AIO, laser displacement. Significant updates to TCS and PAC files as well.
-			Camera tools window added to pull images from Triton camera through ArenaNET dll.
-			Debug window 2 created to accommodate new sensor displays and controls. Physical
-			layout of cell shifted.
-			
-			Display notes:
-			Intended for Gen 1 Phase 1a. ENGINEERING TESTING ONLY.
-	-->
-	<!-- 1.2.0
-	        (in progress)
-			Release notes:
-			...
-			
-			Display notes:
-			Intended for Gen 1 Phase 1b. ENGINEERING TESTING ONLY.
-	-->
-
-	<Version>1.2.0</Version> <!-- THIS IS THE VERSION NUMBER -->
+	  
+	  
+	<!-- THIS IS NOT THE VERSION NUMBER -->
+	<!-- USE RELEASEHISTORY.JSON INSTEAD-->
+	<Version>0.0.0</Version>
+	  
 	<AssemblyName>DDMAutoGUI</AssemblyName>
 	<GenerateDocumentationFile>False</GenerateDocumentationFile>
 	<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-
-
 
   </PropertyGroup>
 
@@ -140,6 +84,12 @@
     <None Remove="resources\icons\tune.ico" />
     <None Remove="resources\icons\warning.ico" />
     <None Remove="settings\settings.json" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Content Include="releaseHistory.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
