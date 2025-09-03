@@ -9,8 +9,10 @@ using System.Text.Json;
 namespace DDMAutoGUI
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// Contains application-level logic and manages core components such as UI, settings, controllers, cameras, release information, and process results. Manages startup and shutdown procedures.
     /// </summary>
+
+
     public partial class App : Application
     {
 
@@ -19,6 +21,7 @@ namespace DDMAutoGUI
         public static ControllerManager ControllerManager { get; private set; }
         public static CameraManager CameraManager { get; private set; }
         public static ReleaseInfoManager ReleaseInfoManager { get; private set; }
+        public static ProcessResultsManager ProcessResultsManager { get; private set; }
 
 
 
@@ -29,10 +32,12 @@ namespace DDMAutoGUI
             Debug.Print("App starting up");
 
             App.SettingsManager = new SettingsManager(); // settings first (for camera sn, at least)
+
             App.ReleaseInfoManager = new ReleaseInfoManager();
             App.UIManager = new UIManager();
             App.ControllerManager = new ControllerManager();
             App.CameraManager = new CameraManager();
+            App.ProcessResultsManager = new ProcessResultsManager();
 
 
         }

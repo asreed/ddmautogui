@@ -20,7 +20,7 @@
         <Style TargetType="TabItem" x:Key="AdvTab">
             <Setter Property="Width" Value="100"/>
             <Setter Property="Height" Value="60"/>
-            
+
         </Style>
         <Style TargetType="TextBlock" x:Key="AdvTabHeader">
             <Setter Property="TextWrapping" Value="Wrap"/>
@@ -128,9 +128,6 @@
                                                                 <!--<Button Grid.Column="1" Content="View" Margin="8,0,0,0"/>-->
                                                             </Grid>
                                                         </GroupBox>
-                                                        <!--<GroupBox Header="Motor SN">
-                                                            <TextBox x:Name="snTextBox" Padding="6"/>
-                                                        </GroupBox>-->
                                                         <GroupBox Header="Options">
                                                             <StackPanel Orientation="Vertical">
                                                                 <CheckBox Visibility="Collapsed" IsChecked="False" x:Name="Disp_SNPhotoChk" Content="Serial number photo" Padding="8"/>
@@ -148,6 +145,21 @@
                                                             Click="Disp_BeginBtn_Click"
                                                             Padding="12"
                                                             Margin="6"/>
+                                                        <Expander Header="Simulate" Margin="6" Background="#FFF7FAFF">
+                                                            <StackPanel Orientation="Vertical">
+                                                                <CheckBox IsChecked="False" x:Name="Disp_SimulateChk" Content="Simulate results" Padding="8"/>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Label Content="SN"/>
+                                                                    <TextBox x:Name="Disp_SimSNTxt" Width="120"/>
+                                                                </StackPanel>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Label Content="Flowrate 1"/>
+                                                                    <TextBox x:Name="Disp_SimFlow1Txt" Width="50"/>
+                                                                    <Label Content="Flowrate 2"/>
+                                                                    <TextBox x:Name="Disp_SimFlow2Txt" Width="50"/>
+                                                                </StackPanel>
+                                                            </StackPanel>
+                                                        </Expander>
                                                     </StackPanel>
 
                                                 </Grid>

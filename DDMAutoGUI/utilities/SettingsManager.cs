@@ -10,44 +10,39 @@ using System.Security.RightsManagement;
 
 namespace DDMAutoGUI.utilities
 {
-    public class DDMSettingsLocation
+    public class CellSettingsLocation
     {
         public float? x { get; set; }
         public float? t { get; set; }
     }
-    public class DDMSettingShotCalibration
+    public class CellSettingsShot
     {
-        public float? time_id { get; set; }
-        public float? time_od { get; set; }
         public int? valve_num_id { get; set; }
         public int? valve_num_od { get; set; }
-        public float? pressure_1 { get; set; }
-        public float? pressure_2 { get; set; }
+        public float? time_id { get; set; }
+        public float? time_od { get; set; }
+        public float? ref_pressure_1 { get; set; }
+        public float? ref_pressure_2 { get; set; }
         public float? target_vol_id { get; set; }
         public float? target_vol_od { get; set; }
-        public float? spin_time { get; set; }
-        public float? spin_speed { get; set; }
     }
-    public class DDMSettingsCommon
+    public class CellSettingsMotorCommon
     {
-        public int? linear_axis_num { get; set; }
-        public int? rotary_axis_num { get; set; }
-        public DDMSettingsLocation? load { get; set; }
-        public DDMSettingsLocation? camera_top { get; set; }
-        public float? laser_delay { get; set; }
-        public string? system_1_contents { get; set; }
-        public string? system_2_contents { get; set; }
+        public CellSettingsLocation? load { get; set; }
+        public CellSettingsLocation? camera_top { get; set; }
     }
-    public class DDMSettingsSingleSize
+    public class CellSettingsMotor
     {
-        public DDMSettingShotCalibration? shot_calibration { get; set; }
-        public DDMSettingsLocation? camera_side { get; set; }
-        public DDMSettingsLocation? disp_id { get; set; }
-        public DDMSettingsLocation? disp_od { get; set; }
-        public DDMSettingsLocation? laser_mag { get; set; }
-        public DDMSettingsLocation? laser_ring { get; set; }
+        public CellSettingsShot? shot_settings { get; set; }
+        public float? post_spin_time { get; set; }
+        public float? post_spin_speed { get; set; }
         public int? laser_ring_num { get; set; }
         public int? laser_mag_num { get; set; }
+        public CellSettingsLocation? camera_side { get; set; }
+        public CellSettingsLocation? disp_id { get; set; }
+        public CellSettingsLocation? disp_od { get; set; }
+        public CellSettingsLocation? laser_mag { get; set; }
+        public CellSettingsLocation? laser_ring { get; set; }
 
         public bool IsValid()
         {
@@ -63,19 +58,22 @@ namespace DDMAutoGUI.utilities
             }
         }
     }
-    public class DDMSettings
+    public class CellSettings
     {
         public DateTime? last_saved { get; set; }
-        public int? linear_axis_num { get; set; }
-        public int? rotary_axis_num { get; set; }
         public string? camera_top_sn { get; set; }
         public string? camera_side_sn { get; set; }
-        public DDMSettingsCommon? common { get; set; }
-        public DDMSettingsSingleSize? ddm_57 { get; set; }
-        public DDMSettingsSingleSize? ddm_95 { get; set; }
-        public DDMSettingsSingleSize? ddm_116 { get; set; }
-        public DDMSettingsSingleSize? ddm_170 { get; set; }
-        public DDMSettingsSingleSize? ddm_170_tall { get; set; }
+        public int? linear_axis_num { get; set; }
+        public int? rotary_axis_num { get; set; }
+        public string? system_1_contents { get; set; }
+        public string? system_2_contents { get; set; }
+        public float? laser_delay { get; set; }
+        public CellSettingsMotorCommon? ddm_common { get; set; }
+        public CellSettingsMotor? ddm_57 { get; set; }
+        public CellSettingsMotor? ddm_95 { get; set; }
+        public CellSettingsMotor? ddm_116 { get; set; }
+        public CellSettingsMotor? ddm_170 { get; set; }
+        public CellSettingsMotor? ddm_170_tall { get; set; }
     }
 
 
@@ -98,7 +96,7 @@ namespace DDMAutoGUI.utilities
         }
         public DDMSize selectedSize = DDMSize.ddm_116; // default to 116
 
-        public DDMSettings SETTINGS { get; private set; } = new DDMSettings();
+        public CellSettings SETTINGS { get; private set; } = new CellSettings();
 
 
 
@@ -108,16 +106,16 @@ namespace DDMAutoGUI.utilities
             Debug.Print("Settings manager initialized");
         }
 
-        public DDMSettings ReadSettingsFile()
+        public CellSettings ReadSettingsFile()
         {
-            DDMSettings settings = new DDMSettings();
+            CellSettings settings = new CellSettings();
             Debug.Print("Reading settings file from: " + settingsFilePath);
             try
             {
                 if (File.Exists(settingsFilePath))
                 {
                     string rawJson = File.ReadAllText(settingsFilePath);
-                    settings = JsonSerializer.Deserialize<DDMSettings>(rawJson);
+                    settings = JsonSerializer.Deserialize<CellSettings>(rawJson);
                     return settings;
                 }
                 else
@@ -129,15 +127,15 @@ namespace DDMAutoGUI.utilities
             {
                 Debug.Print("Error deserializing settings file: " + ex.Message);
             }
-            return new DDMSettings();
+            return new CellSettings();
         }
 
-        public DDMSettings GetAllSettings()
+        public CellSettings GetAllSettings()
         {
             return SETTINGS;
         }
 
-        public DDMSettingsSingleSize GetSettingsForSelectedSize()
+        public CellSettingsMotor GetSettingsForSelectedSize()
         {
             switch (selectedSize)
             {

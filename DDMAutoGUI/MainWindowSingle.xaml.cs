@@ -21,24 +21,25 @@ namespace DDMAutoGUI
     /// <summary>
     /// Interaction logic for MainWindowSingle.xaml
     /// </summary>
-   
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
     public partial class MainWindowSingle : Window
     {
 
         private List<Button> allButtons;
 
-        private List<DDMResultsSingleHeight> laserRingData;
-        private List<DDMResultsSingleHeight> laserMagData;
+        private List<ProcessResultsHeightMeasurement> laserRingData;
+        private List<ProcessResultsHeightMeasurement> laserMagData;
+        private ProcessResultsManager resultsManager;
 
 
-        private ProcessResults processData;
+        //private ProcessResults processData;
         private int currentStep = 0;
         private bool tabLock = true; // prevent user from clicking tabs directly
 
@@ -46,11 +47,11 @@ namespace DDMAutoGUI
         public MainWindowSingle()
         {
 
-            App.ControllerManager.ControllerConnected       += MainWindowSingle_OnConnected;
-            App.ControllerManager.ControllerDisconnected    += MainWindowSingle_OnDisconnected;
-            App.ControllerManager.ControllerStateChanged    += MainWindowSingle_OnChangeControllerState;
-            App.ControllerManager.StatusLogUpdated          += MainWindowSingle_OnChangeStatusLog;
-            App.ControllerManager.RobotLogUpdated           += MainWindowSingle_OnChangeRobotLog;
+            App.ControllerManager.ControllerConnected += MainWindowSingle_OnConnected;
+            App.ControllerManager.ControllerDisconnected += MainWindowSingle_OnDisconnected;
+            App.ControllerManager.ControllerStateChanged += MainWindowSingle_OnChangeControllerState;
+            App.ControllerManager.StatusLogUpdated += MainWindowSingle_OnChangeStatusLog;
+            App.ControllerManager.RobotLogUpdated += MainWindowSingle_OnChangeRobotLog;
 
             App.UIManager.UIStateChanged += MainWindowSingle_OnChangeUIState;
 
@@ -58,7 +59,7 @@ namespace DDMAutoGUI
 
             InitializeComponent();
             this.Title += " " + App.ReleaseInfoManager.GetCurrentVersion();
-            
+
             ReleaseInfoSingle currentRelease = App.ReleaseInfoManager.GetCurrentReleaseInfo();
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"{currentRelease.releaseIntent}");
@@ -99,10 +100,11 @@ namespace DDMAutoGUI
             // pull data from user config (validate?)
 
 
-            processData = new ProcessResults();
-            processData.UpdateProcessLog += MainWindowSingle_Disp_UpdateProcessLog;
+            resultsManager = App.ProcessResultsManager;
+            resultsManager.UpdateProcessLog += MainWindowSingle_Disp_UpdateProcessLog;
+            resultsManager.CreateNewResults();
 
-            string sn = "TEST-SN-123456789";
+            string sn = "";
             int motorSelection = Disp_MotorSizeCmb.SelectedIndex;
 
             bool doSNPhoto = Disp_SNPhotoChk.IsChecked ?? false;
@@ -112,15 +114,15 @@ namespace DDMAutoGUI
             bool doDispense = Disp_DispenseChk.IsChecked ?? false;
             bool doPostPhoto = Disp_PostPhotoChk.IsChecked ?? false;
 
-            DDMSettings settings = App.SettingsManager.SETTINGS;
+            CellSettings settings = App.SettingsManager.SETTINGS;
 
             // store relevant data in processData object
 
-            processData.results.ring_sn = sn;
+            resultsManager.currentResults.ring_sn = sn;
 
             // pull data from settings
 
-            DDMSettingsSingleSize motor = new DDMSettingsSingleSize();
+            CellSettingsMotor motor = new CellSettingsMotor();
 
             float x, t, d;
             int n;
@@ -148,11 +150,28 @@ namespace DDMAutoGUI
                     break;
             }
 
-            processData.AddToLog($"Serial number: {sn}");
+            if (Disp_SimulateChk.IsChecked ?? false)
+            {
+                resultsManager.AddToLog("Dispense process simulated");
+                resultsManager.currentResults.ring_sn = Disp_SimSNTxt.Text;
+
+                GoToStep(1);
+
+                GoToStep(2);
+                return;
+            }
+
+
+
+
+
+
+
+
 
             // start process
 
-            processData.AddToLog("Dispense process started");
+            resultsManager.AddToLog("Dispense process started");
             Disp_ProcessPrg.IsIndeterminate = false;
             Disp_ProcessPrg.Value = 0;
             GoToStep(1);
@@ -171,14 +190,14 @@ namespace DDMAutoGUI
                 x = motor.camera_side.x.Value;
                 t = motor.camera_side.t.Value;
 
-                processData.AddToLog("Connecting to side camera...");
-                processData.AddToLog($"Moving to [{x}, {t}]");
+                resultsManager.AddToLog("Connecting to side camera...");
+                resultsManager.AddToLog($"Moving to [{x}, {t}]");
 
                 await App.ControllerManager.MoveJ(x, t);
 
                 await Task.Delay(500);
 
-                processData.AddToLog("Camera connected");
+                resultsManager.AddToLog("Camera connected");
                 Disp_ProcessPrg.Value = 5;
 
             }
@@ -197,36 +216,36 @@ namespace DDMAutoGUI
             {
                 // take photo before process
 
-                x = settings.common.camera_top.x.Value;
-                t = settings.common.camera_top.t.Value;
+                x = settings.ddm_common.camera_top.x.Value;
+                t = settings.ddm_common.camera_top.t.Value;
 
-                processData.AddToLog("Taking photo...");
-                processData.AddToLog($"Moving to [{x}, {t}]");
+                resultsManager.AddToLog("Taking photo...");
+                resultsManager.AddToLog($"Moving to [{x}, {t}]");
 
                 await App.ControllerManager.MoveJ(x, t);
                 App.CameraManager.AcquireAndSave(CameraManager.CellCamera.top, null);
 
-                processData.AddToLog("Photo saved");
+                resultsManager.AddToLog("Photo saved");
                 Disp_ProcessPrg.Value = 20;
             }
             if (doRingMeasure)
             {
                 // measure magnet ring displacement
-                
+
                 x = motor.laser_ring.x.Value;
                 t = motor.laser_ring.t.Value;
                 n = motor.laser_ring_num.Value;
-                d = settings.common.laser_delay.Value;
+                d = settings.laser_delay.Value;
 
-                processData.AddToLog("Measuring ring...");
-                processData.AddToLog($"Moving to [{x}, {t}]");
+                resultsManager.AddToLog("Measuring ring...");
+                resultsManager.AddToLog($"Moving to [{x}, {t}]");
 
                 await App.ControllerManager.MoveJ(x, t);
                 string response = await App.ControllerManager.MeasureHeights(x, t, n, d);
 
-                processData.results.ring_heights = App.ControllerManager.ParseHeightData(response);
+                resultsManager.currentResults.ring_heights = App.ControllerManager.ParseHeightData(response);
 
-                processData.AddToLog("Ring data collected");
+                resultsManager.AddToLog("Ring data collected");
                 Disp_ProcessPrg.Value = 30;
             }
             if (doMagMeasure)
@@ -236,17 +255,17 @@ namespace DDMAutoGUI
                 x = motor.laser_mag.x.Value;
                 t = motor.laser_mag.t.Value;
                 n = motor.laser_mag_num.Value;
-                d = settings.common.laser_delay.Value;
+                d = settings.laser_delay.Value;
 
-                processData.AddToLog("Measuring magnets...");
-                processData.AddToLog($"Moving to [{x}, {t}]");
+                resultsManager.AddToLog("Measuring magnets...");
+                resultsManager.AddToLog($"Moving to [{x}, {t}]");
 
                 await App.ControllerManager.MoveJ(x, t);
                 string response = await App.ControllerManager.MeasureHeights(x, t, n, d);
 
-                processData.results.mag_heights = App.ControllerManager.ParseHeightData(response);
+                resultsManager.currentResults.mag_heights = App.ControllerManager.ParseHeightData(response);
 
-                processData.AddToLog("Magnet data collected");
+                resultsManager.AddToLog("Magnet data collected");
                 Disp_ProcessPrg.Value = 40;
 
             }
@@ -255,47 +274,49 @@ namespace DDMAutoGUI
                 // dispense cyanoacrylate
 
 
-                DDMSettingsSingleSize m = motor;
-                DDMSettingShotCalibration c = motor.shot_calibration;
+                CellSettingsMotor m = motor;
+                CellSettingsShot c = motor.shot_settings;
 
-                int id_valve = c.valve_num_id.Value;
-                float id_time = c.time_id.Value;
-                float id_x = m.disp_id.x.Value;
-                float id_t = m.disp_id.t.Value;
-                string id_substance = id_valve == 1 ? settings.common.system_1_contents : settings.common.system_2_contents;
+                int valve_num_id = c.valve_num_id.Value;
+                float time_id = c.time_id.Value;
+                float x_id = m.disp_id.x.Value;
+                float t_id = m.disp_id.t.Value;
+                string substance_id = valve_num_id == 1 ? settings.system_1_contents : settings.system_2_contents;
 
-                int od_valve = c.valve_num_od.Value;
-                float od_time = c.time_od.Value;
-                float od_x = m.disp_od.x.Value;
-                float od_t = m.disp_od.t.Value;
-                string od_substance = od_valve == 1 ? settings.common.system_1_contents : settings.common.system_2_contents;
+                int valve_num_od = c.valve_num_od.Value;
+                float time_od = c.time_od.Value;
+                float x_od = m.disp_od.x.Value;
+                float t_od = m.disp_od.t.Value;
+                string substance_od = valve_num_od == 1 ? settings.system_1_contents : settings.system_2_contents;
 
-                processData.AddToLog($"Using ID [{id_x}, {id_t}] for {id_time} seconds and OD [{od_x}, {od_t}] for {od_time} seconds");
+                resultsManager.AddToLog($"Using ID [{x_id}, {t_id}] for {time_id} seconds and OD [{x_od}, {t_od}] for {time_od} seconds");
 
 
-                processData.AddToLog("Dispense started");
-                string response = await App.ControllerManager.DispenseToRing(id_valve, id_time, id_x, id_t, od_valve, od_time, od_x, od_t);
+                resultsManager.AddToLog("Dispense started");
+                string response = await App.ControllerManager.DispenseToRing(valve_num_id, time_id, x_id, t_id, valve_num_od, time_od, x_od, t_od);
                 Debug.Print(response);
 
-                DDMResultsShots shotData = App.ControllerManager.ParseDispenseResponse(response);
+                resultsManager.currentResults.shot_data = App.ControllerManager.ParseDispenseResponse(response);
 
-                string id_pressure_sp = await App.ControllerManager.GetRegPressureSetpoint(id_valve);
-                string od_pressure_sp = await App.ControllerManager.GetRegPressureSetpoint(od_valve);
+                string pressure_id_sp = await App.ControllerManager.GetRegPressureSetpoint(valve_num_id);
+                string pressure_od_sp = await App.ControllerManager.GetRegPressureSetpoint(valve_num_od);
 
                 string tb = "  ";
 
-                processData.AddToLog("Dispense complete");
-                processData.AddToLog("Results:");
-                processData.AddToLog($"{tb}ID:");
-                processData.AddToLog($"{tb}{tb}Valve {id_valve} ({id_substance})");
-                processData.AddToLog($"{tb}{tb}Dispense volume: {shotData.id_vol} mL ({Math.Round(shotData.id_vol.Value * 100 / c.target_vol_id.Value, 1)}% of target)");
-                processData.AddToLog($"{tb}{tb}Dispense time: {shotData.id_time} s");
-                processData.AddToLog($"{tb}{tb}Pressure: {id_pressure_sp} psi");
-                processData.AddToLog($"{tb}OD:");
-                processData.AddToLog($"{tb}{tb}Valve {od_valve} ({od_substance})");
-                processData.AddToLog($"{tb}{tb}Dispense volume: {shotData.od_vol} mL ({Math.Round(shotData.od_vol.Value * 100 / c.target_vol_od.Value, 1)}% of target)");
-                processData.AddToLog($"{tb}{tb}Dispense time: {shotData.od_time} s");
-                processData.AddToLog($"{tb}{tb}Pressure: {od_pressure_sp} psi");
+                ProcessResultsShotData data = resultsManager.currentResults.shot_data;
+
+                resultsManager.AddToLog("Dispense complete");
+                resultsManager.AddToLog("Results:");
+                resultsManager.AddToLog($"{tb}ID:");
+                resultsManager.AddToLog($"{tb}{tb}Valve {valve_num_id} ({substance_id})");
+                resultsManager.AddToLog($"{tb}{tb}Dispense volume: {data.vol_id} mL ({Math.Round(data.vol_id.Value * 100 / c.target_vol_id.Value, 1)}% of target)");
+                resultsManager.AddToLog($"{tb}{tb}Dispense time: {data.time_id} s");
+                resultsManager.AddToLog($"{tb}{tb}Pressure: {pressure_id_sp} psi");
+                resultsManager.AddToLog($"{tb}OD:");
+                resultsManager.AddToLog($"{tb}{tb}Valve {valve_num_od} ({substance_od})");
+                resultsManager.AddToLog($"{tb}{tb}Dispense volume: {data.vol_id} mL ({Math.Round(data.vol_od.Value * 100 / c.target_vol_od.Value, 1)}% of target)");
+                resultsManager.AddToLog($"{tb}{tb}Dispense time: {data.time_od} s");
+                resultsManager.AddToLog($"{tb}{tb}Pressure: {pressure_od_sp} psi");
 
                 Disp_ProcessPrg.Value = 80;
             }
@@ -303,24 +324,24 @@ namespace DDMAutoGUI
             {
                 // take photo after process
 
-                processData.AddToLog("Taking photo...");
-                processData.AddToLog($"Moving to [{settings.common.camera_top.x}, {settings.common.camera_top.t}]");
+                resultsManager.AddToLog("Taking photo...");
+                resultsManager.AddToLog($"Moving to [{settings.ddm_common.camera_top.x}, {settings.ddm_common.camera_top.t}]");
                 await Task.Delay(1000);
-                processData.AddToLog("Photo saved");
+                resultsManager.AddToLog("Photo saved");
                 Disp_ProcessPrg.Value = 90;
             }
 
 
 
-            processData.AddToLog("Moving back to unload position...");
-            processData.AddToLog($"Moving to [{settings.common.load.x}, {settings.common.load.t}]");
+            resultsManager.AddToLog("Moving back to unload position...");
+            resultsManager.AddToLog($"Moving to [{settings.ddm_common.load.x}, {settings.ddm_common.load.t}]");
             Disp_ProcessPrg.Value = 100;
 
-            x = settings.common.load.x.Value;
-            t = settings.common.load.t.Value;
+            x = settings.ddm_common.load.x.Value;
+            t = settings.ddm_common.load.t.Value;
             await App.ControllerManager.MoveJ(x, t);
 
-            processData.AddToLog("Process complete");
+            resultsManager.AddToLog("Process complete");
             await Task.Delay(500);
 
 
@@ -355,7 +376,7 @@ namespace DDMAutoGUI
                     break;
 
             }
-            processData.AddToLog($"Moved to step {step}");
+            //processData.AddToLog($"Moved to step {step}");
         }
 
 
@@ -541,27 +562,27 @@ namespace DDMAutoGUI
         }
         private void DisplaySettingsToPanel()
         {
-            DDMSettings s = App.SettingsManager.SETTINGS;
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettings s = App.SettingsManager.SETTINGS;
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
 
 
             if (m != null && m.IsValid())
             {
                 LockRobotButtons(false);
 
-                DDMSettingShotCalibration c = m.shot_calibration;
+                CellSettingsShot c = m.shot_settings;
 
-                Adv_Cell_MoveLoadInLbl.Content = $"[{s.common.load.x}, {s.common.load.t}]";
-                Adv_Cell_MoveCamTopInLbl.Content = $"[{s.common.camera_top.x}, {s.common.camera_top.t}]";
+                Adv_Cell_MoveLoadInLbl.Content = $"[{s.ddm_common.load.x}, {s.ddm_common.load.t}]";
+                Adv_Cell_MoveCamTopInLbl.Content = $"[{s.ddm_common.camera_top.x}, {s.ddm_common.camera_top.t}]";
                 Adv_Cell_MoveCamSideInLbl.Content = $"[{m.camera_side.x}, {m.camera_side.t}]";
                 Adv_Cell_MoveLaserRingInLbl.Content = $"[{m.laser_ring.x}, {m.laser_ring.t}]";
                 Adv_Cell_MoveLaserMagInLbl.Content = $"[{m.laser_mag.x}, {m.laser_mag.t}]";
                 Adv_Cell_MoveDispIDInLbl.Content = $"[{m.disp_id.x}, {m.disp_id.t}]";
                 Adv_Cell_MoveDispODInLbl.Content = $"[{m.disp_od.x}, {m.disp_od.t}]";
-                Adv_Cell_MoveSpinInLbl.Content = $"{c.spin_time}s, {c.spin_speed}%";
+                Adv_Cell_MoveSpinInLbl.Content = $"{m.post_spin_time}s, {m.post_spin_speed}%";
 
-                Adv_Cell_MeasureRingInLbl.Content = $"{m.laser_ring_num} places, {s.common.laser_delay} s each";
-                Adv_Cell_MeasureMagInLbl.Content = $"{m.laser_mag_num} places, {s.common.laser_delay} s each";
+                Adv_Cell_MeasureRingInLbl.Content = $"{m.laser_ring_num} places, {s.laser_delay} s each";
+                Adv_Cell_MeasureMagInLbl.Content = $"{m.laser_mag_num} places, {s.laser_delay} s each";
 
                 Adv_Cell_DispShotsInLbl.Content = $"ID: Valve {c.valve_num_id}, x={m.disp_id.x} mm, {c.time_id} s, target {c.target_vol_id}mL\n";
                 Adv_Cell_DispShotsInLbl.Content += $"OD: Valve {c.valve_num_od}, x={m.disp_od.x} mm, {c.time_od} s, target {c.target_vol_od} mL";
@@ -694,10 +715,13 @@ namespace DDMAutoGUI
 
         public void MainWindowSingle_Disp_UpdateProcessLog(object sender, EventArgs e)
         {
-            DDMResultsLogLine logline = processData.results.process_log.Last();
-            Disp_LogTxt.Text += logline.date?.ToString(processData.dateFormatShort) + ": " + logline.message + "\n";
-            Disp_LogTxt.CaretIndex = Disp_LogTxt.Text.Length;
-            Disp_LogTxt.ScrollToEnd();
+            if (resultsManager != null)
+            {
+                ProcessResultsLogLine logline = resultsManager.currentResults.process_log.Last();
+                Disp_LogTxt.Text += logline.timestamp?.ToString(resultsManager.dateFormatShort) + ": " + logline.message + "\n";
+                Disp_LogTxt.CaretIndex = Disp_LogTxt.Text.Length;
+                Disp_LogTxt.ScrollToEnd();
+            }
         }
 
         private void MainWindowSingle_Disp_TabSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -819,24 +843,33 @@ namespace DDMAutoGUI
 
         private void Disp_SaveLogBtn_Click(object sender, RoutedEventArgs e)
         {
-            processData.SaveDataToFile();
+            if (resultsManager != null)
+            {
+                resultsManager.SaveDataToFile();
+            }
         }
 
         private void Disp_ViewLogBtn_Click(object sender, RoutedEventArgs e)
         {
-            TextDataViewer viewer = new TextDataViewer();
-            string log = processData.GetLogAsString();
-            if (log != null)
+            if (resultsManager != null)
             {
-                viewer.Owner = this;
-                viewer.PopulateData(processData.GetLogAsString(), "Process Log");
-                viewer.ShowDialog();
+                TextDataViewer viewer = new TextDataViewer();
+                string log = resultsManager.GetLogAsString();
+                if (log != null)
+                {
+                    viewer.Owner = this;
+                    viewer.PopulateData(resultsManager.GetLogAsString(), "Process Log");
+                    viewer.ShowDialog();
+                }
             }
         }
 
         private void Disp_OpenFolderBtn_Click(object sender, RoutedEventArgs e)
         {
-            processData.OpenBrowserToDirectory();
+            if (resultsManager != null)
+            {
+                resultsManager.OpenBrowserToDirectory();
+            }
         }
 
 
@@ -872,9 +905,9 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            DDMSettings s = App.SettingsManager.SETTINGS;
-            float x = s.common.load.x.Value;
-            float t = s.common.load.t.Value;
+            CellSettings s = App.SettingsManager.SETTINGS;
+            float x = s.ddm_common.load.x.Value;
+            float t = s.ddm_common.load.t.Value;
 
             string response = await App.ControllerManager.MoveJ(x, t);
             Adv_Cell_MoveLoadOutLbl.Content = response;
@@ -886,9 +919,9 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            DDMSettings s = App.SettingsManager.SETTINGS;
-            float x = s.common.camera_top.x.Value;
-            float t = s.common.camera_top.t.Value;
+            CellSettings s = App.SettingsManager.SETTINGS;
+            float x = s.ddm_common.camera_top.x.Value;
+            float t = s.ddm_common.camera_top.t.Value;
 
             string response = await App.ControllerManager.MoveJ(x, t);
             Adv_Cell_MoveCamTopOutLbl.Content = response;
@@ -900,7 +933,7 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.camera_side.x.Value;
             float t = m.camera_side.t.Value;
 
@@ -914,7 +947,7 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.laser_ring.x.Value;
             float t = m.laser_ring.t.Value;
 
@@ -928,7 +961,7 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.laser_mag.x.Value;
             float t = m.laser_mag.t.Value;
 
@@ -942,7 +975,7 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.disp_id.x.Value;
             float t = m.disp_id.t.Value;
 
@@ -956,7 +989,7 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.disp_od.x.Value;
             float t = m.disp_od.t.Value;
 
@@ -970,9 +1003,9 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
-            float time = m.shot_calibration.spin_time.Value;
-            float speed = m.shot_calibration.spin_speed.Value;
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
+            float time = m.post_spin_time.Value;
+            float speed = m.post_spin_speed.Value;
 
             string response = await App.ControllerManager.SpinInPlace(time, speed);
             Adv_Cell_MoveSpinOutLbl.Content = response;
@@ -982,12 +1015,12 @@ namespace DDMAutoGUI
 
         private async void Adv_Cell_MeasureRingBtn_Click(object sender, RoutedEventArgs e)
         {
-            DDMSettings s = App.SettingsManager.SETTINGS;
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettings s = App.SettingsManager.SETTINGS;
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float xPos = m.laser_ring.x.Value;
             float tPos = m.laser_ring.t.Value;
             int n = m.laser_ring_num.Value;
-            float d = s.common.laser_delay.Value;
+            float d = s.laser_delay.Value;
 
             LockRobotButtons(true);
             string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n, d);
@@ -1007,12 +1040,12 @@ namespace DDMAutoGUI
 
         private async void Adv_Cell_MeasureMagBtn_Click(object sender, RoutedEventArgs e)
         {
-            DDMSettings s = App.SettingsManager.SETTINGS;
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettings s = App.SettingsManager.SETTINGS;
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float xPos = m.laser_mag.x.Value;
             float tPos = m.laser_mag.t.Value;
             int n = m.laser_mag_num.Value;
-            float d = s.common.laser_delay.Value;
+            float d = s.laser_delay.Value;
 
             LockRobotButtons(true);
             string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n, d);
@@ -1036,7 +1069,7 @@ namespace DDMAutoGUI
             {
                 for (int i = 0; i < laserRingData.Count; i++)
                 {
-                    DDMResultsSingleHeight d = laserRingData[i];
+                    ProcessResultsHeightMeasurement d = laserRingData[i];
                     sb.AppendLine($"{d.t}, {d.z}");
                 }
                 TextDataViewer viewer = new TextDataViewer();
@@ -1053,7 +1086,7 @@ namespace DDMAutoGUI
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < laserMagData.Count; i++)
                 {
-                    DDMResultsSingleHeight d = laserMagData[i];
+                    ProcessResultsHeightMeasurement d = laserMagData[i];
                     sb.AppendLine($"{d.t}, {d.z}");
                 }
                 TextDataViewer viewer = new TextDataViewer();
@@ -1144,21 +1177,21 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
-            DDMSettingShotCalibration c = m.shot_calibration;
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettingsShot c = m.shot_settings;
 
             float x_id = m.disp_id.x.Value;
             float t_id = m.disp_id.t.Value;
             float time_id = c.time_id.Value;
             float valve_num_id = c.valve_num_id.Value;
-            float pressure_id = c.pressure_1.Value;
+            float pressure_id = c.ref_pressure_1.Value;
             float target_vol_id = c.target_vol_id.Value;
 
             float x_od = m.disp_od.x.Value;
             float t_od = m.disp_od.t.Value;
             float time_od = c.time_od.Value;
             float valve_num_od = c.valve_num_od.Value;
-            float pressure_od = c.pressure_2.Value;
+            float pressure_od = c.ref_pressure_2.Value;
             float target_vol_od = c.target_vol_od.Value;
 
 
@@ -1190,7 +1223,7 @@ namespace DDMAutoGUI
             CameraManager.CellCamera camera = CameraManager.CellCamera.top;
 
             // something about Lucid driver can't be async; need to wrap
-            result = await Task.Run(() => App.CameraManager.AcquireAndSave(camera, acquiredImageDisplay)); 
+            result = await Task.Run(() => App.CameraManager.AcquireAndSave(camera, acquiredImageDisplay));
 
             if (result.success)
             {

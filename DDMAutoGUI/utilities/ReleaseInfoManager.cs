@@ -9,6 +9,10 @@ using System.IO;
 using System.Diagnostics;
 
 
+/// <summary>
+/// Manages release information by reading from a JSON file and providing access to current and historical release data.
+/// </summary>
+
 
 namespace DDMAutoGUI.utilities
 {

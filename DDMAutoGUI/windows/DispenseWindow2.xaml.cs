@@ -27,8 +27,8 @@ namespace DDMAutoGUI.windows
         private bool tabLock = true; // prevent user from clicking tabs directly
         private bool abortPreConfirmed = false;
 
-        private ProcessResults processData;
-        private DDMSettings settings;
+        private ProcessResultsManager processData;
+        private CellSettings settings;
 
 
 
@@ -36,7 +36,7 @@ namespace DDMAutoGUI.windows
         {
             InitializeComponent();
 
-            processData = new ProcessResults();
+            processData = new ProcessResultsManager();
             processData.AddToLog("Process window opened");
             processData.UpdateProcessLog += ProcessData_UpdateProcessLog;
 
@@ -68,11 +68,11 @@ namespace DDMAutoGUI.windows
 
             // store relevant data in processData object
 
-            processData.results.ring_sn = sn;
+            processData.currentResults.ring_sn = sn;
 
             // pull data from settings
 
-            DDMSettingsSingleSize motor = new DDMSettingsSingleSize();
+            CellSettingsMotor motor = new CellSettingsMotor();
 
             switch (motorSelection)
             {
@@ -139,7 +139,7 @@ namespace DDMAutoGUI.windows
                 // take photo before process
 
                 processData.AddToLog("Taking photo...");
-                processData.AddToLog($"Moving to [{settings.common.camera_top.x}, {settings.common.camera_top.t}]");
+                processData.AddToLog($"Moving to [{settings.ddm_common.camera_top.x}, {settings.ddm_common.camera_top.t}]");
                 await Task.Delay(1000);
                 processData.AddToLog("Photo saved");
                 processProgressBar.Value = 20;
@@ -153,7 +153,7 @@ namespace DDMAutoGUI.windows
                 await Task.Delay(1000);
 
                 string fakeResponse = "0 0.00,0.10;0.10,0.11;0.20,0.09;0.30,0.10";
-                processData.results.ring_heights = App.ControllerManager.ParseHeightData(fakeResponse);
+                processData.currentResults.ring_heights = App.ControllerManager.ParseHeightData(fakeResponse);
 
                 processData.AddToLog("Data collected");
                 processProgressBar.Value = 30;
@@ -167,7 +167,7 @@ namespace DDMAutoGUI.windows
                 await Task.Delay(1000);
 
                 string fakeResponse = "0 0.00,0.10;0.10,0.11;0.20,0.09;0.30,0.10;0.40,0.12;0.50,0.11";
-                processData.results.mag_heights = App.ControllerManager.ParseHeightData(fakeResponse);
+                processData.currentResults.mag_heights = App.ControllerManager.ParseHeightData(fakeResponse);
 
                 processData.AddToLog("Data collected");
                 processProgressBar.Value = 40;
@@ -207,7 +207,7 @@ namespace DDMAutoGUI.windows
                 // take photo after process
 
                 processData.AddToLog("Taking photo...");
-                processData.AddToLog($"Moving to [{settings.common.camera_top.x}, {settings.common.camera_top.t}]");
+                processData.AddToLog($"Moving to [{settings.ddm_common.camera_top.x}, {settings.ddm_common.camera_top.t}]");
                 await Task.Delay(1000);
                 processData.AddToLog("Photo saved");
                 processProgressBar.Value = 90;
@@ -216,7 +216,7 @@ namespace DDMAutoGUI.windows
 
 
             processData.AddToLog("Moving back to unload position...");
-            processData.AddToLog($"Moving to [{settings.common.load.x}, {settings.common.load.t}]");
+            processData.AddToLog($"Moving to [{settings.ddm_common.load.x}, {settings.ddm_common.load.t}]");
             processProgressBar.Value = 100;
             await Task.Delay(1000);
 
@@ -335,8 +335,8 @@ namespace DDMAutoGUI.windows
 
         public void ProcessData_UpdateProcessLog(object sender, EventArgs e)
         {
-            DDMResultsLogLine logline = processData.results.process_log.Last();
-            logTextBox.Text += logline.date?.ToString(processData.dateFormatShort) + ": " + logline.message + "\n";
+            ProcessResultsLogLine logline = processData.currentResults.process_log.Last();
+            logTextBox.Text += logline.timestamp?.ToString(processData.dateFormatShort) + ": " + logline.message + "\n";
             logTextBox.CaretIndex = logTextBox.Text.Length;
             logTextBox.ScrollToEnd();
         }

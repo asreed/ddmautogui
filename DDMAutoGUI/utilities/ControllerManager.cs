@@ -444,11 +444,11 @@ namespace DDMAutoGUI.utilities
         // ==================================================================
         // Public helpers
 
-        public List<DDMResultsSingleHeight> ParseHeightData(string rawString)
+        public List<ProcessResultsHeightMeasurement> ParseHeightData(string rawString)
         {
             string[] responseArray = rawString.Split(" ");
             string[] measurementString;
-            List<DDMResultsSingleHeight> measurementList = new List<DDMResultsSingleHeight>();
+            List<ProcessResultsHeightMeasurement> measurementList = new List<ProcessResultsHeightMeasurement>();
 
             if (responseArray[0] == "0")
             {
@@ -458,7 +458,7 @@ namespace DDMAutoGUI.utilities
                 for (int i = 0; i < measurementString.Length - 1; i++)
                 {
                     string[] singleMeasurement = measurementString[i].Split(",");
-                    DDMResultsSingleHeight measurement = new DDMResultsSingleHeight
+                    ProcessResultsHeightMeasurement measurement = new ProcessResultsHeightMeasurement
                     {
                         t = float.Parse(singleMeasurement[0]),
                         z = float.Parse(singleMeasurement[1])
@@ -469,7 +469,7 @@ namespace DDMAutoGUI.utilities
             return measurementList;
         }
 
-        public string ParseHeightDataToString(List<DDMResultsSingleHeight> measurementList)
+        public string ParseHeightDataToString(List<ProcessResultsHeightMeasurement> measurementList)
         {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < measurementList.Count; i++)
@@ -479,28 +479,27 @@ namespace DDMAutoGUI.utilities
             return sb.ToString();
         }
 
-        public DDMResultsShots ParseDispenseResponse(string response)
+        public ProcessResultsShotData ParseDispenseResponse(string response)
         {
-            DDMResultsShots results = new DDMResultsShots();
+            ProcessResultsShotData data = new ProcessResultsShotData();
 
-            string[] parts = response.Split(' ');
+            string[] parts = response.Split(" ");
             if (parts[0] == "0")
             {
                 if (parts.Length == 5)
                 {
-                    results.id_time = float.Parse(parts[1]);
-                    results.id_vol = float.Parse(parts[2]);
-                    results.od_time = float.Parse(parts[3]);
-                    results.od_vol = float.Parse(parts[4]);
-                    results.success = true;
-                    results.error_message = string.Empty;
+                    data.time_id = float.Parse(parts[1]);
+                    data.vol_id = float.Parse(parts[2]);
+                    data.time_od = float.Parse(parts[3]);
+                    data.vol_od = float.Parse(parts[4]);
+                    data.success = true;
+                    data.error_message = string.Empty;
                 }
             } else {
-                results.success = false;
-                results.error_message = response;
+                data.success = false;
+                data.error_message = response;
             }
-
-            return results;
+            return data;
         }
 
 

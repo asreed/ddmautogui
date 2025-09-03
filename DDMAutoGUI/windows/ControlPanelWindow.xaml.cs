@@ -28,8 +28,8 @@ namespace DDMAutoGUI.windows
     public partial class ControlPanelWindow : Window
     {
 
-        public List<DDMResultsSingleHeight> laserRingData;
-        public List<DDMResultsSingleHeight> laserMagData;
+        public List<ProcessResultsHeightMeasurement> laserRingData;
+        public List<ProcessResultsHeightMeasurement> laserMagData;
 
 
         public ControlPanelWindow()
@@ -293,24 +293,24 @@ namespace DDMAutoGUI.windows
 
         private void DisplaySettingsToPanel()
         {
-            DDMSettings s = App.SettingsManager.SETTINGS;
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettings s = App.SettingsManager.SETTINGS;
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
 
 
             if (m != null && m.IsValid())
             {
                 LockRobotButtons(false);
 
-                DDMSettingShotCalibration c = m.shot_calibration;
+                CellSettingsShot c = m.shot_settings;
 
-                moveLoadInput.Content = $"[{s.common.load.x}, {s.common.load.t}]";
-                moveCamTopInput.Content = $"[{s.common.camera_top.x}, {s.common.camera_top.t}]";
+                moveLoadInput.Content = $"[{s.ddm_common.load.x}, {s.ddm_common.load.t}]";
+                moveCamTopInput.Content = $"[{s.ddm_common.camera_top.x}, {s.ddm_common.camera_top.t}]";
                 moveCamSideInput.Content = $"[{m.camera_side.x}, {m.camera_side.t}]";
                 moveLaserRingInput.Content = $"[{m.laser_ring.x}, {m.laser_ring.t}]";
                 moveLaserMagInput.Content = $"[{m.laser_mag.x}, {m.laser_mag.t}]";
                 moveDispIDInput.Content = $"[{m.disp_id.x}, {m.disp_id.t}]";
                 moveDispODInput.Content = $"[{m.disp_od.x}, {m.disp_od.t}]";
-                moveSpinInput.Content = $"{c.spin_time}s, {c.spin_speed}%";
+                moveSpinInput.Content = $"{m.post_spin_time}s, {m.post_spin_speed}%";
 
                 laserRingInput.Content = $"{m.laser_ring_num} places";
                 laserMagInput.Content = $"{m.laser_mag_num} places";
@@ -384,9 +384,9 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
 
-            DDMSettings s = App.SettingsManager.SETTINGS;
-            float x = s.common.load.x.Value;
-            float th = s.common.load.t.Value;
+            CellSettings s = App.SettingsManager.SETTINGS;
+            float x = s.ddm_common.load.x.Value;
+            float th = s.ddm_common.load.t.Value;
 
             string response = await App.ControllerManager.MoveJ(x, th);
             moveLoadOutput.Content = response;
@@ -399,9 +399,9 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
 
-            DDMSettings s = App.SettingsManager.SETTINGS;
-            float x = s.common.camera_top.x.Value;
-            float th = s.common.camera_top.t.Value;
+            CellSettings s = App.SettingsManager.SETTINGS;
+            float x = s.ddm_common.camera_top.x.Value;
+            float th = s.ddm_common.camera_top.t.Value;
 
             string response = await App.ControllerManager.MoveJ(x, th);
             moveCamTopOutput.Content = response;
@@ -413,7 +413,7 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.camera_side.x.Value;
             float th = m.camera_side.t.Value;
 
@@ -427,7 +427,7 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.laser_ring.x.Value;
             float th = m.laser_ring.t.Value;
 
@@ -440,7 +440,7 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.laser_mag.x.Value;
             float th = m.laser_mag.t.Value;
 
@@ -453,7 +453,7 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.disp_id.x.Value;
             float th = m.disp_id.t.Value;
 
@@ -466,7 +466,7 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float x = m.disp_od.x.Value;
             float th = m.disp_od.t.Value;
 
@@ -480,9 +480,9 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
-            float time = m.shot_calibration.spin_time.Value;
-            float speed = m.shot_calibration.spin_speed.Value;
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
+            float time = m.post_spin_time.Value;
+            float speed = m.post_spin_speed.Value;
 
             string response = await App.ControllerManager.SpinInPlace(time, speed);
             moveDispIDOutput.Content = response;
@@ -575,12 +575,12 @@ namespace DDMAutoGUI.windows
 
         private async void laserRingBtn_Click(object sender, RoutedEventArgs e)
         {
-            DDMSettings s = App.SettingsManager.SETTINGS;
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettings s = App.SettingsManager.SETTINGS;
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float xPos = m.laser_ring.x.Value;
             float tPos = m.laser_ring.t.Value;
             int n = m.laser_ring_num.Value;
-            float d = s.common.laser_delay.Value;
+            float d = s.laser_delay.Value;
 
             LockRobotButtons(true);
             string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n, d);
@@ -600,12 +600,12 @@ namespace DDMAutoGUI.windows
 
         private async void laserMagBtn_Click(object sender, RoutedEventArgs e)
         {
-            DDMSettings s = App.SettingsManager.SETTINGS;
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettings s = App.SettingsManager.SETTINGS;
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float xPos = m.laser_mag.x.Value;
             float tPos = m.laser_mag.t.Value;
             int n = m.laser_mag_num.Value;
-            float d = s.common.laser_delay.Value;
+            float d = s.laser_delay.Value;
 
             LockRobotButtons(true);
             string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n, d);
@@ -644,21 +644,21 @@ namespace DDMAutoGUI.windows
         {
             LockRobotButtons(true);
 
-            DDMSettingsSingleSize m = App.SettingsManager.GetSettingsForSelectedSize();
-            DDMSettingShotCalibration c = m.shot_calibration;
+            CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
+            CellSettingsShot c = m.shot_settings;
 
             float x_id = m.disp_id.x.Value;
             float t_id = m.disp_id.t.Value;
             float time_id = c.time_id.Value;
             float valve_num_id = c.valve_num_id.Value;
-            float pressure_id = c.pressure_1.Value;
+            float pressure_id = c.ref_pressure_1.Value;
             float target_vol_id = c.target_vol_id.Value;
 
             float x_od = m.disp_od.x.Value;
             float t_od = m.disp_od.t.Value;
             float time_od = c.time_od.Value;
             float valve_num_od = c.valve_num_od.Value;
-            float pressure_od = c.pressure_2.Value;
+            float pressure_od = c.ref_pressure_2.Value;
             float target_vol_od = c.target_vol_od.Value;
 
 

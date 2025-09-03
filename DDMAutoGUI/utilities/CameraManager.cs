@@ -30,7 +30,7 @@ namespace DDMAutoGUI.utilities
         {
             //
 
-            DDMSettings settings = App.SettingsManager.GetAllSettings();
+            CellSettings settings = App.SettingsManager.GetAllSettings();
             cameraTopSN = settings.camera_top_sn;
             cameraSideSN = settings.camera_side_sn;
             Debug.Print("Camera manager initialized");
