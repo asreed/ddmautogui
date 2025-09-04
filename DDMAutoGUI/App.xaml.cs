@@ -40,6 +40,9 @@ namespace DDMAutoGUI
             App.ProcessResultsManager = new ProcessResultsManager();
 
 
+
+            HeightCalibration.MathNetTest();
+            Debug.Print("");
         }
 
         protected override void OnExit(ExitEventArgs e)

@@ -136,6 +136,7 @@
                                                                 <CheckBox Visibility="Collapsed" IsChecked="False" x:Name="Disp_MeasureMagChk" Content="Magnet and concentrator height measurement" Padding="8"/>
                                                                 <CheckBox IsChecked="True" x:Name="Disp_DispenseChk" Content="Dispense cyanoacrylate" Padding="8"/>
                                                                 <CheckBox Visibility="Collapsed" IsChecked="False" x:Name="Disp_PostPhotoChk" Content="Post-process photo" Padding="8"/>
+                                                                <CheckBox IsChecked="False" x:Name="Disp_AutoCalibChk" Content="Autocalibrate after dispense" Padding="8"/>
                                                             </StackPanel>
                                                         </GroupBox>
                                                         <Button 
@@ -227,11 +228,13 @@
                                                 <Grid>
 
                                                     <StackPanel>
-                                                        <!--<Button
+                                                        <Button
                                                             x:Name="Disp_SaveLogBtn"
                                                             Content="Save log"
                                                             Style="{DynamicResource PrimaryBlackButton}"
-                                                            Click="Disp_SaveLogBtn_Click"/>-->
+                                                            Click="Disp_SaveLogBtn_Click"
+                                                            Padding="12"
+                                                            Margin="6"/>
                                                         <Button
                                                             x:Name="Disp_ViewLogBtn"
                                                             Content="View log"
@@ -239,10 +242,12 @@
                                                             Click="Disp_ViewLogBtn_Click"
                                                             Padding="12"
                                                             Margin="6"/>
-                                                        <!--<Button
+                                                        <Button
                                                             x:Name="Disp_OpenFolderBtn"
                                                             Content="Open folder"
-                                                            Click="Disp_OpenFolderBtn_Click"/>-->
+                                                            Click="Disp_OpenFolderBtn_Click"
+                                                            Padding="12"
+                                                            Margin="6"/>
                                                     </StackPanel>
 
 

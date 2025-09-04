@@ -69,13 +69,15 @@ namespace DDMAutoGUI.utilities
 
         public string saveMainDirectory = AppDomain.CurrentDomain.BaseDirectory + "results\\";
         public string saveFolderPrefix = "ring_";
+        public string saveFolderNoSNPrefix = "ring_no_sn_";
 
-        public string fileNameLog = "process_data";
+        public string fileNameResults = "process_results";
         public string fileNamePhotoBefore = "before";
         public string fileNamePhotoAfter = "after";
 
         public string dateFormatLong = "MM-dd-yyy HH:mm:ss.fff";
         public string dateFormatShort = "HH:mm:ss.fff";
+        public string dateFormatFolder = "yyMMdd_HHmmss";
 
         public event EventHandler UpdateProcessLog;
 
@@ -94,12 +96,13 @@ namespace DDMAutoGUI.utilities
             {
                 currentResults = new ProcessResults
                 {
-                    process_log = new List<ProcessResultsLogLine>(),
                     ring_heights = new List<ProcessResultsHeightMeasurement>(),
-                    mag_heights = new List<ProcessResultsHeightMeasurement>()
+                    mag_heights = new List<ProcessResultsHeightMeasurement>(),
+                    shot_data = new ProcessResultsShotData(),
+                    process_log = new List<ProcessResultsLogLine>()
                 };
                 return currentResults;
-            } 
+            }
             else
             {
                 Debug.Print("Results were not null. Clear results first.");
@@ -139,19 +142,37 @@ namespace DDMAutoGUI.utilities
             var options = new JsonSerializerOptions { WriteIndented = true };
             string resultsString = JsonSerializer.Serialize<ProcessResults>(currentResults, options);
 
-            string fullDirectory = saveMainDirectory + saveFolderPrefix + currentResults.ring_sn + "\\";
-            string fullPath = fullDirectory + fileNameLog + ".txt";
+            string resultsFolderPath;
+            string resultsFilePath;
+            string zipFolderPath;
 
-            Directory.CreateDirectory(fullDirectory);
-            File.WriteAllText(fullPath, resultsString);
+            if (currentResults.ring_sn == null || currentResults.ring_sn == "")
+            {
+                resultsFolderPath = saveMainDirectory + saveFolderNoSNPrefix + DateTime.Now.ToString(dateFormatFolder);
+                resultsFilePath = resultsFolderPath + "\\" + fileNameResults + ".json";
+                zipFolderPath = resultsFolderPath;
+            }
+            else
+            {
+                resultsFolderPath = saveMainDirectory + saveFolderPrefix + currentResults.ring_sn;
+                resultsFilePath = resultsFolderPath + "\\" + fileNameResults + ".json";
+                zipFolderPath = resultsFolderPath;
+            }
 
-            //ZipFile.CreateFromDirectory(fullDirectory, saveMainDirectory + saveFolderPrefix + results.ring_sn + ".zip");
+
+            Directory.CreateDirectory(resultsFolderPath);
+            File.WriteAllText(resultsFilePath, resultsString);
+
+            File.Copy(App.SettingsManager.GetSettingsFilePath(), resultsFolderPath + "\\settings.json", true);
+
+            ZipFile.CreateFromDirectory(resultsFolderPath, zipFolderPath + ".zip");
         }
+
 
         public void OpenBrowserToDirectory()
         {
-            string fullDirectory = saveMainDirectory + saveFolderPrefix + currentResults.ring_sn + "\\";
-            Process.Start("explorer.exe", fullDirectory);
+            string directory = saveMainDirectory;
+            Process.Start("explorer.exe", directory);
         }
 
         public string GetLogAsString()

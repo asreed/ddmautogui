@@ -97,14 +97,16 @@ namespace DDMAutoGUI
 
         private async void RunFullDispenseProcess()
         {
-            // pull data from user config (validate?)
 
 
             resultsManager = App.ProcessResultsManager;
             resultsManager.UpdateProcessLog += MainWindowSingle_Disp_UpdateProcessLog;
+            resultsManager.ClearCurrentResults();
             resultsManager.CreateNewResults();
 
-            string sn = "";
+            CellSettings settings = App.SettingsManager.currentSettings;
+            CellSettingsMotor motor = new CellSettingsMotor();
+
             int motorSelection = Disp_MotorSizeCmb.SelectedIndex;
 
             bool doSNPhoto = Disp_SNPhotoChk.IsChecked ?? false;
@@ -113,12 +115,7 @@ namespace DDMAutoGUI
             bool doMagMeasure = Disp_MeasureMagChk.IsChecked ?? false;
             bool doDispense = Disp_DispenseChk.IsChecked ?? false;
             bool doPostPhoto = Disp_PostPhotoChk.IsChecked ?? false;
-
-            CellSettings settings = App.SettingsManager.SETTINGS;
-
-            // pull data from settings
-
-            CellSettingsMotor motor = new CellSettingsMotor();
+            bool doAutoCalib = Disp_AutoCalibChk.IsChecked ?? false;
 
             float x, t, d;
             int n;
@@ -152,6 +149,32 @@ namespace DDMAutoGUI
                 resultsManager.currentResults.ring_sn = Disp_SimSNTxt.Text;
 
                 GoToStep(1);
+
+                resultsManager.currentResults.ring_sn = Disp_SimSNTxt.Text;
+                resultsManager.currentResults.shot_data.valve_num_id = 1;
+                resultsManager.currentResults.shot_data.valve_num_od = 1;
+                resultsManager.currentResults.shot_data.pressure_id = 33.4f;
+                resultsManager.currentResults.shot_data.pressure_od = 12f;
+                resultsManager.currentResults.shot_data.vol_id = 0.184f;
+                resultsManager.currentResults.shot_data.vol_od = 0.198f;
+                resultsManager.currentResults.shot_data.time_id = 1.5f;
+                resultsManager.currentResults.shot_data.time_od = 1.6f;
+                resultsManager.currentResults.shot_data.success = true;
+                resultsManager.currentResults.shot_data.error_message = string.Empty;
+                resultsManager.currentResults.date_saved = DateTime.Now;
+
+
+                float flow_id = resultsManager.currentResults.shot_data.vol_id.Value / resultsManager.currentResults.shot_data.time_id.Value;
+                float flow_od = resultsManager.currentResults.shot_data.vol_id.Value / resultsManager.currentResults.shot_data.time_id.Value;
+                float pressure_id = resultsManager.currentResults.shot_data.pressure_id.Value;
+                float pressure_od = resultsManager.currentResults.shot_data.pressure_od.Value;
+
+                float next_flow_id = motor.shot_settings.target_vol_id.Value / motor.shot_settings.time_id.Value;
+                float next_flow_od = motor.shot_settings.target_vol_od.Value / motor.shot_settings.time_od.Value;
+
+                float next_pressure_id = Autocalibration.GetTargetPressure(pressure_id, flow_id, flow_id);
+
+                resultsManager.AddToLog("Simulated results added to object");
 
                 GoToStep(2);
                 return;
@@ -558,7 +581,7 @@ namespace DDMAutoGUI
         }
         private void DisplaySettingsToPanel()
         {
-            CellSettings s = App.SettingsManager.SETTINGS;
+            CellSettings s = App.SettingsManager.currentSettings;
             CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
 
 
@@ -901,7 +924,7 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            CellSettings s = App.SettingsManager.SETTINGS;
+            CellSettings s = App.SettingsManager.currentSettings;
             float x = s.ddm_common.load.x.Value;
             float t = s.ddm_common.load.t.Value;
 
@@ -915,7 +938,7 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            CellSettings s = App.SettingsManager.SETTINGS;
+            CellSettings s = App.SettingsManager.currentSettings;
             float x = s.ddm_common.camera_top.x.Value;
             float t = s.ddm_common.camera_top.t.Value;
 
@@ -1011,7 +1034,7 @@ namespace DDMAutoGUI
 
         private async void Adv_Cell_MeasureRingBtn_Click(object sender, RoutedEventArgs e)
         {
-            CellSettings s = App.SettingsManager.SETTINGS;
+            CellSettings s = App.SettingsManager.currentSettings;
             CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float xPos = m.laser_ring.x.Value;
             float tPos = m.laser_ring.t.Value;
@@ -1036,7 +1059,7 @@ namespace DDMAutoGUI
 
         private async void Adv_Cell_MeasureMagBtn_Click(object sender, RoutedEventArgs e)
         {
-            CellSettings s = App.SettingsManager.SETTINGS;
+            CellSettings s = App.SettingsManager.currentSettings;
             CellSettingsMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float xPos = m.laser_mag.x.Value;
             float tPos = m.laser_mag.t.Value;
