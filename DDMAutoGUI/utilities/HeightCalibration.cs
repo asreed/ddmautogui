@@ -1,4 +1,5 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,29 +17,90 @@ namespace DDMAutoGUI.utilities
 
         public static void MathNetTest()
         {
-
-            // https://math.stackexchange.com/questions/902166/fit-sine-wave-to-data
-            // https://math.stackexchange.com/questions/3926007/least-squares-regression-of-sine-wave
-
-            // assuming period of 2pi to fit the relation:
-            // y(t) = A * sin(x(t) + phi)
-
-            // y(t) = A * sin(x(t)) * cos(phi) + A * cos(x(t)) * sin(phi)
-            // w = sin(x(t))
-            // z = cos(x(t))
-            // A1 = A * cos(phi)
-            // A2 = A * sin(phi)
-            // Y = [w, z] * [A1; A2]
-            // Y = X * B
-            // B = (X^T * X)^-1 * X^T * Y
-            // ... ?
-            // A^2 = A1^2 + A2^2
-            // phi = atan(A2 / A1)
-
-            var M = Matrix<double>.Build;
-            var V = Vector<double>.Build;
-
-            double[,] rawData =
+            double[,] rawData57 =
+            {
+                {0, -41.4},
+                {4.54, -31.8},
+                {9.01, -25.2},
+                {13.53, -19.8},
+                {18.02, -30.6},
+                {22.51, -38.7},
+                {27.01, -36.3},
+                {31.52, -48.6},
+                {36.02, -35.7},
+                {40.52, -33.3},
+                {45.02, -36.9},
+                {49.51, -41.4},
+                {54.02, -46.8},
+                {58.52, -41.4},
+                {63.02, -28.8},
+                {67.52, -55.5},
+                {72.02, -27},
+                {76.52, -60.3},
+                {81.02, -60.9},
+                {85.52, -42.3},
+                {90.03, -51},
+                {94.52, -45},
+                {99.02, -38.1},
+                {103.5, -48.6},
+                {108.02, -28.8},
+                {112.52, -48.3},
+                {117.02, -22.8},
+                {121.51, -28.8},
+                {126.02, -35.1},
+                {130.52, -18.6},
+                {135.01, -38.7},
+                {139.51, -34.2},
+                {144.02, -36.9},
+                {148.52, -27.3},
+                {153.02, -21.6},
+                {157.51, -31.5},
+                {162.02, -27},
+                {166.52, -29.1},
+                {171.01, -10.2},
+                {175.51, -16.5},
+                {180.02, -22.5},
+                {184.52, -31.5},
+                {189.02, -16.8},
+                {193.52, -22.5},
+                {198.02, -22.5},
+                {202.52, -20.1},
+                {207.01, -9.9},
+                {211.52, -16.8},
+                {216.02, -17.1},
+                {220.52, 8.7},
+                {225.02, -18.9},
+                {229.51, -13.5},
+                {234.02, -20.4},
+                {238.52, -4.5},
+                {243.02, -23.7},
+                {247.52, -19.2},
+                {252.02, -14.4},
+                {256.53, 17.4},
+                {261.02, 3.6},
+                {265.52, -2.7},
+                {270.03, -20.4},
+                {274.54, -18.9},
+                {279.02, -8.1},
+                {283.52, -8.1},
+                {288.02, -25.5},
+                {292.52, -22.5},
+                {297.02, -7.2},
+                {301.51, -8.1},
+                {306.03, -8.7},
+                {310.53, -23.7},
+                {315.02, -7.5},
+                {319.51, -15.9},
+                {324.03, -9.6},
+                {328.52, -27},
+                {333.02, -18.6},
+                {337.52, -23.4},
+                {342.02, -18.9},
+                {346.52, -18.6},
+                {351.02, -22.8},
+                {355.51, -31.5}
+            };
+            double[,] rawData95 =
             {
                 {0, -41.4},
                 {4.51, -57},
@@ -121,7 +183,209 @@ namespace DDMAutoGUI.utilities
                 {351.01, -39.9},
                 {355.5, -49.5},
             };
+            double[,] rawData116 =
+            {
+                {0, -46.8},
+                {4.54, -40.5},
+                {9.01, -59.4},
+                {13.51, -60.3},
+                {18.01, -54},
+                {22.51, -70.2},
+                {27.01, -64.8},
+                {31.51, -47.7},
+                {36.02, -68.7},
+                {40.52, -60.9},
+                {45.02, -57.6},
+                {49.51, -75},
+                {54.01, -72.6},
+                {58.52, -68.1},
+                {63.01, -67.2},
+                {67.5, -66},
+                {72.01, -70.2},
+                {76.51, -55.2},
+                {81.01, -71.7},
+                {85.51, -80.1},
+                {90.03, -55.5},
+                {94.51, -67.5},
+                {99.02, -55.5},
+                {103.5, -64.2},
+                {108.02, -57.6},
+                {112.51, -66.6},
+                {117, -53.4},
+                {121.52, -67.8},
+                {126.01, -40.8},
+                {130.51, -51.9},
+                {135.01, -44.4},
+                {139.5, -52.5},
+                {144.01, -54},
+                {148.52, -34.8},
+                {153.01, -41.1},
+                {157.52, -63},
+                {162.01, -43.2},
+                {166.52, -41.4},
+                {171.02, -38.7},
+                {175.5, -35.7},
+                {180.02, -24},
+                {184.51, -38.4},
+                {189, -25.2},
+                {193.5, -20.7},
+                {198.01, -4.2},
+                {202.51, -31.5},
+                {207.01, -30.9},
+                {211.51, -23.7},
+                {216.02, -2.7},
+                {220.52, -20.7},
+                {225.02, 6},
+                {229.51, -31.2},
+                {234.02, -18.9},
+                {238.51, -18.9},
+                {243.01, -17.7},
+                {247.52, -31.8},
+                {252.02, -8.4},
+                {256.51, -17.4},
+                {261.02, -22.2},
+                {265.51, -24.9},
+                {270.02, -22.2},
+                {274.54, 0.9},
+                {279.02, -31.2},
+                {283.5, -23.4},
+                {288.01, -15},
+                {292.51, -7.2},
+                {297.02, -31.8},
+                {301.51, -27.9},
+                {306.01, -22.5},
+                {310.53, -39.9},
+                {315.02, -38.1},
+                {319.5, -36},
+                {324.02, -31.5},
+                {328.53, -39},
+                {333.02, -36},
+                {337.53, -33.6},
+                {342.01, -57.6},
+                {346.51, -28.5},
+                {351.02, -45.3},
+                {355.5, -59.1}
 
+            };
+            double[,] rawData170 =
+            {
+                {0, -87.3},
+                {4.53, -84.3},
+                {9, -98.7},
+                {13.52, -84.3},
+                {18.01, -83.4},
+                {22.5, -96},
+                {27.01, -92.7},
+                {31.51, -97.2},
+                {36.01, -96.6},
+                {40.52, -103.2},
+                {45.02, -100.8},
+                {49.51, -116.1},
+                {54.01, -104.7},
+                {58.51, -99},
+                {63.01, -102},
+                {67.52, -99.9},
+                {72.01, -112.8},
+                {76.51, -111.6},
+                {81.01, -99},
+                {85.51, -100.8},
+                {90.03, -107.7},
+                {94.51, -96.9},
+                {99.01, -93},
+                {103.49, -103.2},
+                {108.01, -97.5},
+                {112.51, -108.9},
+                {117, -100.2},
+                {121.52, -92.4},
+                {126.01, -93.6},
+                {130.51, -92.1},
+                {135.01, -76.5},
+                {139.5, -87},
+                {144.01, -63.9},
+                {148.51, -90.9},
+                {153.01, -82.8},
+                {157.51, -71.4},
+                {162.01, -66.3},
+                {166.52, -66},
+                {171.01, -69},
+                {175.5, -58.5},
+                {180.01, -52.2},
+                {184.5, -51.9},
+                {189, -56.1},
+                {193.5, -56.4},
+                {198.01, -44.1},
+                {202.51, -57},
+                {207, -38.4},
+                {211.51, -40.5},
+                {216.02, -20.4},
+                {220.52, -33},
+                {225.01, -40.2},
+                {229.51, -60.3},
+                {234.01, -34.2},
+                {238.51, -21.3},
+                {243.01, -33},
+                {247.51, -38.7},
+                {252.01, -45.9},
+                {256.51, -28.8},
+                {261.02, -31.8},
+                {265.53, -18.9},
+                {270.02, -38.4},
+                {274.5, -42},
+                {279.02, -34.5},
+                {283.5, -33.6},
+                {288.01, -51.9},
+                {292.51, -45},
+                {297.01, -45.3},
+                {301.5, -47.1},
+                {306.01, -52.5},
+                {310.52, -50.4},
+                {315.01, -41.7},
+                {319.5, -52.8},
+                {324.02, -47.4},
+                {328.52, -74.1},
+                {333.01, -75.3},
+                {337.52, -83.4},
+                {342.01, -66.6},
+                {346.51, -58.5},
+                {351.01, -78},
+                {355.5, -82.8}
+            };
+
+            double A, phi, rSquared;
+            FitDataToSin(rawData57, out A, out phi, out rSquared);
+            Debug.Print($"57 fit generated: A = {A}, phi = {phi}, R^2 = {rSquared}");
+            FitDataToSin(rawData95, out A, out phi, out rSquared);
+            Debug.Print($"95 fit generated: A = {A}, phi = {phi}, R^2 = {rSquared}");
+            FitDataToSin(rawData116, out A, out phi, out rSquared);
+            Debug.Print($"116 fit generated: A = {A}, phi = {phi}, R^2 = {rSquared}");
+            FitDataToSin(rawData170, out A, out phi, out rSquared);
+            Debug.Print($"170 fit generated: A = {A}, phi = {phi}, R^2 = {rSquared}");
+
+        }
+
+        public static void FitDataToSin(double[,] rawData, out double A, out double phi, out double rSquared)
+        {
+            // https://math.stackexchange.com/questions/902166/fit-sine-wave-to-data
+            // https://math.stackexchange.com/questions/3926007/least-squares-regression-of-sine-wave
+
+            // assuming period of 2pi to fit the relation:
+            // y(t) = A * sin(x(t) + phi)
+
+            // y(t) = A * sin(x(t)) * cos(phi) + A * cos(x(t)) * sin(phi)
+            // w = sin(x(t))
+            // z = cos(x(t))
+            // A1 = A * cos(phi)
+            // A2 = A * sin(phi)
+            // Y = [w, z] * [A1; A2]
+            // Y = X * B
+            // ... 
+            // B = inv(X' * X) * X' * Y
+            // ... 
+            // A^2 = A1^2 + A2^2
+            // phi = atan(A2 / A1)
+
+            var M = Matrix<double>.Build;
+            var V = Vector<double>.Build;
 
             var data = M.DenseOfArray(rawData);
             var ones = V.Dense(data.RowCount, 1);
@@ -131,8 +395,10 @@ namespace DDMAutoGUI.utilities
 
             // vector of heights, shifted for zero mean
             var height = data.Column(1);
-            var offset = height.DotProduct(ones) / height.Count;
-            var heightShifted = height + offset;
+            var offset = data.Column(1).Mean();
+            var heightShifted = height - offset;
+
+            var dataShifted = M.DenseOfColumnVectors(data.Column(0), heightShifted);
 
             var w = angRad.PointwiseSin();
             var z = angRad.PointwiseCos();
@@ -140,11 +406,56 @@ namespace DDMAutoGUI.utilities
 
             var B = (X.Transpose() * X).Inverse() * X.Transpose() * heightShifted;
 
-            var A = Math.Sqrt(B[0]*B[0] + B[1]*B[1]);
-            var phi = Math.Atan(B[1]/B[0]);
+            A = Math.Sqrt(B[0] * B[0] + B[1] * B[1]);
+            phi = Math.Atan(B[1] / B[0]);
 
-            Debug.Print($"{A}, {phi}");
+            // Two possible solutions for A
+            // Verify with R^2
 
+            double[,] fitData = GenerateSinCurve(rawData, A, phi);
+            rSquared = GetRSquared(dataShifted.ToArray(), fitData);
+            if (Math.Abs(rSquared) > 1.0)
+            {
+                // try other A
+                A *= -1;
+                fitData = GenerateSinCurve(rawData, A, phi);
+                rSquared = GetRSquared(dataShifted.ToArray(), fitData);
+                if (Math.Abs(rSquared) > 1.0)
+                {
+                    // something else is wrong
+                    Debug.Print("Sine fit failed. R^2 out of range.");
+                    A = double.NaN;
+                    phi = double.NaN;
+                    rSquared = double.NaN;
+                    return;
+                }
+            }
+        }
+
+        public static double[,] GenerateSinCurve(double[,] rawData, double A, double phi)
+        {
+            // y(t) = A * sin(x(t) + phi)
+
+            double[,] fitData = new double[rawData.GetLength(0), 2];
+            for (int i = 0; i < rawData.GetLength(0); i++)
+            {
+                double x = rawData[i, 0];
+                double yFit = A * Math.Sin(x * (Math.PI / 180.0) + phi);
+                fitData[i, 0] = x;
+                fitData[i, 1] = yFit;
+            }
+            return fitData;
+        }
+
+        public static double GetRSquared(double[,] rawData, double[,] fitData)
+        {
+            var M = Matrix<double>.Build;
+            var data = M.DenseOfArray(rawData);
+            var fit = M.DenseOfArray(fitData);
+            var ssRes = (data.Column(1) - fit.Column(1)).PointwisePower(2).Sum();
+            var ssTot = (data.Column(1) - data.Column(1).Mean()).PointwisePower(2).Sum();
+            var rSquared = 1 - (ssRes / ssTot);
+            return rSquared;
         }
 
     }
