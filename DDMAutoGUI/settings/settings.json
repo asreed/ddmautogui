@@ -1,10 +1,7 @@
 {
-  "last_saved": "2025-08-27",
-  "path_matlab_exe": "",
+  "last_saved": "2025-09-08",
   "camera_top_sn": "252902469",
   "camera_side_sn": "252902472",
-  "linear_axis_num": 2,
-  "rotary_axis_num": 1,
   "system_1_contents": "Permabond 801",
   "system_2_contents": "Permabond 825",
   "laser_delay": 0.050,
@@ -16,6 +13,28 @@
     "camera_top": {
       "x": 262.936,
       "t": 0
+    }
+  },
+  "laser_calibration": {
+    "ddm_57_coeff": {
+      "A": -1,
+      "phi": -1,
+      "R2": -1
+    },
+    "ddm_95_coeff": {
+      "A": -1,
+      "phi": -1,
+      "R2": -1
+    },
+    "ddm_116_coeff": {
+      "A": -1,
+      "phi": -1,
+      "R2": -1
+    },
+    "ddm_170_coeff": {
+      "A": -1,
+      "phi": -1,
+      "R2": -1
     }
   },
   "ddm_57": {
@@ -162,5 +181,5 @@
       "t": 0
     }
   },
-  "ddm_170_tall": { }
+  "ddm_170_tall": {}
 }

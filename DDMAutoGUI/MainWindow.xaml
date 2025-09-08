@@ -1,25 +1,25 @@
-﻿<Window x:Class="DDMAutoGUI.MainWindow"
+﻿<Window xmlns:windows="clr-namespace:DDMAutoGUI.windows"  x:Class="DDMAutoGUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DDMAutoGUI"
         mc:Ignorable="d"
-        Background="WhiteSmoke"
+        Background="White"
         Title="DDM Automation Cell Manager" Height="750" Width="1024" ResizeMode="CanResizeWithGrip" WindowStartupLocation="CenterScreen" WindowState="Maximized">
 
 
     <Window.Resources>
         <Style TargetType="TabItem">
-            <Setter Property="Padding" Value="10,5"/>
+            <!--<Setter Property="Padding" Value="100"/>-->
         </Style>
         <Style TargetType="TabItem" x:Key="MainTab">
             <Setter Property="Width" Value="100"/>
             <Setter Property="Height" Value="90"/>
         </Style>
         <Style TargetType="TabItem" x:Key="AdvTab">
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Height" Value="60"/>
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Height" Value="50"/>
 
         </Style>
         <Style TargetType="TextBlock" x:Key="AdvTabHeader">
@@ -32,7 +32,7 @@
     </Window.Resources>
 
 
-    <Grid Margin="6">
+    <Grid Margin="4">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -45,7 +45,7 @@
             <TabControl TabStripPlacement="Left">
                 <TabItem Header="Connect" Style="{StaticResource MainTab}">
 
-                    <Grid Margin="6">
+                    <Grid Margin="4">
 
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -266,7 +266,7 @@
                 <TabItem Header="Advanced" Style="{StaticResource MainTab}">
 
                     <Grid>
-                        <TabControl TabStripPlacement="Left" Margin="12">
+                        <TabControl TabStripPlacement="Left" Margin="4">
                             <TabItem Style="{StaticResource AdvTab}">
                                 <TabItem.Header>
                                     <TextBlock Style="{StaticResource AdvTabHeader}">Cell Control Panel</TextBlock>
@@ -836,7 +836,7 @@
                             </TabItem>
                             <TabItem Style="{StaticResource AdvTab}">
                                 <TabItem.Header>
-                                    <TextBlock Style="{StaticResource AdvTabHeader}">Connection Monitor</TextBlock>
+                                    <TextBlock Style="{StaticResource AdvTabHeader}">TCS Connection</TextBlock>
                                 </TabItem.Header>
 
                                 <Grid>
@@ -983,10 +983,18 @@
 
                                 </Grid>
                             </TabItem>
-                            <TabItem Header="Settings" Padding="15" Visibility="Collapsed">
+                            <TabItem Style="{StaticResource AdvTab}">
+                                <TabItem.Header>
+                                    <TextBlock Style="{StaticResource AdvTabHeader}">Settings</TextBlock>
+                                </TabItem.Header>
+                                
+                                <windows:EditSettingsPanel />
 
                             </TabItem>
-                            <TabItem Header="Image Process" Padding="15" Visibility="Collapsed">
+                            <TabItem Style="{StaticResource AdvTab}">
+                                <TabItem.Header>
+                                    <TextBlock Style="{StaticResource AdvTabHeader}">Laser Calibration</TextBlock>
+                                </TabItem.Header>
 
                             </TabItem>
                             <TabItem Style="{StaticResource AdvTab}">

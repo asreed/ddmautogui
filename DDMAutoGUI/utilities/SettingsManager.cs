@@ -59,16 +59,31 @@ namespace DDMAutoGUI.utilities
             }
         }
     }
+
+    public class CellSettingsLaserCoeff
+    {
+        public float? A { get; set; }
+        public float? phi { get; set; }
+        public float? R2 { get; set; }
+    }
+
+    public class CellSettingsLaser
+    {
+        public CellSettingsLaserCoeff? ddm_57_coeff { get; set; }
+        public CellSettingsLaserCoeff? ddm_95_coeff { get; set; }
+        public CellSettingsLaserCoeff? ddm_116_coeff { get; set; }
+        public CellSettingsLaserCoeff? ddm_170_coeff { get; set; }
+    }
+
     public class CellSettings
     {
         public DateTime? last_saved { get; set; }
         public string? camera_top_sn { get; set; }
         public string? camera_side_sn { get; set; }
-        public int? linear_axis_num { get; set; }
-        public int? rotary_axis_num { get; set; }
         public string? system_1_contents { get; set; }
         public string? system_2_contents { get; set; }
         public float? laser_delay { get; set; }
+        public CellSettingsLaser? laser_calibration { get; set; }
         public CellSettingsMotorCommon? ddm_common { get; set; }
         public CellSettingsMotor? ddm_57 { get; set; }
         public CellSettingsMotor? ddm_95 { get; set; }

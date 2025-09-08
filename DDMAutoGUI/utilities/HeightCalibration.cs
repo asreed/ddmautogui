@@ -353,13 +353,13 @@ namespace DDMAutoGUI.utilities
 
             double A, phi, rSquared;
             FitDataToSin(rawData57, out A, out phi, out rSquared);
-            Debug.Print($"57 fit generated: A = {A}, phi = {phi}, R^2 = {rSquared}");
+            Debug.Print($"57 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
             FitDataToSin(rawData95, out A, out phi, out rSquared);
-            Debug.Print($"95 fit generated: A = {A}, phi = {phi}, R^2 = {rSquared}");
+            Debug.Print($"95 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
             FitDataToSin(rawData116, out A, out phi, out rSquared);
-            Debug.Print($"116 fit generated: A = {A}, phi = {phi}, R^2 = {rSquared}");
+            Debug.Print($"116 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
             FitDataToSin(rawData170, out A, out phi, out rSquared);
-            Debug.Print($"170 fit generated: A = {A}, phi = {phi}, R^2 = {rSquared}");
+            Debug.Print($"170 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
 
         }
 
