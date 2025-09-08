@@ -118,11 +118,12 @@ namespace DDMAutoGUI.utilities
 
         public SettingsManager()
         {
-            currentSettings = ReadSettingsFile();
+            //currentSettings = ReadSettingsFromLocal();
+            currentSettings = ReadSettingsFromController();
             Debug.Print("Settings manager initialized");
         }
 
-        public CellSettings ReadSettingsFile()
+        private CellSettings ReadSettingsFromLocal()
         {
             CellSettings settings = new CellSettings();
             string tb = "  ";
@@ -152,6 +153,32 @@ namespace DDMAutoGUI.utilities
         {
             return currentSettings;
         }
+
+        public string SerializeSettingsToJson(CellSettings settings)
+        {
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+            };
+            return JsonSerializer.Serialize(settings, options);
+        }
+
+        public CellSettings DeserializeSettingsFromJson(string json)
+        {
+            try
+            {
+                CellSettings settings = JsonSerializer.Deserialize<CellSettings>(json);
+                Debug.Print($"Settings file read successfully");
+                return settings;
+            }
+            catch (JsonException ex)
+            {
+                Debug.Print($"Error deserializing settings from JSON: {ex.Message}");
+                return new CellSettings();
+            }
+        }
+
 
         public CellSettingsMotor GetSettingsForSelectedSize()
         {
@@ -185,16 +212,23 @@ namespace DDMAutoGUI.utilities
 
         public void ReloadSettings()
         {
-            currentSettings = ReadSettingsFile();
+            //currentSettings = ReadSettingsFromLocal();
+            currentSettings = ReadSettingsFromController();
         }
 
 
 
 
-        private void CopySettingsFromController()
+
+
+
+
+
+
+        private CellSettings ReadSettingsFromController()
         {
-            string ftpUrl = "ftp://10.33.240.47/flash/ddm_cell/test.txt"; // Replace with your FTP URL
-            string localFilePath = @"C:\Users\areed\Desktop\copy.txt"; // Replace with your local file path
+            string ftpUrl = "ftp://10.33.240.47/flash/ddm_cell/settings.json";
+            string rawJson = "";
 
             try
             {
@@ -205,24 +239,59 @@ namespace DDMAutoGUI.utilities
                 // Get the response from the server
                 using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
                 using (Stream responseStream = response.GetResponseStream())
-                using (FileStream fileStream = new FileStream(localFilePath, FileMode.Create))
+                using (StreamReader reader = new StreamReader(responseStream))
                 {
-                    // Copy the response stream to the local file
-                    responseStream.CopyTo(fileStream);
+                    // Read the contents of the response stream into a string
+                    rawJson = reader.ReadToEnd();
+
+                    // Now you can use fileContents as needed
+                    CellSettings settings = JsonSerializer.Deserialize<CellSettings>(rawJson);
+                    Debug.Print($"  Settings file read successfully from controller");
+                    Debug.Print("Download Complete.");
+                    return settings;
                 }
 
-                Console.WriteLine("Download Complete.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Debug.Print($"Error: {ex.Message}");
+                return null;
             }
         }
 
-        private void SaveSettingsToController()
+        //private void CopySettingsFromController()
+        //{
+        //    string ftpUrl = "ftp://10.33.240.47/flash/ddm_cell/test.txt"; // Replace with your FTP URL
+        //    string localFilePath = @"C:\Users\areed\Desktop\copy.txt"; // Replace with your local file path
+
+        //    try
+        //    {
+        //        // Create an FTP request
+        //        FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpUrl);
+        //        request.Method = WebRequestMethods.Ftp.DownloadFile;
+
+        //        // Get the response from the server
+        //        using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
+        //        using (Stream responseStream = response.GetResponseStream())
+        //        using (FileStream fileStream = new FileStream(localFilePath, FileMode.Create))
+        //        {
+        //            // Copy the response stream to the local file
+        //            responseStream.CopyTo(fileStream);
+        //        }
+
+        //        Console.WriteLine("Download Complete.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Error: {ex.Message}");
+        //    }
+        //}
+
+        public void SaveSettingsToController(CellSettings settings)
         {
-            string localFilePath2 = @"C:\Users\areed\Desktop\copy.txt"; // Replace with your local file path
-            string ftpUrl2 = "ftp://10.33.240.47/flash/ddm_cell/test1.txt"; // Replace with your FTP URL
+            string ftpUrl2 = "ftp://10.33.240.47/flash/ddm_cell/settings.json"; // Replace with your FTP URL
+
+            string serializedSettings = SerializeSettingsToJson(settings);
 
             try
             {
@@ -230,15 +299,11 @@ namespace DDMAutoGUI.utilities
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpUrl2);
                 request.Method = WebRequestMethods.Ftp.UploadFile;
 
-                // Read the file contents into a byte array
-                byte[] fileContents;
-                using (FileStream fileStream = new FileStream(localFilePath2, FileMode.Open, FileAccess.Read))
-                {
-                    fileContents = new byte[fileStream.Length];
-                    fileStream.Read(fileContents, 0, fileContents.Length);
-                }
+                // Convert the string data to a byte array
+                byte[] fileContents = System.Text.Encoding.UTF8.GetBytes(serializedSettings);
+                request.ContentLength = fileContents.Length;
 
-                // Write the file to the request stream
+                // Write the string data to the request stream
                 using (Stream requestStream = request.GetRequestStream())
                 {
                     requestStream.Write(fileContents, 0, fileContents.Length);
@@ -247,12 +312,12 @@ namespace DDMAutoGUI.utilities
                 // Get the response from the server
                 using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
                 {
-                    Console.WriteLine($"Upload Complete. Status: {response.StatusDescription}");
+                    Debug.Print($"Save to controller complete. Status: {response.StatusDescription}");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Debug.Print($"Error: {ex.Message}");
             }
         }
     }

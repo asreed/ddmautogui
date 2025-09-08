@@ -14,19 +14,35 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-            
-            <StackPanel x:Name="FieldsPanel" Margin="10">
-                
-                <!-- Settings fields will be added here dynamically -->
-                
-            </StackPanel>
+        <TabControl Grid.Row="0">
+            <TabItem Header="View">
+                <TreeView x:Name="SettingsTreeView" Margin="10">
+                    <TreeViewItem x:Name="SettingsTreeViewRoot" IsExpanded="True">
+                        <!-- -->
+                    </TreeViewItem>
+                </TreeView>
+            </TabItem>
+            <TabItem Header="Edit">
+                <Grid>
+                    <TextBox 
+                        Name="settingsTxb" 
+                        Text="--" 
+                        TextWrapping="Wrap"
+                        Padding="6,5" 
+                        Margin="10"
+                        VerticalScrollBarVisibility="Auto" 
+                        VerticalContentAlignment="Top"
+                        FontFamily="Consolas"
+                        FontSize="10"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
 
-        </ScrollViewer>
 
         <Grid Grid.Row="1">
             <StackPanel Orientation="Horizontal">
-                <Button Content="button" Click="Button_Click"/>
+                <Button x:Name="LoadBtn" Content="Load from flash" Click="LoadBtn_Click"/>
+                <Button x:Name="SaveBtn" Content="Save to flash" Style="{DynamicResource PrimaryBlackButton}" Click="SaveBtn_Click"/>
             </StackPanel>
         </Grid>
 

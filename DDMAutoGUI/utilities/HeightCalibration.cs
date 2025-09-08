@@ -420,7 +420,7 @@ namespace DDMAutoGUI.utilities
                 A *= -1;
                 fitData = GenerateSinCurve(rawData, A, phi);
                 rSquared = GetRSquared(dataShifted.ToArray(), fitData);
-                if (Math.Abs(rSquared) > 1.0)
+                if (rSquared < 0 || rSquared > 1)
                 {
                     // something else is wrong
                     Debug.Print("Sine fit failed. R^2 out of range.");

@@ -41,7 +41,7 @@ namespace DDMAutoGUI
 
 
 
-            HeightCalibration.MathNetTest();
+            //HeightCalibration.MathNetTest();
             Debug.Print("");
         }
 

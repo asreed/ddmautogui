@@ -83,7 +83,6 @@
     <None Remove="resources\icons\tools.png" />
     <None Remove="resources\icons\tune.ico" />
     <None Remove="resources\icons\warning.ico" />
-    <None Remove="settings\settings.json" />
   </ItemGroup>
 	
   <ItemGroup>
@@ -142,9 +141,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\splash\cad-splash-4.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="settings\settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\splash\cad-splash-5.PNG">
