@@ -51,6 +51,7 @@ namespace DDMAutoGUI.windows
         private void PopulateSettingsTree(CellSettings settings)
         {
             SettingsTreeViewRoot.Items.Clear();
+            SettingsTreeViewRoot.Header = "Settings";
             GenerateTree(settings, SettingsTreeViewRoot);
 
         }
@@ -63,9 +64,12 @@ namespace DDMAutoGUI.windows
 
             foreach (PropertyInfo property in properties)
             {
-                if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
+                var p = property.PropertyType;
+                if (p.IsClass && !p.IsArray && p != typeof(string))
                 {
                     // Recursively add properties of nested class
+
+                    Debug.Print($"Adding class node. {property.Name}");
                     TreeViewItem nestedParent = new TreeViewItem
                     {
                         Header = property.Name,
@@ -74,9 +78,37 @@ namespace DDMAutoGUI.windows
                     parent.Items.Add(nestedParent);
                     GenerateTree(property.GetValue(obj), nestedParent);
                 }
+                else if (p.IsClass && p.IsArray && p != typeof(string))
+                {
+
+                    // Recursively add properties of array
+
+                    Debug.Print($"Adding array node. {property.Name}");
+                    Array array = (Array)property.GetValue(obj);
+                    TreeViewItem arrayParent = new TreeViewItem
+                    {
+                        Header = $"{property.Name}",
+                        IsExpanded = true,
+                    };
+                    parent.Items.Add(arrayParent);
+                    int index = 0;
+                    foreach (var element in array)
+                    {
+                        TreeViewItem elementParent = new TreeViewItem
+                        {
+                            Header = $"[{index}]",
+                            IsExpanded = true,
+                        };
+                        arrayParent.Items.Add(elementParent);
+                        GenerateTree(element, elementParent);
+                        index++;
+                    }
+                }
                 else
                 {
-                    //Debug.Print($"Property Name: {property.Name}, Value: {property.GetValue(obj)}");
+                    // Add individual property
+
+                    Debug.Print($"Adding property. {property.Name}: {property.GetValue(obj)}");
                     TreeViewItem item = new TreeViewItem
                     {
                         Header = $"{property.Name}: {property.GetValue(obj)?.ToString() ?? "null"}",

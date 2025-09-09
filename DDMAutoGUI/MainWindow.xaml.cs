@@ -172,7 +172,7 @@ namespace DDMAutoGUI
                 float next_flow_id = motor.shot_settings.target_vol_id.Value / motor.shot_settings.time_id.Value;
                 float next_flow_od = motor.shot_settings.target_vol_od.Value / motor.shot_settings.time_od.Value;
 
-                float next_pressure_id = FlowCalibration.GetNewTargetPressure(pressure_id, flow_id, flow_id);
+                float next_pressure_id = FlowCalibration.GetNewTargetPressure(pressure_id, flow_id, null);
 
                 resultsManager.AddToLog("Simulated results added to object");
 
