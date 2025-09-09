@@ -36,7 +36,7 @@ namespace DDMAutoGUI
 
         private List<ProcessResultsHeightMeasurement> laserRingData;
         private List<ProcessResultsHeightMeasurement> laserMagData;
-        private ProcessResultsManager resultsManager;
+        private ResultsManager resultsManager;
 
 
         //private ProcessResults processData;
@@ -172,7 +172,7 @@ namespace DDMAutoGUI
                 float next_flow_id = motor.shot_settings.target_vol_id.Value / motor.shot_settings.time_id.Value;
                 float next_flow_od = motor.shot_settings.target_vol_od.Value / motor.shot_settings.time_od.Value;
 
-                float next_pressure_id = Autocalibration.GetTargetPressure(pressure_id, flow_id, flow_id);
+                float next_pressure_id = FlowCalibration.GetNewTargetPressure(pressure_id, flow_id, flow_id);
 
                 resultsManager.AddToLog("Simulated results added to object");
 
@@ -300,13 +300,13 @@ namespace DDMAutoGUI
                 float time_id = c.time_id.Value;
                 float x_id = m.disp_id.x.Value;
                 float t_id = m.disp_id.t.Value;
-                string substance_id = valve_num_id == 1 ? settings.system_1_contents : settings.system_2_contents;
+                //string substance_id = valve_num_id == 1 ? settings.system_1_contents : settings.system_2_contents;
 
                 int valve_num_od = c.valve_num_od.Value;
                 float time_od = c.time_od.Value;
                 float x_od = m.disp_od.x.Value;
                 float t_od = m.disp_od.t.Value;
-                string substance_od = valve_num_od == 1 ? settings.system_1_contents : settings.system_2_contents;
+                //string substance_od = valve_num_od == 1 ? settings.system_1_contents : settings.system_2_contents;
 
                 resultsManager.AddToLog($"Using ID [{x_id}, {t_id}] for {time_id} seconds and OD [{x_od}, {t_od}] for {time_od} seconds");
 
@@ -327,12 +327,12 @@ namespace DDMAutoGUI
                 resultsManager.AddToLog("Dispense complete");
                 resultsManager.AddToLog("Results:");
                 resultsManager.AddToLog($"{tb}ID:");
-                resultsManager.AddToLog($"{tb}{tb}Valve {valve_num_id} ({substance_id})");
+                //resultsManager.AddToLog($"{tb}{tb}Valve {valve_num_id} ({substance_id})");
                 resultsManager.AddToLog($"{tb}{tb}Dispense volume: {data.vol_id} mL ({Math.Round(data.vol_id.Value * 100 / c.target_vol_id.Value, 1)}% of target)");
                 resultsManager.AddToLog($"{tb}{tb}Dispense time: {data.time_id} s");
                 resultsManager.AddToLog($"{tb}{tb}Pressure: {pressure_id_sp} psi");
                 resultsManager.AddToLog($"{tb}OD:");
-                resultsManager.AddToLog($"{tb}{tb}Valve {valve_num_od} ({substance_od})");
+                //resultsManager.AddToLog($"{tb}{tb}Valve {valve_num_od} ({substance_od})");
                 resultsManager.AddToLog($"{tb}{tb}Dispense volume: {data.vol_id} mL ({Math.Round(data.vol_od.Value * 100 / c.target_vol_od.Value, 1)}% of target)");
                 resultsManager.AddToLog($"{tb}{tb}Dispense time: {data.time_od} s");
                 resultsManager.AddToLog($"{tb}{tb}Pressure: {pressure_od_sp} psi");
@@ -1203,14 +1203,14 @@ namespace DDMAutoGUI
             float t_id = m.disp_id.t.Value;
             float time_id = c.time_id.Value;
             float valve_num_id = c.valve_num_id.Value;
-            float pressure_id = c.ref_pressure_1.Value;
+            //float pressure_id = c.ref_pressure_1.Value;
             float target_vol_id = c.target_vol_id.Value;
 
             float x_od = m.disp_od.x.Value;
             float t_od = m.disp_od.t.Value;
             float time_od = c.time_od.Value;
             float valve_num_od = c.valve_num_od.Value;
-            float pressure_od = c.ref_pressure_2.Value;
+            //float pressure_od = c.ref_pressure_2.Value;
             float target_vol_od = c.target_vol_od.Value;
 
 

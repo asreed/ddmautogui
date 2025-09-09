@@ -22,10 +22,10 @@ namespace DDMAutoGUI.utilities
         public int? valve_num_od { get; set; }
         public float? time_id { get; set; }
         public float? time_od { get; set; }
-        public float? ref_pressure_1 { get; set; }
-        public float? ref_pressure_2 { get; set; }
         public float? target_vol_id { get; set; }
         public float? target_vol_od { get; set; }
+        public float? target_flow_id { get; set; }
+        public float? target_flow_od { get; set; }
     }
     public class CellSettingsMotorCommon
     {
@@ -75,15 +75,28 @@ namespace DDMAutoGUI.utilities
         public CellSettingsLaserCoeff? ddm_170_coeff { get; set; }
     }
 
+    public class CellSettingsDispenseCalib
+    {
+        public float? pressure { get; set; }
+        public float? flow { get; set; }
+    }
+
+    public class CellSettingsDispense
+    {
+        public string? sys_1_contents { get; set; }
+        public string? sys_2_contents { get; set; }
+        public CellSettingsDispenseCalib[] sys_1_flow_calib { get; set; }
+        public CellSettingsDispenseCalib[] sys_2_flow_calib { get; set; }
+    }
+
     public class CellSettings
     {
         public DateTime? last_saved { get; set; }
         public string? camera_top_sn { get; set; }
         public string? camera_side_sn { get; set; }
-        public string? system_1_contents { get; set; }
-        public string? system_2_contents { get; set; }
         public float? laser_delay { get; set; }
-        public CellSettingsLaser? laser_calibration { get; set; }
+        public CellSettingsDispense? dispense_system { get; set; }
+        public CellSettingsLaser? laser_calib { get; set; }
         public CellSettingsMotorCommon? ddm_common { get; set; }
         public CellSettingsMotor? ddm_57 { get; set; }
         public CellSettingsMotor? ddm_95 { get; set; }
@@ -100,6 +113,7 @@ namespace DDMAutoGUI.utilities
     public class SettingsManager
     {
         private string settingsFilePath = AppDomain.CurrentDomain.BaseDirectory + "settings\\settings.json";
+        private string settingsFTPPath = "ftp://10.33.240.47/flash/ddm_cell/Settings.json";
 
         public enum DDMSize
         {
@@ -227,13 +241,12 @@ namespace DDMAutoGUI.utilities
 
         private CellSettings ReadSettingsFromController()
         {
-            string ftpUrl = "ftp://10.33.240.47/flash/ddm_cell/settings.json";
             string rawJson = "";
 
             try
             {
                 // Create an FTP request
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpUrl);
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(settingsFTPPath);
                 request.Method = WebRequestMethods.Ftp.DownloadFile;
 
                 // Get the response from the server
@@ -289,14 +302,14 @@ namespace DDMAutoGUI.utilities
 
         public void SaveSettingsToController(CellSettings settings)
         {
-            string ftpUrl2 = "ftp://10.33.240.47/flash/ddm_cell/settings.json"; // Replace with your FTP URL
 
+            settings.last_saved = DateTime.Now;
             string serializedSettings = SerializeSettingsToJson(settings);
 
             try
             {
                 // Create an FTP request
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpUrl2);
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(settingsFTPPath);
                 request.Method = WebRequestMethods.Ftp.UploadFile;
 
                 // Convert the string data to a byte array

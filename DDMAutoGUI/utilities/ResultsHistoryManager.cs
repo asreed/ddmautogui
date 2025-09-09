@@ -9,13 +9,15 @@ namespace DDMAutoGUI.utilities
 
     public class ProcessHistory
     {
-        public ProcessHistoryEvent[]? process_events { get; set; }
+        public ProcessHistoryEvent[]? events { get; set; }
     }
 
     public class ProcessHistoryEvent
     {
-        public DateTime timestamp { get; set; }
+        public DateTime time_complete { get; set; }
         public string? ring_sn { get; set; }
+        public int? valve_num_id { get; set; }
+        public int? valve_num_od { get; set; }
         public float? pressure_1 { get; set; }
         public float? pressure_2 { get; set; }
 
@@ -24,7 +26,7 @@ namespace DDMAutoGUI.utilities
 
 
 
-    internal class ProcessHistoryManager
+    internal class ResultsHistoryManager
     {
     }
 }

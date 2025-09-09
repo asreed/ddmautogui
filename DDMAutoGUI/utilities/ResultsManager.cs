@@ -64,7 +64,7 @@ namespace DDMAutoGUI.utilities
 
 
 
-    public class ProcessResultsManager
+    public class ResultsManager
     {
 
         public string saveMainDirectory = AppDomain.CurrentDomain.BaseDirectory + "results\\";
@@ -84,7 +84,7 @@ namespace DDMAutoGUI.utilities
         public ProcessResults currentResults;
 
 
-        public ProcessResultsManager()
+        public ResultsManager()
         {
             currentResults = null;
             Debug.Print("Process results manager initialized");
