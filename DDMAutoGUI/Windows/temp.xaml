@@ -47,14 +47,42 @@
                                         <TextBox Text="192.168.0.1"/>
                                     </GroupBox>
                                     <GroupBox Header="Status">
-                                        <StackPanel Orientation="Vertical">
-                                            <Label Content="Controller TCS"/>
-                                            <Label Content="Controller Settings"/>
-                                            <Label Content="Top Camera"/>
-                                            <Label Content="Side Camera"/>
-                                        </StackPanel>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="20"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.Resources>
+                                                <Style TargetType="Label">
+                                                    <Setter Property="Margin" Value="0"/>
+                                                    <Setter Property="Padding" Value="2"/>
+                                                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                                </Style>
+                                            </Grid.Resources>
+                                            <Label Grid.Row="0" Grid.Column="0" Content="x" HorizontalAlignment="Center"/>
+                                            <Label Grid.Row="0" Grid.Column="1" Content="Controller TCS" Margin="6,0,0,0"/>
+                                            <Label Grid.Row="1" Grid.Column="0" Content="x" HorizontalAlignment="Center"/>
+                                            <Label Grid.Row="1" Grid.Column="1" Content="Controller Settings" Margin="6,0,0,0"/>
+                                            <Label Grid.Row="2" Grid.Column="0" Content="x" HorizontalAlignment="Center"/>
+                                            <Label Grid.Row="2" Grid.Column="1" Content="Top Camera" Margin="6,0,0,0"/>
+                                            <Label Grid.Row="3" Grid.Column="0" Content="x" HorizontalAlignment="Center"/>
+                                            <Label Grid.Row="3" Grid.Column="1" Content="Side Camera" Margin="6,0,0,0"/>
+                                        </Grid>
                                     </GroupBox>
-                                    <Button Content="Connect" Style="{DynamicResource BlueButton}"/>
+                                    <Button Style="{DynamicResource BlueButton}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/Resources/icons/plug.ico"/>
+                                            <Label Content="Connect"/>
+                                        </StackPanel>
+                                    </Button>
                                 </StackPanel>
                             </Grid>
                         </Grid>
@@ -65,7 +93,7 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="100"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
@@ -74,7 +102,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Grid Grid.Row="1" Grid.Column="1" Width="400" Height="500">
+                            <Grid Grid.Row="1" Grid.Column="1" Width="400">
                                 <TabControl>
                                     <TabItem Header="1. Configure">
                                         <StackPanel Orientation="Vertical">
@@ -88,7 +116,12 @@
                                                     
                                                 </StackPanel>
                                             </GroupBox>
-                                            <Button Content="Begin Dispense" Style="{StaticResource BlueButton}"/>
+                                            <Button Style="{StaticResource BlueButton}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="/Resources/icons/warning.ico"/>
+                                                    <Label Content="Begin Dispense Process"/>
+                                                </StackPanel>
+                                            </Button>
                                         </StackPanel>
                                     </TabItem>
                                     <TabItem Header="2. Monitor">
@@ -97,10 +130,10 @@
                                                 <RowDefinition Height="*"/>
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
-                                            <GroupBox Header="Process Log">
-                                                <TextBox/>
+                                            <GroupBox Header="Process Log" Height="350">
+                                                <TextBox Style="{StaticResource MonoTextBox}" Text="Test test test"/>
                                             </GroupBox>
-                                            <ProgressBar Grid.Row="1" Height="20" Value="40" Foreground="{DynamicResource BrooksBlueGradient}"/>
+                                            <ProgressBar Grid.Row="1" Height="20" Value="40" Margin="3" Foreground="Black"/>
                                         </Grid>
                                     </TabItem>
                                     <TabItem Header="3. Review">
@@ -112,26 +145,44 @@
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             <GroupBox Grid.Row="0" Header="Result">
-                                                <Border Background="#FF12AB12" Padding="15"  BorderBrush="#FF0C730C" BorderThickness="2">
-                                                    <Label Content="Pass" Foreground="White" HorizontalAlignment="Center"/>
-                                                </Border>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0"
+                                                            Background="#FF12AB12" 
+                                                            BorderBrush="#FF0C730C"
+                                                            Width="100"
+                                                            Height="60"
+                                                            Margin="0,0,10,0"
+                                                            BorderThickness="2">
+                                                        <Label Content="Pass" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <TextBlock Grid.Column="1"
+                                                               TextWrapping="Wrap"
+                                                               Foreground="Black"
+                                                               VerticalAlignment="Center"
+                                                               Text="Process completed with no error"/>
+                                                </Grid>
                                             </GroupBox>
-                                            <GroupBox Grid.Row="1" Header="Result Message">
-                                                <Label Content="Process completed successfully with no errors"/>
-                                            </GroupBox>
-                                            <GroupBox Grid.Row="2" Header="Result Details">
+                                            <GroupBox Grid.Row="2" Header="Result Details" Height="200">
                                                 <StackPanel Orientation="Vertical">
-                                                    <Label Content="Top picture acquired: "/>
-                                                    <Label Content="Side picture acquired: "/>
-                                                    <Label Content="Ring SN: "/>
-                                                    <Label Content="Volume ID: "/>
-                                                    <Label Content="Volume OD: "/>
+                                                    <TextBlock Text="Top picture acquired: "/>
+                                                    <TextBlock Text="Side picture acquired: "/>
+                                                    <TextBlock Text="Ring SN: "/>
+                                                    <TextBlock Text="ID volume: "/>
+                                                    <TextBlock Text="OD volume: "/>
 
                                                 </StackPanel>
                                             </GroupBox>
                                             <StackPanel Grid.Row="3" Orientation="Vertical">
-                                                <Button Content="Open Results Folder"/>
-                                                <Button Content="Back to Configure" Style="{DynamicResource PrimaryBlueButton}"/>
+                                                <Button Style="{DynamicResource BlueButton}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Image Source="/Resources/icons/tools.ico"/>
+                                                        <Label Content="Configure Next Process"/>
+                                                    </StackPanel>
+                                                </Button>
                                             </StackPanel>
                                         </Grid>
                                     </TabItem>
