@@ -26,8 +26,9 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
-            <TabControl TabStripPlacement="Left">
-                <TabItem Header="Connect">
+            <TabControl TabStripPlacement="Left" Margin="3">
+                <TabItem Style="{StaticResource MainTab}" Header="Connect" Tag="/Resources/icons/lan.ico">
+
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -59,7 +60,8 @@
                         </Grid>
                     </ScrollViewer>
                 </TabItem>
-                <TabItem Header="Dispense">
+                <TabItem Style="{StaticResource MainTab}" Header="Dispense" Tag="/Resources/icons/warning.ico">
+
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -138,7 +140,7 @@
                         </Grid>
                     </ScrollViewer>
                 </TabItem>
-                <TabItem Header="Advanced">
+                <TabItem Style="{StaticResource MainTab}" Header="Advanced" Tag="/Resources/icons/tune.ico">
 
 
 

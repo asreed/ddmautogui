@@ -174,6 +174,55 @@
             <Setter Property="Margin" Value="3,0,3,3"/>
         </Style>
 
+        <Style TargetType="TabItem">
+            <Setter Property="Padding" Value="8,3"/>
+        </Style>
+
+        <Style TargetType="TabItem" x:Key="MainTab">
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="Height" Value="80"/>
+            <Setter Property="Cursor" Value="Hand"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Grid>
+                            <Border x:Name="mainBorder"
+                                    Background="{TemplateBinding Background}" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="1,1,1,1" 
+                                    CornerRadius="6,0,0,6"
+                                    Padding="10"
+                                    Margin="4,0,-1,-1">
+                                <StackPanel Orientation="Horizontal" 
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Center">
+                                    <Image 
+                                        Width="16"
+                                        Height="16"
+                                        Margin="0,0,8,0"
+                                        Source="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=Tag}"/>
+                                    <ContentPresenter ContentSource="Header" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#fff" />
+                                <Setter TargetName="mainBorder" Property="BorderThickness" Value="1,1,0,1"/>
+                                <Setter TargetName="mainBorder" Property="Margin" Value="0,0,-1,-1"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#fff" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+
         <Style TargetType="RadioButton">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="#000" />

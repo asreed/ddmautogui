@@ -168,9 +168,43 @@
   "ddm_170": {
     "shot_settings": {
       "sys_num_id": 1,
+      "sys_num_od": 1,
+      "target_vol_id": 1.310,
+      "target_vol_od": 1.570,
+      "target_flow_id": 0.90,
+      "target_flow_od": 0.90
+    },
+    "post_spin_time": 0,
+    "post_spin_speed": 100.0,
+    "laser_ring_num": 6,
+    "laser_mag_num": 88,
+    "camera_side": {
+      "x": 0,
+      "t": 0
+    },
+    "disp_id": {
+      "x": 568.3,
+      "t": 0
+    },
+    "disp_od": {
+      "x": 558.939,
+      "t": 0
+    },
+    "laser_mag": {
+      "x": 320.50,
+      "t": 0
+    },
+    "laser_ring": {
+      "x": 0,
+      "t": 0
+    }
+  },
+  "ddm_170_tall": {
+    "shot_settings": {
+      "sys_num_id": 1,
       "sys_num_od": 2,
-      "target_vol_id": 1.698,
-      "target_vol_od": 2.038,
+      "target_vol_id": 1.953,
+      "target_vol_od": 2.344,
       "target_flow_id": 0.40,
       "target_flow_od": 0.90
     },
@@ -183,11 +217,11 @@
       "t": 0
     },
     "disp_id": {
-      "x": 569.207,
+      "x": 669.779,
       "t": 0
     },
     "disp_od": {
-      "x": 661.300,
+      "x": 558.939,
       "t": 0
     },
     "laser_mag": {
@@ -198,6 +232,5 @@
       "x": 0,
       "t": 0
     }
-  },
-  "ddm_170_tall": {}
+  }
 }
