@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace DDMAutoGUI.utilities
 {
-    public class ProcessResultsShotData
+    public class ResultsShotData
     {
         public int? valve_num_id { get; set; }
         public int? valve_num_od { get; set; }
@@ -27,26 +27,26 @@ namespace DDMAutoGUI.utilities
         public string? error_message { get; set; }
     }
 
-    public class ProcessResultsHeightMeasurement
+    public class ResultsHeightMeasurement
     {
         public float? t { get; set; }
         public float? z { get; set; }
     }
 
-    public class ProcessResultsLogLine
+    public class ResultsLogLine
     {
         public DateTime? timestamp { get; set; }
         public string? message { get; set; }
     }
 
-    public class ProcessResults
+    public class Results
     {
         public DateTime? date_saved { get; set; }
         public string? ring_sn { get; set; }
-        public List<ProcessResultsHeightMeasurement>? ring_heights { get; set; }
-        public List<ProcessResultsHeightMeasurement>? mag_heights { get; set; }
-        public ProcessResultsShotData? shot_data { get; set; }
-        public List<ProcessResultsLogLine>? process_log { get; set; }
+        public List<ResultsHeightMeasurement>? ring_heights { get; set; }
+        public List<ResultsHeightMeasurement>? mag_heights { get; set; }
+        public ResultsShotData? shot_data { get; set; }
+        public List<ResultsLogLine>? process_log { get; set; }
 
 
     }
@@ -81,7 +81,7 @@ namespace DDMAutoGUI.utilities
 
         public event EventHandler UpdateProcessLog;
 
-        public ProcessResults currentResults;
+        public Results currentResults;
 
 
         public ResultsManager()
@@ -90,16 +90,16 @@ namespace DDMAutoGUI.utilities
             Debug.Print("Process results manager initialized");
         }
 
-        public ProcessResults CreateNewResults()
+        public Results CreateNewResults()
         {
             if (currentResults == null)
             {
-                currentResults = new ProcessResults
+                currentResults = new Results
                 {
-                    ring_heights = new List<ProcessResultsHeightMeasurement>(),
-                    mag_heights = new List<ProcessResultsHeightMeasurement>(),
-                    shot_data = new ProcessResultsShotData(),
-                    process_log = new List<ProcessResultsLogLine>()
+                    ring_heights = new List<ResultsHeightMeasurement>(),
+                    mag_heights = new List<ResultsHeightMeasurement>(),
+                    shot_data = new ResultsShotData(),
+                    process_log = new List<ResultsLogLine>()
                 };
                 return currentResults;
             }
@@ -115,6 +115,11 @@ namespace DDMAutoGUI.utilities
             currentResults = null;
         }
 
+        public void AddShotDataToResults(ResultsShotData data)
+        {
+            currentResults.shot_data = data;
+        }
+
         public void AddToLog(string line)
         {
             if (currentResults == null)
@@ -122,7 +127,7 @@ namespace DDMAutoGUI.utilities
                 Debug.Print("Current results are null. Cannot add to log.");
                 return;
             }
-            ProcessResultsLogLine newLine = new ProcessResultsLogLine();
+            ResultsLogLine newLine = new ResultsLogLine();
             newLine.timestamp = DateTime.Now;
             newLine.message = line;
             currentResults.process_log.Add(newLine);
@@ -140,7 +145,7 @@ namespace DDMAutoGUI.utilities
             currentResults.date_saved = DateTime.Now;
 
             var options = new JsonSerializerOptions { WriteIndented = true };
-            string resultsString = JsonSerializer.Serialize<ProcessResults>(currentResults, options);
+            string resultsString = JsonSerializer.Serialize<Results>(currentResults, options);
 
             string resultsFolderPath;
             string resultsFilePath;

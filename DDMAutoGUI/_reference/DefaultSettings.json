@@ -67,8 +67,6 @@
     "shot_settings": {
       "sys_num_id": 1,
       "sys_num_od": 1,
-      "time_id": 0.628,
-      "time_od": 0.820,
       "target_vol_id": 0.157,
       "target_vol_od": 0.205,
       "target_flow_id": 0.25,
@@ -103,8 +101,6 @@
     "shot_settings": {
       "sys_num_id": 1,
       "sys_num_od": 1,
-      "time_id": 1.808,
-      "time_od": 2.232,
       "target_vol_id": 0.453,
       "target_vol_od": 0.558,
       "target_flow_id": 0.25,
@@ -137,10 +133,8 @@
   },
   "ddm_116": {
     "shot_settings": {
-      "valve_num_id": 2,
-      "valve_num_od": 1,
-      "time_id": 1.875,
-      "time_od": 2.125,
+      "sys_num_id": 2,
+      "sys_num_od": 1,
       "target_vol_id": 0.750,
       "target_vol_od": 0.850,
       "target_flow_id": 0.40,
@@ -173,10 +167,8 @@
   },
   "ddm_170": {
     "shot_settings": {
-      "valve_num_id": 1,
-      "valve_num_od": 2,
-      "time_id": 1.887,
-      "time_od": 5.095,
+      "sys_num_id": 1,
+      "sys_num_od": 2,
       "target_vol_id": 1.698,
       "target_vol_od": 2.038,
       "target_flow_id": 0.40,

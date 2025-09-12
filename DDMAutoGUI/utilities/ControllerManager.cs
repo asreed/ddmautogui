@@ -444,11 +444,11 @@ namespace DDMAutoGUI.utilities
         // ==================================================================
         // Public helpers
 
-        public List<ProcessResultsHeightMeasurement> ParseHeightData(string rawString)
+        public List<ResultsHeightMeasurement> ParseHeightData(string rawString)
         {
             string[] responseArray = rawString.Split(" ");
             string[] measurementString;
-            List<ProcessResultsHeightMeasurement> measurementList = new List<ProcessResultsHeightMeasurement>();
+            List<ResultsHeightMeasurement> measurementList = new List<ResultsHeightMeasurement>();
 
             if (responseArray[0] == "0")
             {
@@ -458,7 +458,7 @@ namespace DDMAutoGUI.utilities
                 for (int i = 0; i < measurementString.Length - 1; i++)
                 {
                     string[] singleMeasurement = measurementString[i].Split(",");
-                    ProcessResultsHeightMeasurement measurement = new ProcessResultsHeightMeasurement
+                    ResultsHeightMeasurement measurement = new ResultsHeightMeasurement
                     {
                         t = float.Parse(singleMeasurement[0]),
                         z = float.Parse(singleMeasurement[1])
@@ -469,7 +469,7 @@ namespace DDMAutoGUI.utilities
             return measurementList;
         }
 
-        public string ParseHeightDataToString(List<ProcessResultsHeightMeasurement> measurementList)
+        public string ParseHeightDataToString(List<ResultsHeightMeasurement> measurementList)
         {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < measurementList.Count; i++)
@@ -479,9 +479,9 @@ namespace DDMAutoGUI.utilities
             return sb.ToString();
         }
 
-        public ProcessResultsShotData ParseDispenseResponse(string response)
+        public ResultsShotData ParseDispenseResponse(string response)
         {
-            ProcessResultsShotData data = new ProcessResultsShotData();
+            ResultsShotData data = new ResultsShotData();
 
             string[] parts = response.Split(" ");
             if (parts[0] == "0")

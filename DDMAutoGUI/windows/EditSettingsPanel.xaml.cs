@@ -69,7 +69,7 @@ namespace DDMAutoGUI.windows
                 {
                     // Recursively add properties of nested class
 
-                    Debug.Print($"Adding class node. {property.Name}");
+                    //Debug.Print($"Adding class node. {property.Name}");
                     TreeViewItem nestedParent = new TreeViewItem
                     {
                         Header = property.Name,
@@ -83,7 +83,7 @@ namespace DDMAutoGUI.windows
 
                     // Recursively add properties of array
 
-                    Debug.Print($"Adding array node. {property.Name}");
+                    //Debug.Print($"Adding array node. {property.Name}");
                     Array array = (Array)property.GetValue(obj);
                     TreeViewItem arrayParent = new TreeViewItem
                     {
@@ -108,7 +108,7 @@ namespace DDMAutoGUI.windows
                 {
                     // Add individual property
 
-                    Debug.Print($"Adding property. {property.Name}: {property.GetValue(obj)}");
+                    //Debug.Print($"Adding property. {property.Name}: {property.GetValue(obj)}");
                     TreeViewItem item = new TreeViewItem
                     {
                         Header = $"{property.Name}: {property.GetValue(obj)?.ToString() ?? "null"}",

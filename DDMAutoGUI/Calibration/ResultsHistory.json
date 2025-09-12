@@ -1,0 +1,31 @@
+{
+  "last_sys_1_calib_update": "2025-09-10",
+  "last_sys_2_calib_update": "2025-09-10",
+  "current_sys_1_flow_calib": [
+    {
+      "flow": 0.25,
+      "pressure": 4.5
+    },
+    {
+      "flow": 0.40,
+      "pressure": 6.8
+    },
+    {
+      "flow": 0.90,
+      "pressure": 14.8
+    }
+  ],
+  "current_sys_2_flow_calib": [
+    {
+      "flow": 0.40,
+      "pressure": 33.5
+    }
+  ],
+  "results": [
+    {},
+    {},
+    {},
+    {},
+    {}
+  ]
+}

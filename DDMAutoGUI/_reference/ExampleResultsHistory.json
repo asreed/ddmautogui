@@ -1,7 +1,29 @@
 {
+  "last_sys_1_calib_update": "25-09-10",
+  "last_sys_2_calib_update": "25-09-10",
+  "current_sys_1_flow_calib": [
+    {
+      "flow": 0.25,
+      "pressure": 4.5
+    },
+    {
+      "flow": 0.40,
+      "pressure": 6.8
+    },
+    {
+      "flow": 0.90,
+      "pressure": 14.8
+    }
+  ],
+  "current_sys_2_flow_calib": [
+    {
+      "flow": 0.40,
+      "pressure": 33.5
+    }
+  ],
   "results": [
     {
-      "date_complete": "2025-09-02",
+      "date_complete": "2025-09-09",
       "motor_type": "ddm_95",
       "pressure_id": "6.8",
       "pressure_od": "6.8",
@@ -10,11 +32,20 @@
       "time_id": "1.808",
       "time_od": "2.232",
       "vol_id": "0.452",
-      "vol_od": "0.558",
-      "flow_id": "0.25",
-      "flow_od": "0.25"
+      "vol_od": "0.558"
     },
-    {},
+    {
+      "date_complete": "2025-09-08",
+      "motor_type": "ddm_95",
+      "pressure_id": "6.8",
+      "pressure_od": "6.8",
+      "valve_num_id": "1",
+      "valve_num_od": "1",
+      "time_id": "1.807",
+      "time_od": "2.231",
+      "vol_id": "0.442",
+      "vol_od": "0.559"
+    },
     {},
     {},
     {}

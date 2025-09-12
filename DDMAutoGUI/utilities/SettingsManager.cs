@@ -18,10 +18,8 @@ namespace DDMAutoGUI.utilities
     }
     public class CellSettingsShot
     {
-        public int? valve_num_id { get; set; }
-        public int? valve_num_od { get; set; }
-        public float? time_id { get; set; }
-        public float? time_od { get; set; }
+        public int? sys_num_id { get; set; }
+        public int? sys_num_od { get; set; }
         public float? target_vol_id { get; set; }
         public float? target_vol_od { get; set; }
         public float? target_flow_id { get; set; }

@@ -2,12 +2,12 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:DDMAutoGUI"
-             StartupUri="MainWindow.xaml">
+             StartupUri="Windows/temp.xaml">
     <Application.Resources>
 
         <SolidColorBrush x:Key="BrooksBlue" Color="#FF0072BC"/>
 
-        <LinearGradientBrush x:Key="BrooksBlueGradient" EndPoint="0.5,1" StartPoint="0.5,0">
+        <LinearGradientBrush x:Key="GrayGradient" EndPoint="0.5,1" StartPoint="0.5,0">
             <LinearGradientBrush.RelativeTransform>
                 <TransformGroup>
                     <ScaleTransform CenterY="0.5" CenterX="0.5"/>
@@ -16,8 +16,21 @@
                     <TranslateTransform/>
                 </TransformGroup>
             </LinearGradientBrush.RelativeTransform>
-            <GradientStop Color="#FF0072BC" Offset="0"/>
-            <GradientStop Color="#FF0061A0" Offset="1"/>
+            <GradientStop Color="#FFE8E8E8" Offset="0"/>
+            <GradientStop Color="#FFCCCCCC" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BlueGradient" EndPoint="0.5,1" StartPoint="0.5,0">
+            <LinearGradientBrush.RelativeTransform>
+                <TransformGroup>
+                    <ScaleTransform CenterY="0.5" CenterX="0.5"/>
+                    <SkewTransform CenterX="0.5" CenterY="0.5"/>
+                    <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </LinearGradientBrush.RelativeTransform>
+            <GradientStop Color="#FF1288D4" Offset="0"/>
+            <GradientStop Color="#FF00609E" Offset="1"/>
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="GreenGradient" EndPoint="0.5,1" StartPoint="0.5,0">
@@ -72,27 +85,23 @@
             <GradientStop Color="#00FFFFFF" Offset="0.6"/>
         </LinearGradientBrush>
 
-        <SolidColorBrush x:Key="DefaultBtn" Color="#FFF3F3F3"/>
-        <SolidColorBrush x:Key="DefaultBtnLight" Color="#FFE5ECFD"/>
-        <SolidColorBrush x:Key="DefaultBtnDark" Color="#FFE3E6EF"/>
-
         <SolidColorBrush x:Key="PrimaryBlue" Color="#FF0072BC"/>
-        <SolidColorBrush x:Key="PrimaryBlueLight" Color="#FF2AA1ED"/>
-        <SolidColorBrush x:Key="PrimaryBlueDark" Color="#FF004877"/>
-        <SolidColorBrush x:Key="PrimaryBlueDarkDark" Color="#FF001C2F"/>
+        <SolidColorBrush x:Key="PrimaryBlueLight" Color="#FF57BEFF"/>
+        <SolidColorBrush x:Key="PrimaryBlueDark" Color="#FF004573"/>
+        <SolidColorBrush x:Key="PrimaryBlueDarkDark" Color="#FF003C65"/>
 
         <SolidColorBrush x:Key="PrimaryGreen" Color="#FF34B330"/>
-        <SolidColorBrush x:Key="PrimaryGreenLight" Color="#FF8ADA87"/>
+        <SolidColorBrush x:Key="PrimaryGreenLight" Color="#FF9FFB9C"/>
         <SolidColorBrush x:Key="PrimaryGreenDark" Color="#FF12670F"/>
         <SolidColorBrush x:Key="PrimaryGreenDarkDark" Color="#FF062505"/>
 
         <SolidColorBrush x:Key="PrimaryOrange" Color="#FFDCAD2E"/>
-        <SolidColorBrush x:Key="PrimaryOrangeLight" Color="#FFEDC455"/>
+        <SolidColorBrush x:Key="PrimaryOrangeLight" Color="#FFFFDC7C"/>
         <SolidColorBrush x:Key="PrimaryOrangeDark" Color="#FFA57B0A"/>
         <SolidColorBrush x:Key="PrimaryOrangeDarkDark" Color="#FF3E2E03"/>
 
         <SolidColorBrush x:Key="PrimaryRed" Color="#D62828"/>
-        <SolidColorBrush x:Key="PrimaryRedLight" Color="#E36464"/>
+        <SolidColorBrush x:Key="PrimaryRedLight" Color="#FFFF9191"/>
         <SolidColorBrush x:Key="PrimaryRedDark" Color="#9B1C1C"/>
         <SolidColorBrush x:Key="PrimaryRedDarkDark" Color="#FF420606"/>
 
@@ -100,20 +109,43 @@
         <SolidColorBrush x:Key="DisabledGreyText" Color="#FFB3B3B3"/>
 
         <SolidColorBrush x:Key="GroupBoxHeaderText" Color="#FFB7B7B7"/>
-        <SolidColorBrush x:Key="GroupBoxOutline" Color="#FFD8D8D8"/>
+        <SolidColorBrush x:Key="GroupBoxOutline" Color="#FFE6E6E6"/>
 
 
         <SolidColorBrush x:Key="TextBoxBlueLight" Color="#FFF7FAFF"/>
         <SolidColorBrush x:Key="TextBoxBlue" Color="#FF93ADEF"/>
         <SolidColorBrush x:Key="TextBoxBlueDark" Color="#FF0C2B9A"/>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         <!-- Default text input -->
-        
+
         <Style TargetType="TextBox">
             <Setter Property="Background" Value="{StaticResource TextBoxBlueLight}"/>
             <Setter Property="BorderBrush" Value="{StaticResource TextBoxBlue}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="6, 3"/>
+            <Setter Property="Padding" Value="16"/>
             <Setter Property="Margin" Value="0, 3"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -121,7 +153,7 @@
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="3">
+                                CornerRadius="6">
                             <ScrollViewer x:Name="PART_ContentHost"/>
                         </Border>
 
@@ -133,46 +165,112 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-
         </Style>
 
-        <!-- Default group box -->
-
-        <Style TargetType="{x:Type GroupBox}">
-
+        <Style TargetType="GroupBox">
             <Setter Property="Foreground" Value="{StaticResource GroupBoxHeaderText}"/>
             <Setter Property="BorderBrush" Value="{StaticResource GroupBoxOutline}"/>
             <Setter Property="Padding" Value="3"/>
-            <Setter Property="Margin" Value="6,3"/>
-            
+            <Setter Property="Margin" Value="3,0,3,3"/>
+        </Style>
+
+        <Style TargetType="RadioButton">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="#000" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border
+                            x:Name="mainBorder"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="6"
+                            BorderThickness="1"
+                            BorderBrush="Transparent"
+                            Margin="0,1"
+                            Padding="10">
+
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Grid>
+                                    <Ellipse 
+                                        x:Name="outerCircle"
+                                        Width="16" 
+                                        Height="16" 
+                                        Fill="{TemplateBinding Background}" 
+                                        Stroke="{TemplateBinding BorderBrush}" 
+                                        StrokeThickness="1"/>
+                                    <Ellipse 
+                                        x:Name="innerCircle"
+                                        Width="11" 
+                                        Height="11" 
+                                        StrokeThickness="0"
+                                        Fill="Transparent"/>
+                                </Grid>
+                                <TextBlock 
+                                    Text="{TemplateBinding Content}" 
+                                    VerticalAlignment="Center" 
+                                    Margin="8,0,0,0" />
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="innerCircle" Property="Fill" Value="#000" />
+                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource TextBoxBlueLight}"/>
+                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource TextBoxBlue}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource TextBoxBlueLight}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <!-- Default button -->
-        
+
         <Style TargetType="{x:Type Button}">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Background" Value="{StaticResource DefaultBtn}"/>
+
+            <!-- If an image is included, apply styles accordingly -->
+            <Style.Resources>
+                <Style TargetType="Image">
+                    <Setter Property="Height" Value="18"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+                <Style TargetType="Label">
+                    <Setter Property="Foreground" Value="Black"/>
+                    <Setter Property="Margin" Value="6,0,0,0"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </Style.Resources>
+
+            <Setter Property="Background" Value="{StaticResource GrayGradient}"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="Padding" Value="6"/>
+            <Setter Property="BorderBrush" Value="#333"/>
+            <Setter Property="Padding" Value="16"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="3"/>
 
             <Setter Property="Template">
-                
+
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
                             <Border x:Name="mainBorder"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Padding="{TemplateBinding Padding}"
-                                    Margin="0"
-                                    CornerRadius="3"
-                                    >
+                                Grid.Column="0"
+                                Grid.Row="0"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="0"
+                                CornerRadius="8"
+                                >
                                 <ContentPresenter 
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
@@ -180,30 +278,46 @@
                                     Height="Auto"
                                     />
                             </Border>
+
+                            <Border x:Name="highlightBorder" 
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="{StaticResource AngleWhiteGradient}"
+                                BorderThickness="1,1,0,0"
+                                CornerRadius="6"
+                                Opacity="1"
+                                Margin="2"/>
                             <Border x:Name="shadowBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="#333"
-                                    BorderThickness="0,0,1,1"
-                                    CornerRadius="3"
-                                    Margin="1"
-                                    Opacity="0.3"/>
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="Black"
+                                BorderThickness="0,0,2,2"
+                                CornerRadius="8"
+                                Opacity="0.4"
+                                Margin="0"/>
+                            <Border x:Name="shadowBorderFill" 
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="Black"
+                                BorderThickness="0,0,4,4"
+                                CornerRadius="8"
+                                Opacity="0.2"
+                                Margin="0,0,0,0"/>
 
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource DefaultBtnLight}"/>
+                                <Setter TargetName="mainBorder" Property="Background" Value="WhiteSmoke"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource DefaultBtnDark}"/>
+                                <Setter TargetName="mainBorder" Property="Background" Value="#aaa"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource DisabledGreyBg}"/>
-                                <Setter Property="Foreground" Value="{StaticResource DisabledGreyText}"/>
-                                <Setter TargetName="shadowBorder" Property="BorderBrush" Value="White"/>
-                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource DisabledGreyText}"/>
-
+                                <Setter TargetName="mainBorder" Property="Background" Value="WhiteSmoke"/>
+                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="WhiteSmoke"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -213,31 +327,48 @@
         </Style>
 
         <!-- Accent buttons -->
-        
-        <Style TargetType="Button" x:Key="PrimaryBlueButton">
-            <Setter Property="Background" Value="{StaticResource BrooksBlueGradient}"/>
+
+        <Style x:Key="BlueButton" TargetType="Button">
+
+            <!-- If an image is included, apply styles accordingly -->
+            <Style.Resources>
+                <Style TargetType="Image">
+                    <Setter Property="Height" Value="18"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+                <Style TargetType="Label">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Margin" Value="6,0,0,0"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </Style.Resources>
+
+            <Setter Property="Background" Value="{StaticResource BlueGradient}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryBlueDarkDark}"/>
-            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Padding" Value="16"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="3"/>
+
             <Setter Property="Template">
 
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
                             <Border x:Name="mainBorder"
-                                    Grid.Column="0"
-                                    Grid.Row="0"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Padding="{TemplateBinding Padding}"
-                                    Margin="0"
-                                    CornerRadius="3"
-                                    >
+                                Grid.Column="0"
+                                Grid.Row="0"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="0"
+                                CornerRadius="8"
+                                >
                                 <ContentPresenter 
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
@@ -245,33 +376,34 @@
                                     Height="Auto"
                                     />
                             </Border>
-                            <Border x:Name="shadowBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="Black"
-                                    BorderThickness="0,0,1,1"
-                                    CornerRadius="3"
-                                    Opacity="0.4"
-                                    Margin="1"/>
-                            <Border x:Name="shadowBorderFill" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="Black"
-                                    BorderThickness="0,0,3,3"
-                                    CornerRadius="5"
-                                    Opacity="0.2"
-                                    Margin="3,3,1,1"/>
                             <Border x:Name="highlightBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="{StaticResource AngleWhiteGradient}"
-                                    BorderThickness="1,1,0,0"
-                                    CornerRadius="3"
-                                    Opacity="0.6"
-                                    Margin="2"/>
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="{StaticResource AngleWhiteGradient}"
+                                BorderThickness="1,1,0,0"
+                                CornerRadius="6"
+                                Opacity="0.5"
+                                Margin="2"/>
+                            <Border x:Name="shadowBorder" 
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="Black"
+                                BorderThickness="0,0,2,2"
+                                CornerRadius="8"
+                                Opacity="0.4"
+                                Margin="0"/>
+                            <Border x:Name="shadowBorderFill" 
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="Black"
+                                BorderThickness="0,0,4,4"
+                                CornerRadius="8"
+                                Opacity="0.2"
+                                Margin="0,0,0,0"/>
+
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -280,8 +412,8 @@
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource PrimaryBlueDark}"/>
                                 <Setter TargetName="highlightBorder" Property="BorderBrush" Value="Transparent"/>
-                                <Setter TargetName="shadowBorder" Property="BorderBrush" Value="White"/>
-                                <Setter TargetName="shadowBorderFill" Property="BorderBrush" Value="White"/>
+                                <Setter TargetName="shadowBorder" Property="BorderBrush" Value="Transparent"/>
+                                <Setter TargetName="shadowBorderFill" Property="BorderBrush" Value="Transparent"/>
                                 <Setter TargetName="shadowBorder" Property="Opacity" Value="0.1"/>
                                 <Setter TargetName="shadowBorderFill" Property="Opacity" Value="0.05"/>
                             </Trigger>
@@ -301,30 +433,47 @@
             </Setter>
         </Style>
 
-        <Style TargetType="Button" x:Key="PrimaryGreenButton">
+        <Style x:Key="GreenButton" TargetType="Button">
+
+            <!-- If an image is included, apply styles accordingly -->
+            <Style.Resources>
+                <Style TargetType="Image">
+                    <Setter Property="Height" Value="18"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+                <Style TargetType="Label">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Margin" Value="6,0,0,0"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </Style.Resources>
+
             <Setter Property="Background" Value="{StaticResource GreenGradient}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryGreenDarkDark}"/>
-            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Padding" Value="16"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="3"/>
+
             <Setter Property="Template">
 
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
                             <Border x:Name="mainBorder"
-                                    Grid.Column="0"
-                                    Grid.Row="0"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Padding="{TemplateBinding Padding}"
-                                    Margin="0"
-                                    CornerRadius="3"
-                                    >
+                                Grid.Column="0"
+                                Grid.Row="0"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="0"
+                                CornerRadius="8"
+                                >
                                 <ContentPresenter 
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
@@ -332,33 +481,34 @@
                                     Height="Auto"
                                     />
                             </Border>
-                            <Border x:Name="shadowBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="Black"
-                                    BorderThickness="0,0,1,1"
-                                    CornerRadius="3"
-                                    Opacity="0.4"
-                                    Margin="1"/>
-                            <Border x:Name="shadowBorderFill" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="Black"
-                                    BorderThickness="0,0,3,3"
-                                    CornerRadius="5"
-                                    Opacity="0.2"
-                                    Margin="3,3,1,1"/>
                             <Border x:Name="highlightBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="{StaticResource AngleWhiteGradient}"
-                                    BorderThickness="1,1,0,0"
-                                    CornerRadius="3"
-                                    Opacity="0.6"
-                                    Margin="2"/>
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="{StaticResource AngleWhiteGradient}"
+                                BorderThickness="1,1,0,0"
+                                CornerRadius="6"
+                                Opacity="0.5"
+                                Margin="2"/>
+                            <Border x:Name="shadowBorder" 
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="Black"
+                                BorderThickness="0,0,2,2"
+                                CornerRadius="8"
+                                Opacity="0.4"
+                                Margin="0"/>
+                            <Border x:Name="shadowBorderFill" 
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="Black"
+                                BorderThickness="0,0,4,4"
+                                CornerRadius="8"
+                                Opacity="0.2"
+                                Margin="0,0,0,0"/>
+
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -367,8 +517,8 @@
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource PrimaryGreenDark}"/>
                                 <Setter TargetName="highlightBorder" Property="BorderBrush" Value="Transparent"/>
-                                <Setter TargetName="shadowBorder" Property="BorderBrush" Value="White"/>
-                                <Setter TargetName="shadowBorderFill" Property="BorderBrush" Value="White"/>
+                                <Setter TargetName="shadowBorder" Property="BorderBrush" Value="Transparent"/>
+                                <Setter TargetName="shadowBorderFill" Property="BorderBrush" Value="Transparent"/>
                                 <Setter TargetName="shadowBorder" Property="Opacity" Value="0.1"/>
                                 <Setter TargetName="shadowBorderFill" Property="Opacity" Value="0.05"/>
                             </Trigger>
@@ -388,32 +538,47 @@
             </Setter>
         </Style>
 
+        <Style x:Key="OrangeButton" TargetType="Button">
 
+            <!-- If an image is included, apply styles accordingly -->
+            <Style.Resources>
+                <Style TargetType="Image">
+                    <Setter Property="Height" Value="18"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+                <Style TargetType="Label">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Margin" Value="6,0,0,0"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </Style.Resources>
 
-        <Style TargetType="Button" x:Key="PrimaryOrangeButton">
             <Setter Property="Background" Value="{StaticResource OrangeGradient}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryOrangeDarkDark}"/>
-            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Padding" Value="16"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="3"/>
+
             <Setter Property="Template">
 
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
                             <Border x:Name="mainBorder"
-                                    Grid.Column="0"
-                                    Grid.Row="0"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Padding="{TemplateBinding Padding}"
-                                    Margin="0"
-                                    CornerRadius="3"
-                                    >
+                                Grid.Column="0"
+                                Grid.Row="0"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="0"
+                                CornerRadius="8"
+                                >
                                 <ContentPresenter 
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
@@ -421,33 +586,34 @@
                                     Height="Auto"
                                     />
                             </Border>
-                            <Border x:Name="shadowBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="Black"
-                                    BorderThickness="0,0,1,1"
-                                    CornerRadius="3"
-                                    Opacity="0.4"
-                                    Margin="1"/>
-                            <Border x:Name="shadowBorderFill" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="Black"
-                                    BorderThickness="0,0,3,3"
-                                    CornerRadius="5"
-                                    Opacity="0.2"
-                                    Margin="3,3,1,1"/>
                             <Border x:Name="highlightBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="{StaticResource AngleWhiteGradient}"
-                                    BorderThickness="1,1,0,0"
-                                    CornerRadius="3"
-                                    Opacity="0.6"
-                                    Margin="2"/>
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="{StaticResource AngleWhiteGradient}"
+                                BorderThickness="1,1,0,0"
+                                CornerRadius="6"
+                                Opacity="0.5"
+                                Margin="2"/>
+                            <Border x:Name="shadowBorder" 
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="Black"
+                                BorderThickness="0,0,2,2"
+                                CornerRadius="8"
+                                Opacity="0.4"
+                                Margin="0"/>
+                            <Border x:Name="shadowBorderFill" 
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="Black"
+                                BorderThickness="0,0,4,4"
+                                CornerRadius="8"
+                                Opacity="0.2"
+                                Margin="0,0,0,0"/>
+
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -456,8 +622,8 @@
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource PrimaryOrangeDark}"/>
                                 <Setter TargetName="highlightBorder" Property="BorderBrush" Value="Transparent"/>
-                                <Setter TargetName="shadowBorder" Property="BorderBrush" Value="White"/>
-                                <Setter TargetName="shadowBorderFill" Property="BorderBrush" Value="White"/>
+                                <Setter TargetName="shadowBorder" Property="BorderBrush" Value="Transparent"/>
+                                <Setter TargetName="shadowBorderFill" Property="BorderBrush" Value="Transparent"/>
                                 <Setter TargetName="shadowBorder" Property="Opacity" Value="0.1"/>
                                 <Setter TargetName="shadowBorderFill" Property="Opacity" Value="0.05"/>
                             </Trigger>
@@ -477,31 +643,47 @@
             </Setter>
         </Style>
 
+        <Style x:Key="RedButton" TargetType="Button">
 
-        <Style TargetType="Button" x:Key="PrimaryRedButton">
+            <!-- If an image is included, apply styles accordingly -->
+            <Style.Resources>
+                <Style TargetType="Image">
+                    <Setter Property="Height" Value="18"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+                <Style TargetType="Label">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Margin" Value="6,0,0,0"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </Style.Resources>
+
             <Setter Property="Background" Value="{StaticResource RedGradient}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryRedDarkDark}"/>
-            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Padding" Value="16"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="3"/>
+
             <Setter Property="Template">
 
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
                             <Border x:Name="mainBorder"
-                                    Grid.Column="0"
-                                    Grid.Row="0"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Padding="{TemplateBinding Padding}"
-                                    Margin="0"
-                                    CornerRadius="3"
-                                    >
+                                Grid.Column="0"
+                                Grid.Row="0"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="0"
+                                CornerRadius="8"
+                                >
                                 <ContentPresenter 
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
@@ -509,33 +691,34 @@
                                     Height="Auto"
                                     />
                             </Border>
-                            <Border x:Name="shadowBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="Black"
-                                    BorderThickness="0,0,1,1"
-                                    CornerRadius="3"
-                                    Opacity="0.4"
-                                    Margin="1"/>
-                            <Border x:Name="shadowBorderFill" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="Black"
-                                    BorderThickness="0,0,3,3"
-                                    CornerRadius="3"
-                                    Opacity="0.2"
-                                    Margin="3,3,1,1"/>
                             <Border x:Name="highlightBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="{StaticResource AngleWhiteGradient}"
-                                    BorderThickness="1,1,0,0"
-                                    CornerRadius="3"
-                                    Opacity="0.6"
-                                    Margin="2"/>
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="{StaticResource AngleWhiteGradient}"
+                                BorderThickness="1,1,0,0"
+                                CornerRadius="6"
+                                Opacity="0.5"
+                                Margin="2"/>
+                            <Border x:Name="shadowBorder" 
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="Black"
+                                BorderThickness="0,0,2,2"
+                                CornerRadius="8"
+                                Opacity="0.4"
+                                Margin="0"/>
+                            <Border x:Name="shadowBorderFill" 
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="Black"
+                                BorderThickness="0,0,4,4"
+                                CornerRadius="8"
+                                Opacity="0.2"
+                                Margin="0,0,0,0"/>
+
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -543,8 +726,9 @@
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource PrimaryRedDark}"/>
-                                <Setter TargetName="highlightBorder" Property="BorderBrush" Value="Black"/>
-                                <Setter TargetName="shadowBorder" Property="BorderBrush" Value="White"/>
+                                <Setter TargetName="highlightBorder" Property="BorderBrush" Value="Transparent"/>
+                                <Setter TargetName="shadowBorder" Property="BorderBrush" Value="Transparent"/>
+                                <Setter TargetName="shadowBorderFill" Property="BorderBrush" Value="Transparent"/>
                                 <Setter TargetName="shadowBorder" Property="Opacity" Value="0.1"/>
                                 <Setter TargetName="shadowBorderFill" Property="Opacity" Value="0.05"/>
                             </Trigger>
@@ -552,10 +736,9 @@
                                 <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource DisabledGreyBg}"/>
                                 <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource DisabledGreyText}"/>
                                 <Setter Property="Foreground" Value="{StaticResource DisabledGreyText}"/>
-                                <Setter TargetName="highlightBorder" Property="BorderBrush" Value="Black"/>
-                                <Setter TargetName="highlightBorder" Property="Opacity" Value="0.05"/>
+                                <Setter TargetName="highlightBorder" Property="Opacity" Value="0"/>
                                 <Setter TargetName="shadowBorder" Property="BorderBrush" Value="White"/>
-                                <Setter TargetName="shadowBorder" Property="Opacity" Value="0.2"/>
+                                <Setter TargetName="shadowBorder" Property="Opacity" Value="0.1"/>
                                 <Setter TargetName="shadowBorderFill" Property="Opacity" Value="0"/>
 
                             </Trigger>
@@ -565,33 +748,47 @@
             </Setter>
         </Style>
 
+        <Style x:Key="BlackButton" TargetType="Button">
 
+            <!-- If an image is included, apply styles accordingly -->
+            <Style.Resources>
+                <Style TargetType="Image">
+                    <Setter Property="Height" Value="18"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+                <Style TargetType="Label">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Margin" Value="6,0,0,0"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </Style.Resources>
 
-
-        <Style TargetType="Button" x:Key="PrimaryBlackButton">
-            <Setter Property="Background" Value="Black"/>
+            <Setter Property="Background" Value="#111"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Padding" Value="16"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="3"/>
+
             <Setter Property="Template">
 
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
                             <Border x:Name="mainBorder"
-                                    Grid.Column="0"
-                                    Grid.Row="0"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Padding="{TemplateBinding Padding}"
-                                    Margin="0"
-                                    CornerRadius="3"
-                                    >
+                                Grid.Column="0"
+                                Grid.Row="0"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="0"
+                                CornerRadius="8"
+                                >
                                 <ContentPresenter 
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
@@ -599,42 +796,44 @@
                                     Height="Auto"
                                     />
                             </Border>
-                            <Border x:Name="shadowBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="Black"
-                                    BorderThickness="0,0,1,1"
-                                    CornerRadius="3"
-                                    Opacity="0.4"
-                                    Margin="1"/>
-                            <Border x:Name="shadowBorderFill" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="Black"
-                                    BorderThickness="0,0,3,3"
-                                    CornerRadius="3"
-                                    Opacity="0.2"
-                                    Margin="3,3,1,1"/>
                             <Border x:Name="highlightBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="{StaticResource AngleWhiteGradient}"
-                                    BorderThickness="1,1,0,0"
-                                    CornerRadius="3"
-                                    Opacity="0.6"
-                                    Margin="2"/>
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="{StaticResource AngleWhiteGradient}"
+                                BorderThickness="1,1,0,0"
+                                CornerRadius="6"
+                                Opacity="0.5"
+                                Margin="2"/>
+                            <Border x:Name="shadowBorder" 
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="Black"
+                                BorderThickness="0,0,2,2"
+                                CornerRadius="8"
+                                Opacity="0.4"
+                                Margin="0"/>
+                            <Border x:Name="shadowBorderFill" 
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Background="Transparent" 
+                                BorderBrush="Black"
+                                BorderThickness="0,0,4,4"
+                                CornerRadius="8"
+                                Opacity="0.2"
+                                Margin="0,0,0,0"/>
+
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="mainBorder" Property="Background" Value="#555"/>
+                                <Setter TargetName="mainBorder" Property="Background" Value="#333"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="mainBorder" Property="Background" Value="Black"/>
-                                <Setter TargetName="highlightBorder" Property="BorderBrush" Value="Black"/>
-                                <Setter TargetName="shadowBorder" Property="BorderBrush" Value="White"/>
+                                <Setter TargetName="highlightBorder" Property="BorderBrush" Value="Transparent"/>
+                                <Setter TargetName="shadowBorder" Property="BorderBrush" Value="Transparent"/>
+                                <Setter TargetName="shadowBorderFill" Property="BorderBrush" Value="Transparent"/>
                                 <Setter TargetName="shadowBorder" Property="Opacity" Value="0.1"/>
                                 <Setter TargetName="shadowBorderFill" Property="Opacity" Value="0.05"/>
                             </Trigger>
@@ -642,10 +841,9 @@
                                 <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource DisabledGreyBg}"/>
                                 <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource DisabledGreyText}"/>
                                 <Setter Property="Foreground" Value="{StaticResource DisabledGreyText}"/>
-                                <Setter TargetName="highlightBorder" Property="BorderBrush" Value="Black"/>
-                                <Setter TargetName="highlightBorder" Property="Opacity" Value="0.05"/>
+                                <Setter TargetName="highlightBorder" Property="Opacity" Value="0"/>
                                 <Setter TargetName="shadowBorder" Property="BorderBrush" Value="White"/>
-                                <Setter TargetName="shadowBorder" Property="Opacity" Value="0.2"/>
+                                <Setter TargetName="shadowBorder" Property="Opacity" Value="0.1"/>
                                 <Setter TargetName="shadowBorderFill" Property="Opacity" Value="0"/>
 
                             </Trigger>
@@ -655,306 +853,6 @@
             </Setter>
         </Style>
 
-
-        <!-- Hero button -->
-
-        <Style TargetType="Button" x:Key="HeroButton" BasedOn="{StaticResource PrimaryBlueButton}">
-
-            <Setter Property="Foreground" Value="White"/>
-            
-            <Setter Property="Template">
-
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Grid>
-                            <Border x:Name="mainBorder"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Padding="{TemplateBinding Padding}"
-                                    Margin="0"
-                                    CornerRadius="3">
-                                <ContentPresenter x:Name="content"
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"
-                                                  Width="Auto"
-                                                  Height="Auto"/>
-                            </Border>
-                            <Border x:Name="shadowBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="Black"
-                                    BorderThickness="0,0,1,1"
-                                    CornerRadius="3"
-                                    Opacity="0.4"
-                                    Margin="1"/>
-                            <Border x:Name="shadowBorderFill" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="Black"
-                                    BorderThickness="0,0,3,3"
-                                    CornerRadius="5"
-                                    Opacity="0.2"
-                                    Margin="3,3,1,1"/>
-                            <Border x:Name="highlightBorder" 
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Background="Transparent" 
-                                    BorderBrush="{StaticResource AngleWhiteGradient}"
-                                    BorderThickness="1,1,0,0"
-                                    CornerRadius="3"
-                                    Opacity="0.6"
-                                    Margin="2"/>
-
-                        </Grid>
-
-                        <ControlTemplate.Resources>
-                            <Style TargetType="StackPanel">
-                                <Setter Property="Orientation" Value="Horizontal"/>
-                            </Style>
-                            <Style TargetType="Image">
-                                <Setter Property="Width" Value="14"/>
-                                <Setter Property="Height" Value="14"/>
-                            </Style>
-                            <Style TargetType="Label">
-                                <Setter Property="Foreground" Value="White"/>
-                                <Setter Property="FontSize" Value="12"/>
-                                <Setter Property="Margin" Value="4,0,2,0"/>
-                                <Setter Property="VerticalAlignment" Value="Center"/>
-                                <Setter Property="Padding" Value="0"/>
-                            </Style>
-                        </ControlTemplate.Resources>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-
-        </Style>
-        
-        
-
-
-
-        <!-- Toolbar button -->
-
-        <Style TargetType="Button" x:Key="ToolbarButton">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Padding" Value="3"/>
-            <Setter Property="Margin" Value="2"/>
-            <Setter Property="Height" Value="Auto"/>
-            <Setter Property="Opacity" Value="0.8"/>
-
-            <Setter Property="Template">
-
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Grid>
-                            <Border x:Name="mainBorder"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Padding="{TemplateBinding Padding}"
-                                    Margin="0"
-                                    CornerRadius="3">
-                                <ContentPresenter x:Name="content"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Width="Auto"
-                                    Height="Auto"/>
-                            </Border>
-
-                        </Grid>
-
-                        <ControlTemplate.Resources>
-                            <Style TargetType="StackPanel">
-                                <Setter Property="Orientation" Value="Horizontal"/>
-                            </Style>
-                            <Style TargetType="Image">
-                                <Setter Property="Width" Value="14"/>
-                                <Setter Property="Height" Value="14"/>
-                            </Style>
-                            <Style TargetType="Label">
-                                <Setter Property="FontSize" Value="11"/>
-                                <Setter Property="Margin" Value="4,0,2,0"/>
-                                <Setter Property="VerticalAlignment" Value="Center"/>
-                                <Setter Property="Padding" Value="0"/>
-                            </Style>
-                        </ControlTemplate.Resources>
-                        
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource DefaultBtnLight}"/>
-                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource BrooksBlue}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource DefaultBtnDark}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="mainBorder" Property="Background" Value="Transparent"/>
-                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="Transparent"/>
-                                <Setter TargetName="content" Property="Opacity" Value="0.15"/>
-                                <Setter Property="Foreground" Value="{StaticResource DisabledGreyText}"/>
-
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-
-        </Style>
-
-
-        <!-- Process Step tab control -->
-
-        <Style TargetType="GroupBox" x:Key="stepBox" BasedOn="{StaticResource {x:Type GroupBox}}">
-
-            <!--
-            <Setter Property="Foreground" Value="{StaticResource GroupBoxHeaderText}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource GroupBoxOutline}"/>
-            <Setter Property="Margin" Value="6"/>
-            <Setter Property="Padding" Value="6"/>
-            -->
-
-        </Style>
-        
-        <Style TargetType="TextBox" x:Key="stepTextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-            
-            <Setter Property="Margin" Value="3"/>
-            <Setter Property="Padding" Value="12,8"/>
-
-        </Style>
-
-
-        <Style TargetType="CheckBox" x:Key="stepCheckBox">
-
-            <Setter Property="Background" Value="{StaticResource TextBoxBlueLight}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextBoxBlueDark}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource TextBoxBlueDark}"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="12"/>
-            <Setter Property="Padding" Value="6"/>
-
-        </Style>
-
-        <Style TargetType="{x:Type TabControl}" x:Key="wizardTabControl">
-            <Setter Property="BorderBrush" Value="{StaticResource GroupBoxOutline}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="4"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabControl">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            
-                            <UniformGrid x:Name="HeaderPanel" 
-                                         Grid.Row="0"
-                                         Rows="1"
-                                         Margin="-3,0,-3,0"
-                                         IsItemsHost="True"/>
-                            <!-- (or use TabPanel for non-justified tabs) -->
-
-                            <Border Grid.Row="1"
-                                    Background="{TemplateBinding Background}" 
-                                    BorderBrush="{TemplateBinding BorderBrush}" 
-                                    BorderThickness="{TemplateBinding BorderThickness}" 
-                                    CornerRadius="3"
-                                    Padding="3">
-                                <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent"/>
-                            </Border>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style TargetType="{x:Type TabItem}" x:Key="wizardTabItem">
-
-            <Setter Property="Width" Value="Auto"/>
-
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type TabItem}">
-                        <Border Name="Border"
-                                BorderThickness="0"
-                                BorderBrush="#FFACACAC"
-                                CornerRadius="3"
-                                Margin="3,0,3,6">
-                            <ContentPresenter x:Name="ContentSite"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Center"
-                                    ContentSource="Header"
-                                    Margin="6,2"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="#333" />
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="False">
-                                <Setter TargetName="Border" Property="Background" Value="#EEE" />
-                                <Setter Property="Foreground" Value="{StaticResource GroupBoxHeaderText}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- doesn't target tabitems as it did when it was a local resource... -->
-        <!--
-        <Style TargetType="TabControl" x:Key="ProcessStepTabs">
-
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Border Name="Border"
-                                BorderThickness="1,1,1,1"
-                                BorderBrush="#FFACACAC"
-                                CornerRadius="0"
-                                Margin="0">
-                            <ContentPresenter x:Name="ContentSite"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Center"
-                                    ContentSource="Header"
-                                    Margin="6,2"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="#FF333333" />
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="False">
-                                <Setter TargetName="Border" Property="Background" Value="White" />
-                                <Setter Property="Foreground" Value="#FF333333"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        -->
 
 
     </Application.Resources>

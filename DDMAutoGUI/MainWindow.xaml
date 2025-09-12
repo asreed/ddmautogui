@@ -139,13 +139,6 @@
                                                                 <CheckBox IsChecked="False" x:Name="Disp_AutoCalibChk" Content="Autocalibrate after dispense" Padding="8"/>
                                                             </StackPanel>
                                                         </GroupBox>
-                                                        <Button 
-                                                            x:Name="Disp_BeginBtn"
-                                                            Content="Begin" 
-                                                            Style="{DynamicResource PrimaryBlueButton}" 
-                                                            Click="Disp_BeginBtn_Click"
-                                                            Padding="12"
-                                                            Margin="6"/>
                                                         <Expander Header="Simulate" Margin="6" Background="#FFF7FAFF">
                                                             <StackPanel Orientation="Vertical">
                                                                 <CheckBox IsChecked="False" x:Name="Disp_SimulateChk" Content="Simulate results" Padding="8"/>
@@ -161,6 +154,13 @@
                                                                 </StackPanel>
                                                             </StackPanel>
                                                         </Expander>
+                                                        <Button 
+                                                            x:Name="Disp_BeginBtn"
+                                                            Content="Begin" 
+                                                            Style="{DynamicResource PrimaryBlueButton}" 
+                                                            Click="Disp_BeginBtn_Click"
+                                                            Padding="12"
+                                                            Margin="6"/>
                                                     </StackPanel>
 
                                                 </Grid>

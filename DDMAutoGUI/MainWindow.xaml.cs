@@ -34,8 +34,8 @@ namespace DDMAutoGUI
 
         private List<Button> allButtons;
 
-        private List<ProcessResultsHeightMeasurement> laserRingData;
-        private List<ProcessResultsHeightMeasurement> laserMagData;
+        private List<ResultsHeightMeasurement> laserRingData;
+        private List<ResultsHeightMeasurement> laserMagData;
         private ResultsManager resultsManager;
 
 
@@ -99,13 +99,14 @@ namespace DDMAutoGUI
         {
 
 
-            resultsManager = App.ProcessResultsManager;
+            resultsManager = App.ResultsManager;
             resultsManager.UpdateProcessLog += MainWindowSingle_Disp_UpdateProcessLog;
             resultsManager.ClearCurrentResults();
             resultsManager.CreateNewResults();
 
             CellSettings settings = App.SettingsManager.currentSettings;
             CellSettingsMotor motor = new CellSettingsMotor();
+            string motorName = "";
 
             int motorSelection = Disp_MotorSizeCmb.SelectedIndex;
 
@@ -124,22 +125,27 @@ namespace DDMAutoGUI
             {
                 case 0: // DDM 57
                     motor = settings.ddm_57;
+                    motorName = nameof(settings.ddm_57);
                     break;
 
                 case 1: // DDM 95
                     motor = settings.ddm_95;
+                    motorName = nameof(settings.ddm_95);
                     break;
 
                 case 2: // DDM 116
                     motor = settings.ddm_116;
+                    motorName = nameof(settings.ddm_116);
                     break;
 
                 case 3: // DDM 170
                     motor = settings.ddm_170;
+                    motorName = nameof(settings.ddm_170);
                     break;
 
                 case 4: // DDM 170 Tall
                     motor = settings.ddm_170_tall;
+                    motorName = nameof(settings.ddm_170_tall);
                     break;
             }
 
@@ -150,29 +156,42 @@ namespace DDMAutoGUI
 
                 GoToStep(1);
 
-                resultsManager.currentResults.ring_sn = Disp_SimSNTxt.Text;
-                resultsManager.currentResults.shot_data.valve_num_id = 1;
-                resultsManager.currentResults.shot_data.valve_num_od = 1;
-                resultsManager.currentResults.shot_data.pressure_id = 33.4f;
-                resultsManager.currentResults.shot_data.pressure_od = 12f;
-                resultsManager.currentResults.shot_data.vol_id = 0.184f;
-                resultsManager.currentResults.shot_data.vol_od = 0.198f;
-                resultsManager.currentResults.shot_data.time_id = 1.5f;
-                resultsManager.currentResults.shot_data.time_od = 1.6f;
-                resultsManager.currentResults.shot_data.success = true;
-                resultsManager.currentResults.shot_data.error_message = string.Empty;
-                resultsManager.currentResults.date_saved = DateTime.Now;
 
 
-                float flow_id = resultsManager.currentResults.shot_data.vol_id.Value / resultsManager.currentResults.shot_data.time_id.Value;
-                float flow_od = resultsManager.currentResults.shot_data.vol_id.Value / resultsManager.currentResults.shot_data.time_id.Value;
-                float pressure_id = resultsManager.currentResults.shot_data.pressure_id.Value;
-                float pressure_od = resultsManager.currentResults.shot_data.pressure_od.Value;
 
-                float next_flow_id = motor.shot_settings.target_vol_id.Value / motor.shot_settings.time_id.Value;
-                float next_flow_od = motor.shot_settings.target_vol_od.Value / motor.shot_settings.time_od.Value;
 
-                float next_pressure_id = FlowCalibration.GetNewTargetPressure(pressure_id, flow_id, null);
+
+                ResultsShotData data = new ResultsShotData
+                {
+                    success = true,
+                    error_message = "",
+                    valve_num_id = 1,
+                    valve_num_od = 1,
+                    pressure_id = 6.8f,
+                    pressure_od = 6.8f,
+                    time_id = 1.808f,
+                    time_od = 2.232f,
+                    vol_id = 0.423f,
+                    vol_od = 0.541f
+                };
+                App.ResultsManager.AddShotDataToResults(data);
+                App.ResultsHistoryManager.AddEvent(data, motorName);
+
+
+                CellSettingsDispenseCalib[] newSys1Calib;
+                CellSettingsDispenseCalib[] newSys2Calib;
+                FlowCalibration.CalibratePressures(
+                    App.ResultsHistoryManager.GetHistory(), 
+                    App.SettingsManager.GetAllSettings(),
+                    out newSys1Calib,
+                    out newSys2Calib);
+
+                App.ResultsHistoryManager.UpdateCalib(1, newSys1Calib);
+                App.ResultsHistoryManager.UpdateCalib(2, newSys2Calib);
+
+
+
+
 
                 resultsManager.AddToLog("Simulated results added to object");
 
@@ -296,33 +315,33 @@ namespace DDMAutoGUI
                 CellSettingsMotor m = motor;
                 CellSettingsShot c = motor.shot_settings;
 
-                int valve_num_id = c.valve_num_id.Value;
-                float time_id = c.time_id.Value;
+                int valve_num_id = c.sys_num_id.Value;
+                //float time_id = c.time_id.Value;
                 float x_id = m.disp_id.x.Value;
                 float t_id = m.disp_id.t.Value;
                 //string substance_id = valve_num_id == 1 ? settings.system_1_contents : settings.system_2_contents;
 
-                int valve_num_od = c.valve_num_od.Value;
-                float time_od = c.time_od.Value;
+                int valve_num_od = c.sys_num_od.Value;
+                //float time_od = c.time_od.Value;
                 float x_od = m.disp_od.x.Value;
                 float t_od = m.disp_od.t.Value;
                 //string substance_od = valve_num_od == 1 ? settings.system_1_contents : settings.system_2_contents;
 
-                resultsManager.AddToLog($"Using ID [{x_id}, {t_id}] for {time_id} seconds and OD [{x_od}, {t_od}] for {time_od} seconds");
+                //resultsManager.AddToLog($"Using ID [{x_id}, {t_id}] for {time_id} seconds and OD [{x_od}, {t_od}] for {time_od} seconds");
 
 
                 resultsManager.AddToLog("Dispense started");
-                string response = await App.ControllerManager.DispenseToRing(valve_num_id, time_id, x_id, t_id, valve_num_od, time_od, x_od, t_od);
-                Debug.Print(response);
+                //string response = await App.ControllerManager.DispenseToRing(valve_num_id, time_id, x_id, t_id, valve_num_od, time_od, x_od, t_od);
+                //Debug.Print(response);
 
-                resultsManager.currentResults.shot_data = App.ControllerManager.ParseDispenseResponse(response);
+                //resultsManager.currentResults.shot_data = App.ControllerManager.ParseDispenseResponse(response);
 
                 string pressure_id_sp = await App.ControllerManager.GetRegPressureSetpoint(valve_num_id);
                 string pressure_od_sp = await App.ControllerManager.GetRegPressureSetpoint(valve_num_od);
 
                 string tb = "  ";
 
-                ProcessResultsShotData data = resultsManager.currentResults.shot_data;
+                ResultsShotData data = resultsManager.currentResults.shot_data;
 
                 resultsManager.AddToLog("Dispense complete");
                 resultsManager.AddToLog("Results:");
@@ -603,8 +622,8 @@ namespace DDMAutoGUI
                 Adv_Cell_MeasureRingInLbl.Content = $"{m.laser_ring_num} places, {s.laser_delay} s each";
                 Adv_Cell_MeasureMagInLbl.Content = $"{m.laser_mag_num} places, {s.laser_delay} s each";
 
-                Adv_Cell_DispShotsInLbl.Content = $"ID: Valve {c.valve_num_id}, x={m.disp_id.x} mm, {c.time_id} s, target {c.target_vol_id}mL\n";
-                Adv_Cell_DispShotsInLbl.Content += $"OD: Valve {c.valve_num_od}, x={m.disp_od.x} mm, {c.time_od} s, target {c.target_vol_od} mL";
+                //Adv_Cell_DispShotsInLbl.Content = $"ID: Valve {c.valve_num_id}, x={m.disp_id.x} mm, {c.time_id} s, target {c.target_vol_id}mL\n";
+                //Adv_Cell_DispShotsInLbl.Content += $"OD: Valve {c.valve_num_od}, x={m.disp_od.x} mm, {c.time_od} s, target {c.target_vol_od} mL";
             }
             else
             {
@@ -736,7 +755,7 @@ namespace DDMAutoGUI
         {
             if (resultsManager != null)
             {
-                ProcessResultsLogLine logline = resultsManager.currentResults.process_log.Last();
+                ResultsLogLine logline = resultsManager.currentResults.process_log.Last();
                 Disp_LogTxt.Text += logline.timestamp?.ToString(resultsManager.dateFormatShort) + ": " + logline.message + "\n";
                 Disp_LogTxt.CaretIndex = Disp_LogTxt.Text.Length;
                 Disp_LogTxt.ScrollToEnd();
@@ -1088,7 +1107,7 @@ namespace DDMAutoGUI
             {
                 for (int i = 0; i < laserRingData.Count; i++)
                 {
-                    ProcessResultsHeightMeasurement d = laserRingData[i];
+                    ResultsHeightMeasurement d = laserRingData[i];
                     sb.AppendLine($"{d.t}, {d.z}");
                 }
                 TextDataViewer viewer = new TextDataViewer();
@@ -1105,7 +1124,7 @@ namespace DDMAutoGUI
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < laserMagData.Count; i++)
                 {
-                    ProcessResultsHeightMeasurement d = laserMagData[i];
+                    ResultsHeightMeasurement d = laserMagData[i];
                     sb.AppendLine($"{d.t}, {d.z}");
                 }
                 TextDataViewer viewer = new TextDataViewer();
@@ -1201,15 +1220,15 @@ namespace DDMAutoGUI
 
             float x_id = m.disp_id.x.Value;
             float t_id = m.disp_id.t.Value;
-            float time_id = c.time_id.Value;
-            float valve_num_id = c.valve_num_id.Value;
+            //float time_id = c.time_id.Value;
+            float valve_num_id = c.sys_num_id.Value;
             //float pressure_id = c.ref_pressure_1.Value;
             float target_vol_id = c.target_vol_id.Value;
 
             float x_od = m.disp_od.x.Value;
             float t_od = m.disp_od.t.Value;
-            float time_od = c.time_od.Value;
-            float valve_num_od = c.valve_num_od.Value;
+            //float time_od = c.time_od.Value;
+            float valve_num_od = c.sys_num_od.Value;
             //float pressure_od = c.ref_pressure_2.Value;
             float target_vol_od = c.target_vol_od.Value;
 
