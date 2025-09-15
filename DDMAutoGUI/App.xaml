@@ -91,7 +91,7 @@
         <SolidColorBrush x:Key="PrimaryBlueDarkDark" Color="#FF003C65"/>
 
         <SolidColorBrush x:Key="PrimaryGreen" Color="#FF34B330"/>
-        <SolidColorBrush x:Key="PrimaryGreenLight" Color="#FF9FFB9C"/>
+        <SolidColorBrush x:Key="PrimaryGreenLight" Color="#FF77FF73"/>
         <SolidColorBrush x:Key="PrimaryGreenDark" Color="#FF12670F"/>
         <SolidColorBrush x:Key="PrimaryGreenDarkDark" Color="#FF062505"/>
 
@@ -145,7 +145,7 @@
             <Setter Property="Background" Value="{StaticResource TextBoxBlueLight}"/>
             <Setter Property="BorderBrush" Value="{StaticResource TextBoxBlue}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Padding" Value="12"/>
             <Setter Property="Margin" Value="3"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -362,20 +362,25 @@
                                 BorderBrush="Black"
                                 BorderThickness="0,0,4,4"
                                 CornerRadius="8"
-                                Opacity="0.2"
+                                Opacity="0.1"
                                 Margin="0,0,0,0"/>
 
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="mainBorder" Property="Background" Value="WhiteSmoke"/>
+                                <Setter TargetName="mainBorder" Property="Background" Value="White"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="mainBorder" Property="Background" Value="#aaa"/>
+                                <Setter TargetName="mainBorder" Property="Background" Value="#ccc"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#999"/>
                                 <Setter TargetName="mainBorder" Property="Background" Value="WhiteSmoke"/>
-                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="WhiteSmoke"/>
+                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="#aaa"/>
+                                <Setter TargetName="highlightBorder" Property="Opacity" Value="0"/>
+                                <Setter TargetName="shadowBorder" Property="BorderBrush" Value="White"/>
+                                <Setter TargetName="shadowBorder" Property="Opacity" Value="0.1"/>
+                                <Setter TargetName="shadowBorderFill" Property="Opacity" Value="0"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -386,8 +391,6 @@
 
         <Style TargetType="Button" x:Key="SmallButton" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="Padding" Value="5"/>
-            <Setter Property="Foreground" Value="#333"/>
-            <Setter Property="Background" Value="White"/>
         </Style>
 
         <!-- Accent buttons -->
@@ -891,7 +894,7 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="mainBorder" Property="Background" Value="#333"/>
+                                <Setter TargetName="mainBorder" Property="Background" Value="#FF525252"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="mainBorder" Property="Background" Value="Black"/>

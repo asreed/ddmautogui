@@ -63,6 +63,17 @@ namespace DDMAutoGUI.utilities
         }
     }
 
+    public class ConnectionState
+    {
+        public bool isConnected { get; set; }
+        public bool isAutoControllerStateRequesting { get; set; }
+        public void Initialize()
+        {
+            isConnected = false;
+            isAutoControllerStateRequesting = false;
+        }
+    }
+
     public class ControllerManager
     {
 
@@ -86,12 +97,15 @@ namespace DDMAutoGUI.utilities
         public event EventHandler ControllerStateChanged;
         public event EventHandler StatusLogUpdated;
         public event EventHandler RobotLogUpdated;
+        public event EventHandler ConnectionStateChanged;
 
         public ControllerState CONTROLLER_STATE { get; private set; } = new ControllerState();
+        public ConnectionState CONNECTION_STATE { get; private set; } = new ConnectionState();
 
         public ControllerManager()
         {
             CONTROLLER_STATE.Initialize();
+            CONNECTION_STATE.Initialize();
             Debug.Print("Controller manager initialized");
 
         }
@@ -303,11 +317,11 @@ namespace DDMAutoGUI.utilities
                 UpdateBothLogs("Connection succeeded");
 
                 ControllerConnected?.Invoke(this, EventArgs.Empty);
-                App.UIManager.UI_STATE.isConnected = true;
+
+                CONNECTION_STATE.isConnected = true;
+                ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
                 StartAutoControllerState();
-
-                App.UIManager.TriggerUIStateChanged();
                 return true;
 
             }
@@ -320,8 +334,9 @@ namespace DDMAutoGUI.utilities
                 UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
 
                 ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-                App.UIManager.UI_STATE.isConnected = false;
-                App.UIManager.TriggerUIStateChanged();
+
+                CONNECTION_STATE.isConnected = false;
+                ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
                 return false;
             }
         }
@@ -348,11 +363,11 @@ namespace DDMAutoGUI.utilities
             }
 
             ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-            App.UIManager.UI_STATE.isConnected = false;
+
+            CONNECTION_STATE.isConnected = false;
+            ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
             StopAutoControllerState();
-
-            App.UIManager.TriggerUIStateChanged();
         }
 
         public async Task<string> SendRobotCommand(string command)
@@ -395,8 +410,8 @@ namespace DDMAutoGUI.utilities
                 response = new StringBuilder();
 
                 ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-                App.UIManager.UI_STATE.isConnected = false;
-                App.UIManager.TriggerUIStateChanged();
+                CONNECTION_STATE.isConnected = false;
+                ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
             }
             return response.ToString().Trim();
@@ -424,8 +439,8 @@ namespace DDMAutoGUI.utilities
                 response = string.Empty;
 
                 ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-                App.UIManager.UI_STATE.isConnected = false;
-                App.UIManager.TriggerUIStateChanged();
+                CONNECTION_STATE.isConnected = false;
+                ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
             }
             return response;
         }
@@ -592,26 +607,26 @@ namespace DDMAutoGUI.utilities
 
         public void StartAutoControllerState()
         {
-            if (App.UIManager.UI_STATE.isConnected)
+            if (CONNECTION_STATE.isConnected)
             {
-                if (App.UIManager.UI_STATE.isAutoControllerStateRequesting == false)
+                if (CONNECTION_STATE.isAutoControllerStateRequesting == false)
                 {
                     _timer = new DispatcherTimer();
                     _timer.Interval = TimeSpan.FromSeconds(autoStatusInterval);
                     _timer.Tick += Timer_Tick;
                     _timer.Start();
 
-                    App.UIManager.UI_STATE.isAutoControllerStateRequesting = true;
-                    App.UIManager.TriggerUIStateChanged();
+                    CONNECTION_STATE.isAutoControllerStateRequesting = true;
+                    ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
 
         public void StopAutoControllerState()
         {
-            if (App.UIManager.UI_STATE.isConnected)
+            if (CONNECTION_STATE.isConnected)
             {
-                if (App.UIManager.UI_STATE.isAutoControllerStateRequesting == true)
+                if (CONNECTION_STATE.isAutoControllerStateRequesting == true)
                 {
                     if (_timer != null)
                     {
@@ -619,8 +634,8 @@ namespace DDMAutoGUI.utilities
                         _timer.Tick -= Timer_Tick;
                         _timer = null;
 
-                        App.UIManager.UI_STATE.isAutoControllerStateRequesting = false;
-                        App.UIManager.TriggerUIStateChanged();
+                        CONNECTION_STATE.isAutoControllerStateRequesting = false;
+                        ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
                     }
                 }
             }

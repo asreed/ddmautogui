@@ -41,8 +41,8 @@
 
         <Grid Grid.Row="1">
             <StackPanel Orientation="Horizontal">
-                <Button x:Name="LoadBtn" Content="Load from flash" Click="LoadBtn_Click"/>
-                <Button x:Name="SaveBtn" Content="Save to flash" Style="{DynamicResource PrimaryBlackButton}" Click="SaveBtn_Click"/>
+                <Button x:Name="LoadBtn" Content="Load from flash" Click="LoadBtn_Click" Style="{StaticResource SmallButton}"/>
+                <Button x:Name="SaveBtn" Content="Save to flash" Style="{DynamicResource SmallBlackButton}" Click="SaveBtn_Click"/>
             </StackPanel>
         </Grid>
 

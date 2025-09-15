@@ -46,7 +46,8 @@
                                              Text="192.168.0.1"/>
                                 </GroupBox>
                                 <GroupBox Header="Connection Status">
-                                    <Grid>
+                                    <Label x:Name="Con_StatusLbl" Content="Not connected"/>
+                                    <!--<Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
@@ -75,7 +76,7 @@
                                         <Label Grid.Row="2" Grid.Column="1" Content="Top Camera" Margin="6,0,0,0"/>
                                         <Label Grid.Row="3" Grid.Column="0" Content="x" HorizontalAlignment="Center"/>
                                         <Label Grid.Row="3" Grid.Column="1" Content="Side Camera" Margin="6,0,0,0"/>
-                                    </Grid>
+                                    </Grid>-->
                                 </GroupBox>
                                 <Button Grid.Row="0" 
                                         Grid.Column="1" 
@@ -867,9 +868,9 @@
                                                 <RowDefinition/>
                                                 <RowDefinition/>
                                             </Grid.RowDefinitions>
-                                            <TextBox Grid.Column="0" Grid.Row="0" x:Name="Adv_Con_IPTxt" Text="192.168.0.1"/>
-                                            <Button Grid.Column="1" Grid.Row="0" x:Name="Adv_Con_ConnectBtn" Content="Connect to TCS" Click="Adv_Con_ConnectBtn_Click"/>
-                                            <Button Grid.Column="2" Grid.Row="0" x:Name="Adv_Con_DisconnectBtn" Content="Disconnect from TCS" Click="Adv_Con_DisconnectBtn_Click"/>
+                                            <TextBox Grid.Column="0" Grid.Row="0" x:Name="Adv_Con_IPTxt" Text="192.168.0.1" Style="{StaticResource SmallTextBox}"/>
+                                            <Button Grid.Column="1" Grid.Row="0" x:Name="Adv_Con_ConnectBtn" Content="Connect to TCS" Click="Adv_Con_ConnectBtn_Click" Style="{StaticResource SmallButton}"/>
+                                            <Button Grid.Column="2" Grid.Row="0" x:Name="Adv_Con_DisconnectBtn" Content="Disconnect from TCS" Click="Adv_Con_DisconnectBtn_Click" Style="{StaticResource SmallButton}"/>
                                             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
                                                 <Label Content="Controller software version:"/>
                                                 <Label x:Name="Adv_Con_ContVersionTxt" Content="(no version info)"/>
@@ -905,14 +906,14 @@
                                                     <Button x:Name="stopAutoBtn" Content="Stop Auto" Click="stopAutoBtn_Click" IsEnabled="False"/>
                                                 </StackPanel>
                                                 -->
-                                                <TextBox Grid.Row="1" x:Name="Adv_Con_StatusLogTxt" Margin="4" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" IsReadOnly="True" FontSize="10" FontFamily="Consolas" VerticalContentAlignment="Top"/>
+                                                <TextBox Grid.Row="1" x:Name="Adv_Con_StatusLogTxt" Margin="4" Style="{StaticResource MonoTextBox}"/>
                                                 <Grid Grid.Row="2">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBox Grid.Column="0" x:Name="Adv_Con_StatusMsgTxt" Text="" KeyDown="Adv_Con_StatusLogTxt_KeyDown"/>
-                                                    <Button Grid.Column="1" x:Name="Adv_Con_StatusSendBtn" Content="Send" Click="Adv_Con_StatusSendBtn_Click"/>
+                                                    <TextBox Grid.Column="0" x:Name="Adv_Con_StatusMsgTxt" Text="" KeyDown="Adv_Con_StatusLogTxt_KeyDown" Style="{StaticResource SmallTextBox}"/>
+                                                    <Button Grid.Column="1" x:Name="Adv_Con_StatusSendBtn" Content="Send" Click="Adv_Con_StatusSendBtn_Click" Style="{StaticResource SmallButton}"/>
                                                 </Grid>
                                             </Grid>
                                         </GroupBox>
@@ -924,14 +925,14 @@
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
 
-                                                <TextBox Grid.Row="0" x:Name="Adv_Con_RobotLogTxt" Margin="4" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" IsReadOnly="True" FontSize="10" FontFamily="Consolas" VerticalContentAlignment="Top"/>
+                                                <TextBox Grid.Row="0" x:Name="Adv_Con_RobotLogTxt" Margin="4" Style="{StaticResource MonoTextBox}"/>
                                                 <Grid Grid.Row="1">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBox Grid.Column="0" x:Name="Adv_Con_RobotMsgTxt" Text="" KeyDown="Adv_Con_RobotLogTxt_KeyDown"/>
-                                                    <Button Grid.Column="1" x:Name="Adv_Con_RobotSendBtn" Content="Send" Click="Adv_Con_RobotSendBtn_Click"/>
+                                                    <TextBox Grid.Column="0" x:Name="Adv_Con_RobotMsgTxt" Text="" KeyDown="Adv_Con_RobotLogTxt_KeyDown" Style="{StaticResource SmallTextBox}"/>
+                                                    <Button Grid.Column="1" x:Name="Adv_Con_RobotSendBtn" Content="Send" Click="Adv_Con_RobotSendBtn_Click" Style="{StaticResource SmallButton}"/>
                                                 </Grid>
 
                                             </Grid>
@@ -972,13 +973,13 @@
 
                                         <GroupBox Header="Acquisition" Grid.Column="0">
                                             <StackPanel Orientation="Horizontal">
-                                                <Button x:Name="Adv_Cam_AcqurieTopBtn" Content="Acquire Top" Style="{DynamicResource PrimaryBlackButton}" Click="Adv_Cam_AcqurieTopBtn_Click"/>
-                                                <Button x:Name="Adv_Cam_AcqurieSideBtn" Content="Acquire Side" Style="{DynamicResource PrimaryBlackButton}" Click="Adv_Cam_AcqurieSideBtn_Click"/>
+                                                <Button x:Name="Adv_Cam_AcqurieTopBtn" Content="Acquire Top" Style="{DynamicResource SmallBlackButton}" Click="Adv_Cam_AcqurieTopBtn_Click"/>
+                                                <Button x:Name="Adv_Cam_AcqurieSideBtn" Content="Acquire Side" Style="{DynamicResource SmallBlackButton}" Click="Adv_Cam_AcqurieSideBtn_Click"/>
                                             </StackPanel>
                                         </GroupBox>
                                         <GroupBox Header="Other" Grid.Column="1">
                                             <StackPanel Orientation="Horizontal">
-                                                <Button x:Name="Adv_Cam_OpenFolderBtn" Content="Open folder" Click="Adv_Cam_OpenFolderBtn_Click"/>
+                                                <Button x:Name="Adv_Cam_OpenFolderBtn" Content="Open folder" Click="Adv_Cam_OpenFolderBtn_Click" Style="{StaticResource SmallButton}"/>
                                             </StackPanel>
                                         </GroupBox>
                                     </Grid>

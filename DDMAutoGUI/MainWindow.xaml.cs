@@ -52,8 +52,7 @@ namespace DDMAutoGUI
             App.ControllerManager.ControllerStateChanged += MainWindowSingle_OnChangeControllerState;
             App.ControllerManager.StatusLogUpdated += MainWindowSingle_OnChangeStatusLog;
             App.ControllerManager.RobotLogUpdated += MainWindowSingle_OnChangeRobotLog;
-
-            App.UIManager.UIStateChanged += MainWindowSingle_OnChangeUIState;
+            App.ControllerManager.ConnectionStateChanged += MainWindowSingle_OnChangeConnectionState;
 
 
 
@@ -446,8 +445,8 @@ namespace DDMAutoGUI
 
         public void UpdateButtonLocks()
         {
-            bool isConnected = App.UIManager.UI_STATE.isConnected;
-            bool isAutoState = App.UIManager.UI_STATE.isAutoControllerStateRequesting;
+            bool isConnected = App.ControllerManager.CONNECTION_STATE.isConnected;
+            bool isAutoState = App.ControllerManager.CONNECTION_STATE.isAutoControllerStateRequesting;
 
             // generally, enable buttons when connected, disable when disconnected
             foreach (Button b in allButtons)
@@ -690,6 +689,9 @@ namespace DDMAutoGUI
             Adv_Cell_TCSVersionLbl.Content = await App.ControllerManager.GetTCSVersion();
             Adv_Cell_PACVersionLbl.Content = await App.ControllerManager.GetPACVersion();
 
+            Con_ConnectBtn.Content = "Connected";
+            Con_ConnectBtn.IsEnabled = false;
+
             PopulateMotorSettings(Adv_Cell_MotorSizeCmb);
         }
 
@@ -702,6 +704,9 @@ namespace DDMAutoGUI
             Adv_Cell_TCSVersionLbl.Content = "-";
             Adv_Cell_PACVersionLbl.Content = "-";
 
+            Con_ConnectBtn.Content = "Connect";
+            Con_ConnectBtn.IsEnabled = true;
+
             DisableAllReadouts();
             BlankOutMotorSettings();
 
@@ -713,7 +718,7 @@ namespace DDMAutoGUI
 
             if (!contState.parseError)
             {
-                if (App.UIManager.UI_STATE.isConnected)
+                if (App.ControllerManager.CONNECTION_STATE.isConnected)
                 {
                     Adv_Cell_AutoStatusTxt.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
                     Adv_Cell_AutoStatusTxt.Text = "Parse OK";
@@ -732,9 +737,18 @@ namespace DDMAutoGUI
                 Adv_Cell_AutoStatusTxt.Text = $"Parse error: {contState.parseErrorMessage}";
                 DisableAllReadouts();
             }
+
+            if (App.ControllerManager.CONNECTION_STATE.isConnected)
+            {
+                Con_StatusLbl.Content = "Connected";
+            }
+            else
+            {
+                Con_StatusLbl.Content = "Not connected";
+            }
         }
 
-        public void MainWindowSingle_OnChangeUIState(object sender, EventArgs e)
+        public void MainWindowSingle_OnChangeConnectionState(object sender, EventArgs e)
         {
             UpdateButtonLocks();
         }
@@ -821,21 +835,22 @@ namespace DDMAutoGUI
             Con_ConnectBtn.Content = "Connecting...";
 
             await App.ControllerManager.Connect(Con_IPTxt.Text);
-            if (App.UIManager.UI_STATE.isConnected)
-            {
-                Con_ConnectBtn.Content = "Connected";
-            }
-            else
-            {
-                Con_ConnectBtn.IsEnabled = true;
-            }
+            //if (App.ControllerManager.CONNECTION_STATE.isConnected)
+            //{
+            //    Con_ConnectBtn.Content = "Connected";
+            //}
+            //else
+            //{
+            //    Con_ConnectBtn.Content = "Connect";
+            //    Con_ConnectBtn.IsEnabled = true;
+            //}
         }
 
         private async void Adv_Con_ConnectBtn_Click(object sender, RoutedEventArgs e)
         {
             Adv_Con_ConnectBtn.IsEnabled = false;
             await App.ControllerManager.Connect(Adv_Con_IPTxt.Text);
-            if (App.UIManager.UI_STATE.isConnected)
+            if (App.ControllerManager.CONNECTION_STATE.isConnected)
             {
                 Adv_Con_ContVersionTxt.Content = await App.ControllerManager.GetTCSVersion();
             }

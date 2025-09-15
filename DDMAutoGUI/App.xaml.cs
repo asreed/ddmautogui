@@ -16,7 +16,6 @@ namespace DDMAutoGUI
     public partial class App : Application
     {
 
-        public static UIManager UIManager { get; private set; }
         public static SettingsManager SettingsManager { get; private set; }
         public static ControllerManager ControllerManager { get; private set; }
         public static CameraManager CameraManager { get; private set; }
@@ -35,7 +34,6 @@ namespace DDMAutoGUI
             App.SettingsManager = new SettingsManager(); // settings first (for camera sn, at least)
 
             App.ReleaseInfoManager = new ReleaseInfoManager();
-            App.UIManager = new UIManager();
             App.ControllerManager = new ControllerManager();
             App.CameraManager = new CameraManager();
             App.ResultsManager = new ResultsManager();
