@@ -10,7 +10,7 @@ using System.IO;
 namespace DDMAutoGUI.utilities
 {
 
-    public class ResultsHistory
+    public class LocalData
     {
         public ResultsHistoryEvent[]? results { get; set; }
         public DateTime? last_sys_1_calib_update { get; set; }
@@ -37,14 +37,14 @@ namespace DDMAutoGUI.utilities
 
     public class ResultsHistoryManager
     {
-        private string historyFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\Calibration\\ResultsHistory.json";
-        private ResultsHistory history;
+        private string localDataFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\LocalData.json";
+        private LocalData localData;
 
         public ResultsHistoryManager()
         {
-            history = new ResultsHistory();
-            history = GetHistoryFromFile(historyFilePath);
-            if (history == null)
+            localData = new LocalData();
+            localData = GetLocalDataFromFile(localDataFilePath);
+            if (localData == null)
             {
                 Debug.Print("Error reading process history file");
             } else
@@ -102,15 +102,15 @@ namespace DDMAutoGUI.utilities
 
         public void AddEvent(ResultsHistoryEvent historyEvent)
         {
-            if (history == null || history.results == null)
+            if (localData == null || localData.results == null)
             {
-                Debug.Print("No results history object or no events array. Unable to add event");
+                Debug.Print("No local data object or no events array. Unable to add event");
                 return;
             }
             // shift results to make room for new event (overwrites last entry)
-            Array.Copy(history.results, 0, history.results, 1, history.results.Length-1);
+            Array.Copy(localData.results, 0, localData.results, 1, localData.results.Length-1);
             // add new entry
-            history.results[0] = historyEvent;
+            localData.results[0] = historyEvent;
 
         }
 
@@ -139,19 +139,19 @@ namespace DDMAutoGUI.utilities
 
         public ResultsHistoryEvent GetEvent(int index)
         {
-            return history.results[index];
+            return localData.results[index];
         }
-        public ResultsHistory GetHistory()
+        public LocalData GetLocalData()
         {
-            return history;
+            return localData;
         }
 
         public void UpdateCalib(int sysNum, CellSettingsDispenseCalib[] newCalib)
         {
             switch (sysNum)
             {
-                case 1: history.current_sys_1_flow_calib = newCalib; break;
-                case 2: history.current_sys_2_flow_calib = newCalib; break;
+                case 1: localData.current_sys_1_flow_calib = newCalib; break;
+                case 2: localData.current_sys_2_flow_calib = newCalib; break;
             }
         }
 
@@ -161,33 +161,33 @@ namespace DDMAutoGUI.utilities
 
 
 
-        private ResultsHistory GetHistoryFromFile(string historyFilePath)
+        private LocalData GetLocalDataFromFile(string historyFilePath)
         {
             string rawJson = File.ReadAllText(historyFilePath);
-            return DeserializeHistoryFromString(rawJson);
+            return DeserializeLocalDataFromString(rawJson);
         }
 
-        private string SerializeHistoryFromJson(ResultsHistory history)
+        private string SerializeDataFromJson(LocalData data)
         {
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
                 DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
             };
-            return JsonSerializer.Serialize(history, options);
+            return JsonSerializer.Serialize(data, options);
         }
 
-        private ResultsHistory DeserializeHistoryFromString(string rawJson)
+        private LocalData DeserializeLocalDataFromString(string rawJson)
         {
             try
             {
-                ResultsHistory history = JsonSerializer.Deserialize<ResultsHistory>(rawJson);
-                Debug.Print($"Process history file read successfully");
+                LocalData history = JsonSerializer.Deserialize<LocalData>(rawJson);
+                Debug.Print($"Local data file read successfully");
                 return history;
             }
             catch (JsonException ex)
             {
-                Debug.Print($"Error deserializing process history from JSON: {ex.Message}");
+                Debug.Print($"Error deserializing local data from JSON: {ex.Message}");
                 return null;
             }
         }

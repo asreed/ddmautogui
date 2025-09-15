@@ -116,13 +116,16 @@
                                                 <Grid>
 
                                                     <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
+                                                        <GroupBox Header="Simulate">
+                                                            <CheckBox x:Name="Disp_SimChk" Content="Simulate"/>
+                                                        </GroupBox>
                                                         <GroupBox Header="Motor Size">
                                                             <StackPanel Orientation="Vertical">
-                                                                <RadioButton Content="DDM 57"/>
-                                                                <RadioButton Content="DDM 95"/>
-                                                                <RadioButton Content="DDM 116"/>
-                                                                <RadioButton Content="DDM 170"/>
-                                                                <RadioButton Content="DDM 170 Tall"/>
+                                                                <RadioButton Content="DDM 57" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57"/>
+                                                                <RadioButton Content="DDM 95" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95"/>
+                                                                <RadioButton Content="DDM 116" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor116"/>
+                                                                <RadioButton Content="DDM 170" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170"/>
+                                                                <RadioButton Content="DDM 170 Tall" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170Tall"/>
                                                                 <Grid Visibility="Collapsed">
                                                                     <ComboBox Grid.Column="0" x:Name="Disp_MotorSizeCmb" Padding="12">
 
@@ -155,21 +158,6 @@
                                                                 <CheckBox IsChecked="False" x:Name="Disp_AutoCalibChk" Content="Autocalibrate after dispense" Padding="8"/>
                                                             </StackPanel>
                                                         </GroupBox>
-                                                        <Expander Header="Simulate" Margin="6" Visibility="Collapsed">
-                                                            <StackPanel Orientation="Vertical">
-                                                                <CheckBox IsChecked="False" x:Name="Disp_SimulateChk" Content="Simulate results" Padding="8"/>
-                                                                <StackPanel Orientation="Horizontal">
-                                                                    <Label Content="SN"/>
-                                                                    <TextBox x:Name="Disp_SimSNTxt" Width="120"/>
-                                                                </StackPanel>
-                                                                <StackPanel Orientation="Horizontal">
-                                                                    <Label Content="Flowrate 1"/>
-                                                                    <TextBox x:Name="Disp_SimFlow1Txt" Width="50"/>
-                                                                    <Label Content="Flowrate 2"/>
-                                                                    <TextBox x:Name="Disp_SimFlow2Txt" Width="50"/>
-                                                                </StackPanel>
-                                                            </StackPanel>
-                                                        </Expander>
                                                         <Button 
                                                             x:Name="Disp_BeginBtn"
                                                             Content="Begin Dispense" 

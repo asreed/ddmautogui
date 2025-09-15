@@ -15,8 +15,9 @@ namespace DDMAutoGUI.utilities
         public FlowCalibration() { }
 
         public static void CalibratePressures(
-            ResultsHistory history, 
+            LocalData history, 
             CellSettings cellSettings,
+            out bool success,
             out CellSettingsDispenseCalib[] newSys1Calib,
             out CellSettingsDispenseCalib[] newSys2Calib)
         {
@@ -27,6 +28,7 @@ namespace DDMAutoGUI.utilities
             /// run. Updates results history flow calibrations. 
             /// </summary>
 
+            success = false;
             ResultsHistoryEvent lastEvent = history.results[0];
             CellSettingsShot targetShotData = null;
 
@@ -53,10 +55,10 @@ namespace DDMAutoGUI.utilities
 
 
 
-            // calculate real flow rate (from last dispense)
-            // get target flow rate (from settings)
+            // calculate real flow rate (from last dispense (results history))
+            // get target flow rate (from settings (cell settings))
             // get corrective scale factor for flow rate
-            // apply scale factor to flow rate lookup
+            // apply scale factor to flow rate lookup (results history)
 
             float lastFlowID = lastEvent.vol_id.Value / lastEvent.time_id.Value;
             float targetFlowID = targetShotData.target_flow_id.Value;
@@ -89,6 +91,7 @@ namespace DDMAutoGUI.utilities
             }
 
             Debug.Print($"Individual scale factors calculated: ID: {sfID}, OD: {sfOD}");
+            Debug.Print($"Applying scale factors: system 1: {sf1}, system 2: {sf2}");
 
             CellSettingsDispenseCalib[] sys1Calib = history.current_sys_1_flow_calib;
             CellSettingsDispenseCalib[] sys2Calib = history.current_sys_2_flow_calib;
@@ -101,7 +104,7 @@ namespace DDMAutoGUI.utilities
 
 
 
-
+            Debug.Print("Updated calibration values:");
             for (int i = 0; i < sys1Calib.Length; i++)
             {
                 sys1Calib[i].pressure *= sf1;
@@ -115,8 +118,7 @@ namespace DDMAutoGUI.utilities
 
             newSys1Calib = sys1Calib;
             newSys2Calib = sys2Calib;
-
-            Debug.Print($"System scale factors calculated. System 1: {sf1}, system 2: {sf2}");
+            success = true;
         }
 
 

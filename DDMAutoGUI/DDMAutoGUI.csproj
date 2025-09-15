@@ -170,7 +170,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Calibration\ResultsHistory.json">
+    <None Update="LocalData.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\icons\svg-cr\connect.svg">

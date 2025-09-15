@@ -107,7 +107,20 @@ namespace DDMAutoGUI
             CellSettingsMotor motor = new CellSettingsMotor();
             string motorName = "";
 
-            int motorSelection = Disp_MotorSizeCmb.SelectedIndex;
+            //int motorSelection = Disp_MotorSizeCmb.SelectedIndex;
+
+            int motorSelection = -1;
+            if (Disp_Motor57.IsChecked.Value) motorSelection = 0;
+            if (Disp_Motor95.IsChecked.Value) motorSelection = 1;
+            if (Disp_Motor116.IsChecked.Value) motorSelection = 2;
+            if (Disp_Motor170.IsChecked.Value) motorSelection = 3;
+            if (Disp_Motor170Tall.IsChecked.Value) motorSelection = 4;
+            if (motorSelection == -1)
+            {
+                MessageBox.Show("Please select a motor size before starting the dispense process.", "No motor size selected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
 
             bool doSNPhoto = Disp_SNPhotoChk.IsChecked ?? false;
             bool doPrePhoto = Disp_PrePhotoChk.IsChecked ?? false;
@@ -148,10 +161,10 @@ namespace DDMAutoGUI
                     break;
             }
 
-            if (Disp_SimulateChk.IsChecked ?? false)
+            if (Disp_SimChk.IsChecked ?? false)
             {
                 resultsManager.AddToLog("Dispense process simulated");
-                resultsManager.currentResults.ring_sn = Disp_SimSNTxt.Text;
+                //resultsManager.currentResults.ring_sn = Disp_SimSNTxt.Text;
 
                 GoToStep(1);
 
@@ -179,20 +192,34 @@ namespace DDMAutoGUI
 
                 CellSettingsDispenseCalib[] newSys1Calib;
                 CellSettingsDispenseCalib[] newSys2Calib;
+                bool calibSuccess;
                 FlowCalibration.CalibratePressures(
-                    App.ResultsHistoryManager.GetHistory(), 
+                    App.ResultsHistoryManager.GetLocalData(), 
                     App.SettingsManager.GetAllSettings(),
+                    out calibSuccess,
                     out newSys1Calib,
                     out newSys2Calib);
 
-                App.ResultsHistoryManager.UpdateCalib(1, newSys1Calib);
-                App.ResultsHistoryManager.UpdateCalib(2, newSys2Calib);
+                if (calibSuccess)
+                {
+                    App.ResultsHistoryManager.UpdateCalib(1, newSys1Calib);
+                    App.ResultsHistoryManager.UpdateCalib(2, newSys2Calib);
+                } else
+                {
+                    // ??
+                }
 
 
-
-
-
+                    Disp_ProcessPrg.Value = 33;
+                await Task.Delay(500);
                 resultsManager.AddToLog("Simulated results added to object");
+                Disp_ProcessPrg.Value = 66;
+                await Task.Delay(500);
+                Disp_ProcessPrg.Value = 100;
+                await Task.Delay(500);
+
+
+
 
                 GoToStep(2);
                 return;
