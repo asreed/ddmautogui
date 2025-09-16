@@ -21,7 +21,7 @@ namespace DDMAutoGUI
         public static CameraManager CameraManager { get; private set; }
         public static ReleaseInfoManager ReleaseInfoManager { get; private set; }
         public static ResultsManager ResultsManager { get; private set; }
-        public static ResultsHistoryManager ResultsHistoryManager { get; private set; }
+        public static LocalDataManager LocalDataManager { get; private set; }
 
 
 
@@ -37,7 +37,7 @@ namespace DDMAutoGUI
             App.ControllerManager = new ControllerManager();
             App.CameraManager = new CameraManager();
             App.ResultsManager = new ResultsManager();
-            App.ResultsHistoryManager = new ResultsHistoryManager();
+            App.LocalDataManager = new LocalDataManager();
 
 
 

@@ -779,6 +779,12 @@ namespace DDMAutoGUI.utilities
             return await SendRobotCommand(input);
         }
 
+        public async Task<string> SetBothRegPressureAndWait(float pressure1, float pressure2, float timeout)
+        {
+            string input = $"DDM_SetBothRegPressureAndWait {pressure1} {pressure2} {timeout}";
+            return await SendRobotCommand(input);
+        }
+
         public async Task<string> GetRegPressure(int index)
         {
             string input = $"DDM_GetRegPressure {index}";
@@ -843,5 +849,23 @@ namespace DDMAutoGUI.utilities
         }
 
 
+        // ==================================================================
+        // Public methods for simulated results
+
+        public List<ResultsHeightMeasurement> GetSimulatedHeightData(int nMeasurements)
+        {
+            List<ResultsHeightMeasurement> measurementList = new List<ResultsHeightMeasurement>();
+            Random rand = new Random();
+            for (int i = 0; i < nMeasurements; i++)
+            {
+                ResultsHeightMeasurement measurement = new ResultsHeightMeasurement
+                {
+                    t = (360f / nMeasurements) * i,
+                    z = 0.5f + (float)(rand.NextDouble()) // around 10mm with some noise
+                };
+                measurementList.Add(measurement);
+            }
+            return measurementList;
+        }
     }
 }

@@ -121,18 +121,6 @@ namespace DDMAutoGUI
                 return;
             }
 
-
-            bool doSNPhoto = Disp_SNPhotoChk.IsChecked ?? false;
-            bool doPrePhoto = Disp_PrePhotoChk.IsChecked ?? false;
-            bool doRingMeasure = Disp_MeasureRingChk.IsChecked ?? false;
-            bool doMagMeasure = Disp_MeasureMagChk.IsChecked ?? false;
-            bool doDispense = Disp_DispenseChk.IsChecked ?? false;
-            bool doPostPhoto = Disp_PostPhotoChk.IsChecked ?? false;
-            bool doAutoCalib = Disp_AutoCalibChk.IsChecked ?? false;
-
-            float x, t, d;
-            int n;
-
             switch (motorSelection)
             {
                 case 0: // DDM 57
@@ -161,20 +149,65 @@ namespace DDMAutoGUI
                     break;
             }
 
+            bool doSNPhoto = Disp_SNPhotoChk.IsChecked ?? false;
+            bool doPrePhoto = Disp_PrePhotoChk.IsChecked ?? false;
+            bool doRingMeasure = Disp_MeasureRingChk.IsChecked ?? false;
+            bool doMagMeasure = Disp_MeasureMagChk.IsChecked ?? false;
+            bool doDispense = Disp_DispenseChk.IsChecked ?? false;
+            bool doPostPhoto = Disp_PostPhotoChk.IsChecked ?? false;
+            bool doAutoCalib = Disp_AutoCalibChk.IsChecked ?? false;
+
+            float x, t, d;
+            int n;
+
             if (Disp_SimChk.IsChecked ?? false)
             {
-                resultsManager.AddToLog("Dispense process simulated");
-                //resultsManager.currentResults.ring_sn = Disp_SimSNTxt.Text;
-
                 GoToStep(1);
 
+                resultsManager.AddToLog("=== SIMULATION ENABLED ===");
+                resultsManager.AddToLog($"Dispense process started for motor {motorName}");
 
+                // Take top photo, verify size
+                resultsManager.AddToLog("Taking pre-process top photo...");
+                await Task.Delay(500);
+                resultsManager.AddToLog($"Photo saved");
+                resultsManager.AddToLog($"Motor size {motorName} verified");
+                Disp_ProcessPrg.Value = 10;
 
+                // Take side photo, read SN
+                resultsManager.AddToLog("Taking side photo...");
+                await Task.Delay(500);
+                string sn = "SIM_123456";
+                resultsManager.AddToLog($"Photo saved");
+                resultsManager.AddToLog($"SN detected: {sn}");
+                resultsManager.currentResults.ring_sn = sn;
+                Disp_ProcessPrg.Value = 20;
 
+                // Measure ring heights
+                resultsManager.AddToLog("Measuring ring heights...");
+                await Task.Delay(1000);
+                List<ResultsHeightMeasurement> ring_heights = App.ControllerManager.GetSimulatedHeightData(motor.laser_ring_num.Value);
+                resultsManager.AddToLog($"{ring_heights.Count} heights collected");
+                resultsManager.currentResults.ring_heights = ring_heights;
+                Disp_ProcessPrg.Value = 30;
 
+                // Measure magnet heights
+                resultsManager.AddToLog("Measuring magnet heights...");
+                await Task.Delay(1000);
+                List<ResultsHeightMeasurement> mag_heights = App.ControllerManager.GetSimulatedHeightData(motor.laser_mag_num.Value);
+                resultsManager.AddToLog($"{mag_heights.Count} heights collected");
+                resultsManager.currentResults.mag_heights = mag_heights;
+                Disp_ProcessPrg.Value = 40;
 
-                ResultsShotData data = new ResultsShotData
+                // Dispense cyanoacrylate
+                resultsManager.AddToLog("Dispensing cyanoacrylate...");
+                await Task.Delay(2000);
+                Disp_ProcessPrg.Value = 80;
+
+                // Process dispense results
+                ResultsShotData shotData = new ResultsShotData
                 {
+                    motor_type = motorName,
                     success = true,
                     error_message = "",
                     valve_num_id = 1,
@@ -186,39 +219,60 @@ namespace DDMAutoGUI
                     vol_id = 0.423f,
                     vol_od = 0.541f
                 };
-                App.ResultsManager.AddShotDataToResults(data);
-                App.ResultsHistoryManager.AddEvent(data, motorName);
+
+                string substance_id = motor.shot_settings.sys_num_id == 1 ? settings.dispense_system.sys_1_contents: settings.dispense_system.sys_2_contents;
+                string substance_od = motor.shot_settings.sys_num_od == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
+                string tb = "  ";
+
+                resultsManager.currentResults.shot_data = shotData;
+                resultsManager.AddToLog("Dispense complete");
+                resultsManager.AddToLog("Results:");
+                resultsManager.AddToLog($"{tb}ID:");
+                resultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_id})");
+                resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id} mL ({Math.Round(shotData.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value, 1)}% of target)");
+                resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_id} s");
+                resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_id} psi");
+                resultsManager.AddToLog($"{tb}OD:");
+                resultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_od})");
+                resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id} mL ({Math.Round(shotData.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value, 1)}% of target)");
+                resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_od} s");
+                resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_od} psi");
+
+                // Take post-process top photo
+                resultsManager.AddToLog("Taking post-process top photo...");
+                await Task.Delay(500);
+                resultsManager.AddToLog($"Photo saved");
+                Disp_ProcessPrg.Value = 90;
 
 
+
+
+
+
+                // Adjust pressures
                 CellSettingsDispenseCalib[] newSys1Calib;
                 CellSettingsDispenseCalib[] newSys2Calib;
                 bool calibSuccess;
                 FlowCalibration.CalibratePressures(
-                    App.ResultsHistoryManager.GetLocalData(), 
+                    shotData, 
                     App.SettingsManager.GetAllSettings(),
+                    App.LocalDataManager.GetLocalData(),
                     out calibSuccess,
                     out newSys1Calib,
                     out newSys2Calib);
 
                 if (calibSuccess)
                 {
-                    App.ResultsHistoryManager.UpdateCalib(1, newSys1Calib);
-                    App.ResultsHistoryManager.UpdateCalib(2, newSys2Calib);
+                    App.LocalDataManager.UpdateCalib(1, newSys1Calib);
+                    App.LocalDataManager.UpdateCalib(2, newSys2Calib);
                 } else
                 {
                     // ??
                 }
 
 
-                    Disp_ProcessPrg.Value = 33;
-                await Task.Delay(500);
-                resultsManager.AddToLog("Simulated results added to object");
-                Disp_ProcessPrg.Value = 66;
-                await Task.Delay(500);
-                Disp_ProcessPrg.Value = 100;
-                await Task.Delay(500);
 
-
+                // Prepare results page
 
 
                 GoToStep(2);

@@ -15,6 +15,9 @@ namespace DDMAutoGUI.utilities
 {
     public class ResultsShotData
     {
+        public string? motor_type { get; set; }
+        public bool? success { get; set; }
+        public string? error_message { get; set; }
         public int? valve_num_id { get; set; }
         public int? valve_num_od { get; set; }
         public float? pressure_id { get; set; }
@@ -23,8 +26,6 @@ namespace DDMAutoGUI.utilities
         public float? time_od { get; set; }
         public float? vol_id { get; set; }
         public float? vol_od { get; set; }
-        public bool? success { get; set; }
-        public string? error_message { get; set; }
     }
 
     public class ResultsHeightMeasurement
@@ -113,11 +114,6 @@ namespace DDMAutoGUI.utilities
         public void ClearCurrentResults()
         {
             currentResults = null;
-        }
-
-        public void AddShotDataToResults(ResultsShotData data)
-        {
-            currentResults.shot_data = data;
         }
 
         public void AddToLog(string line)

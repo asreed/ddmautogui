@@ -15,8 +15,9 @@ namespace DDMAutoGUI.utilities
         public FlowCalibration() { }
 
         public static void CalibratePressures(
-            LocalData history, 
+            ResultsShotData prevShotData,
             CellSettings cellSettings,
+            LocalData localData,
             out bool success,
             out CellSettingsDispenseCalib[] newSys1Calib,
             out CellSettingsDispenseCalib[] newSys2Calib)
@@ -29,10 +30,9 @@ namespace DDMAutoGUI.utilities
             /// </summary>
 
             success = false;
-            ResultsHistoryEvent lastEvent = history.results[0];
             CellSettingsShot targetShotData = null;
 
-            switch (lastEvent.motor_type)
+            switch (prevShotData.motor_type)
             {
                 case "ddm_57":
                     targetShotData = cellSettings.ddm_57.shot_settings;
@@ -51,7 +51,7 @@ namespace DDMAutoGUI.utilities
                     break;
             }
 
-            Debug.Print($"Calculating scale factors based on motor size {lastEvent.motor_type}");
+            Debug.Print($"Calculating scale factors based on motor size {prevShotData.motor_type}");
 
 
 
@@ -60,12 +60,12 @@ namespace DDMAutoGUI.utilities
             // get corrective scale factor for flow rate
             // apply scale factor to flow rate lookup (results history)
 
-            float lastFlowID = lastEvent.vol_id.Value / lastEvent.time_id.Value;
+            float lastFlowID = prevShotData.vol_id.Value / prevShotData.time_id.Value;
             float targetFlowID = targetShotData.target_flow_id.Value;
             float sfID = targetFlowID / lastFlowID;
             float sysID = targetShotData.sys_num_id.Value;
 
-            float lastFlowOD = lastEvent.vol_od.Value / lastEvent.time_od.Value;
+            float lastFlowOD = prevShotData.vol_od.Value / prevShotData.time_od.Value;
             float targetFlowOD = targetShotData.target_flow_od.Value;
             float sfOD = targetFlowOD / lastFlowOD;
             float sysOD = targetShotData.sys_num_od.Value;
@@ -93,8 +93,8 @@ namespace DDMAutoGUI.utilities
             Debug.Print($"Individual scale factors calculated: ID: {sfID}, OD: {sfOD}");
             Debug.Print($"Applying scale factors: system 1: {sf1}, system 2: {sf2}");
 
-            CellSettingsDispenseCalib[] sys1Calib = history.current_sys_1_flow_calib;
-            CellSettingsDispenseCalib[] sys2Calib = history.current_sys_2_flow_calib;
+            CellSettingsDispenseCalib[] sys1Calib = localData.current_sys_1_flow_calib;
+            CellSettingsDispenseCalib[] sys2Calib = localData.current_sys_2_flow_calib;
 
 
 
