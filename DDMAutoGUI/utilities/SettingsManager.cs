@@ -83,6 +83,10 @@ namespace DDMAutoGUI.utilities
     {
         public string? sys_1_contents { get; set; }
         public string? sys_2_contents { get; set; }
+        public float? sys_1_max_pressure { get; set; }
+        public float? sys_2_max_pressure { get; set; }
+        public float? sys_1_max_pressure_dev_percent { get; set; }
+        public float? sys_2_max_pressure_dev_percent { get; set; }
         public CellSettingsDispenseCalib[] sys_1_flow_calib { get; set; }
         public CellSettingsDispenseCalib[] sys_2_flow_calib { get; set; }
     }
@@ -123,10 +127,7 @@ namespace DDMAutoGUI.utilities
             ddm_170_tall
         }
         public DDMSize selectedSize = DDMSize.ddm_116; // default to 116
-
         public CellSettings currentSettings { get; private set; } = new CellSettings();
-
-
 
         public SettingsManager()
         {
@@ -134,6 +135,14 @@ namespace DDMAutoGUI.utilities
             currentSettings = ReadSettingsFromController();
             Debug.Print("Settings manager initialized");
         }
+
+
+
+
+
+
+
+
 
         private CellSettings ReadSettingsFromLocal()
         {
@@ -258,7 +267,6 @@ namespace DDMAutoGUI.utilities
                     // Now you can use fileContents as needed
                     CellSettings settings = JsonSerializer.Deserialize<CellSettings>(rawJson);
                     Debug.Print($"  Settings file read successfully from controller");
-                    Debug.Print("Download Complete.");
                     return settings;
                 }
 

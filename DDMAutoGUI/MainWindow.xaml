@@ -32,7 +32,7 @@
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="400"/>
+                            <ColumnDefinition Width="300"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
@@ -101,7 +101,7 @@
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="500"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
@@ -126,25 +126,6 @@
                                                                 <RadioButton Content="DDM 116" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor116"/>
                                                                 <RadioButton Content="DDM 170" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170"/>
                                                                 <RadioButton Content="DDM 170 Tall" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170Tall"/>
-                                                                <Grid Visibility="Collapsed">
-                                                                    <ComboBox Grid.Column="0" x:Name="Disp_MotorSizeCmb" Padding="12">
-
-                                                                        <!-- Settings selected based on index. Be careful changing these items: -->
-                                                                        <!-- -->
-                                                                        <ComboBoxItem Content="DDM 57" Padding="12"/>
-                                                                        <!-- -->
-                                                                        <ComboBoxItem Content="DDM 95" Padding="12"/>
-                                                                        <!-- -->
-                                                                        <ComboBoxItem Content="DDM 116" IsSelected="True" Padding="12"/>
-                                                                        <!-- -->
-                                                                        <ComboBoxItem Content="DDM 170" Padding="12"/>
-                                                                        <!-- -->
-                                                                        <ComboBoxItem Content="DDM 170 Tall" Padding="12"/>
-                                                                        <!-- -->
-
-                                                                    </ComboBox>
-                                                                    <!--<Button Grid.Column="1" Content="View" Margin="8,0,0,0"/>-->
-                                                                </Grid>
                                                             </StackPanel>
                                                         </GroupBox>
                                                         <GroupBox Header="Options" Visibility="Collapsed">
@@ -217,34 +198,51 @@
                                                     <GroupBox Grid.Row="0" Header="Result">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="140"/>
                                                                 <ColumnDefinition/>
                                                             </Grid.ColumnDefinitions>
-                                                            <Border Grid.Column="0"
-                                                                    Background="#FF12AB12" 
-                                                                    BorderBrush="#FF0C730C"
-                                                                    Width="100"
-                                                                    Height="60"
-                                                                    Margin="0,0,10,0"
-                                                                    BorderThickness="2">
-                                                                <Label Content="Pass" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            <Border x:Name="Disp_Res_PassBrd" Grid.Column="0" Visibility="Collapsed" Style="{StaticResource PassBorder}">
+                                                                <TextBlock Text="Pass" Foreground="White"/>
                                                             </Border>
-                                                            <TextBlock Grid.Column="1"
+                                                            <Border x:Name="Disp_Res_FailBrd" Grid.Column="0" Visibility="Visible" Style="{StaticResource FailBorder}">
+                                                                <TextBlock Text="Pass" Foreground="White"/>
+                                                            </Border>
+                                                            <TextBlock x:Name="Disp_Res_ResMessageTxb"
+                                                                       Grid.Column="1"
                                                                        TextWrapping="Wrap"
                                                                        Foreground="Black"
                                                                        VerticalAlignment="Center"
-                                                                       Text="Process completed with no error"/>
+                                                                       Text="-"/>
                                                         </Grid>
                                                     </GroupBox>
                                                     <GroupBox Grid.Row="2" Header="Result Details" Height="200">
-                                                        <StackPanel Orientation="Vertical">
-                                                            <TextBlock Text="Top picture acquired: "/>
-                                                            <TextBlock Text="Side picture acquired: "/>
-                                                            <TextBlock Text="Ring SN: "/>
-                                                            <TextBlock Text="ID volume: "/>
-                                                            <TextBlock Text="OD volume: "/>
+                                                        <Grid>
+                                                            <Grid.Resources>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Margin" Value="0,0,0,3"/>
+                                                                </Style>
+                                                            </Grid.Resources>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="140"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <TextBlock Grid.Column="0" Grid.Row="0" Text="Ring SN"/>
+                                                            <TextBlock Grid.Column="0" Grid.Row="1" Text="Dispense volume ID"/>
+                                                            <TextBlock Grid.Column="0" Grid.Row="2" Text="Dispense volume OD"/>
+                                                            <TextBlock Grid.Column="0" Grid.Row="3" Text="Flow autocalibration"/>
 
-                                                        </StackPanel>
+                                                            <TextBlock Grid.Column="1" Grid.Row="0" Text="-" x:Name="Disp_Res_SNTxb"/>
+                                                            <TextBlock Grid.Column="1" Grid.Row="1" Text="-" x:Name="Disp_Res_VolIDTxb"/>
+                                                            <TextBlock Grid.Column="1" Grid.Row="2" Text="-" x:Name="Disp_Res_VolODTxb"/>
+                                                            <TextBlock Grid.Column="1" Grid.Row="3" Text="-" x:Name="Disp_Res_FlowCalTxb"/>
+                                                        </Grid>
                                                     </GroupBox>
                                                     <StackPanel Grid.Row="3" Orientation="Vertical">
                                                         <Button Style="{DynamicResource BlueButton}">

@@ -100,6 +100,20 @@ namespace DDMAutoGUI.utilities
             }
         }
 
+        public float? GetPressureFromFlowrate(int sys, float flow)
+        {
+            var calib = sys == 1 ? localData.current_sys_1_flow_calib : localData.current_sys_2_flow_calib;
+            for (int i = 0; i < calib.Length; i++)
+            {
+                if (flow == calib[i].flow)
+                {
+                    return calib[i].pressure.Value;
+                }
+            }
+            Debug.Print($"No exact match found for flow {flow} in system {sys} current (local) calibration data");
+            return null;
+        }
+
 
 
 

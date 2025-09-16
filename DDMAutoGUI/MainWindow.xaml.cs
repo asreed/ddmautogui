@@ -92,7 +92,8 @@ namespace DDMAutoGUI
 
 
 
-        // ================ Main dispense process routine
+        // ==================================================================
+        // Main dispense process routine
 
         private async void RunFullDispenseProcess()
         {
@@ -102,6 +103,7 @@ namespace DDMAutoGUI
             resultsManager.UpdateProcessLog += MainWindowSingle_Disp_UpdateProcessLog;
             resultsManager.ClearCurrentResults();
             resultsManager.CreateNewResults();
+            Disp_LogTxt.Text = "";
 
             CellSettings settings = App.SettingsManager.currentSettings;
             CellSettingsMotor motor = new CellSettingsMotor();
@@ -117,7 +119,6 @@ namespace DDMAutoGUI
             if (Disp_Motor170Tall.IsChecked.Value) motorSelection = 4;
             if (motorSelection == -1)
             {
-                MessageBox.Show("Please select a motor size before starting the dispense process.", "No motor size selected", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -174,6 +175,34 @@ namespace DDMAutoGUI
                 resultsManager.AddToLog($"Motor size {motorName} verified");
                 Disp_ProcessPrg.Value = 10;
 
+                // Set pressures using local calib data
+                resultsManager.AddToLog("Setting dispense system pressures...");
+                int sysID, sysOD;
+                float pressureID, pressureOD;
+                sysID = motor.shot_settings.sys_num_id.Value;
+                sysOD = motor.shot_settings.sys_num_od.Value;
+                pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
+                pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
+
+                float pressure1, pressure2;
+                pressure1 = sysID == 1 ? pressureID : pressureOD;
+                pressure2 = sysID == 2 ? pressureID : pressureOD;
+                // if sysID == sysOD, both local pressures will be identical anyway so no need to check
+
+
+
+                // TODO: VERIFY CALIBRATION HASN'T EXPIRED
+
+                // TODO: VERIFY PRESSURES ARE WITHIN RANGE
+
+
+
+                resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1} psi");
+                resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2} psi");
+                resultsManager.AddToLog("Pressures set");
+                await Task.Delay(500);
+
+
                 // Take side photo, read SN
                 resultsManager.AddToLog("Taking side photo...");
                 await Task.Delay(500);
@@ -212,15 +241,15 @@ namespace DDMAutoGUI
                     error_message = "",
                     valve_num_id = 1,
                     valve_num_od = 1,
-                    pressure_id = 6.8f,
-                    pressure_od = 6.8f,
+                    pressure_id = pressureID,
+                    pressure_od = pressureOD,
                     time_id = 1.808f,
                     time_od = 2.232f,
                     vol_id = 0.423f,
                     vol_od = 0.541f
                 };
 
-                string substance_id = motor.shot_settings.sys_num_id == 1 ? settings.dispense_system.sys_1_contents: settings.dispense_system.sys_2_contents;
+                string substance_id = motor.shot_settings.sys_num_id == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
                 string substance_od = motor.shot_settings.sys_num_od == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
                 string tb = "  ";
 
@@ -244,8 +273,10 @@ namespace DDMAutoGUI
                 resultsManager.AddToLog($"Photo saved");
                 Disp_ProcessPrg.Value = 90;
 
-
-
+                // Move to load position
+                resultsManager.AddToLog("Moving back to unload position...");
+                await Task.Delay(500);
+                Disp_ProcessPrg.Value = 100;
 
 
 
@@ -272,10 +303,49 @@ namespace DDMAutoGUI
 
 
 
-                // Prepare results page
 
+                resultsManager.AddToLog("Process complete");
+
+                // Determine pass/fail
+                bool pass = false;
+                string msg = "";
+                App.ResultsManager.DeterminePassFail(resultsManager.currentResults, out pass, out msg);
+
+                resultsManager.currentResults.success = pass;
+                resultsManager.currentResults.message = msg;
+
+                // Save results to file
+                resultsManager.AddToLog("Saving results to file...");
+                resultsManager.SaveDataToFile();
+                resultsManager.AddToLog("Results saved");
+
+                // Prepare and display results page
+
+                Results res = resultsManager.currentResults;
+                if (pass)
+                {
+                    Disp_Res_PassBrd.Visibility = Visibility.Visible;
+                    Disp_Res_FailBrd.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    Disp_Res_PassBrd.Visibility = Visibility.Collapsed;
+                    Disp_Res_FailBrd.Visibility = Visibility.Visible;
+                }
+                Disp_Res_ResMessageTxb.Text = resultsManager.currentResults.message;
+
+                Disp_Res_SNTxb.Text = resultsManager.currentResults.ring_sn;
+                Disp_Res_VolIDTxb.Text = $"{resultsManager.currentResults.shot_data.vol_id} mL";
+                Disp_Res_VolODTxb.Text = $"{resultsManager.currentResults.shot_data.vol_od} mL";
 
                 GoToStep(2);
+
+
+
+                // Clean up
+                resultsManager.UpdateProcessLog -= MainWindowSingle_Disp_UpdateProcessLog;
+                resultsManager.ClearCurrentResults();
+
                 return;
             }
 
@@ -467,6 +537,14 @@ namespace DDMAutoGUI
             GoToStep(2);
         }
 
+        // ==================================================================
+
+
+
+
+
+
+
         private void GoToStep(int step)
         {
             // called when moving to the step
@@ -496,28 +574,6 @@ namespace DDMAutoGUI
             }
             //processData.AddToLog($"Moved to step {step}");
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         private void ControllerManager_ControllerStateChanged(object? sender, EventArgs e)
         {

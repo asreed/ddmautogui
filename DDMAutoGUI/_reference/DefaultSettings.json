@@ -8,8 +8,8 @@
     "sys_2_contents": "Permabond 825",
     "sys_1_max_pressure": 55,
     "sys_2_max_pressure": 55,
-    "sys_1_pressure_window": 10,
-    "sys_2_pressure_window": 10,
+    "sys_1_max_pressure_dev_percent": 15,
+    "sys_2_max_pressure_dev_percent": 15,
     "sys_1_flow_calib": [
       {
         "flow": 0.25,
@@ -201,8 +201,8 @@
   },
   "ddm_170_tall": {
     "shot_settings": {
-      "sys_num_id": 1,
-      "sys_num_od": 2,
+      "sys_num_id": 2,
+      "sys_num_od": 1,
       "target_vol_id": 1.953,
       "target_vol_od": 2.344,
       "target_flow_id": 0.40,

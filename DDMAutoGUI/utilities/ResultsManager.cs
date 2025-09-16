@@ -44,40 +44,28 @@ namespace DDMAutoGUI.utilities
     {
         public DateTime? date_saved { get; set; }
         public string? ring_sn { get; set; }
+        public ResultsShotData? shot_data { get; set; }
+        public bool? success { get; set; }
+        public string? message { get; set; }
         public List<ResultsHeightMeasurement>? ring_heights { get; set; }
         public List<ResultsHeightMeasurement>? mag_heights { get; set; }
-        public ResultsShotData? shot_data { get; set; }
         public List<ResultsLogLine>? process_log { get; set; }
 
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public class ResultsManager
     {
 
-        public string saveMainDirectory = AppDomain.CurrentDomain.BaseDirectory + "results\\";
-        public string saveFolderPrefix = "ring_";
-        public string saveFolderNoSNPrefix = "ring_no_sn_";
+        public string saveMainDirectory = AppDomain.CurrentDomain.BaseDirectory + "Results\\";
+        public string saveFolderPrefix = "Ring_";
+        public string saveFolderNoSNPrefix = "Ring_No_SN_";
 
-        public string fileNameResults = "process_results";
-        public string fileNamePhotoBefore = "before";
-        public string fileNamePhotoAfter = "after";
+        public string fileNameResults = "ProcessResults";
+        public string fileNamePhotoBefore = "Before";
+        public string fileNamePhotoAfter = "After";
 
         public string dateFormatLong = "MM-dd-yyy HH:mm:ss.fff";
-        public string dateFormatShort = "HH:mm:ss.fff";
+        public string dateFormatShort = "HH:mm:ss.ff";
         public string dateFormatFolder = "yyMMdd_HHmmss";
 
         public event EventHandler UpdateProcessLog;
@@ -90,6 +78,53 @@ namespace DDMAutoGUI.utilities
             currentResults = null;
             Debug.Print("Process results manager initialized");
         }
+
+
+
+        // ==================================================================
+        // Pass/fail determination
+
+        public void DeterminePassFail(Results results, out bool pass, out string message)
+        {
+            pass = false;
+            message = "Unable to determine pass/fail";
+
+            if (results == null)
+            {
+                message = "Results object is null";
+                return;
+            }
+            if (results.ring_sn == null || results.ring_sn == "")
+            {
+                message = "Ring serial number is missing or empty";
+                return;
+            }
+            if (results.shot_data == null)
+            {
+                message = "Shot data is null";
+                return;
+            }
+
+            pass = true;
+            message = "Process completed successfully";
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // ==================================================================
+        // Result object handling
 
         public Results CreateNewResults()
         {
@@ -155,7 +190,7 @@ namespace DDMAutoGUI.utilities
             }
             else
             {
-                resultsFolderPath = saveMainDirectory + saveFolderPrefix + currentResults.ring_sn;
+                resultsFolderPath = saveMainDirectory + saveFolderPrefix + currentResults.ring_sn + "_" + DateTime.Now.ToString(dateFormatFolder);
                 resultsFilePath = resultsFolderPath + "\\" + fileNameResults + ".json";
                 zipFolderPath = resultsFolderPath;
             }
@@ -164,9 +199,9 @@ namespace DDMAutoGUI.utilities
             Directory.CreateDirectory(resultsFolderPath);
             File.WriteAllText(resultsFilePath, resultsString);
 
-            File.Copy(App.SettingsManager.GetSettingsFilePath(), resultsFolderPath + "\\settings.json", true);
+            //File.Copy(App.SettingsManager.GetSettingsFilePath(), resultsFolderPath + "\\settings.json", true);
 
-            ZipFile.CreateFromDirectory(resultsFolderPath, zipFolderPath + ".zip");
+            //ZipFile.CreateFromDirectory(resultsFolderPath, zipFolderPath + ".zip");
         }
 
 

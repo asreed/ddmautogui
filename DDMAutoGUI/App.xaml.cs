@@ -31,13 +31,13 @@ namespace DDMAutoGUI
             base.OnStartup(e);
             Debug.Print("App starting up");
 
-            App.SettingsManager = new SettingsManager(); // settings first (for camera sn, at least)
+            App.SettingsManager = new SettingsManager(); // settings first (?)
+            App.LocalDataManager = new LocalDataManager(); // local data second (for controller ip)
 
             App.ReleaseInfoManager = new ReleaseInfoManager();
             App.ControllerManager = new ControllerManager();
             App.CameraManager = new CameraManager();
             App.ResultsManager = new ResultsManager();
-            App.LocalDataManager = new LocalDataManager();
 
 
 
