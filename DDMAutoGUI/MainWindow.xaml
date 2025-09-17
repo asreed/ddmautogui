@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DDMAutoGUI"
         mc:Ignorable="d"
         Background="WhiteSmoke"
-        Title="DDM Automation Cell Manager" Height="750" Width="1024" ResizeMode="CanResizeWithGrip" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+        Title="DDM Automation Cell Manager" Height="750" Width="1024" WindowStartupLocation="CenterScreen" WindowState="Maximized">
 
 
 
@@ -1027,10 +1027,12 @@
                             </TabItem>
                             <TabItem Header="Settings">
 
-                                <windows:EditSettingsPanel />
+                                <windows:SettingsPanel />
 
                             </TabItem>
-                            <TabItem Header="Calibration">
+                            <TabItem Header="Local Data">
+
+                                <windows:LocalDataPanel/>
 
                             </TabItem>
                             <TabItem Header="Misc">
@@ -1091,12 +1093,16 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-
-
+                <!--<Grid Margin="0,0,12,0">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <TextBlock Text="Status: "/>
+                        <TextBlock Text="Not connected"/>
+                    </StackPanel>
+                </Grid>-->
             </StackPanel>
-            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,16,0">
-                <Border x:Name="Status_SimBdr" Style="{StaticResource SimBorder}" Visibility="Collapsed">
-                    <TextBlock Text="Simulation enabled"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,0">
+                <Border x:Name="Status_SimBdr" Style="{StaticResource SimBorder}" Visibility="Visible">
+                    <TextBlock Text="Cell simulation enabled"/>
                 </Border>
             </StackPanel>
         </Grid>

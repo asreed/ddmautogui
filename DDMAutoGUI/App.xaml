@@ -139,7 +139,7 @@
 
 
 
-        <!-- Default text input -->
+        <!-- Default element styles -->
 
         <Style TargetType="TextBox">
             <Setter Property="Background" Value="{StaticResource TextBoxBlueLight}"/>
@@ -1013,11 +1013,12 @@
 
 
         <Style x:Key="StatusBarBottom" TargetType="Grid">
-            <Setter Property="Margin" Value="0,4,0,0"/>
+            <Setter Property="Margin" Value="4,4,0,0"/>
             <Setter Property="Height" Value="18"/>
             <Style.Resources>
                 <Style TargetType="TextBlock">
-                    <Setter Property="FontSize" Value="11"/>
+                    <Setter Property="Foreground" Value="#666"/>
+                    <Setter Property="FontSize" Value="10"/>
                     <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>
             </Style.Resources>
@@ -1027,7 +1028,12 @@
             <Setter Property="Background" Value="#FFF9F230"/>
             <Setter Property="BorderBrush" Value="#FFCCC50A"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="3,0"/>
+            <Setter Property="Padding" Value="6,0"/>
+            <Style.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="Black"/>
+                </Style>
+            </Style.Resources>
         </Style>
 
     </Application.Resources>

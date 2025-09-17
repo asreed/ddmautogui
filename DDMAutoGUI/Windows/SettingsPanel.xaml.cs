@@ -21,9 +21,9 @@ namespace DDMAutoGUI.windows
     /// <summary>
     /// Interaction logic for UserControl1.xaml
     /// </summary>
-    public partial class EditSettingsPanel : UserControl
+    public partial class SettingsPanel : UserControl
     {
-        public EditSettingsPanel()
+        public SettingsPanel()
         {
             InitializeComponent();
             CellSettings settings = App.SettingsManager.GetAllSettings();
@@ -41,7 +41,7 @@ namespace DDMAutoGUI.windows
         private void PopulateRawSettings(CellSettings settings)
         {
             settingsTxb.Clear();
-            string settingsString = App.SettingsManager.SerializeSettingsToJson(settings);
+            string settingsString = App.SettingsManager.SerializeSettingsFromJson(settings);
             settingsTxb.Text = settingsString;
         }
 

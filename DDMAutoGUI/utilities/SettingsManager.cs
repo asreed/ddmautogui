@@ -175,7 +175,7 @@ namespace DDMAutoGUI.utilities
             return currentSettings;
         }
 
-        public string SerializeSettingsToJson(CellSettings settings)
+        public string SerializeSettingsFromJson(CellSettings settings)
         {
             var options = new JsonSerializerOptions
             {
@@ -310,7 +310,7 @@ namespace DDMAutoGUI.utilities
         {
 
             settings.last_saved = DateTime.Now;
-            string serializedSettings = SerializeSettingsToJson(settings);
+            string serializedSettings = SerializeSettingsFromJson(settings);
 
             try
             {

@@ -144,7 +144,7 @@ namespace DDMAutoGUI.utilities
             }
         }
 
-        private string SerializeDataFromJson(LocalData data)
+        public string SerializeDataFromJson(LocalData data)
         {
             var options = new JsonSerializerOptions
             {
@@ -154,7 +154,7 @@ namespace DDMAutoGUI.utilities
             return JsonSerializer.Serialize(data, options);
         }
 
-        private LocalData DeserializeLocalDataFromString(string rawJson)
+        public LocalData DeserializeLocalDataFromString(string rawJson)
         {
             try
             {

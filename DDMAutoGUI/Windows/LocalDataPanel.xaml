@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="DDMAutoGUI.windows.EditSettingsPanel"
+﻿<UserControl x:Class="DDMAutoGUI.windows.LocalDataPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -16,8 +16,8 @@
 
         <TabControl Grid.Row="0">
             <TabItem Header="View">
-                <TreeView x:Name="SettingsTreeView" Margin="10">
-                    <TreeViewItem x:Name="SettingsTreeViewRoot" IsExpanded="True">
+                <TreeView x:Name="LocalDataTreeView" Margin="10">
+                    <TreeViewItem x:Name="LocalDataTreeViewRoot" IsExpanded="True">
                         <!-- -->
                     </TreeViewItem>
                 </TreeView>
@@ -25,9 +25,9 @@
             <TabItem Header="Edit">
                 <Grid>
                     <TextBox 
-                        Name="settingsTxb" 
+                        Name="LocalDataTxt" 
                         Text="--" 
-                        IsReadOnly="False"
+                        IsReadOnly="True"
                         Style="{StaticResource MonoTextBox}"/>
                 </Grid>
             </TabItem>
@@ -36,8 +36,8 @@
 
         <Grid Grid.Row="1">
             <StackPanel Orientation="Horizontal">
-                <Button x:Name="LoadBtn" Content="Load from flash" Click="LoadBtn_Click" Style="{StaticResource SmallButton}"/>
-                <Button x:Name="SaveBtn" Content="Save to flash" Style="{DynamicResource SmallBlackButton}" Click="SaveBtn_Click"/>
+                <Button x:Name="LoadBtn" Content="Refresh from current" Style="{StaticResource SmallButton}" Click="LoadBtn_Click"/>
+                <Button x:Name="SaveBtn" Content="Save current to file" Style="{DynamicResource SmallButton}" Click="SaveBtn_Click"/>
             </StackPanel>
         </Grid>
 

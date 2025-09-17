@@ -153,6 +153,9 @@
     <Compile Update="Windows\MatlabWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Windows\LocalDataPanel.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Windows\TextDataViewer.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
