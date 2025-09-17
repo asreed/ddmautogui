@@ -40,6 +40,7 @@ namespace DDMAutoGUI.utilities
         public int flowError1 { get; set; }
         public float flowVolume2 { get; set; }
         public int flowError2 { get; set; }
+        public bool isSimulated { get; set; }
 
         public void Initialize()
         {
@@ -60,6 +61,7 @@ namespace DDMAutoGUI.utilities
             flowError1 = 0;
             flowVolume2 = 0.0f;
             flowError2 = 0;
+            isSimulated = false;
         }
     }
 
@@ -557,6 +559,8 @@ namespace DDMAutoGUI.utilities
                         flowError1 = int.Parse(parts[13]),
                         flowVolume2 = float.Parse(parts[14]),
                         flowError2 = int.Parse(parts[15]),
+
+                        isSimulated = parts[16] != "0",
 
                         parseError = false,
                         parseErrorMessage = "",

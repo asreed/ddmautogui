@@ -23,7 +23,7 @@ namespace DDMAutoGUI.utilities
     public class LocalDataManager
     {
         private string localDataFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\LocalData.json";
-        private LocalData localData;
+        public LocalData localData;
 
         public LocalDataManager()
         {
@@ -85,12 +85,6 @@ namespace DDMAutoGUI.utilities
 
         }
 
-
-        public LocalData GetLocalData()
-        {
-            return localData;
-        }
-
         public void UpdateCalib(int sysNum, CellSettingsDispenseCalib[] newCalib)
         {
             switch (sysNum)
@@ -124,6 +118,22 @@ namespace DDMAutoGUI.utilities
         {
             string rawJson = File.ReadAllText(historyFilePath);
             return DeserializeLocalDataFromString(rawJson);
+        }
+
+        public bool SaveLocalDataToFile()
+        {
+            try
+            {
+                string rawJson = SerializeDataFromJson(localData);
+                File.WriteAllText(localDataFilePath, rawJson);
+                Debug.Print($"Local data file saved successfully");
+                return true;
+            }
+            catch (IOException ex)
+            {
+                Debug.Print($"Error saving local data to file: {ex.Message}");
+                return false;
+            }
         }
 
         private string SerializeDataFromJson(LocalData data)

@@ -89,7 +89,7 @@
                     </Grid>
 
                 </TabItem>
-                <TabItem Header="Dispense" Tag="Resources/icons/tools.ico" Style="{StaticResource MainTab}">
+                <TabItem x:Name="DispTab" Header="Dispense" Tag="Resources/icons/tools.ico" Style="{StaticResource MainTab}" IsEnabled="False">
 
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <Grid Margin="6">
@@ -201,12 +201,14 @@
                                                                 <ColumnDefinition Width="140"/>
                                                                 <ColumnDefinition/>
                                                             </Grid.ColumnDefinitions>
-                                                            <Border x:Name="Disp_Res_PassBrd" Grid.Column="0" Visibility="Collapsed" Style="{StaticResource PassBorder}">
-                                                                <TextBlock Text="Pass" Foreground="White"/>
-                                                            </Border>
-                                                            <Border x:Name="Disp_Res_FailBrd" Grid.Column="0" Visibility="Visible" Style="{StaticResource FailBorder}">
-                                                                <TextBlock Text="Pass" Foreground="White"/>
-                                                            </Border>
+                                                            <StackPanel Orientation="Vertical">
+                                                                <Border x:Name="Disp_Res_PassBdr" Grid.Column="0" Visibility="Collapsed" Style="{StaticResource PassBorder}">
+                                                                    <TextBlock Text="Pass" Foreground="White"/>
+                                                                </Border>
+                                                                <Border x:Name="Disp_Res_FailBdr" Grid.Column="0" Visibility="Visible" Style="{StaticResource FailBorder}">
+                                                                    <TextBlock Text="Fail" Foreground="White"/>
+                                                                </Border>
+                                                            </StackPanel>
                                                             <TextBlock x:Name="Disp_Res_ResMessageTxb"
                                                                        Grid.Column="1"
                                                                        TextWrapping="Wrap"
@@ -215,7 +217,7 @@
                                                                        Text="-"/>
                                                         </Grid>
                                                     </GroupBox>
-                                                    <GroupBox Grid.Row="2" Header="Result Details" Height="200">
+                                                    <GroupBox Grid.Row="2" Header="Result Details">
                                                         <Grid>
                                                             <Grid.Resources>
                                                                 <Style TargetType="TextBlock">
@@ -245,11 +247,11 @@
                                                         </Grid>
                                                     </GroupBox>
                                                     <StackPanel Grid.Row="3" Orientation="Vertical">
-                                                        <Button Style="{DynamicResource BlueButton}">
-                                                            <StackPanel Orientation="Horizontal">
+                                                        <Button x:Name="Disp_Res_FinishBtn" Click="Disp_Res_FinishBtn_Click" Content="Finish" Style="{DynamicResource BlueButton}">
+                                                            <!--<StackPanel Orientation="Horizontal">
                                                                 <Image Source="/Resources/icons/tools.ico"/>
                                                                 <Label Content="Configure Next Process"/>
-                                                            </StackPanel>
+                                                            </StackPanel>-->
                                                         </Button>
                                                     </StackPanel>
 
@@ -265,10 +267,45 @@
                         </Grid>
                     </ScrollViewer>
                 </TabItem>
-                <TabItem Header="Advanced" Tag="Resources/icons/tune.ico" Style="{StaticResource MainTab}">
+                <TabItem x:Name="AdvTab" Header="Advanced" Tag="Resources/icons/tune.ico" Style="{StaticResource MainTab}" Height="40">
 
-                    <Grid>
-                        <TabControl TabStripPlacement="Top" Margin="4">
+                    <Grid Margin="4">
+                        <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Visibility="Collapsed">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="300"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <GroupBox Header="Password" Grid.Row="1" Grid.Column="1">
+                                    <StackPanel Orientation="Vertical">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <PasswordBox x:Name="Adv_PWBox" 
+                                                     Grid.Column="0"
+                                                     Padding="6"
+                                                     KeyDown="Adv_PWBox_KeyDown"/>
+                                            <Button x:Name="Adv_PWSubmitBtn"
+                                                Grid.Column="1"
+                                                Padding="12,0"
+                                                Content="Submit" 
+                                                Style="{StaticResource SmallButton}" 
+                                                Click="Adv_PWSubmitBtn_Click"/>
+                                        </Grid>
+                                        <TextBlock x:Name="Adv_PWMessageTxb" Text="Incorrect password" Margin="3" Visibility="Collapsed"/>
+                                    </StackPanel>
+                                </GroupBox>
+                            </Grid>
+                        </Border>
+                        <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="4">
                             <TabItem Header="Cell Control Panel">
 
                                 <Grid>
@@ -984,6 +1021,12 @@
                             <TabItem Header="Calibration">
 
                             </TabItem>
+                            <TabItem Header="Misc">
+                                <StackPanel Orientation="Vertical" Margin="6">
+                                    <Button x:Name="Adv_Res_OpenFolderBtn" Click="Adv_Res_OpenFolderBtn_Click" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                </StackPanel>
+                            </TabItem>
                             <TabItem Header="About">
                                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
 
@@ -1030,15 +1073,20 @@
             </TabControl>
         </Grid>
 
-        <Grid Grid.Row="2" Margin="0,6,0,0" Height="12">
-            <StatusBar Background="Transparent">
-                <!--<StatusBarItem Padding="0">
-                    <Label Content="Status:" Padding="0" Foreground="#666" FontSize="10"/>
-                </StatusBarItem>
-                <StatusBarItem Padding="6,0">
-                    <Label Content="Not Connected" x:Name="Sts_StatusLbl" Padding="0" Foreground="#666"/>
-                </StatusBarItem>-->
-            </StatusBar>
+        <Grid Grid.Row="2" Style="{StaticResource StatusBarBottom}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                
+                
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,16,0">
+                <Border x:Name="Status_SimBdr" Style="{StaticResource SimBorder}" Visibility="Collapsed">
+                    <TextBlock Text="Simulation enabled"/>
+                </Border>
+            </StackPanel>
         </Grid>
 
     </Grid>

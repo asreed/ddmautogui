@@ -23,7 +23,7 @@ namespace DDMAutoGUI
         public static ResultsManager ResultsManager { get; private set; }
         public static LocalDataManager LocalDataManager { get; private set; }
 
-
+        public static string advancedSettingsPassword = "ddmhelp";
 
 
         protected override void OnStartup(StartupEventArgs e)
@@ -50,7 +50,8 @@ namespace DDMAutoGUI
 
 
 
-
+            var data = App.LocalDataManager.localData;
+            App.LocalDataManager.SaveLocalDataToFile();
 
             Debug.Print("App exiting");
             base.OnExit(e);

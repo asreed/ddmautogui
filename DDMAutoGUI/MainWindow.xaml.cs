@@ -83,6 +83,13 @@ namespace DDMAutoGUI
             };
 
             UpdateButtonLocks();
+
+            Adv_PWEntryBdr.Visibility = Visibility.Visible;
+            Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
+
+            string savedIP = App.LocalDataManager.localData.controller_ip;
+            Con_IPTxt.Text = savedIP;
+            Adv_Con_IPTxt.Text = savedIP;
         }
 
 
@@ -163,10 +170,17 @@ namespace DDMAutoGUI
 
             if (Disp_SimChk.IsChecked ?? false)
             {
-                GoToStep(1);
+                Disp_ProcessPrg.Value = 0;
+                Disp_ProcessPrg.IsIndeterminate = true;
+                Dispense_GoToStep(1);
 
                 resultsManager.AddToLog("=== SIMULATION ENABLED ===");
                 resultsManager.AddToLog($"Dispense process started for motor {motorName}");
+
+                resultsManager.AddToLog("Verifying system health...");
+                await Task.Delay(500);
+                resultsManager.AddToLog("System OK");
+                Disp_ProcessPrg.IsIndeterminate = false;
 
                 // Take top photo, verify size
                 resultsManager.AddToLog("Taking pre-process top photo...");
@@ -287,7 +301,7 @@ namespace DDMAutoGUI
                 FlowCalibration.CalibratePressures(
                     shotData, 
                     App.SettingsManager.GetAllSettings(),
-                    App.LocalDataManager.GetLocalData(),
+                    App.LocalDataManager.localData,
                     out calibSuccess,
                     out newSys1Calib,
                     out newSys2Calib);
@@ -324,13 +338,13 @@ namespace DDMAutoGUI
                 Results res = resultsManager.currentResults;
                 if (pass)
                 {
-                    Disp_Res_PassBrd.Visibility = Visibility.Visible;
-                    Disp_Res_FailBrd.Visibility = Visibility.Collapsed;
+                    Disp_Res_PassBdr.Visibility = Visibility.Visible;
+                    Disp_Res_FailBdr.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    Disp_Res_PassBrd.Visibility = Visibility.Collapsed;
-                    Disp_Res_FailBrd.Visibility = Visibility.Visible;
+                    Disp_Res_PassBdr.Visibility = Visibility.Collapsed;
+                    Disp_Res_FailBdr.Visibility = Visibility.Visible;
                 }
                 Disp_Res_ResMessageTxb.Text = resultsManager.currentResults.message;
 
@@ -338,7 +352,7 @@ namespace DDMAutoGUI
                 Disp_Res_VolIDTxb.Text = $"{resultsManager.currentResults.shot_data.vol_id} mL";
                 Disp_Res_VolODTxb.Text = $"{resultsManager.currentResults.shot_data.vol_od} mL";
 
-                GoToStep(2);
+                Dispense_GoToStep(2);
 
 
 
@@ -362,7 +376,7 @@ namespace DDMAutoGUI
             resultsManager.AddToLog("Dispense process started");
             Disp_ProcessPrg.IsIndeterminate = false;
             Disp_ProcessPrg.Value = 0;
-            GoToStep(1);
+            Dispense_GoToStep(1);
 
             // verify all sensors are online
 
@@ -534,7 +548,7 @@ namespace DDMAutoGUI
 
 
 
-            GoToStep(2);
+            Dispense_GoToStep(2);
         }
 
         // ==================================================================
@@ -545,7 +559,7 @@ namespace DDMAutoGUI
 
 
 
-        private void GoToStep(int step)
+        private void Dispense_GoToStep(int step)
         {
             // called when moving to the step
             tabLock = false;
@@ -829,6 +843,8 @@ namespace DDMAutoGUI
             Con_ConnectBtn.Content = "Connected";
             Con_ConnectBtn.IsEnabled = false;
 
+            DispTab.IsEnabled = true;
+
             PopulateMotorSettings(Adv_Cell_MotorSizeCmb);
         }
 
@@ -844,6 +860,10 @@ namespace DDMAutoGUI
             Con_ConnectBtn.Content = "Connect";
             Con_ConnectBtn.IsEnabled = true;
 
+            Status_SimBdr.Visibility = Visibility.Collapsed;
+
+            DispTab.IsEnabled = false;
+
             DisableAllReadouts();
             BlankOutMotorSettings();
 
@@ -853,12 +873,14 @@ namespace DDMAutoGUI
         {
             ControllerState contState = App.ControllerManager.CONTROLLER_STATE;
 
+            Status_SimBdr.Visibility = Visibility.Collapsed;
             if (!contState.parseError)
             {
                 if (App.ControllerManager.CONNECTION_STATE.isConnected)
                 {
                     Adv_Cell_AutoStatusTxt.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
                     Adv_Cell_AutoStatusTxt.Text = "Parse OK";
+                    Status_SimBdr.Visibility = contState.isSimulated ? Visibility.Visible : Visibility.Collapsed;
                     FormatAllReadouts(contState);
                 }
                 else
@@ -971,6 +993,8 @@ namespace DDMAutoGUI
             Con_ConnectBtn.IsEnabled = false;
             Con_ConnectBtn.Content = "Connecting...";
 
+            App.LocalDataManager.localData.controller_ip = Con_IPTxt.Text;
+
             await App.ControllerManager.Connect(Con_IPTxt.Text);
             //if (App.ControllerManager.CONNECTION_STATE.isConnected)
             //{
@@ -987,6 +1011,7 @@ namespace DDMAutoGUI
         {
             Adv_Con_ConnectBtn.IsEnabled = false;
             await App.ControllerManager.Connect(Adv_Con_IPTxt.Text);
+            App.LocalDataManager.localData.controller_ip = Con_IPTxt.Text;
             if (App.ControllerManager.CONNECTION_STATE.isConnected)
             {
                 Adv_Con_ContVersionTxt.Content = await App.ControllerManager.GetTCSVersion();
@@ -1453,6 +1478,48 @@ namespace DDMAutoGUI
         private void Adv_Cam_OpenFolderBtn_Click(object sender, RoutedEventArgs e)
         {
             App.CameraManager.OpenExplorerToImages();
+        }
+
+        private void Disp_Res_FinishBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Dispense_GoToStep(0);
+        }
+
+        private void Adv_Res_OpenFolderBtn_Click(object sender, RoutedEventArgs e)
+        {
+            App.ResultsManager.OpenBrowserToDirectory();
+        }
+
+        private void Adv_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (Adv_PWBox.Password == App.advancedSettingsPassword)
+            {
+                Adv_PWEntryBdr.Visibility = Visibility.Collapsed;
+                Adv_PWMessageTxb.Visibility = Visibility.Collapsed;
+                Adv_AllControlsTcl.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Adv_PWMessageTxb.Visibility = Visibility.Visible;
+                Adv_PWMessageTxb.Text = "Incorrect password";
+            }
+        }
+
+        private void Adv_PWBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Adv_PWSubmitBtn_Click(sender, e);
+            }
+        }
+
+        private void Adv_Misc_LockAdvBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Adv_PWBox.Clear();
+            Adv_PWEntryBdr.Visibility = Visibility.Visible;
+            Adv_PWMessageTxb.Visibility = Visibility.Collapsed;
+            Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
+
         }
     }
 }

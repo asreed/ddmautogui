@@ -27,13 +27,8 @@
                     <TextBox 
                         Name="settingsTxb" 
                         Text="--" 
-                        TextWrapping="Wrap"
-                        Padding="6,5" 
-                        Margin="10"
-                        VerticalScrollBarVisibility="Auto" 
-                        VerticalContentAlignment="Top"
-                        FontFamily="Consolas"
-                        FontSize="10"/>
+                        IsReadOnly="False"
+                        Style="{StaticResource MonoTextBox}"/>
                 </Grid>
             </TabItem>
         </TabControl>
