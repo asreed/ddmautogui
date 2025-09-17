@@ -116,9 +116,21 @@
                                                 <Grid>
 
                                                     <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
-                                                        <GroupBox Header="Simulate">
-                                                            <CheckBox x:Name="Disp_SimChk" Content="Simulate"/>
-                                                        </GroupBox>
+                                                        <Expander Header="Simulate" Margin="0,6,0,6" Padding="3">
+                                                            <Border Margin="0,0,0,0" Padding="6" Background="{StaticResource TextBoxBlueLight}" CornerRadius="6">
+                                                                <StackPanel Orientation="Vertical">
+                                                                    <CheckBox x:Name="Disp_Sim_SimChk" Content="Simulate"/>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="Flow rate ID" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                                        <TextBox x:Name="Disp_Sim_FlowIDTxt" Width="60" Style="{StaticResource SmallTextBox}" Margin="0,0,8,0"/>
+                                                                    </StackPanel>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="Flow rate OD" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                                        <TextBox x:Name="Disp_Sim_FlowODTxt" Width="60" Style="{StaticResource SmallTextBox}" Margin="0,0,8,0"/>
+                                                                    </StackPanel>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </Expander>
                                                         <GroupBox Header="Motor Size">
                                                             <StackPanel Orientation="Vertical">
                                                                 <RadioButton Content="DDM 57" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57"/>
@@ -1079,8 +1091,8 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-                
-                
+
+
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,16,0">
                 <Border x:Name="Status_SimBdr" Style="{StaticResource SimBorder}" Visibility="Collapsed">

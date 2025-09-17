@@ -168,8 +168,13 @@ namespace DDMAutoGUI
             float x, t, d;
             int n;
 
-            if (Disp_SimChk.IsChecked ?? false)
+            if (Disp_Sim_SimChk.IsChecked ?? false)
             {
+
+                float simFlowID = float.Parse(Disp_Sim_FlowIDTxt.Text);
+                float simFlowOD = float.Parse(Disp_Sim_FlowODTxt.Text);
+
+
                 Disp_ProcessPrg.Value = 0;
                 Disp_ProcessPrg.IsIndeterminate = true;
                 Dispense_GoToStep(1);
@@ -198,21 +203,52 @@ namespace DDMAutoGUI
                 pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
                 pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
 
-                float pressure1, pressure2;
-                pressure1 = sysID == 1 ? pressureID : pressureOD;
-                pressure2 = sysID == 2 ? pressureID : pressureOD;
-                // if sysID == sysOD, both local pressures will be identical anyway so no need to check
+                // maybe there's a cleaner way to do this:
+                float? pressure1 = null, pressure2 = null;
+                if (sysID == 1)
+                {
+                    pressure1 = pressureID;
+                }
+                else if (sysID == 2)
+                {
+                    pressure2 = pressureID;
+                }
+                if (sysOD == 1)
+                {
+                    pressure1 = pressureOD;
+                }
+                else if (sysOD == 2)
+                {
+                    pressure2 = pressureOD;
+                }
+                // (if sysID == sysOD, both local pressures will be identical anyway so no need to check)
+
 
 
 
                 // TODO: VERIFY CALIBRATION HASN'T EXPIRED
 
+
                 // TODO: VERIFY PRESSURES ARE WITHIN RANGE
 
 
 
-                resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1} psi");
-                resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2} psi");
+                if (pressure1 != null)
+                {
+                    resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1} psi");
+                }
+                else
+                {
+                    resultsManager.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
+                }
+                if (pressure2 != null)
+                {
+                    resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2} psi");
+                }
+                else
+                {
+                    resultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
+                }
                 resultsManager.AddToLog("Pressures set");
                 await Task.Delay(500);
 
@@ -248,6 +284,10 @@ namespace DDMAutoGUI
                 Disp_ProcessPrg.Value = 80;
 
                 // Process dispense results
+                float targetTimeID = motor.shot_settings.target_vol_id.Value / motor.shot_settings.target_flow_id.Value;
+                float targetTimeOD = motor.shot_settings.target_vol_od.Value / motor.shot_settings.target_flow_od.Value;
+                float simVolID = simFlowID * targetTimeID;
+                float simVolOD = simFlowOD * targetTimeOD;
                 ResultsShotData shotData = new ResultsShotData
                 {
                     motor_type = motorName,
@@ -257,10 +297,10 @@ namespace DDMAutoGUI
                     valve_num_od = 1,
                     pressure_id = pressureID,
                     pressure_od = pressureOD,
-                    time_id = 1.808f,
-                    time_od = 2.232f,
-                    vol_id = 0.423f,
-                    vol_od = 0.541f
+                    time_id = targetTimeID,
+                    time_od = targetTimeOD,
+                    vol_id = simVolID,
+                    vol_od = simVolOD
                 };
 
                 string substance_id = motor.shot_settings.sys_num_id == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
@@ -299,7 +339,7 @@ namespace DDMAutoGUI
                 CellSettingsDispenseCalib[] newSys2Calib;
                 bool calibSuccess;
                 FlowCalibration.CalibratePressures(
-                    shotData, 
+                    shotData,
                     App.SettingsManager.GetAllSettings(),
                     App.LocalDataManager.localData,
                     out calibSuccess,
@@ -310,9 +350,55 @@ namespace DDMAutoGUI
                 {
                     App.LocalDataManager.UpdateCalib(1, newSys1Calib);
                     App.LocalDataManager.UpdateCalib(2, newSys2Calib);
-                } else
+                }
+                else
                 {
                     // ??
+                }
+
+                resultsManager.AddToLog("Saving updated calibration data to local storage...");
+                App.LocalDataManager.SaveLocalDataToFile();
+                resultsManager.AddToLog("Calibration data saved");
+
+                resultsManager.AddToLog("Adjusting dispense system pressures...");
+                sysID = motor.shot_settings.sys_num_id.Value;
+                sysOD = motor.shot_settings.sys_num_od.Value;
+                pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
+                pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
+
+                pressure1 = null;
+                pressure2 = null;
+                if (sysID == 1)
+                {
+                    pressure1 = pressureID;
+                }
+                else if (sysID == 2)
+                {
+                    pressure2 = pressureID;
+                }
+                if (sysOD == 1)
+                {
+                    pressure1 = pressureOD;
+                }
+                else if (sysOD == 2)
+                {
+                    pressure2 = pressureOD;
+                }
+                if (pressure1 != null)
+                {
+                    resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1} psi");
+                }
+                else
+                {
+                    resultsManager.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
+                }
+                if (pressure2 != null)
+                {
+                    resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2} psi");
+                }
+                else
+                {
+                    resultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
                 }
 
 
@@ -329,9 +415,8 @@ namespace DDMAutoGUI
                 resultsManager.currentResults.message = msg;
 
                 // Save results to file
-                resultsManager.AddToLog("Saving results to file...");
+                resultsManager.AddToLog("Saving results to file");
                 resultsManager.SaveDataToFile();
-                resultsManager.AddToLog("Results saved");
 
                 // Prepare and display results page
 

@@ -89,13 +89,21 @@ namespace DDMAutoGUI.utilities
         {
             switch (sysNum)
             {
-                case 1: localData.current_sys_1_flow_calib = newCalib; break;
-                case 2: localData.current_sys_2_flow_calib = newCalib; break;
+                case 1:
+                    localData.current_sys_1_flow_calib = newCalib;
+                    localData.last_sys_1_calib_update = DateTime.Now;
+                    break;
+                case 2: 
+                    localData.current_sys_2_flow_calib = newCalib;
+                    localData.last_sys_2_calib_update = DateTime.Now;
+                    break;
             }
         }
 
         public float? GetPressureFromFlowrate(int sys, float flow)
         {
+            // sys must be 1 or 2
+
             var calib = sys == 1 ? localData.current_sys_1_flow_calib : localData.current_sys_2_flow_calib;
             for (int i = 0; i < calib.Length; i++)
             {
