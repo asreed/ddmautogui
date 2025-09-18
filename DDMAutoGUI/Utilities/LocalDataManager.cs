@@ -15,8 +15,8 @@ namespace DDMAutoGUI.utilities
         public string? controller_ip { get; set; }
         public DateTime? last_sys_1_calib_update { get; set; }
         public DateTime? last_sys_2_calib_update { get; set; }
-        public CellSettingsDispenseCalib[]? current_sys_1_flow_calib {  get; set; }
-        public CellSettingsDispenseCalib[]? current_sys_2_flow_calib { get; set; }
+        public CSDispenseCalib[]? current_sys_1_flow_calib {  get; set; }
+        public CSDispenseCalib[]? current_sys_2_flow_calib { get; set; }
 
     }
 
@@ -85,7 +85,7 @@ namespace DDMAutoGUI.utilities
 
         }
 
-        public void UpdateCalib(int sysNum, CellSettingsDispenseCalib[] newCalib)
+        public void UpdateCalib(int sysNum, CSDispenseCalib[] newCalib)
         {
             switch (sysNum)
             {

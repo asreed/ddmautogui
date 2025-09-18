@@ -3,6 +3,10 @@
   "camera_top_sn": "252902469",
   "camera_side_sn": "252902472",
   "laser_delay": 0.050,
+  "dispense_pass_criteria": {
+    "max_id_vol_dev_percent": 10,
+    "max_od_vol_dev_percent": 10
+  },
   "dispense_system": {
     "sys_1_contents": "Permabond 801",
     "sys_2_contents": "Permabond 825",

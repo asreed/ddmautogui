@@ -11,12 +11,30 @@ using System.Threading.Tasks;
 
 namespace DDMAutoGUI.utilities
 {
-    public class CellSettingsLocation
+
+    public class CellSettings
+    {
+        public DateTime? last_saved { get; set; }
+        public string? camera_top_sn { get; set; }
+        public string? camera_side_sn { get; set; }
+        public float? laser_delay { get; set; }
+        public CSDispesePassCriteria? dispense_pass_criteria { get; set; }
+        public CSDispense? dispense_system { get; set; }
+        public CSLaser? laser_calib { get; set; }
+        public CSMotorCommon? ddm_common { get; set; }
+        public CSMotor? ddm_57 { get; set; }
+        public CSMotor? ddm_95 { get; set; }
+        public CSMotor? ddm_116 { get; set; }
+        public CSMotor? ddm_170 { get; set; }
+        public CSMotor? ddm_170_tall { get; set; }
+    }
+
+    public class CSLocation
     {
         public float? x { get; set; }
         public float? t { get; set; }
     }
-    public class CellSettingsShot
+    public class CSShot
     {
         public int? sys_num_id { get; set; }
         public int? sys_num_od { get; set; }
@@ -25,23 +43,23 @@ namespace DDMAutoGUI.utilities
         public float? target_flow_id { get; set; }
         public float? target_flow_od { get; set; }
     }
-    public class CellSettingsMotorCommon
+    public class CSMotorCommon
     {
-        public CellSettingsLocation? load { get; set; }
-        public CellSettingsLocation? camera_top { get; set; }
+        public CSLocation? load { get; set; }
+        public CSLocation? camera_top { get; set; }
     }
-    public class CellSettingsMotor
+    public class CSMotor
     {
-        public CellSettingsShot? shot_settings { get; set; }
+        public CSShot? shot_settings { get; set; }
         public float? post_spin_time { get; set; }
         public float? post_spin_speed { get; set; }
         public int? laser_ring_num { get; set; }
         public int? laser_mag_num { get; set; }
-        public CellSettingsLocation? camera_side { get; set; }
-        public CellSettingsLocation? disp_id { get; set; }
-        public CellSettingsLocation? disp_od { get; set; }
-        public CellSettingsLocation? laser_mag { get; set; }
-        public CellSettingsLocation? laser_ring { get; set; }
+        public CSLocation? camera_side { get; set; }
+        public CSLocation? disp_id { get; set; }
+        public CSLocation? disp_od { get; set; }
+        public CSLocation? laser_mag { get; set; }
+        public CSLocation? laser_ring { get; set; }
 
         public bool IsValid()
         {
@@ -58,28 +76,28 @@ namespace DDMAutoGUI.utilities
         }
     }
 
-    public class CellSettingsLaserCoeff
+    public class CSLaserCoeff
     {
         public float? A { get; set; }
         public float? phi { get; set; }
         public float? R2 { get; set; }
     }
 
-    public class CellSettingsLaser
+    public class CSLaser
     {
-        public CellSettingsLaserCoeff? ddm_57_coeff { get; set; }
-        public CellSettingsLaserCoeff? ddm_95_coeff { get; set; }
-        public CellSettingsLaserCoeff? ddm_116_coeff { get; set; }
-        public CellSettingsLaserCoeff? ddm_170_coeff { get; set; }
+        public CSLaserCoeff? ddm_57_coeff { get; set; }
+        public CSLaserCoeff? ddm_95_coeff { get; set; }
+        public CSLaserCoeff? ddm_116_coeff { get; set; }
+        public CSLaserCoeff? ddm_170_coeff { get; set; }
     }
 
-    public class CellSettingsDispenseCalib
+    public class CSDispenseCalib
     {
         public float? pressure { get; set; }
         public float? flow { get; set; }
     }
 
-    public class CellSettingsDispense
+    public class CSDispense
     {
         public string? sys_1_contents { get; set; }
         public string? sys_2_contents { get; set; }
@@ -87,25 +105,17 @@ namespace DDMAutoGUI.utilities
         public float? sys_2_max_pressure { get; set; }
         public float? sys_1_max_pressure_dev_percent { get; set; }
         public float? sys_2_max_pressure_dev_percent { get; set; }
-        public CellSettingsDispenseCalib[] sys_1_flow_calib { get; set; }
-        public CellSettingsDispenseCalib[] sys_2_flow_calib { get; set; }
+        public CSDispenseCalib[] sys_1_flow_calib { get; set; }
+        public CSDispenseCalib[] sys_2_flow_calib { get; set; }
     }
 
-    public class CellSettings
+    public class CSDispesePassCriteria
     {
-        public DateTime? last_saved { get; set; }
-        public string? camera_top_sn { get; set; }
-        public string? camera_side_sn { get; set; }
-        public float? laser_delay { get; set; }
-        public CellSettingsDispense? dispense_system { get; set; }
-        public CellSettingsLaser? laser_calib { get; set; }
-        public CellSettingsMotorCommon? ddm_common { get; set; }
-        public CellSettingsMotor? ddm_57 { get; set; }
-        public CellSettingsMotor? ddm_95 { get; set; }
-        public CellSettingsMotor? ddm_116 { get; set; }
-        public CellSettingsMotor? ddm_170 { get; set; }
-        public CellSettingsMotor? ddm_170_tall { get; set; }
+        public float? max_id_vol_dev_percent { get; set; }
+        public float? max_od_vol_dev_percent { get; set; }
     }
+
+
 
 
 
@@ -201,7 +211,7 @@ namespace DDMAutoGUI.utilities
         }
 
 
-        public CellSettingsMotor GetSettingsForSelectedSize()
+        public CSMotor GetSettingsForSelectedSize()
         {
             switch (selectedSize)
             {

@@ -84,7 +84,7 @@ namespace DDMAutoGUI.utilities
         // ==================================================================
         // Pass/fail determination
 
-        public void DeterminePassFail(Results results, out bool pass, out string message)
+        public void DeterminePassFail(Results results, CellSettings settings, CSMotor motorSettings, out bool pass, out string message)
         {
             pass = false;
             message = "Unable to determine pass/fail";
@@ -102,6 +102,29 @@ namespace DDMAutoGUI.utilities
             if (results.shot_data == null)
             {
                 message = "Shot data is null";
+                return;
+            }
+            if (settings == null || motorSettings == null)
+            {
+                message = "Settings object is null";
+                return;
+            }
+
+            float vol_id = results.shot_data.vol_id.Value;
+            float vol_od = results.shot_data.vol_od.Value;
+            float target_vol_id = motorSettings.shot_settings.target_vol_id.Value;
+            float target_vol_od = motorSettings.shot_settings.target_vol_od.Value;
+            float dev_id = settings.dispense_pass_criteria.max_id_vol_dev_percent.Value;
+            float dev_od = settings.dispense_pass_criteria.max_od_vol_dev_percent.Value;
+
+            if (Math.Abs(target_vol_id - vol_id) / target_vol_id * 100 > dev_id)
+            {
+                message = $"ID volume {vol_id} mL is outside of acceptable deviation {dev_id}% from target {target_vol_id} mL";
+                return;
+            }
+            if (Math.Abs(target_vol_od - vol_od) / target_vol_od * 100 > dev_od)
+            {
+                message = $"OD volume {vol_id} mL is outside of acceptable deviation {dev_id}% from target {target_vol_id} mL";
                 return;
             }
 

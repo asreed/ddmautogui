@@ -19,8 +19,8 @@ namespace DDMAutoGUI.utilities
             CellSettings cellSettings,
             LocalData localData,
             out bool success,
-            out CellSettingsDispenseCalib[] newSys1Calib,
-            out CellSettingsDispenseCalib[] newSys2Calib)
+            out CSDispenseCalib[] newSys1Calib,
+            out CSDispenseCalib[] newSys2Calib)
         {
 
             /// <summary>
@@ -30,7 +30,7 @@ namespace DDMAutoGUI.utilities
             /// </summary>
 
             success = false;
-            CellSettingsShot targetShotData = null;
+            CSShot targetShotData = null;
 
             switch (prevShotData.motor_type)
             {
@@ -93,8 +93,8 @@ namespace DDMAutoGUI.utilities
             Debug.Print($"Individual scale factors calculated: ID: {sfID}, OD: {sfOD}");
             Debug.Print($"Applying scale factors: system 1: {sf1}, system 2: {sf2}");
 
-            CellSettingsDispenseCalib[] sys1Calib = localData.current_sys_1_flow_calib;
-            CellSettingsDispenseCalib[] sys2Calib = localData.current_sys_2_flow_calib;
+            CSDispenseCalib[] sys1Calib = localData.current_sys_1_flow_calib;
+            CSDispenseCalib[] sys2Calib = localData.current_sys_2_flow_calib;
 
 
 
