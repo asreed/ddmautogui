@@ -84,6 +84,8 @@ namespace DDMAutoGUI
 
             UpdateButtonLocks();
 
+            Status_SimBdr.Visibility = Visibility.Collapsed;
+
             Adv_PWEntryBdr.Visibility = Visibility.Visible;
             Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
 
@@ -928,6 +930,14 @@ namespace DDMAutoGUI
             Con_ConnectBtn.Content = "Connected";
             Con_ConnectBtn.IsEnabled = false;
 
+            Status_StatusTxt.Text = $"Connected ({App.ControllerManager.CONNECTION_STATE.connectedIP})";
+            string TCS = await App.ControllerManager.GetTCSVersion();
+            string PAC = await App.ControllerManager.GetPACVersion();
+            Status_TCSGrd.Visibility = Visibility.Visible;
+            Status_TCSTxt.Text = TCS;
+            Status_PACGrd.Visibility = Visibility.Visible;
+            Status_PACTxt.Text = PAC;
+
             DispTab.IsEnabled = true;
 
             PopulateMotorSettings(Adv_Cell_MotorSizeCmb);
@@ -945,7 +955,11 @@ namespace DDMAutoGUI
             Con_ConnectBtn.Content = "Connect";
             Con_ConnectBtn.IsEnabled = true;
 
+            Status_StatusTxt.Text = "Not connected";
+
             Status_SimBdr.Visibility = Visibility.Collapsed;
+            Status_TCSGrd.Visibility = Visibility.Collapsed;
+            Status_PACGrd.Visibility = Visibility.Collapsed;
 
             DispTab.IsEnabled = false;
 

@@ -68,10 +68,16 @@ namespace DDMAutoGUI.utilities
     public class ConnectionState
     {
         public bool isConnected { get; set; }
+        public string connectedIP { get; set; }
+        public string connectedTCS { get; set; } // not set yet
+        public string connectedPAC { get; set; } // not set yet
         public bool isAutoControllerStateRequesting { get; set; }
         public void Initialize()
         {
             isConnected = false;
+            connectedIP = string.Empty;
+            connectedTCS = string.Empty;
+            connectedPAC = string.Empty;
             isAutoControllerStateRequesting = false;
         }
     }
@@ -283,7 +289,6 @@ namespace DDMAutoGUI.utilities
 
 
 
-
         // ==================================================================
         // General TCS messaging (port 10000 and 10100)
 
@@ -321,6 +326,7 @@ namespace DDMAutoGUI.utilities
                 ControllerConnected?.Invoke(this, EventArgs.Empty);
 
                 CONNECTION_STATE.isConnected = true;
+                CONNECTION_STATE.connectedIP = ip;
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
                 StartAutoControllerState();
@@ -338,6 +344,7 @@ namespace DDMAutoGUI.utilities
                 ControllerDisconnected?.Invoke(this, EventArgs.Empty);
 
                 CONNECTION_STATE.isConnected = false;
+                CONNECTION_STATE.connectedIP = string.Empty;
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
                 return false;
             }
@@ -367,6 +374,7 @@ namespace DDMAutoGUI.utilities
             ControllerDisconnected?.Invoke(this, EventArgs.Empty);
 
             CONNECTION_STATE.isConnected = false;
+            CONNECTION_STATE.connectedIP = string.Empty;
             ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
             StopAutoControllerState();
@@ -413,15 +421,21 @@ namespace DDMAutoGUI.utilities
 
                 ControllerDisconnected?.Invoke(this, EventArgs.Empty);
                 CONNECTION_STATE.isConnected = false;
+                CONNECTION_STATE.connectedIP = string.Empty;
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
             }
             return response.ToString().Trim();
         }
 
-        public async Task<string> SendStatusCommand(string command)
+        public async Task<String> SendStatusCommand(string command)
         {
-            UpdateStatusLog($">> {command}");
+            return await SendStatusCommand(command, false);
+        }
+
+        public async Task<string> SendStatusCommand(string command, bool muteLog)
+        {
+            if (!muteLog) { UpdateStatusLog($">> {command}"); }
 
             byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
             string response = string.Empty;
@@ -432,7 +446,7 @@ namespace DDMAutoGUI.utilities
                 byte[] buffer = new byte[1024];
                 int receivedLength = await statusClient.ReceiveAsync(buffer);
                 response = Encoding.ASCII.GetString(buffer, 0, receivedLength).Trim();
-                UpdateStatusLog($"<< {response}");
+                if (!muteLog) { UpdateStatusLog($"<< {response}"); }
             }
             catch (SocketException e)
             {
@@ -442,6 +456,7 @@ namespace DDMAutoGUI.utilities
 
                 ControllerDisconnected?.Invoke(this, EventArgs.Empty);
                 CONNECTION_STATE.isConnected = false;
+                CONNECTION_STATE.connectedIP = string.Empty;
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
             }
             return response;
@@ -530,9 +545,9 @@ namespace DDMAutoGUI.utilities
             return response.Trim();
         }
 
-        private async void UpdateControllerState()
+        private async void UpdateControllerState(bool muteLog)
         {
-            string newStatusString = await GetSystemStateRemote();
+            string newStatusString = await GetSystemStateRemote(muteLog);
             string[] parts = newStatusString.Split(" ");
             if (parts.Length > 1)
             {
@@ -648,7 +663,7 @@ namespace DDMAutoGUI.utilities
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            UpdateControllerState();
+            UpdateControllerState(true);
         }
 
 
@@ -676,9 +691,9 @@ namespace DDMAutoGUI.utilities
         // ==================================================================
         // Public robot routines
 
-        public async Task<string> GetSystemStateRemote()
+        public async Task<string> GetSystemStateRemote(bool muteLog)
         {
-            string response = await SendStatusCommand("DDM_GetSystemState");
+            string response = await SendStatusCommand("DDM_GetSystemState", muteLog);
             return response;
         }
 

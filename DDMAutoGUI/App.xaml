@@ -1013,12 +1013,13 @@
 
 
         <Style x:Key="StatusBarBottom" TargetType="Grid">
-            <Setter Property="Margin" Value="4,4,0,0"/>
-            <Setter Property="Height" Value="18"/>
+            <Setter Property="Margin" Value="-4,0,-4,-4"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="Background" Value="WhiteSmoke"/>
             <Style.Resources>
                 <Style TargetType="TextBlock">
-                    <Setter Property="Foreground" Value="#666"/>
-                    <Setter Property="FontSize" Value="10"/>
+                    <Setter Property="Foreground" Value="#999"/>
+                    <Setter Property="FontSize" Value="10.5"/>
                     <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>
             </Style.Resources>
@@ -1028,10 +1029,12 @@
             <Setter Property="Background" Value="#FFF9F230"/>
             <Setter Property="BorderBrush" Value="#FFCCC50A"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="6,0"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Style.Resources>
                 <Style TargetType="TextBlock">
                     <Setter Property="Foreground" Value="Black"/>
+                    <Setter Property="FontSize" Value="10.5"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>
             </Style.Resources>
         </Style>

@@ -118,79 +118,17 @@ namespace DDMAutoGUI.windows
             }
         }
 
-
-
-        private void GenerateFields(object obj, StackPanel parent)
-        {
-            //if (obj == null) return;
-
-            //Type type = obj.GetType();
-            //PropertyInfo[] properties = type.GetProperties();
-
-            //foreach (PropertyInfo property in properties)
-            //{
-            //    if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
-            //    {
-            //        // Recursively add properties of nested class
-            //        StackPanel nestedParent = InsertFieldGroup(property.Name, parent);
-            //        GenerateFields(property.GetValue(obj), nestedParent);
-            //    }
-            //    else
-            //    {
-            //        // Process the property (e.g., print its name and value)
-            //        Debug.Print($"Property Name: {property.Name}, Value: {property.GetValue(obj)}");
-            //        InsertField(property.Name, property.GetValue(obj)?.ToString() ?? "null", parent);
-            //    }
-            //}
-        }
-
-        private StackPanel InsertFieldGroup(string header, StackPanel parent)
-        {
-            //var converter = new UnderscoreEscapeConverter();
-            //Label headerLabel = new Label
-            //{
-            //    Content = converter.Convert(header, null, null, null),
-            //    FontWeight = FontWeights.Bold,
-            //    Margin = new Thickness(0),
-            //    Padding = new Thickness(0)
-            //};
-            //StackPanel stackPanel = new StackPanel
-            //{
-            //    Orientation = Orientation.Vertical,
-            //    Background = new SolidColorBrush(Color.FromArgb(3, 0, 0, 0)),
-            //    Margin = new Thickness(12,3,3,3),
-            //};
-            //parent.Children.Add(headerLabel);
-            //parent.Children.Add(stackPanel);
-            //return stackPanel;
-            return null;
-
-        }
-
-        //private void InsertField(string label, string value, StackPanel parent)
-        //{
-        //    SettingsField field = new SettingsField
-        //    {
-        //        LabelText = label,
-        //        ValueText = value,
-        //        FontWeight = FontWeights.Normal,
-        //        Margin = new Thickness(0),
-        //        Padding = new Thickness(0)
-        //    };
-        //    parent.Children.Add(field);
-        //}
-
         private void LoadBtn_Click(object sender, RoutedEventArgs e)
         {
             PopulateLocalDataTree(App.LocalDataManager.localData);
-            PopulateLocalDataTree(App.LocalDataManager.localData);
+            PopulateRawLocalData(App.LocalDataManager.localData);
         }
 
         private void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
             App.LocalDataManager.SaveLocalDataToFile();
             PopulateLocalDataTree(App.LocalDataManager.localData);
-            PopulateLocalDataTree(App.LocalDataManager.localData);
+            PopulateRawLocalData(App.LocalDataManager.localData);
         }
     }
 }
