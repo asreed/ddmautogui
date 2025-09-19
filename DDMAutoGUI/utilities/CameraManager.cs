@@ -28,13 +28,23 @@ namespace DDMAutoGUI.utilities
         private const ArenaNET.EPfncFormat PIXEL_FORMAT = ArenaNET.EPfncFormat.BGR8;
         private string acqFilePath = string.Empty;
         private string acqFilePrefix = "acq_img";
-        private string acqFileSuffix = ".png";
+        private string acqFileSuffixPNG = ".png";
+        private string acqFileSuffixJPG = ".jpg";
         private string acqFileDirectory = AppDomain.CurrentDomain.BaseDirectory + "acquisitions\\";
         private string cameraTopSN, cameraSideSN = "";
+        private CellImageFormat defaultImageFormat = CellImageFormat.JPG;
+
+
         public enum CellCamera
         {
             top,
             side
+        }
+
+        public enum CellImageFormat
+        {
+            PNG,
+            JPG
         }
 
 
@@ -65,14 +75,30 @@ namespace DDMAutoGUI.utilities
             Process.Start("explorer.exe", acqFileDirectory);
         }
 
+
         public CameraAcquisitionResult AcquireAndSave(CellCamera cellCamera, Image displayElement)
         {
-            acqFilePath = acqFileDirectory + acqFilePrefix + GetTimestamp() + acqFileSuffix;
+            return AcquireAndSave(cellCamera, displayElement, defaultImageFormat);
+        }
+
+        public CameraAcquisitionResult AcquireAndSave(CellCamera cellCamera, Image displayElement, CellImageFormat imgFormat)
+        {
+            string sfx = string.Empty;
+            switch (imgFormat)
+            {
+                case CellImageFormat.PNG:
+                    sfx = acqFileSuffixPNG;
+                    break;
+                case CellImageFormat.JPG:
+                    sfx = acqFileSuffixJPG;
+                    break;
+            }
+            acqFilePath = acqFileDirectory + acqFilePrefix + GetTimestamp() + sfx;
 
             CameraAcquisitionResult result = new CameraAcquisitionResult();
             result.success = false;
             result.filePath = acqFilePath;
-            result.fileName = acqFilePrefix + GetTimestamp() + acqFileSuffix;
+            result.fileName = acqFilePrefix + GetTimestamp() + acqFileSuffixJPG;
 
             ArenaNET.ISystem system = null;
 
@@ -100,7 +126,6 @@ namespace DDMAutoGUI.utilities
 
                 for (int i = 0; i < system.Devices.Count; i++)
                 {
-                    Debug.Print($"Device {i} SN: {system.Devices[i].SerialNumber}");
                     if (system.Devices[i].SerialNumber == cameraTopSN && cellCamera == CellCamera.top)
                     {
                         selectedDeviceInfo = system.Devices[i];
@@ -140,7 +165,15 @@ namespace DDMAutoGUI.utilities
                 ArenaNET.IImage image = device.GetImage(2000);
 
                 // save image
-                SaveImage(image, acqFilePath);
+                switch (imgFormat)
+                {
+                    case CellImageFormat.PNG:
+                        SaveImagePNG(image, acqFilePath);
+                        break;
+                    case CellImageFormat.JPG:
+                        SaveImageJPG(image, acqFilePath);
+                        break;
+                }
 
                 // clean up
                 device.RequeueBuffer(image);
@@ -166,10 +199,10 @@ namespace DDMAutoGUI.utilities
 
         }
 
-        static void SaveImage(ArenaNET.IImage image, String filePath)
+        static void SaveImagePNG(ArenaNET.IImage image, String filePath)
         {
             // convert image
-            Debug.Print("...Convert image to {0}", PIXEL_FORMAT);
+            Debug.Print($"...Convert image to {PIXEL_FORMAT}");
 
             ArenaNET.IImage converted = ArenaNET.ImageFactory.Convert(image, PIXEL_FORMAT);
 
@@ -199,6 +232,48 @@ namespace DDMAutoGUI.utilities
             writer.SetPng(".png", 0, false);
 
             // save image
+            Debug.Print("...Save image");
+
+            writer.Save(converted.DataArray, true);
+
+            // destroy converted image
+            ArenaNET.ImageFactory.Destroy(converted);
+        }
+
+
+
+
+        static void SaveImageJPG(ArenaNET.IImage image, String filePath)
+        {
+            // convert image
+            Debug.Print($"...Convert image to {PIXEL_FORMAT}");
+
+            ArenaNET.IImage converted = ArenaNET.ImageFactory.Convert(image, PIXEL_FORMAT);
+
+            // prepare image parameters
+            Debug.Print("...Prepare image parameters");
+
+            SaveNET.ImageParams parameters = new SaveNET.ImageParams(
+                    converted.Width,
+                    converted.Height,
+                    converted.BitsPerPixel,
+                    true);
+
+            // prepare image writer
+            Debug.Print("...Prepare image writer");
+
+            SaveNET.ImageWriter writer = new SaveNET.ImageWriter(parameters, filePath);
+
+            // Set image writer to JPEG
+            //   Set the output file format of the image writer to JPEG.
+            //   The writer saves the image file as JPEG file even without
+            //       the extension in the file name. Aside from this setting,
+            //   quality can be set between 1 to 100, the image can be set
+            //   as progressive, subsampling can be set, and optimal Huffman
+            //   Tables can be calculated by changing the parameters.
+            writer.SetJpeg(".jpg", 95, false, SaveNET.EJpegSubsampling.NoSubsampling, false);
+
+            // save
             Debug.Print("...Save image");
 
             writer.Save(converted.DataArray, true);

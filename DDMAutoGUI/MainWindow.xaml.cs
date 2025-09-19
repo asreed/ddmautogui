@@ -540,7 +540,7 @@ namespace DDMAutoGUI
                 resultsManager.AddToLog($"Moving to [{x}, {t}]");
 
                 await App.ControllerManager.MoveJ(x, t);
-                App.CameraManager.AcquireAndSave(CameraManager.CellCamera.top, null);
+                //App.CameraManager.AcquireAndSave(CameraManager.CellCamera.top, null);
 
                 resultsManager.AddToLog("Photo saved");
                 Disp_ProcessPrg.Value = 20;
