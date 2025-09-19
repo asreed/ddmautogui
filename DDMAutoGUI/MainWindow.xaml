@@ -40,10 +40,21 @@
                             <StackPanel Orientation="Vertical">
                                 <GroupBox Header="IP Address">
 
-                                    <TextBox Grid.Row="0" 
-                                             Grid.Column="0" 
-                                             x:Name="Con_IPTxt" 
-                                             Text="192.168.0.1"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0" 
+                                                 x:Name="Con_IPTxt" 
+                                                 Text="192.168.0.1"/>
+                                        <Button Grid.Column="1" 
+                                                x:Name="Con_ConnectBtn" 
+                                                Content="Connect" 
+                                                Width="100"
+                                                Click="Con_ConnectBtn_Click"
+                                                Style="{StaticResource BlueButton}"/>
+                                    </Grid>
                                 </GroupBox>
                                 <GroupBox Header="Connection Status">
                                     <Label x:Name="Con_StatusLbl" Content="Not connected"/>
@@ -78,12 +89,6 @@
                                         <Label Grid.Row="3" Grid.Column="1" Content="Side Camera" Margin="6,0,0,0"/>
                                     </Grid>-->
                                 </GroupBox>
-                                <Button Grid.Row="0" 
-                                        Grid.Column="1" 
-                                        x:Name="Con_ConnectBtn" 
-                                        Content="Connect" 
-                                        Click="Con_ConnectBtn_Click"
-                                        Style="{StaticResource BlueButton}"/>
                             </StackPanel>
                         </Grid>
                     </Grid>
@@ -207,7 +212,7 @@
                                                         <RowDefinition Height="Auto"/>
                                                     </Grid.RowDefinitions>
 
-                                                    <GroupBox Grid.Row="0" Header="Result">
+                                                    <GroupBox Grid.Row="0" Header="Result" Padding="16">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="140"/>
@@ -376,7 +381,7 @@
                                                     <ComboBoxItem Content="DDM 170" />
                                                     <ComboBoxItem Content="DDM 170 Tall" />
                                                 </ComboBox>
-                                                <Button x:Name="Adv_Cell_OpenSettingsBtn" Content="Open file" Click="Adv_Cell_OpenSettingsBtn_Click" Style="{StaticResource SmallButton}" />
+                                                <!--<Button x:Name="Adv_Cell_OpenSettingsBtn" Content="Open file" Click="Adv_Cell_OpenSettingsBtn_Click" Style="{StaticResource SmallButton}" />-->
                                                 <Button x:Name="Adv_Cell_ReloadSettingsBtn" Content="Reload" Click="Adv_Cell_ReloadSettingsBtn_Click" Style="{StaticResource SmallButton}" />
                                             </StackPanel>
                                         </GroupBox>
@@ -393,19 +398,19 @@
                                                     <ColumnDefinition/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <Label Grid.Row="0" Grid.Column="0" Content="Manager UI:"/>
-                                                <Label Grid.Row="1" Grid.Column="0" Content="Controller TCS:"/>
-                                                <Label Grid.Row="2" Grid.Column="0" Content="Controller config:"/>
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Manager UI:"/>
+                                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Controller TCS:"/>
+                                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Controller config:"/>
 
-                                                <Label Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_GUIVersionLbl" Content="-"/>
-                                                <Label Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_TCSVersionLbl" Content="-"/>
-                                                <Label Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_PACVersionLbl" Content="-"/>
+                                                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_GUIVersionLbl" Text="-"/>
+                                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_TCSVersionLbl" Text="-"/>
+                                                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_PACVersionLbl" Text="-"/>
                                             </Grid>
                                         </GroupBox>
                                         <GroupBox Header="Emergency" Grid.Column="3">
-                                            <StackPanel Orientation="Vertical" Grid.Column="1">
-                                                <Button x:Name="Adv_Cell_EStopBtn" Content="E STOP" Style="{DynamicResource RedButton}" Padding="10" Click="Adv_Cell_EStopBtn_Click"/>
-                                                <Button x:Name="Adv_Cell_ECloseValvesBtn" Content="CLOSE VALVES" Style="{DynamicResource RedButton}" Padding="10" Click="Adv_Cell_ECloseValvesBtn_Click"/>
+                                            <StackPanel Orientation="Horizontal" Grid.Column="1">
+                                                <Button x:Name="Adv_Cell_EStopBtn" Content="E STOP" Style="{DynamicResource RedButton}" Padding="10" Click="Adv_Cell_EStopBtn_Click" VerticalAlignment="Top"/>
+                                                <Button x:Name="Adv_Cell_ECloseValvesBtn" Content="CLOSE VALVES" Style="{DynamicResource RedButton}" Padding="10" Click="Adv_Cell_ECloseValvesBtn_Click" VerticalAlignment="Top"/>
                                             </StackPanel>
                                         </GroupBox>
                                     </Grid>

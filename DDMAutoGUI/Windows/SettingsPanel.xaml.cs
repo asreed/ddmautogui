@@ -28,7 +28,7 @@ namespace DDMAutoGUI.windows
             InitializeComponent();
             CellSettings settings = App.SettingsManager.GetAllSettings();
             PopulateSettingsTree(settings);
-            PopulateRawSettings(settings);
+            PopulateSettingsString(settings);
 
         }
 
@@ -38,22 +38,26 @@ namespace DDMAutoGUI.windows
 
 
 
-        private void PopulateRawSettings(CellSettings settings)
+        private void PopulateSettingsString(CellSettings settings)
         {
             settingsTxb.Clear();
-            string settingsString = App.SettingsManager.SerializeSettingsFromJson(settings);
-            settingsTxb.Text = settingsString;
+            settingsTxb.Text = "No settings loaded";
+            if (settings != null)
+            {
+                string settingsString = App.SettingsManager.SerializeSettingsFromJson(settings);
+                settingsTxb.Text = settingsString;
+            }
         }
-
-
-
 
         private void PopulateSettingsTree(CellSettings settings)
         {
             SettingsTreeViewRoot.Items.Clear();
-            SettingsTreeViewRoot.Header = "Settings";
-            GenerateTree(settings, SettingsTreeViewRoot);
-
+            SettingsTreeViewRoot.Header = "No settings loaded";
+            if (settings != null)
+            {
+                SettingsTreeViewRoot.Header = "Settings";
+                GenerateTree(settings, SettingsTreeViewRoot);
+            }
         }
         private void GenerateTree(object obj, TreeViewItem parent)
         {
@@ -117,55 +121,67 @@ namespace DDMAutoGUI.windows
                 }
             }
         }
-
-
-
-        private void GenerateFields(object obj, StackPanel parent)
+        private void LoadBtn_Click(object sender, RoutedEventArgs e)
         {
-            //if (obj == null) return;
-
-            //Type type = obj.GetType();
-            //PropertyInfo[] properties = type.GetProperties();
-
-            //foreach (PropertyInfo property in properties)
-            //{
-            //    if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
-            //    {
-            //        // Recursively add properties of nested class
-            //        StackPanel nestedParent = InsertFieldGroup(property.Name, parent);
-            //        GenerateFields(property.GetValue(obj), nestedParent);
-            //    }
-            //    else
-            //    {
-            //        // Process the property (e.g., print its name and value)
-            //        Debug.Print($"Property Name: {property.Name}, Value: {property.GetValue(obj)}");
-            //        InsertField(property.Name, property.GetValue(obj)?.ToString() ?? "null", parent);
-            //    }
-            //}
+            App.SettingsManager.ReloadSettings();
+            PopulateSettingsTree(App.SettingsManager.GetAllSettings());
+            PopulateSettingsString(App.SettingsManager.GetAllSettings());
         }
 
-        private StackPanel InsertFieldGroup(string header, StackPanel parent)
+        private void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
-            //var converter = new UnderscoreEscapeConverter();
-            //Label headerLabel = new Label
-            //{
-            //    Content = converter.Convert(header, null, null, null),
-            //    FontWeight = FontWeights.Bold,
-            //    Margin = new Thickness(0),
-            //    Padding = new Thickness(0)
-            //};
-            //StackPanel stackPanel = new StackPanel
-            //{
-            //    Orientation = Orientation.Vertical,
-            //    Background = new SolidColorBrush(Color.FromArgb(3, 0, 0, 0)),
-            //    Margin = new Thickness(12,3,3,3),
-            //};
-            //parent.Children.Add(headerLabel);
-            //parent.Children.Add(stackPanel);
-            //return stackPanel;
-            return null;
-
+            CellSettings newSettings = App.SettingsManager.DeserializeSettingsFromJson(settingsTxb.Text);
+            App.SettingsManager.SaveSettingsToController(newSettings);
         }
+
+
+
+        //private void GenerateFields(object obj, StackPanel parent)
+        //{
+        //    if (obj == null) return;
+
+        //    Type type = obj.GetType();
+        //    PropertyInfo[] properties = type.GetProperties();
+
+        //    foreach (PropertyInfo property in properties)
+        //    {
+        //        if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
+        //        {
+        //            // Recursively add properties of nested class
+        //            StackPanel nestedParent = InsertFieldGroup(property.Name, parent);
+        //            GenerateFields(property.GetValue(obj), nestedParent);
+        //        }
+        //        else
+        //        {
+        //            // Process the property (e.g., print its name and value)
+        //            Debug.Print($"Property Name: {property.Name}, Value: {property.GetValue(obj)}");
+        //            InsertField(property.Name, property.GetValue(obj)?.ToString() ?? "null", parent);
+        //        }
+        //    }
+        //}
+
+        //private StackPanel InsertFieldGroup(string header, StackPanel parent)
+        //{
+        //    var converter = new UnderscoreEscapeConverter();
+        //    Label headerLabel = new Label
+        //    {
+        //        Content = converter.Convert(header, null, null, null),
+        //        FontWeight = FontWeights.Bold,
+        //        Margin = new Thickness(0),
+        //        Padding = new Thickness(0)
+        //    };
+        //    StackPanel stackPanel = new StackPanel
+        //    {
+        //        Orientation = Orientation.Vertical,
+        //        Background = new SolidColorBrush(Color.FromArgb(3, 0, 0, 0)),
+        //        Margin = new Thickness(12, 3, 3, 3),
+        //    };
+        //    parent.Children.Add(headerLabel);
+        //    parent.Children.Add(stackPanel);
+        //    return stackPanel;
+        //    return null;
+
+        //}
 
         //private void InsertField(string label, string value, StackPanel parent)
         //{
@@ -179,18 +195,5 @@ namespace DDMAutoGUI.windows
         //    };
         //    parent.Children.Add(field);
         //}
-
-        private void LoadBtn_Click(object sender, RoutedEventArgs e)
-        {
-            App.SettingsManager.ReloadSettings();
-            PopulateSettingsTree(App.SettingsManager.GetAllSettings());
-            PopulateRawSettings(App.SettingsManager.GetAllSettings());
-        }
-
-        private void SaveBtn_Click(object sender, RoutedEventArgs e)
-        {
-            CellSettings newSettings = App.SettingsManager.DeserializeSettingsFromJson(settingsTxb.Text);
-            App.SettingsManager.SaveSettingsToController(newSettings);
-        }
     }
 }

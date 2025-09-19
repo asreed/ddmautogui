@@ -119,12 +119,12 @@ namespace DDMAutoGUI.utilities
 
             if (Math.Abs(target_vol_id - vol_id) / target_vol_id * 100 > dev_id)
             {
-                message = $"ID volume {vol_id} mL is outside of acceptable deviation {dev_id}% from target {target_vol_id} mL";
+                message = $"ID volume {vol_id:F3} mL is outside of acceptable deviation {dev_id:F1}% from target {target_vol_id:F3} mL";
                 return;
             }
             if (Math.Abs(target_vol_od - vol_od) / target_vol_od * 100 > dev_od)
             {
-                message = $"OD volume {vol_id} mL is outside of acceptable deviation {dev_id}% from target {target_vol_id} mL";
+                message = $"OD volume {vol_id:F3} mL is outside of acceptable deviation {dev_id:F1}% from target {target_vol_id:F3} mL";
                 return;
             }
 

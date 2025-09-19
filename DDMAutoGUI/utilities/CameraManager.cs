@@ -25,36 +25,45 @@ namespace DDMAutoGUI.utilities
 
     public class CameraManager
     {
-
-        public CameraManager()
-        {
-            //
-
-            CellSettings settings = App.SettingsManager.GetAllSettings();
-            cameraTopSN = settings.camera_top_sn;
-            cameraSideSN = settings.camera_side_sn;
-            Debug.Print("Camera manager initialized");
-        }
-
-
         private const ArenaNET.EPfncFormat PIXEL_FORMAT = ArenaNET.EPfncFormat.BGR8;
         private string acqFilePath = string.Empty;
         private string acqFilePrefix = "acq_img";
         private string acqFileSuffix = ".png";
         private string acqFileDirectory = AppDomain.CurrentDomain.BaseDirectory + "acquisitions\\";
         private string cameraTopSN, cameraSideSN = "";
-
         public enum CellCamera
         {
             top,
             side
         }
 
+
+        public CameraManager()
+        {
+            App.ControllerManager.ControllerConnected += CameraManager_OnConnected;
+            App.ControllerManager.ControllerDisconnected += CameraManager_OnDisconnected;
+            Debug.Print("Camera manager initialized");
+        }
+
+        public async void CameraManager_OnConnected(object sender, EventArgs e)
+        {
+            CellSettings settings = App.SettingsManager.GetAllSettings();
+            cameraTopSN = settings.camera_top_sn;
+            cameraSideSN = settings.camera_side_sn;
+        }
+
+        public void CameraManager_OnDisconnected(object sender, EventArgs e)
+        {
+            cameraTopSN = null;
+            cameraSideSN = null;
+        }
+
+
+
         public void OpenExplorerToImages()
         {
             Process.Start("explorer.exe", acqFileDirectory);
         }
-
 
         public CameraAcquisitionResult AcquireAndSave(CellCamera cellCamera, Image displayElement)
         {
@@ -75,14 +84,17 @@ namespace DDMAutoGUI.utilities
                 if (system.Devices.Count == 0)
                 {
                     Debug.Print("\nNo camera connected\nAborting");
+                    throw new Exception("No cameras detected");
                 }
 
                 Debug.Print($"Camera top SN from settings: {cameraTopSN}");
                 Debug.Print($"Camera side SN from settings: {cameraSideSN}");
 
-                Debug.Print($"Device 0 SN: {system.Devices[0].SerialNumber}");
-                Debug.Print($"Device 1 SN: {system.Devices[1].SerialNumber}");
                 Debug.Print($"Number of devices: {system.Devices.Count}");
+                for (int i = 0; i < system.Devices.Count; i++)
+                {
+                    Debug.Print($"Device {i} SN: {system.Devices[i].SerialNumber}");
+                }
 
                 ArenaNET.IDeviceInfo selectedDeviceInfo = null;
 
@@ -211,7 +223,6 @@ namespace DDMAutoGUI.utilities
         {
             return DateTime.Now.ToString("_yyMMdd_HHmmss");
         }
-
     }
 
 

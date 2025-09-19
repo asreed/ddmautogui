@@ -242,7 +242,7 @@ namespace DDMAutoGUI
 
                     if (pressure1 != null)
                     {
-                        resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1} psi");
+                        resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1:F3} psi");
                     }
                     else
                     {
@@ -250,7 +250,7 @@ namespace DDMAutoGUI
                     }
                     if (pressure2 != null)
                     {
-                        resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2} psi");
+                        resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2:F3} psi");
                     }
                     else
                     {
@@ -321,14 +321,14 @@ namespace DDMAutoGUI
                     resultsManager.AddToLog("Results:");
                     resultsManager.AddToLog($"{tb}ID:");
                     resultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_id})");
-                    resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id} mL ({Math.Round(shotData.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value, 1)}% of target)");
-                    resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_id} s");
-                    resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_id} psi");
+                    resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id:F3} mL ({Math.Round(shotData.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value, 1):F1}% of target)");
+                    resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_id:F3} s");
+                    resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_id:F3} psi");
                     resultsManager.AddToLog($"{tb}OD:");
                     resultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_od})");
-                    resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id} mL ({Math.Round(shotData.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value, 1)}% of target)");
-                    resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_od} s");
-                    resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_od} psi");
+                    resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id:F3} mL ({Math.Round(shotData.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value, 1):F1}% of target)");
+                    resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_od:F3} s");
+                    resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_od:F3} psi");
 
                     // Take post-process top photo
                     resultsManager.AddToLog("Taking post-process top photo...");
@@ -393,7 +393,7 @@ namespace DDMAutoGUI
                     }
                     if (pressure1 != null)
                     {
-                        resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1} psi");
+                        resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1:F3} psi");
                     }
                     else
                     {
@@ -401,7 +401,7 @@ namespace DDMAutoGUI
                     }
                     if (pressure2 != null)
                     {
-                        resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2} psi");
+                        resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2:F3} psi");
                     }
                     else
                     {
@@ -464,9 +464,11 @@ namespace DDMAutoGUI
                 }
                 Disp_Res_ResMessageTxb.Text = displayMessage;
 
+
                 Disp_Res_SNTxb.Text = resultsManager.currentResults.ring_sn;
-                Disp_Res_VolIDTxb.Text = $"{resultsManager.currentResults.shot_data.vol_id} mL";
-                Disp_Res_VolODTxb.Text = $"{resultsManager.currentResults.shot_data.vol_od} mL";
+                var data = resultsManager.currentResults.shot_data;
+                Disp_Res_VolIDTxb.Text = $"{data.vol_id:F3} mL ({Math.Round(data.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value, 1):F1}% of target)";
+                Disp_Res_VolODTxb.Text = $"{data.vol_od:F3} mL ({Math.Round(data.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value, 1):F1}% of target)";
                 Dispense_GoToStep(2);
 
                 // Clean up
@@ -941,8 +943,6 @@ namespace DDMAutoGUI
 
 
 
-
-
         //////////////////// CUSTOM EVENTS
 
         public async void MainWindowSingle_OnConnected(object sender, EventArgs e)
@@ -950,8 +950,8 @@ namespace DDMAutoGUI
             Adv_Cell_ConnectedStatusTxt.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
             Adv_Cell_ConnectedStatusTxt.Text = "Connected";
 
-            Adv_Cell_TCSVersionLbl.Content = await App.ControllerManager.GetTCSVersion();
-            Adv_Cell_PACVersionLbl.Content = await App.ControllerManager.GetPACVersion();
+            Adv_Cell_TCSVersionLbl.Text = await App.ControllerManager.GetTCSVersion();
+            Adv_Cell_PACVersionLbl.Text = await App.ControllerManager.GetPACVersion();
 
             Con_ConnectBtn.Content = "Connected";
             Con_ConnectBtn.IsEnabled = false;
@@ -975,8 +975,8 @@ namespace DDMAutoGUI
             Adv_Cell_ConnectedStatusTxt.Text = "Not connected";
             Adv_Cell_AutoStatusTxt.Text = "-";
 
-            Adv_Cell_TCSVersionLbl.Content = "-";
-            Adv_Cell_PACVersionLbl.Content = "-";
+            Adv_Cell_TCSVersionLbl.Text = "-";
+            Adv_Cell_PACVersionLbl.Text = "-";
 
             Con_ConnectBtn.Content = "Connect";
             Con_ConnectBtn.IsEnabled = true;
@@ -1217,11 +1217,11 @@ namespace DDMAutoGUI
 
 
 
-        private void Adv_Cell_OpenSettingsBtn_Click(object sender, RoutedEventArgs e)
-        {
-            string folderPath = App.SettingsManager.GetSettingsFilePath();
-            System.Diagnostics.Process.Start("notepad.exe", folderPath);
-        }
+        //private void Adv_Cell_OpenSettingsBtn_Click(object sender, RoutedEventArgs e)
+        //{
+        //    string folderPath = App.SettingsManager.GetSettingsFilePath();
+        //    System.Diagnostics.Process.Start("notepad.exe", folderPath);
+        //}
         private void Adv_Cell_ReloadSettingsBtn_Click(object sender, RoutedEventArgs e)
         {
             App.SettingsManager.ReloadSettings();

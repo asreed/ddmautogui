@@ -124,8 +124,8 @@ namespace DDMAutoGUI.utilities
 
     public class SettingsManager
     {
-        private string settingsFilePath = AppDomain.CurrentDomain.BaseDirectory + "settings\\settings.json";
-        private string settingsFTPPath = "ftp://10.33.240.47/flash/ddm_cell/Settings.json";
+        //private string settingsFilePath = AppDomain.CurrentDomain.BaseDirectory + "settings\\settings.json";
+        private string settingsFTPPath = "/flash/ddm_cell/Settings.json";
 
         public enum DDMSize
         {
@@ -141,43 +141,23 @@ namespace DDMAutoGUI.utilities
 
         public SettingsManager()
         {
-            //currentSettings = ReadSettingsFromLocal();
-            currentSettings = ReadSettingsFromController();
+            //currentSettings = ReadSettingsFromController();
+            App.ControllerManager.ControllerConnected += SettingsManager_OnConnected;
+            App.ControllerManager.ControllerDisconnected += SettingsManager_OnDisconnected;
             Debug.Print("Settings manager initialized");
         }
 
 
-
-
-
-
-
-
-
-        private CellSettings ReadSettingsFromLocal()
+        public async void SettingsManager_OnConnected(object sender, EventArgs e)
         {
-            CellSettings settings = new CellSettings();
-            string tb = "  ";
-            Debug.Print($"{tb}Reading settings file from {settingsFilePath}");
-            try
-            {
-                if (File.Exists(settingsFilePath))
-                {
-                    string rawJson = File.ReadAllText(settingsFilePath);
-                    settings = JsonSerializer.Deserialize<CellSettings>(rawJson);
-                    Debug.Print($"{tb}Settings file read successfully");
-                    return settings;
-                }
-                else
-                {
-                    Debug.Print($"{tb}Settings file does not exist!");
-                }
-            }
-            catch (JsonException ex)
-            {
-                Debug.Print($"{tb}Error deserializing settings file: {ex.Message}");
-            }
-            return new CellSettings();
+            Debug.Print("settings manager detected controller connected");
+            currentSettings = ReadSettingsFromController();
+        }
+
+        public void SettingsManager_OnDisconnected(object sender, EventArgs e)
+        {
+            Debug.Print("settings manager detected controller disconnected");
+            currentSettings = null;
         }
 
         public CellSettings GetAllSettings()
@@ -210,9 +190,10 @@ namespace DDMAutoGUI.utilities
             }
         }
 
-
         public CSMotor GetSettingsForSelectedSize()
         {
+            if (currentSettings == null) return null;
+
             switch (selectedSize)
             {
                 case DDMSize.ddm_57:
@@ -230,40 +211,36 @@ namespace DDMAutoGUI.utilities
             }
         }
 
-        public string GetSettingsFilePath()
-        {
-            return settingsFilePath;
-        }
+        //public string GetSettingsFilePath()
+        //{
+        //    return settingsFilePath;
+        //}
 
-        public void OpenFolderToSettingsFile()
-        {
-            string folderPath = Path.GetDirectoryName(settingsFilePath);
-            System.Diagnostics.Process.Start("explorer.exe", folderPath);
-        }
+        //public void OpenFolderToSettingsFile()
+        //{
+        //    string folderPath = Path.GetDirectoryName(settingsFilePath);
+        //    System.Diagnostics.Process.Start("explorer.exe", folderPath);
+        //}
 
         public void ReloadSettings()
         {
-            //currentSettings = ReadSettingsFromLocal();
             currentSettings = ReadSettingsFromController();
         }
-
-
-
-
-
-
-
-
-
 
         private CellSettings ReadSettingsFromController()
         {
             string rawJson = "";
+            if (App.ControllerManager.CONNECTION_STATE.isConnected == false)
+            {
+                Debug.Print("Settings file could not be read because no controller is connected");
+                return null;
+            }
 
             try
             {
                 // Create an FTP request
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(settingsFTPPath);
+                string ip = App.ControllerManager.CONNECTION_STATE.connectedIP;
+                FtpWebRequest? request = WebRequest.Create("ftp://" + ip + "/" + settingsFTPPath) as FtpWebRequest;
                 request.Method = WebRequestMethods.Ftp.DownloadFile;
 
                 // Get the response from the server
@@ -276,17 +253,60 @@ namespace DDMAutoGUI.utilities
 
                     // Now you can use fileContents as needed
                     CellSettings settings = JsonSerializer.Deserialize<CellSettings>(rawJson);
-                    Debug.Print($"  Settings file read successfully from controller");
+                    Debug.Print($"Settings file read successfully from controller");
+                    currentSettings = settings;
                     return settings;
                 }
 
             }
             catch (Exception ex)
             {
-                Debug.Print($"Error: {ex.Message}");
+                Debug.Print($"Error reading settings file: {ex.Message}");
                 return null;
             }
         }
+
+        public void SaveSettingsToController(CellSettings settings)
+        {
+            if (App.ControllerManager.CONNECTION_STATE.isConnected == false)
+            {
+                Debug.Print("Settings file could not be saved because no controller is connected");
+                return;
+            }
+
+            settings.last_saved = DateTime.Now;
+            string serializedSettings = SerializeSettingsFromJson(settings);
+
+            try
+            {
+                // Create an FTP request
+                string ip = App.ControllerManager.CONNECTION_STATE.connectedIP;
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + ip + "/" + settingsFTPPath);
+                request.Method = WebRequestMethods.Ftp.UploadFile;
+
+                // Convert the string data to a byte array
+                byte[] fileContents = System.Text.Encoding.UTF8.GetBytes(serializedSettings);
+                request.ContentLength = fileContents.Length;
+
+                // Write the string data to the request stream
+                using (Stream requestStream = request.GetRequestStream())
+                {
+                    requestStream.Write(fileContents, 0, fileContents.Length);
+                }
+
+                // Get the response from the server
+                using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
+                {
+                    Debug.Print($"Save to controller complete. Status: {response.StatusDescription}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.Print($"Error: {ex.Message}");
+            }
+        }
+
+
 
         //private void CopySettingsFromController()
         //{
@@ -316,38 +336,31 @@ namespace DDMAutoGUI.utilities
         //    }
         //}
 
-        public void SaveSettingsToController(CellSettings settings)
-        {
 
-            settings.last_saved = DateTime.Now;
-            string serializedSettings = SerializeSettingsFromJson(settings);
-
-            try
-            {
-                // Create an FTP request
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(settingsFTPPath);
-                request.Method = WebRequestMethods.Ftp.UploadFile;
-
-                // Convert the string data to a byte array
-                byte[] fileContents = System.Text.Encoding.UTF8.GetBytes(serializedSettings);
-                request.ContentLength = fileContents.Length;
-
-                // Write the string data to the request stream
-                using (Stream requestStream = request.GetRequestStream())
-                {
-                    requestStream.Write(fileContents, 0, fileContents.Length);
-                }
-
-                // Get the response from the server
-                using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
-                {
-                    Debug.Print($"Save to controller complete. Status: {response.StatusDescription}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.Print($"Error: {ex.Message}");
-            }
-        }
+        //private CellSettings ReadSettingsFromLocal()
+        //{
+        //    CellSettings settings = new CellSettings();
+        //    string tb = "  ";
+        //    Debug.Print($"{tb}Reading settings file from {settingsFilePath}");
+        //    try
+        //    {
+        //        if (File.Exists(settingsFilePath))
+        //        {
+        //            string rawJson = File.ReadAllText(settingsFilePath);
+        //            settings = JsonSerializer.Deserialize<CellSettings>(rawJson);
+        //            Debug.Print($"{tb}Settings file read successfully");
+        //            return settings;
+        //        }
+        //        else
+        //        {
+        //            Debug.Print($"{tb}Settings file does not exist!");
+        //        }
+        //    }
+        //    catch (JsonException ex)
+        //    {
+        //        Debug.Print($"{tb}Error deserializing settings file: {ex.Message}");
+        //    }
+        //    return new CellSettings();
+        //}
     }
 }

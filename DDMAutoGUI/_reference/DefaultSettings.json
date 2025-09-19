@@ -1,7 +1,7 @@
 {
   "last_saved": "2025-09-09T09:45:11.1543538-07:00",
   "camera_top_sn": "252902469",
-  "camera_side_sn": "252902472",
+  "camera_side_sn": "253100546",
   "laser_delay": 0.050,
   "dispense_pass_criteria": {
     "max_id_vol_dev_percent": 10,

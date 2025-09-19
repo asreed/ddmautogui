@@ -323,10 +323,9 @@ namespace DDMAutoGUI.utilities
 
                 UpdateBothLogs("Connection succeeded");
 
-                ControllerConnected?.Invoke(this, EventArgs.Empty);
-
                 CONNECTION_STATE.isConnected = true;
                 CONNECTION_STATE.connectedIP = ip;
+                ControllerConnected?.Invoke(this, EventArgs.Empty);
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
                 StartAutoControllerState();
@@ -341,10 +340,9 @@ namespace DDMAutoGUI.utilities
                 UpdateBothLogs("Connection failed");
                 UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
 
-                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-
                 CONNECTION_STATE.isConnected = false;
                 CONNECTION_STATE.connectedIP = string.Empty;
+                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
                 return false;
             }
@@ -371,10 +369,9 @@ namespace DDMAutoGUI.utilities
                 UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
             }
 
-            ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-
             CONNECTION_STATE.isConnected = false;
             CONNECTION_STATE.connectedIP = string.Empty;
+            ControllerDisconnected?.Invoke(this, EventArgs.Empty);
             ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
             StopAutoControllerState();
@@ -413,15 +410,23 @@ namespace DDMAutoGUI.utilities
 
                 UpdateRobotLog($"<< {response.ToString().Trim()}");
             }
-            catch (SocketException e)
+            catch (Exception e)
             {
                 UpdateRobotLog("Send failed");
-                UpdateRobotLog($"{e.ErrorCode}: {e.Message}");
+                if (e is SocketException)
+                {
+                    SocketException se = (SocketException)e;
+                    UpdateRobotLog($"{se.ErrorCode}: {se.Message}");
+                }
+                else
+                {
+                    UpdateRobotLog(e.Message);
+                }
                 response = new StringBuilder();
 
-                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
                 CONNECTION_STATE.isConnected = false;
                 CONNECTION_STATE.connectedIP = string.Empty;
+                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
             }
@@ -448,15 +453,23 @@ namespace DDMAutoGUI.utilities
                 response = Encoding.ASCII.GetString(buffer, 0, receivedLength).Trim();
                 if (!muteLog) { UpdateStatusLog($"<< {response}"); }
             }
-            catch (SocketException e)
+            catch (Exception e)
             {
                 UpdateStatusLog("Send failed");
-                UpdateStatusLog($"{e.ErrorCode}: {e.Message}");
+                if (e is SocketException)
+                {
+                    SocketException se = (SocketException)e;
+                    UpdateStatusLog($"{se.ErrorCode}: {se.Message}");
+                }
+                else
+                {
+                    UpdateStatusLog(e.Message);
+                }
                 response = string.Empty;
 
-                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
                 CONNECTION_STATE.isConnected = false;
                 CONNECTION_STATE.connectedIP = string.Empty;
+                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
             }
             return response;

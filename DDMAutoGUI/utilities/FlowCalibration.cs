@@ -90,8 +90,8 @@ namespace DDMAutoGUI.utilities
                 sf2 = sysID == 2 ? sfID : sfOD;
             }
 
-            Debug.Print($"Individual scale factors calculated: ID: {sfID}, OD: {sfOD}");
-            Debug.Print($"Applying scale factors: system 1: {sf1}, system 2: {sf2}");
+            Debug.Print($"Individual scale factors calculated: ID: {sfID:F3}, OD: {sfOD:F3}");
+            Debug.Print($"Applying scale factors: system 1: {sf1:F3}, system 2: {sf2:F3}");
 
             CSDispenseCalib[] sys1Calib = localData.current_sys_1_flow_calib;
             CSDispenseCalib[] sys2Calib = localData.current_sys_2_flow_calib;
@@ -108,12 +108,12 @@ namespace DDMAutoGUI.utilities
             for (int i = 0; i < sys1Calib.Length; i++)
             {
                 sys1Calib[i].pressure *= sf1;
-                Debug.Print($"  Sys 1: ({sys1Calib[i].flow}, {sys1Calib[i].pressure})");
+                Debug.Print($"  Sys 1: ({sys1Calib[i].flow:0.00}, {sys1Calib[i].pressure,5:0.000})");
             }
             for (int i=0; i < sys2Calib.Length; i++)
             {
                 sys2Calib[i].pressure *= sf2;
-                Debug.Print($"  Sys 2: ({sys2Calib[i].flow}, {sys2Calib[i].pressure})");
+                Debug.Print($"  Sys 2: ({sys2Calib[i].flow:0.00}, {sys2Calib[i].pressure,5:0.000})");
             }
 
             newSys1Calib = sys1Calib;

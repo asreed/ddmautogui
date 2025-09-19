@@ -23,7 +23,7 @@ namespace DDMAutoGUI
         public static ResultsManager ResultsManager { get; private set; }
         public static LocalDataManager LocalDataManager { get; private set; }
 
-        public static string advancedSettingsPassword = "ddmhelp";
+        public static string advancedSettingsPassword = "ddm";
 
 
         protected override void OnStartup(StartupEventArgs e)
@@ -31,11 +31,11 @@ namespace DDMAutoGUI
             base.OnStartup(e);
             Debug.Print("App starting up");
 
-            App.SettingsManager = new SettingsManager(); // settings first (?)
-            App.LocalDataManager = new LocalDataManager(); // local data second (for controller ip)
-
-            App.ReleaseInfoManager = new ReleaseInfoManager();
+            // order is important
             App.ControllerManager = new ControllerManager();
+            App.SettingsManager = new SettingsManager();
+            App.LocalDataManager = new LocalDataManager();
+            App.ReleaseInfoManager = new ReleaseInfoManager();
             App.CameraManager = new CameraManager();
             App.ResultsManager = new ResultsManager();
 
