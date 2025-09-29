@@ -1026,6 +1026,23 @@
 
 
 
+        <Style x:Key="AlertBar" TargetType="Border">
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryRedDark}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryRed}"/>
+            <Style.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontSize" Value="10"/>
+                    <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+            </Style.Resources>
+        </Style>
+
+
         <Style x:Key="StatusBarBottom" TargetType="Grid">
             <Setter Property="Margin" Value="-4,0,-4,-4"/>
             <Setter Property="Height" Value="26"/>

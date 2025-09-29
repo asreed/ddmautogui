@@ -12,6 +12,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -996,6 +997,8 @@ namespace DDMAutoGUI
             Status_TCSGrd.Visibility = Visibility.Collapsed;
             Status_PACGrd.Visibility = Visibility.Collapsed;
 
+            Alert_MsgBarBdr.Visibility = Visibility.Collapsed;
+
             DispTab.IsEnabled = false;
 
             DisableAllReadouts();
@@ -1012,6 +1015,42 @@ namespace DDMAutoGUI
             {
                 if (App.ControllerManager.CONNECTION_STATE.isConnected)
                 {
+                    // Connected with good parse
+
+                    switch (contState.safetyControllerState)
+                    {
+                        case -1:
+                            Alert_MsgBarBdr.Visibility = Visibility.Visible;
+                            Alert_MsgTxb.Text = "Safety thread stopped unexpectedly";
+                            break;
+                        case 0:
+                            Alert_MsgBarBdr.Visibility = Visibility.Visible;
+                            Alert_MsgTxb.Text = "Safety thread not started";
+                            break;
+                        case 1:
+                            // Safety thread running normally
+                            switch (contState.safetyErrorState)
+                            {
+                                case -6001:
+                                    Alert_MsgBarBdr.Visibility = Visibility.Visible;
+                                    Alert_MsgTxb.Text = $"{contState.safetyErrorState}: E Stop detected";
+                                    break;
+                                case -6002:
+                                    Alert_MsgBarBdr.Visibility = Visibility.Visible;
+                                    Alert_MsgTxb.Text = $"{contState.safetyErrorState}: Door opened";
+                                    break;
+                                case 0:
+                                    Alert_MsgBarBdr.Visibility = Visibility.Collapsed;
+                                    Alert_MsgTxb.Text = string.Empty;
+                                    break;
+                                default:
+                                    Alert_MsgBarBdr.Visibility = Visibility.Visible;
+                                    Alert_MsgTxb.Text = $"{contState.safetyErrorState}: Unknown error in safety thread";
+                                    break;
+                            }
+                            break;
+                    }
+
                     Adv_Cell_AutoStatusTxt.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
                     Adv_Cell_AutoStatusTxt.Text = "Parse OK";
                     Status_SimBdr.Visibility = contState.isSimulated ? Visibility.Visible : Visibility.Collapsed;
@@ -1019,6 +1058,7 @@ namespace DDMAutoGUI
                 }
                 else
                 {
+                    // Connected with bad parse
                     Adv_Cell_AutoStatusTxt.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
                     Adv_Cell_AutoStatusTxt.Text = "-";
                     DisableAllReadouts();
@@ -1026,6 +1066,7 @@ namespace DDMAutoGUI
             }
             else
             {
+                // Disconnected
                 Adv_Cell_AutoStatusTxt.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
                 Adv_Cell_AutoStatusTxt.Text = $"Parse error: {contState.parseErrorMessage}";
                 DisableAllReadouts();
