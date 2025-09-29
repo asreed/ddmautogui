@@ -16,8 +16,8 @@ namespace DDMAutoGUI.utilities
     public class ResultsShotData
     {
         public string? motor_type { get; set; }
-        public bool? success { get; set; }
-        public string? error_message { get; set; }
+        public bool? shot_result { get; set; }
+        public string? shot_message { get; set; }
         public int? valve_num_id { get; set; }
         public int? valve_num_od { get; set; }
         public float? pressure_id { get; set; }
@@ -44,9 +44,10 @@ namespace DDMAutoGUI.utilities
     {
         public DateTime? date_saved { get; set; }
         public string? ring_sn { get; set; }
+        public string? tool_sn { get; set; }
         public ResultsShotData? shot_data { get; set; }
-        public bool? success { get; set; }
-        public string? message { get; set; }
+        public bool? overall_process_result { get; set; }
+        public string? overall_proces_message { get; set; }
         public List<ResultsHeightMeasurement>? ring_heights { get; set; }
         public List<ResultsHeightMeasurement>? mag_heights { get; set; }
         public List<ResultsLogLine>? process_log { get; set; }
@@ -71,6 +72,7 @@ namespace DDMAutoGUI.utilities
         public event EventHandler UpdateProcessLog;
 
         public Results currentResults;
+        public string currentResultsFolderPath;
 
 
         public ResultsManager()
@@ -189,17 +191,13 @@ namespace DDMAutoGUI.utilities
             UpdateProcessLog?.Invoke(this, EventArgs.Empty);
         }
 
-        public void SaveDataToFile()
+        public string CreateResultsFolder()
         {
             if (currentResults == null)
             {
                 Debug.Print("Current results are null. Cannot save to file.");
-                return;
+                return null;
             }
-            currentResults.date_saved = DateTime.Now;
-
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string resultsString = JsonSerializer.Serialize<Results>(currentResults, options);
 
             string resultsFolderPath;
             string resultsFilePath;
@@ -208,25 +206,28 @@ namespace DDMAutoGUI.utilities
             if (currentResults.ring_sn == null || currentResults.ring_sn == "")
             {
                 resultsFolderPath = saveMainDirectory + saveFolderNoSNPrefix + DateTime.Now.ToString(dateFormatFolder);
-                resultsFilePath = resultsFolderPath + "\\" + fileNameResults + ".json";
                 zipFolderPath = resultsFolderPath;
             }
             else
             {
                 resultsFolderPath = saveMainDirectory + saveFolderPrefix + currentResults.ring_sn + "_" + DateTime.Now.ToString(dateFormatFolder);
-                resultsFilePath = resultsFolderPath + "\\" + fileNameResults + ".json";
                 zipFolderPath = resultsFolderPath;
             }
 
-
             Directory.CreateDirectory(resultsFolderPath);
-            File.WriteAllText(resultsFilePath, resultsString);
-
-            //File.Copy(App.SettingsManager.GetSettingsFilePath(), resultsFolderPath + "\\settings.json", true);
-
-            //ZipFile.CreateFromDirectory(resultsFolderPath, zipFolderPath + ".zip");
+            currentResultsFolderPath = resultsFolderPath;
+            return resultsFolderPath;
         }
 
+        public void SaveDataToFile()
+        {
+            currentResults.date_saved = DateTime.Now;
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string resultsString = JsonSerializer.Serialize<Results>(currentResults, options);
+            string resultsFilePath = currentResultsFolderPath + "\\" + fileNameResults + ".json";
+
+            File.WriteAllText(resultsFilePath, resultsString);
+        }
 
         public void OpenBrowserToDirectory()
         {

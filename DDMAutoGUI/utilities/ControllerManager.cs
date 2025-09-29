@@ -41,6 +41,8 @@ namespace DDMAutoGUI.utilities
         public float flowVolume2 { get; set; }
         public int flowError2 { get; set; }
         public bool isSimulated { get; set; }
+        public int safetyControllerState { get; set; }
+        public int safetyErrorState { get; set; }
 
         public void Initialize()
         {
@@ -62,6 +64,8 @@ namespace DDMAutoGUI.utilities
             flowVolume2 = 0.0f;
             flowError2 = 0;
             isSimulated = false;
+            safetyControllerState = 0;
+            safetyErrorState = 0;
         }
     }
 
@@ -537,12 +541,12 @@ namespace DDMAutoGUI.utilities
                     data.vol_id = float.Parse(parts[2]);
                     data.time_od = float.Parse(parts[3]);
                     data.vol_od = float.Parse(parts[4]);
-                    data.success = true;
-                    data.error_message = string.Empty;
+                    data.shot_result = true;
+                    data.shot_message = string.Empty;
                 }
             } else {
-                data.success = false;
-                data.error_message = response;
+                data.shot_result = false;
+                data.shot_message = response;
             }
             return data;
         }
@@ -589,6 +593,9 @@ namespace DDMAutoGUI.utilities
                         flowError2 = int.Parse(parts[15]),
 
                         isSimulated = parts[16] != "0",
+
+                        safetyControllerState = int.Parse(parts[17]),
+                        safetyErrorState = int.Parse(parts[18]),
 
                         parseError = false,
                         parseErrorMessage = "",

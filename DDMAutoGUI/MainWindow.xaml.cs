@@ -89,6 +89,8 @@ namespace DDMAutoGUI
             Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
             Disp_ProcessPrg.Value = 0;
 
+            Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
+
             string savedIP = App.LocalDataManager.localData.controller_ip;
             Con_IPTxt.Text = savedIP;
             Adv_Con_IPTxt.Text = savedIP;
@@ -300,8 +302,8 @@ namespace DDMAutoGUI
                     ResultsShotData shotData = new ResultsShotData
                     {
                         motor_type = motorName,
-                        success = true,
-                        error_message = "",
+                        shot_result = true,
+                        shot_message = "",
                         valve_num_id = 1,
                         valve_num_od = 1,
                         pressure_id = pressureID,
@@ -321,12 +323,12 @@ namespace DDMAutoGUI
                     resultsManager.AddToLog("Results:");
                     resultsManager.AddToLog($"{tb}ID:");
                     resultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_id})");
-                    resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id:F3} mL ({Math.Round(shotData.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value, 1):F1}% of target)");
+                    resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id:F3} mL ({shotData.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value:F1}% of target)");
                     resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_id:F3} s");
                     resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_id:F3} psi");
                     resultsManager.AddToLog($"{tb}OD:");
                     resultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_od})");
-                    resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id:F3} mL ({Math.Round(shotData.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value, 1):F1}% of target)");
+                    resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_od:F3} mL ({shotData.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value:F1}% of target)");
                     resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_od:F3} s");
                     resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_od:F3} psi");
 
@@ -437,15 +439,18 @@ namespace DDMAutoGUI
                         motor,
                         out pass, 
                         out msg);
-                    resultsManager.currentResults.success = pass;
-                    resultsManager.currentResults.message = msg;
+                    resultsManager.currentResults.overall_process_result = pass;
+                    resultsManager.currentResults.overall_proces_message = msg;
                     displayMessage = msg;
                 }
 
                 // Save results to file
                 if (saveResults)
                 {
-                    resultsManager.AddToLog("Saving results to file");
+                    string resultsPath = resultsManager.CreateResultsFolder();
+                    resultsManager.AddToLog("Saving settings to results folder");
+                    App.SettingsManager.SaveSettingsCopyToLocal(settings, resultsPath);
+                    resultsManager.AddToLog("Saving results to results folder");
                     resultsManager.SaveDataToFile();
                 }
 
@@ -820,6 +825,8 @@ namespace DDMAutoGUI
             FormatReadout(roFlowErr1, contState.flowError1);
             FormatReadout(roFlowVol2, contState.flowVolume2, "mL");
             FormatReadout(roFlowErr2, contState.flowError2);
+            FormatReadout(roSafetyContState, contState.safetyControllerState);
+            FormatReadout(roSafetyErrState, contState.safetyErrorState);
         }
 
         private void DisableReadout(Label label)
@@ -955,6 +962,8 @@ namespace DDMAutoGUI
 
             Con_ConnectBtn.Content = "Connected";
             Con_ConnectBtn.IsEnabled = false;
+            Con_ErrorMsgTxb.Text = string.Empty;
+            Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
 
             Status_StatusTxt.Text = $"Connected ({App.ControllerManager.CONNECTION_STATE.connectedIP})";
             string TCS = await App.ControllerManager.GetTCSVersion();
@@ -1117,19 +1126,22 @@ namespace DDMAutoGUI
         {
             Con_ConnectBtn.IsEnabled = false;
             Con_ConnectBtn.Content = "Connecting...";
-
+            Con_ErrorMsgTxb.Text = string.Empty;
+            Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
             App.LocalDataManager.localData.controller_ip = Con_IPTxt.Text;
 
-            await App.ControllerManager.Connect(Con_IPTxt.Text);
-            //if (App.ControllerManager.CONNECTION_STATE.isConnected)
-            //{
-            //    Con_ConnectBtn.Content = "Connected";
-            //}
-            //else
-            //{
-            //    Con_ConnectBtn.Content = "Connect";
-            //    Con_ConnectBtn.IsEnabled = true;
-            //}
+            bool success = await App.ControllerManager.Connect(Con_IPTxt.Text);
+
+            if (success)
+            {
+                Con_ErrorMsgTxb.Text = string.Empty;
+                Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                Con_ErrorMsgTxb.Text = "Unable to connect. Check IP address and make sure TCS is running.";
+                Con_ErrorMsgTxb.Visibility = Visibility.Visible;
+            }
         }
 
         private async void Adv_Con_ConnectBtn_Click(object sender, RoutedEventArgs e)

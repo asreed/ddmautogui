@@ -44,7 +44,7 @@ namespace DDMAutoGUI.windows
             settingsTxb.Text = "No settings loaded";
             if (settings != null)
             {
-                string settingsString = App.SettingsManager.SerializeSettingsFromJson(settings);
+                string settingsString = App.SettingsManager.SerializeSettingsToJson(settings);
                 settingsTxb.Text = settingsString;
             }
         }

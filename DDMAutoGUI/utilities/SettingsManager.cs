@@ -126,6 +126,7 @@ namespace DDMAutoGUI.utilities
     {
         //private string settingsFilePath = AppDomain.CurrentDomain.BaseDirectory + "settings\\settings.json";
         private string settingsFTPPath = "/flash/ddm_cell/Settings.json";
+        private string settingsLocalName = "Settings.json";
 
         public enum DDMSize
         {
@@ -165,7 +166,7 @@ namespace DDMAutoGUI.utilities
             return currentSettings;
         }
 
-        public string SerializeSettingsFromJson(CellSettings settings)
+        public string SerializeSettingsToJson(CellSettings settings)
         {
             var options = new JsonSerializerOptions
             {
@@ -266,6 +267,23 @@ namespace DDMAutoGUI.utilities
             }
         }
 
+        public void SaveSettingsCopyToLocal(CellSettings settings, string directoryPath)
+        {
+            string serializedSettings = SerializeSettingsToJson(settings);
+            string tb = "  ";
+            Debug.Print($"{tb}Saving settings file to {directoryPath}");
+            try
+            {
+                string path = Path.Combine(directoryPath, settingsLocalName);
+                File.WriteAllText(path, serializedSettings);
+                Debug.Print($"{tb}Settings file saved successfully");
+            }
+            catch (Exception ex)
+            {
+                Debug.Print($"{tb}Error saving settings file: {ex.Message}");
+            }
+        }
+
         public void SaveSettingsToController(CellSettings settings)
         {
             if (App.ControllerManager.CONNECTION_STATE.isConnected == false)
@@ -275,7 +293,7 @@ namespace DDMAutoGUI.utilities
             }
 
             settings.last_saved = DateTime.Now;
-            string serializedSettings = SerializeSettingsFromJson(settings);
+            string serializedSettings = SerializeSettingsToJson(settings);
 
             try
             {

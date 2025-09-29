@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DDMAutoGUI"
         mc:Ignorable="d"
-        Background="WhiteSmoke"
-        Title="DDM Automation Cell Manager" Height="750" Width="1024" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+        Title="DDM Automation Cell Manager" Height="750" Width="1024" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="WhiteSmoke">
 
 
 
@@ -41,6 +40,10 @@
                                 <GroupBox Header="IP Address">
 
                                     <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
@@ -54,6 +57,14 @@
                                                 Width="100"
                                                 Click="Con_ConnectBtn_Click"
                                                 Style="{StaticResource BlueButton}"/>
+                                        <TextBlock x:Name="Con_ErrorMsgTxb"
+                                                   Visibility="Visible"
+                                                   Grid.Row="1" 
+                                                   Grid.Column="0" 
+                                                   Grid.ColumnSpan="2" 
+                                                   TextWrapping="Wrap" 
+                                                   Margin="3"
+                                                   Text="Connection error message"/>
                                     </Grid>
                                 </GroupBox>
                                 <GroupBox Header="Connection Status">
@@ -187,13 +198,16 @@
                                                              Text="(no data)"
                                                              Style="{StaticResource MonoTextBox}"/>
                                                 </GroupBox>
-                                                <ProgressBar Grid.Row="1"
-                                                             Margin="3"
-                                                             Foreground="Black"
-                                                             x:Name="Disp_ProcessPrg" 
-                                                             Height="20" 
-                                                             IsIndeterminate="False"
-                                                             Value="50" />
+                                                <GroupBox Header="Progress" Grid.Row="1">
+                                                    <ProgressBar Grid.Row="1"
+                                                                 Margin="3"
+                                                                 Foreground="Black"
+                                                                 BorderBrush="Gray"
+                                                                 x:Name="Disp_ProcessPrg" 
+                                                                 Height="20" 
+                                                                 IsIndeterminate="False"
+                                                                 Value="50"/>
+                                                </GroupBox>
                                             </Grid>
 
 
@@ -284,6 +298,10 @@
                         </Grid>
                     </ScrollViewer>
                 </TabItem>
+                
+                <!-- blank tab for visual spacing only -->
+                <TabItem Style="{StaticResource MainTab}" Height="16" Background="Transparent" BorderBrush="Transparent" IsEnabled="False"></TabItem>
+                
                 <TabItem x:Name="AdvTab" Header="Advanced" Tag="Resources/icons/tune.ico" Style="{StaticResource MainTab}" Height="40">
 
                     <Grid Margin="4">
@@ -869,6 +887,63 @@
 
                                                         </Grid>
                                                     </ScrollViewer>
+                                                </TabItem>
+
+                                                <TabItem Header="Safety">
+                                                    <Grid>
+
+                                                        <Grid.Resources>
+                                                            <Style TargetType="Label">
+                                                                <Setter Property="Padding" Value="0"/>
+                                                                <Setter Property="Margin" Value="2"/>
+                                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            </Style>
+
+                                                            <Style TargetType="Label" x:Key="readout">
+                                                                <Setter Property="Padding" Value="5,2,5,2"/>
+                                                                <Setter Property="Margin" Value="2"/>
+                                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                                                <Setter Property="Background" Value="WhiteSmoke"/>
+                                                            </Style>
+                                                        </Grid.Resources>
+
+
+
+
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition/>
+                                                            <ColumnDefinition/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+
+
+                                                        <GroupBox Header="Robot"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="150"/>
+                                                                    <ColumnDefinition/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <Label Grid.Row="0" Grid.Column="0" Content="Safety controller state:"/>
+                                                                <Label Grid.Row="0" Grid.Column="1" x:Name="roSafetyContState" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="1" Grid.Column="0" Content="Safety error state:"/>
+                                                                <Label Grid.Row="1" Grid.Column="1" x:Name="roSafetyErrState" Content="-" Style="{DynamicResource readout}"/>
+
+                                                            </Grid>
+                                                        </GroupBox>
+                                                    </Grid>
                                                 </TabItem>
 
                                             </TabControl>
