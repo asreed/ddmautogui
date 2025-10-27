@@ -5,6 +5,9 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Interop;
 using System.Text.Json;
+using DDMAutoGUI.Utilities;
+
+
 
 namespace DDMAutoGUI
 {
@@ -22,6 +25,7 @@ namespace DDMAutoGUI
         public static ReleaseInfoManager ReleaseInfoManager { get; private set; }
         public static ResultsManager ResultsManager { get; private set; }
         public static LocalDataManager LocalDataManager { get; private set; }
+        public static DAQManager DAQManager { get; private set; }
 
         public static string advancedSettingsPassword = "ddm";
 
@@ -38,7 +42,7 @@ namespace DDMAutoGUI
             App.ReleaseInfoManager = new ReleaseInfoManager();
             App.CameraManager = new CameraManager();
             App.ResultsManager = new ResultsManager();
-
+            App.DAQManager = new DAQManager();
 
 
             //HeightCalibration.MathNetTest();
@@ -56,6 +60,7 @@ namespace DDMAutoGUI
             Debug.Print("App exiting");
             base.OnExit(e);
         }
+
     }
 
 }

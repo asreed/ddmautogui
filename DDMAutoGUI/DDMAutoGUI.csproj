@@ -166,6 +166,12 @@
       <HintPath>libraries\ArenaNET_v142.dll</HintPath>
       <SpecificVersion></SpecificVersion>
     </Reference>
+    <Reference Include="NationalInstruments.Common">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\National Instruments\Measurement Studio\DotNET\v4.0\AnyCPU\NationalInstruments.Common 19.1.40\NationalInstruments.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="NationalInstruments.DAQmx">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\National Instruments\MeasurementStudioVS2012\DotNET\Assemblies\Current\NationalInstruments.DAQmx.dll</HintPath>
+    </Reference>
     <Reference Include="SaveNET_v142">
       <HintPath>libraries\SaveNET_v142.dll</HintPath>
       <SpecificVersion></SpecificVersion>

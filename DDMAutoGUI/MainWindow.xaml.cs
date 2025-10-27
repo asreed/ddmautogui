@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,6 +17,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.IO;
 
 namespace DDMAutoGUI
 {
@@ -1031,11 +1033,11 @@ namespace DDMAutoGUI
                             // Safety thread running normally
                             switch (contState.safetyErrorState)
                             {
-                                case -6001:
+                                case -6000:
                                     Alert_MsgBarBdr.Visibility = Visibility.Visible;
                                     Alert_MsgTxb.Text = $"{contState.safetyErrorState}: E Stop detected";
                                     break;
-                                case -6002:
+                                case -6001:
                                     Alert_MsgBarBdr.Visibility = Visibility.Visible;
                                     Alert_MsgTxb.Text = $"{contState.safetyErrorState}: Door opened";
                                     break;
@@ -1691,6 +1693,48 @@ namespace DDMAutoGUI
             }
         }
 
+        private void Adv_Misc_TestMatlabBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string exePath = @"C:\Users\areed\Documents\MATLAB\MatlabTestProject1\StandaloneDesktopApp1\output\build\MyDesktopApplication.exe";
+            string filePath1 = "fake_path.jpg";
+            string filePath2 = "fake_path_2.jpg";
+
+            Process process = new Process();
+            process.StartInfo.FileName = exePath;
+            process.StartInfo.Arguments = $"{filePath1} {filePath2}";
+            process.Start();
+
+            process.WaitForExit();
+
+            string resultsFilePath = AppDomain.CurrentDomain.BaseDirectory + "results\\matlab_results.json";
+
+            MatlabResult result = new MatlabResult();
+            Debug.Print("Reading Matlab results file from: " + resultsFilePath);
+            try
+            {
+                if (File.Exists(resultsFilePath))
+                {
+                    string rawJson = File.ReadAllText(resultsFilePath);
+                    result = JsonSerializer.Deserialize<MatlabResult>(rawJson);
+                }
+                else
+                {
+                    Debug.Print("Matlab results file does not exist!");
+                }
+            }
+            catch (JsonException ex)
+            {
+                Debug.Print("Error deserializing Matlab results file: " + ex.Message);
+            }
+
+            Debug.Print("");
+            Debug.Print($"serial number detected: {result.sn_detected}");
+            Debug.Print($"serial number: {result.sn}");
+            Debug.Print($"file path top (in): {result.file_path_top_input}");
+            Debug.Print($"file path side (in): {result.file_path_side_input}");
+
+        }
+
         private void Adv_Misc_LockAdvBtn_Click(object sender, RoutedEventArgs e)
         {
             Adv_PWBox.Clear();
@@ -1698,6 +1742,16 @@ namespace DDMAutoGUI
             Adv_PWMessageTxb.Visibility = Visibility.Collapsed;
             Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
 
+        }
+
+        private void Adv_DAQ_GetA0Btn_Click(object sender, RoutedEventArgs e)
+        {
+            double v0 = App.DAQManager.GetVoltage();
+            Adv_DAQ_A0Txb.Text = $"{v0:F5} V";
+        }
+        private void Adv_DAQ_GetA0TimedBtn_Click(object sender, RoutedEventArgs e)
+        {
+            App.DAQManager.GetVoltageTimed();
         }
     }
 }

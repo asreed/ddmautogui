@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DDMAutoGUI"
         mc:Ignorable="d"
-        Title="DDM Automation Cell Manager" Height="750" Width="1024" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="WhiteSmoke">
+        Title="DDM Automation Cell Manager" Height="750" Width="1024" WindowStartupLocation="CenterScreen" WindowState="Normal" Background="WhiteSmoke">
 
 
 
@@ -1131,7 +1131,16 @@
                             <TabItem Header="Misc">
                                 <StackPanel Orientation="Vertical" Margin="6">
                                     <Button x:Name="Adv_Res_OpenFolderBtn" Click="Adv_Res_OpenFolderBtn_Click" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Test Matlab script" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
                                     <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                </StackPanel>
+                            </TabItem>
+                            <TabItem Header="DAQ">
+                                <StackPanel Orientation="Vertical" Margin="6">
+                                    <TextBlock x:Name="Adv_DAQ_A0Txb" Text="-" />
+                                    <Button x:Name="Adv_DAQ_GetA0Btn" Click="Adv_DAQ_GetA0Btn_Click" Content="Get A0 Voltage" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_DAQ_GetA0TimedBtn" Click="Adv_DAQ_GetA0TimedBtn_Click" Content="Get A0 Many Voltages" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+
                                 </StackPanel>
                             </TabItem>
                             <TabItem Header="About">
