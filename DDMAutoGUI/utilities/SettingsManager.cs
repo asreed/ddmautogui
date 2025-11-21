@@ -60,6 +60,7 @@ namespace DDMAutoGUI.utilities
         public CSLocation? disp_od { get; set; }
         public CSLocation? laser_mag { get; set; }
         public CSLocation? laser_ring { get; set; }
+        public CSLocation? hall_sensor { get; set; }
 
         public bool IsValid()
         {
@@ -151,13 +152,13 @@ namespace DDMAutoGUI.utilities
 
         public async void SettingsManager_OnConnected(object sender, EventArgs e)
         {
-            Debug.Print("settings manager detected controller connected");
+            Debug.Print("Settings manager detected controller connected");
             currentSettings = ReadSettingsFromController();
         }
 
         public void SettingsManager_OnDisconnected(object sender, EventArgs e)
         {
-            Debug.Print("settings manager detected controller disconnected");
+            Debug.Print("Settings manager detected controller disconnected");
             currentSettings = null;
         }
 

@@ -1,8 +1,10 @@
 ﻿using DDMAutoGUI.utilities;
+using DDMAutoGUI.Utilities;
 using DDMAutoGUI.windows;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -17,7 +19,6 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.IO;
 
 namespace DDMAutoGUI
 {
@@ -71,6 +72,8 @@ namespace DDMAutoGUI
             sb.AppendLine($"Notes: {currentRelease.releaseDisplayNotes}");
             Adv_Abt_InfoTxb.Text = sb.ToString();
 
+            Status_GUISimBdr.Visibility = App.GUI_SIM_MODE ? Visibility.Visible : Visibility.Collapsed;
+
             allButtons = new List<Button>()
             {
                 Con_ConnectBtn,
@@ -106,18 +109,30 @@ namespace DDMAutoGUI
 
 
 
+
+
+
+
+
+
+
+
+
+
         // ==================================================================
         // Main dispense process routine
 
         private async void RunFullDispenseProcess()
         {
 
-            bool doSNPhoto = true;
-            bool doPrePhoto = true;
+            bool doSidePhoto = true;
+            bool doPreTopPhoto = true;
+            bool doMatlabPhoto = true;
             bool doRingMeasure = true;
             bool doMagMeasure = true;
             bool doDispense = true;
-            bool doPostPhoto = true;
+            bool doHallMeasure = true;
+            bool doPostTopPhoto = true;
             bool doAutoCalib = true;
 
             float x, t, d;
@@ -172,319 +187,589 @@ namespace DDMAutoGUI
             resultsManager.CreateNewResults();
             Disp_LogTxt.Text = "";
 
+            //if (Disp_Sim_SimChk.IsChecked ?? false)
+            //{
+            //    bool errorEncountered = false;
+            //    string errorMessage = string.Empty;
+            //    string displayMessage = string.Empty;
+            //    bool saveResults = false; // only save results if dispense step is reached
+            //    try
+            //    {
 
-            if (Disp_Sim_SimChk.IsChecked ?? false)
+            //        float simFlowID = float.Parse(Disp_Sim_FlowIDTxt.Text);
+            //        float simFlowOD = float.Parse(Disp_Sim_FlowODTxt.Text);
+
+            //        Disp_ProcessPrg.Value = 0;
+            //        Dispense_GoToStep(1);
+
+            //        resultsManager.AddToLog("=== SIMULATION ENABLED ===");
+            //        resultsManager.AddToLog($"Dispense process started for motor {motorName}");
+
+            //        resultsManager.AddToLog("Verifying system health...");
+            //        await Task.Delay(500);
+
+            //        //Exception e = new Exception("System health check failed");
+            //        //throw e;
+
+            //        resultsManager.AddToLog("System OK");
+
+            //        // Take top photo, verify size
+            //        resultsManager.AddToLog("Taking pre-process top photo...");
+            //        await Task.Delay(500);
+            //        resultsManager.AddToLog($"Photo saved");
+            //        resultsManager.AddToLog($"Motor size {motorName} verified");
+            //        Disp_ProcessPrg.Value = 10;
+
+            //        // Set pressures using local calib data
+            //        resultsManager.AddToLog("Setting dispense system pressures...");
+            //        int _sysID, _sysOD;
+            //        float _pressureID, _pressureOD;
+            //        _sysID = motor.shot_settings.sys_num_id.Value;
+            //        _sysOD = motor.shot_settings.sys_num_od.Value;
+            //        _pressureID = App.LocalDataManager.GetPressureFromFlowrate(_sysID, motor.shot_settings.target_flow_id.Value).Value;
+            //        _pressureOD = App.LocalDataManager.GetPressureFromFlowrate(_sysOD, motor.shot_settings.target_flow_od.Value).Value;
+
+            //        // maybe there's a cleaner way to do this:
+            //        float? _pressure1 = null, _pressure2 = null;
+            //        if (_sysID == 1)
+            //        {
+            //            _pressure1 = _pressureID;
+            //        }
+            //        else if (_sysID == 2)
+            //        {
+            //            _pressure2 = _pressureID;
+            //        }
+            //        if (_sysOD == 1)
+            //        {
+            //            _pressure1 = _pressureOD;
+            //        }
+            //        else if (_sysOD == 2)
+            //        {
+            //            _pressure2 = _pressureOD;
+            //        }
+            //        // (if sysID == sysOD, both local pressures will be identical anyway so no need to check)
+
+
+
+
+            //        // TODO: VERIFY CALIBRATION HASN'T EXPIRED
+
+
+            //        // TODO: VERIFY PRESSURES ARE WITHIN RANGE
+
+
+
+            //        if (_pressure1 != null)
+            //        {
+            //            resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1:F3} psi");
+            //        }
+            //        else
+            //        {
+            //            resultsManager.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
+            //        }
+            //        if (_pressure2 != null)
+            //        {
+            //            resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2:F3} psi");
+            //        }
+            //        else
+            //        {
+            //            resultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
+            //        }
+            //        resultsManager.AddToLog("Pressures set");
+            //        await Task.Delay(500);
+
+
+            //        // Take side photo, read SN
+            //        resultsManager.AddToLog("Taking side photo...");
+            //        await Task.Delay(500);
+            //        string sn = "SIM_123456";
+            //        resultsManager.AddToLog($"Photo saved");
+            //        resultsManager.AddToLog($"SN detected: {sn}");
+            //        resultsManager.currentResults.ring_sn = sn;
+            //        Disp_ProcessPrg.Value = 20;
+
+            //        // Measure ring heights
+            //        resultsManager.AddToLog("Measuring ring heights...");
+            //        await Task.Delay(1000);
+            //        List<ResultsHeightMeasurement> ring_heights = App.ControllerManager.GetSimulatedHeightData(motor.laser_ring_num.Value);
+            //        resultsManager.AddToLog($"{ring_heights.Count} heights collected");
+            //        resultsManager.currentResults.ring_heights = ring_heights;
+            //        Disp_ProcessPrg.Value = 30;
+
+            //        // Measure magnet heights
+            //        resultsManager.AddToLog("Measuring magnet heights...");
+            //        await Task.Delay(1000);
+            //        List<ResultsHeightMeasurement> mag_heights = App.ControllerManager.GetSimulatedHeightData(motor.laser_mag_num.Value);
+            //        resultsManager.AddToLog($"{mag_heights.Count} heights collected");
+            //        resultsManager.currentResults.mag_heights = mag_heights;
+            //        Disp_ProcessPrg.Value = 40;
+
+            //        saveResults = true;
+
+            //        // Dispense cyanoacrylate
+            //        resultsManager.AddToLog("Dispensing cyanoacrylate...");
+            //        await Task.Delay(2000);
+            //        Disp_ProcessPrg.Value = 80;
+
+            //        // Process dispense results
+            //        float targetTimeID = motor.shot_settings.target_vol_id.Value / motor.shot_settings.target_flow_id.Value;
+            //        float targetTimeOD = motor.shot_settings.target_vol_od.Value / motor.shot_settings.target_flow_od.Value;
+            //        float simVolID = simFlowID * targetTimeID;
+            //        float simVolOD = simFlowOD * targetTimeOD;
+            //        ResultsShotData shotData = new ResultsShotData
+            //        {
+            //            motor_type = motorName,
+            //            shot_result = true,
+            //            shot_message = "",
+            //            valve_num_id = 1,
+            //            valve_num_od = 1,
+            //            pressure_id = _pressureID,
+            //            pressure_od = _pressureOD,
+            //            time_id = targetTimeID,
+            //            time_od = targetTimeOD,
+            //            vol_id = simVolID,
+            //            vol_od = simVolOD
+            //        };
+
+            //        string substance_id = motor.shot_settings.sys_num_id == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
+            //        string substance_od = motor.shot_settings.sys_num_od == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
+            //        string tb = "  ";
+
+            //        resultsManager.currentResults.shot_data = shotData;
+            //        resultsManager.AddToLog("Dispense complete");
+            //        resultsManager.AddToLog("Results:");
+            //        resultsManager.AddToLog($"{tb}ID:");
+            //        resultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_id})");
+            //        resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id:F3} mL ({shotData.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value:F1}% of target)");
+            //        resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_id:F3} s");
+            //        resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_id:F3} psi");
+            //        resultsManager.AddToLog($"{tb}OD:");
+            //        resultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_od})");
+            //        resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_od:F3} mL ({shotData.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value:F1}% of target)");
+            //        resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_od:F3} s");
+            //        resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_od:F3} psi");
+
+            //        // Take post-process top photo
+            //        resultsManager.AddToLog("Taking post-process top photo...");
+            //        await Task.Delay(500);
+            //        resultsManager.AddToLog($"Photo saved");
+            //        Disp_ProcessPrg.Value = 90;
+
+            //        // Move to load position
+            //        resultsManager.AddToLog("Moving back to unload position...");
+            //        await Task.Delay(500);
+            //        Disp_ProcessPrg.Value = 100;
+
+            //        // Adjust pressures
+            //        CSDispenseCalib[] newSys1Calib;
+            //        CSDispenseCalib[] newSys2Calib;
+            //        bool calibSuccess;
+            //        FlowCalibration.CalibratePressures(
+            //            shotData,
+            //            App.SettingsManager.GetAllSettings(),
+            //            App.LocalDataManager.localData,
+            //            out calibSuccess,
+            //            out newSys1Calib,
+            //            out newSys2Calib);
+
+            //        if (calibSuccess)
+            //        {
+            //            App.LocalDataManager.UpdateCalib(1, newSys1Calib);
+            //            App.LocalDataManager.UpdateCalib(2, newSys2Calib);
+            //        }
+            //        else
+            //        {
+            //            // ??
+            //        }
+
+            //        resultsManager.AddToLog("Saving updated calibration data to local storage...");
+            //        App.LocalDataManager.SaveLocalDataToFile();
+            //        resultsManager.AddToLog("Calibration data saved");
+
+            //        resultsManager.AddToLog("Adjusting dispense system pressures...");
+            //        _sysID = motor.shot_settings.sys_num_id.Value;
+            //        _sysOD = motor.shot_settings.sys_num_od.Value;
+            //        _pressureID = App.LocalDataManager.GetPressureFromFlowrate(_sysID, motor.shot_settings.target_flow_id.Value).Value;
+            //        _pressureOD = App.LocalDataManager.GetPressureFromFlowrate(_sysOD, motor.shot_settings.target_flow_od.Value).Value;
+
+            //        _pressure1 = null;
+            //        _pressure2 = null;
+            //        if (_sysID == 1)
+            //        {
+            //            _pressure1 = _pressureID;
+            //        }
+            //        else if (_sysID == 2)
+            //        {
+            //            _pressure2 = _pressureID;
+            //        }
+            //        if (_sysOD == 1)
+            //        {
+            //            _pressure1 = _pressureOD;
+            //        }
+            //        else if (_sysOD == 2)
+            //        {
+            //            _pressure2 = _pressureOD;
+            //        }
+            //        if (_pressure1 != null)
+            //        {
+            //            resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1:F3} psi");
+            //        }
+            //        else
+            //        {
+            //            resultsManager.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
+            //        }
+            //        if (_pressure2 != null)
+            //        {
+            //            resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2:F3} psi");
+            //        }
+            //        else
+            //        {
+            //            resultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
+            //        }
+
+            //        resultsManager.AddToLog("Process complete");
+
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        errorEncountered = true;
+            //        errorMessage = ex.Message;
+            //        resultsManager.AddToLog($"Process error: {ex.Message}");
+            //    }
+
+
+            //    // Determine pass/fail
+
+            //    bool pass = false;
+            //    string msg = string.Empty;
+            //    if (errorEncountered)
+            //    {
+            //        pass = false;
+            //        msg = errorMessage;
+            //        displayMessage = msg;
+            //    }
+            //    else
+            //    {
+            //        App.ResultsManager.DeterminePassFail(
+            //            resultsManager.currentResults,
+            //            settings,
+            //            motor,
+            //            out pass,
+            //            out msg);
+            //        resultsManager.currentResults.overall_process_result = pass;
+            //        resultsManager.currentResults.overall_proces_message = msg;
+            //        displayMessage = msg;
+            //    }
+
+            //    // Save results to file
+            //    if (saveResults)
+            //    {
+            //        string resultsPath = resultsManager.CreateResultsFolder();
+            //        resultsManager.AddToLog("Saving settings to results folder");
+            //        App.SettingsManager.SaveSettingsCopyToLocal(settings, resultsPath);
+            //        resultsManager.AddToLog("Saving results to results folder");
+            //        resultsManager.SaveDataToFile();
+            //    }
+
+            //    // Prepare and display results page
+
+            //    Results res = resultsManager.currentResults;
+            //    if (pass)
+            //    {
+            //        Disp_Res_PassBdr.Visibility = Visibility.Visible;
+            //        Disp_Res_FailBdr.Visibility = Visibility.Collapsed;
+            //    }
+            //    else
+            //    {
+            //        Disp_Res_PassBdr.Visibility = Visibility.Collapsed;
+            //        Disp_Res_FailBdr.Visibility = Visibility.Visible;
+            //    }
+            //    Disp_Res_ResMessageTxb.Text = displayMessage;
+
+
+            //    Disp_Res_SNTxb.Text = resultsManager.currentResults.ring_sn;
+            //    var data = resultsManager.currentResults.shot_data;
+            //    Disp_Res_VolIDTxb.Text = $"{data.vol_id:F3} mL ({Math.Round(data.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value, 1):F1}% of target)";
+            //    Disp_Res_VolODTxb.Text = $"{data.vol_od:F3} mL ({Math.Round(data.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value, 1):F1}% of target)";
+            //    Dispense_GoToStep(2);
+
+            //    // Clean up
+            //    resultsManager.UpdateProcessLog -= MainWindowSingle_Disp_UpdateProcessLog;
+            //    resultsManager.ClearCurrentResults();
+
+            //    return;
+            //}
+
+
+
+
+
+
+
+
+
+            // Move to top camera and take photo
+
+            if (doPreTopPhoto)
             {
-                bool errorEncountered = false;
-                string errorMessage = string.Empty;
-                string displayMessage = string.Empty;
-                bool saveResults = false; // only save results if dispense step is reached
-                try
-                {
+                x = settings.ddm_common.camera_top.x.Value;
+                t = settings.ddm_common.camera_top.t.Value;
 
-                    float simFlowID = float.Parse(Disp_Sim_FlowIDTxt.Text);
-                    float simFlowOD = float.Parse(Disp_Sim_FlowODTxt.Text);
+                resultsManager.AddToLog("Taking top photo");
+                resultsManager.AddToLog($"Moving to [{x}, {t}]");
 
-                    Disp_ProcessPrg.Value = 0;
-                    Dispense_GoToStep(1);
+                await App.ControllerManager.MoveJ(x, t);
+                App.CameraManager.AcquireAndSave(CameraManager.CellCamera.top, null);
 
-                    resultsManager.AddToLog("=== SIMULATION ENABLED ===");
-                    resultsManager.AddToLog($"Dispense process started for motor {motorName}");
-
-                    resultsManager.AddToLog("Verifying system health...");
-                    await Task.Delay(500);
-
-                    //Exception e = new Exception("System health check failed");
-                    //throw e;
-
-                    resultsManager.AddToLog("System OK");
-
-                    // Take top photo, verify size
-                    resultsManager.AddToLog("Taking pre-process top photo...");
-                    await Task.Delay(500);
-                    resultsManager.AddToLog($"Photo saved");
-                    resultsManager.AddToLog($"Motor size {motorName} verified");
-                    Disp_ProcessPrg.Value = 10;
-
-                    // Set pressures using local calib data
-                    resultsManager.AddToLog("Setting dispense system pressures...");
-                    int sysID, sysOD;
-                    float pressureID, pressureOD;
-                    sysID = motor.shot_settings.sys_num_id.Value;
-                    sysOD = motor.shot_settings.sys_num_od.Value;
-                    pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
-                    pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
-
-                    // maybe there's a cleaner way to do this:
-                    float? pressure1 = null, pressure2 = null;
-                    if (sysID == 1)
-                    {
-                        pressure1 = pressureID;
-                    }
-                    else if (sysID == 2)
-                    {
-                        pressure2 = pressureID;
-                    }
-                    if (sysOD == 1)
-                    {
-                        pressure1 = pressureOD;
-                    }
-                    else if (sysOD == 2)
-                    {
-                        pressure2 = pressureOD;
-                    }
-                    // (if sysID == sysOD, both local pressures will be identical anyway so no need to check)
-
-
-
-
-                    // TODO: VERIFY CALIBRATION HASN'T EXPIRED
-
-
-                    // TODO: VERIFY PRESSURES ARE WITHIN RANGE
-
-
-
-                    if (pressure1 != null)
-                    {
-                        resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1:F3} psi");
-                    }
-                    else
-                    {
-                        resultsManager.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
-                    }
-                    if (pressure2 != null)
-                    {
-                        resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2:F3} psi");
-                    }
-                    else
-                    {
-                        resultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
-                    }
-                    resultsManager.AddToLog("Pressures set");
-                    await Task.Delay(500);
-
-
-                    // Take side photo, read SN
-                    resultsManager.AddToLog("Taking side photo...");
-                    await Task.Delay(500);
-                    string sn = "SIM_123456";
-                    resultsManager.AddToLog($"Photo saved");
-                    resultsManager.AddToLog($"SN detected: {sn}");
-                    resultsManager.currentResults.ring_sn = sn;
-                    Disp_ProcessPrg.Value = 20;
-
-                    // Measure ring heights
-                    resultsManager.AddToLog("Measuring ring heights...");
-                    await Task.Delay(1000);
-                    List<ResultsHeightMeasurement> ring_heights = App.ControllerManager.GetSimulatedHeightData(motor.laser_ring_num.Value);
-                    resultsManager.AddToLog($"{ring_heights.Count} heights collected");
-                    resultsManager.currentResults.ring_heights = ring_heights;
-                    Disp_ProcessPrg.Value = 30;
-
-                    // Measure magnet heights
-                    resultsManager.AddToLog("Measuring magnet heights...");
-                    await Task.Delay(1000);
-                    List<ResultsHeightMeasurement> mag_heights = App.ControllerManager.GetSimulatedHeightData(motor.laser_mag_num.Value);
-                    resultsManager.AddToLog($"{mag_heights.Count} heights collected");
-                    resultsManager.currentResults.mag_heights = mag_heights;
-                    Disp_ProcessPrg.Value = 40;
-
-                    saveResults = true;
-
-                    // Dispense cyanoacrylate
-                    resultsManager.AddToLog("Dispensing cyanoacrylate...");
-                    await Task.Delay(2000);
-                    Disp_ProcessPrg.Value = 80;
-
-                    // Process dispense results
-                    float targetTimeID = motor.shot_settings.target_vol_id.Value / motor.shot_settings.target_flow_id.Value;
-                    float targetTimeOD = motor.shot_settings.target_vol_od.Value / motor.shot_settings.target_flow_od.Value;
-                    float simVolID = simFlowID * targetTimeID;
-                    float simVolOD = simFlowOD * targetTimeOD;
-                    ResultsShotData shotData = new ResultsShotData
-                    {
-                        motor_type = motorName,
-                        shot_result = true,
-                        shot_message = "",
-                        valve_num_id = 1,
-                        valve_num_od = 1,
-                        pressure_id = pressureID,
-                        pressure_od = pressureOD,
-                        time_id = targetTimeID,
-                        time_od = targetTimeOD,
-                        vol_id = simVolID,
-                        vol_od = simVolOD
-                    };
-
-                    string substance_id = motor.shot_settings.sys_num_id == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
-                    string substance_od = motor.shot_settings.sys_num_od == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
-                    string tb = "  ";
-
-                    resultsManager.currentResults.shot_data = shotData;
-                    resultsManager.AddToLog("Dispense complete");
-                    resultsManager.AddToLog("Results:");
-                    resultsManager.AddToLog($"{tb}ID:");
-                    resultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_id})");
-                    resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id:F3} mL ({shotData.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value:F1}% of target)");
-                    resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_id:F3} s");
-                    resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_id:F3} psi");
-                    resultsManager.AddToLog($"{tb}OD:");
-                    resultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_od})");
-                    resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_od:F3} mL ({shotData.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value:F1}% of target)");
-                    resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_od:F3} s");
-                    resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_od:F3} psi");
-
-                    // Take post-process top photo
-                    resultsManager.AddToLog("Taking post-process top photo...");
-                    await Task.Delay(500);
-                    resultsManager.AddToLog($"Photo saved");
-                    Disp_ProcessPrg.Value = 90;
-
-                    // Move to load position
-                    resultsManager.AddToLog("Moving back to unload position...");
-                    await Task.Delay(500);
-                    Disp_ProcessPrg.Value = 100;
-
-                    // Adjust pressures
-                    CSDispenseCalib[] newSys1Calib;
-                    CSDispenseCalib[] newSys2Calib;
-                    bool calibSuccess;
-                    FlowCalibration.CalibratePressures(
-                        shotData,
-                        App.SettingsManager.GetAllSettings(),
-                        App.LocalDataManager.localData,
-                        out calibSuccess,
-                        out newSys1Calib,
-                        out newSys2Calib);
-
-                    if (calibSuccess)
-                    {
-                        App.LocalDataManager.UpdateCalib(1, newSys1Calib);
-                        App.LocalDataManager.UpdateCalib(2, newSys2Calib);
-                    }
-                    else
-                    {
-                        // ??
-                    }
-
-                    resultsManager.AddToLog("Saving updated calibration data to local storage...");
-                    App.LocalDataManager.SaveLocalDataToFile();
-                    resultsManager.AddToLog("Calibration data saved");
-
-                    resultsManager.AddToLog("Adjusting dispense system pressures...");
-                    sysID = motor.shot_settings.sys_num_id.Value;
-                    sysOD = motor.shot_settings.sys_num_od.Value;
-                    pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
-                    pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
-
-                    pressure1 = null;
-                    pressure2 = null;
-                    if (sysID == 1)
-                    {
-                        pressure1 = pressureID;
-                    }
-                    else if (sysID == 2)
-                    {
-                        pressure2 = pressureID;
-                    }
-                    if (sysOD == 1)
-                    {
-                        pressure1 = pressureOD;
-                    }
-                    else if (sysOD == 2)
-                    {
-                        pressure2 = pressureOD;
-                    }
-                    if (pressure1 != null)
-                    {
-                        resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1:F3} psi");
-                    }
-                    else
-                    {
-                        resultsManager.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
-                    }
-                    if (pressure2 != null)
-                    {
-                        resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2:F3} psi");
-                    }
-                    else
-                    {
-                        resultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
-                    }
-
-                    resultsManager.AddToLog("Process complete");
-
-                }
-                catch (Exception ex)
-                {
-                    errorEncountered = true;
-                    errorMessage = ex.Message;
-                    resultsManager.AddToLog($"Process error: {ex.Message}");
-                }
-
-
-                // Determine pass/fail
-
-                bool pass = false;
-                string msg = string.Empty;
-                if (errorEncountered)
-                {
-                    pass = false;
-                    msg = errorMessage;
-                    displayMessage = msg;
-                }
-                else
-                {
-                    App.ResultsManager.DeterminePassFail(
-                        resultsManager.currentResults,
-                        settings,
-                        motor,
-                        out pass, 
-                        out msg);
-                    resultsManager.currentResults.overall_process_result = pass;
-                    resultsManager.currentResults.overall_proces_message = msg;
-                    displayMessage = msg;
-                }
-
-                // Save results to file
-                if (saveResults)
-                {
-                    string resultsPath = resultsManager.CreateResultsFolder();
-                    resultsManager.AddToLog("Saving settings to results folder");
-                    App.SettingsManager.SaveSettingsCopyToLocal(settings, resultsPath);
-                    resultsManager.AddToLog("Saving results to results folder");
-                    resultsManager.SaveDataToFile();
-                }
-
-                // Prepare and display results page
-
-                Results res = resultsManager.currentResults;
-                if (pass)
-                {
-                    Disp_Res_PassBdr.Visibility = Visibility.Visible;
-                    Disp_Res_FailBdr.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    Disp_Res_PassBdr.Visibility = Visibility.Collapsed;
-                    Disp_Res_FailBdr.Visibility = Visibility.Visible;
-                }
-                Disp_Res_ResMessageTxb.Text = displayMessage;
-
-
-                Disp_Res_SNTxb.Text = resultsManager.currentResults.ring_sn;
-                var data = resultsManager.currentResults.shot_data;
-                Disp_Res_VolIDTxb.Text = $"{data.vol_id:F3} mL ({Math.Round(data.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value, 1):F1}% of target)";
-                Disp_Res_VolODTxb.Text = $"{data.vol_od:F3} mL ({Math.Round(data.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value, 1):F1}% of target)";
-                Dispense_GoToStep(2);
-
-                // Clean up
-                resultsManager.UpdateProcessLog -= MainWindowSingle_Disp_UpdateProcessLog;
-                resultsManager.ClearCurrentResults();
-
-                return;
+                resultsManager.AddToLog("Top photo saved");
+                Disp_ProcessPrg.Value = 5;
             }
+
+
+
+            // Move to side camera and take photo
+
+            if (doSidePhoto)
+            {
+                x = motor.camera_side.x.Value;
+                t = motor.camera_side.t.Value;
+
+                resultsManager.AddToLog("Taking side photo");
+                resultsManager.AddToLog($"Moving to [{x}, {t}]");
+
+                await App.ControllerManager.MoveJ(x, t);
+                App.CameraManager.AcquireAndSave(CameraManager.CellCamera.top, null);
+
+                resultsManager.AddToLog("Top photo saved");
+                Disp_ProcessPrg.Value = 10;
+            }
+
+
+            // Send photos to Matlab and read SN and size
+
+            if (doMatlabPhoto)
+            {
+                resultsManager.AddToLog("Sending photos to Matlab for processing");
+
+
+
+                Disp_ProcessPrg.Value = 15;
+
+            }
+            else
+            {
+
+            }
+
+
+            // Set pressures
+
+            resultsManager.AddToLog("Setting dispense system pressure setpoints");
+            int sysID, sysOD;
+            float pressureID, pressureOD;
+            sysID = motor.shot_settings.sys_num_id.Value;
+            sysOD = motor.shot_settings.sys_num_od.Value;
+            pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
+            pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
+
+            // maybe there's a cleaner way to do this:
+            float? pressure1 = null, pressure2 = null;
+            if (sysID == 1)
+            {
+                pressure1 = pressureID;
+            }
+            else if (sysID == 2)
+            {
+                pressure2 = pressureID;
+            }
+            if (sysOD == 1)
+            {
+                pressure1 = pressureOD;
+            }
+            else if (sysOD == 2)
+            {
+                pressure2 = pressureOD;
+            }
+            // (if sysID == sysOD, both local pressures will be identical anyway so no need to check)
+
+
+
+
+            // TODO: VERIFY CALIBRATION HASN'T EXPIRED
+
+
+            // TODO: VERIFY PRESSURES ARE WITHIN RANGE
+
+
+
+
+            if (pressure1 != null)
+            {
+                resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1:F3} psi");
+                await App.ControllerManager.SetRegPressure(1, pressure1.Value);
+            }
+            else
+            {
+                resultsManager.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
+            }
+            if (pressure2 != null)
+            {
+                resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2:F3} psi");
+                await App.ControllerManager.SetRegPressure(2, pressure2.Value);
+            }
+            else
+            {
+                resultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
+            }
+            resultsManager.AddToLog("Pressure setpoints set");
+            Disp_ProcessPrg.Value = 20;
+
+
+
+
+            // Move to laser sensor and collect height data
+
+            x = motor.laser_ring.x.Value;
+            t = motor.laser_ring.t.Value;
+            n = motor.laser_ring_num.Value;
+            d = settings.laser_delay.Value;
+
+            resultsManager.AddToLog("Measuring magnet and concentrator height");
+            resultsManager.AddToLog($"Moving to [{x}, {t}]");
+
+            await App.ControllerManager.MoveJ(x, t);
+
+            resultsManager.AddToLog($"Collecting {n} data points");
+            string response = await App.ControllerManager.MeasureHeights(x, t, n, d);
+
+            resultsManager.currentResults.ring_heights = App.ControllerManager.ParseHeightData(response);
+
+            resultsManager.AddToLog("Ring data collected");
+            Disp_ProcessPrg.Value = 30;
+
+
+            // Process height data
+
+            resultsManager.AddToLog("Processing height data");
+
+            Disp_ProcessPrg.Value = 35;
+
+            //...
+
+
+
+
+            // Dispense adhesive
+
+            resultsManager.AddToLog("Verifying pressures have reached their setpoints");
+            if (pressure1 != null)
+            {
+                await App.ControllerManager.SetRegPressureAndWait(1, pressure1.Value, 20);
+                resultsManager.AddToLog($"Pressure 1 at setpoint ({pressure1.Value:F3} psi)");
+            }
+            if (pressure2 != null)
+            {
+                await App.ControllerManager.SetRegPressureAndWait(2, pressure2.Value, 20);
+                resultsManager.AddToLog($"Pressure 2 at setpoint ({pressure2.Value:F3}) psi");
+            }
+
+            resultsManager.AddToLog("Dispensing adhesive");
+
+            float xID = motor.disp_id.x.Value;
+            float tID = motor.disp_id.t.Value;
+            float xOD = motor.disp_od.x.Value;
+            float tOD = motor.disp_od.t.Value;
+            float targetTimeID = motor.shot_settings.target_vol_id.Value / motor.shot_settings.target_flow_id.Value;
+            float targetTimeOD = motor.shot_settings.target_vol_od.Value / motor.shot_settings.target_flow_od.Value;
+
+            response = await App.ControllerManager.DispenseToRing(
+                sysID,
+                targetTimeID,
+                xID, 
+                tID, 
+                sysOD, 
+                targetTimeOD, 
+                xOD, 
+                tOD);
+
+            Debug.Print(response);
+
+            ResultsShotData shotData = App.ControllerManager.ParseDispenseResponse(response); // returns volumes and times
+            shotData.motor_type = motorName;
+            shotData.shot_result = true;
+            shotData.shot_message = "";
+            shotData.valve_num_id = sysID;
+            shotData.valve_num_od = sysOD;
+            shotData.pressure_id = pressureID;
+            shotData.pressure_od = pressureOD;
+
+            resultsManager.currentResults.shot_data = shotData;
+            Disp_ProcessPrg.Value = 50;
+
+
+
+            // Process results
+
+            string substance_id = motor.shot_settings.sys_num_id == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
+            string substance_od = motor.shot_settings.sys_num_od == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
+            string tb = "  ";
+
+            resultsManager.currentResults.shot_data = shotData;
+            resultsManager.AddToLog("Dispense complete");
+            resultsManager.AddToLog("Results:");
+            resultsManager.AddToLog($"{tb}ID:");
+            resultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_id})");
+            resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id:F3} mL ({shotData.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value:F1}% of target)");
+            resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_id:F3} s");
+            resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_id:F3} psi");
+            resultsManager.AddToLog($"{tb}OD:");
+            resultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_od})");
+            resultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_od:F3} mL ({shotData.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value:F1}% of target)");
+            resultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_od:F3} s");
+            resultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_od:F3} psi");
+
+
+            // Start cure timer
+
+
+            // Move to Hall sensor and collect polarity data
+
+
+            // Send data to Matlab and process
+
+
+            // Move under top camera and take photo
+
+
+            // Wait for cure timer to finish
+
+
+            // Move to load position
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -501,43 +786,9 @@ namespace DDMAutoGUI
             Disp_ProcessPrg.Value = 0;
             Dispense_GoToStep(1);
 
-            // verify all sensors are online
-
-            //processData.AddToLog("Verifying sensors...");
-            //await Task.Delay(500);
-            //processData.AddToLog("Sensors verified");
-
-            if (doSNPhoto)
-            {
-                // connect to side camera
 
 
-                x = motor.camera_side.x.Value;
-                t = motor.camera_side.t.Value;
-
-                resultsManager.AddToLog("Connecting to side camera...");
-                resultsManager.AddToLog($"Moving to [{x}, {t}]");
-
-                await App.ControllerManager.MoveJ(x, t);
-
-                await Task.Delay(500);
-
-                resultsManager.AddToLog("Camera connected");
-                Disp_ProcessPrg.Value = 5;
-
-            }
-
-            if (doPrePhoto || doPostPhoto)
-            {
-                // connect to top camera
-
-                //processData.AddToLog("Connecting to top camera...");
-                //processData.AddToLog("Camera connected");
-                Disp_ProcessPrg.Value = 10;
-
-            }
-
-            if (doPrePhoto)
+            if (doPreTopPhoto)
             {
                 // take photo before process
 
@@ -553,6 +804,25 @@ namespace DDMAutoGUI
                 resultsManager.AddToLog("Photo saved");
                 Disp_ProcessPrg.Value = 20;
             }
+
+            if (doSidePhoto)
+            {
+                // connect to side camera
+
+                x = motor.camera_side.x.Value;
+                t = motor.camera_side.t.Value;
+
+                resultsManager.AddToLog("Connecting to side camera...");
+                resultsManager.AddToLog($"Moving to [{x}, {t}]");
+
+                await App.ControllerManager.MoveJ(x, t);
+
+                await Task.Delay(500);
+
+                resultsManager.AddToLog("Camera connected");
+                Disp_ProcessPrg.Value = 5;
+
+            }
             if (doRingMeasure)
             {
                 // measure magnet ring displacement
@@ -566,9 +836,9 @@ namespace DDMAutoGUI
                 resultsManager.AddToLog($"Moving to [{x}, {t}]");
 
                 await App.ControllerManager.MoveJ(x, t);
-                string response = await App.ControllerManager.MeasureHeights(x, t, n, d);
+                string _response = await App.ControllerManager.MeasureHeights(x, t, n, d);
 
-                resultsManager.currentResults.ring_heights = App.ControllerManager.ParseHeightData(response);
+                resultsManager.currentResults.ring_heights = App.ControllerManager.ParseHeightData(_response);
 
                 resultsManager.AddToLog("Ring data collected");
                 Disp_ProcessPrg.Value = 30;
@@ -586,9 +856,9 @@ namespace DDMAutoGUI
                 resultsManager.AddToLog($"Moving to [{x}, {t}]");
 
                 await App.ControllerManager.MoveJ(x, t);
-                string response = await App.ControllerManager.MeasureHeights(x, t, n, d);
+                string _response = await App.ControllerManager.MeasureHeights(x, t, n, d);
 
-                resultsManager.currentResults.mag_heights = App.ControllerManager.ParseHeightData(response);
+                resultsManager.currentResults.mag_heights = App.ControllerManager.ParseHeightData(_response);
 
                 resultsManager.AddToLog("Magnet data collected");
                 Disp_ProcessPrg.Value = 40;
@@ -626,7 +896,7 @@ namespace DDMAutoGUI
                 string pressure_id_sp = await App.ControllerManager.GetRegPressureSetpoint(valve_num_id);
                 string pressure_od_sp = await App.ControllerManager.GetRegPressureSetpoint(valve_num_od);
 
-                string tb = "  ";
+                string _tb = "  ";
 
                 ResultsShotData data = resultsManager.currentResults.shot_data;
 
@@ -645,7 +915,7 @@ namespace DDMAutoGUI
 
                 Disp_ProcessPrg.Value = 80;
             }
-            if (doPostPhoto)
+            if (doPostTopPhoto)
             {
                 // take photo after process
 
@@ -675,6 +945,18 @@ namespace DDMAutoGUI
         }
 
         // ==================================================================
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1173,9 +1455,10 @@ namespace DDMAutoGUI
             Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
             App.LocalDataManager.localData.controller_ip = Con_IPTxt.Text;
 
-            bool success = await App.ControllerManager.Connect(Con_IPTxt.Text);
+            DeviceConnState connState = await App.ConnectionManager.ConnectToAllDevices(Con_IPTxt.Text);
 
-            if (success)
+
+            if (connState.controllerConnected)
             {
                 Con_ErrorMsgTxb.Text = string.Empty;
                 Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;

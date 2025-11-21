@@ -99,6 +99,10 @@
     "laser_ring": {
       "x": 0,
       "t": 0
+    },
+    "hall_sensor": {
+      "x": 0,
+      "t": 0
     }
   },
   "ddm_95": {
@@ -131,6 +135,10 @@
       "t": 0
     },
     "laser_ring": {
+      "x": 0,
+      "t": 0
+    },
+    "hall_sensor": {
       "x": 0,
       "t": 0
     }
@@ -167,6 +175,10 @@
     "laser_ring": {
       "x": 0,
       "t": 0
+    },
+    "hall_sensor": {
+      "x": 0,
+      "t": 0
     }
   },
   "ddm_170": {
@@ -201,6 +213,10 @@
     "laser_ring": {
       "x": 0,
       "t": 0
+    },
+    "hall_sensor": {
+      "x": 0,
+      "t": 0
     }
   },
   "ddm_170_tall": {
@@ -233,6 +249,10 @@
       "t": 0
     },
     "laser_ring": {
+      "x": 0,
+      "t": 0
+    },
+    "hall_sensor": {
       "x": 0,
       "t": 0
     }

@@ -69,7 +69,7 @@ namespace DDMAutoGUI.utilities
         }
     }
 
-    public class ConnectionState
+    public class ControllerConnState
     {
         public bool isConnected { get; set; }
         public string connectedIP { get; set; }
@@ -112,7 +112,7 @@ namespace DDMAutoGUI.utilities
         public event EventHandler ConnectionStateChanged;
 
         public ControllerState CONTROLLER_STATE { get; private set; } = new ControllerState();
-        public ConnectionState CONNECTION_STATE { get; private set; } = new ConnectionState();
+        public ControllerConnState CONNECTION_STATE { get; private set; } = new ControllerConnState();
 
         public ControllerManager()
         {
