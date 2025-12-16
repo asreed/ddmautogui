@@ -323,6 +323,8 @@ namespace DDMAutoGUI.utilities
             robotClient.SendTimeout = sendTimeout;
             robotClient.ReceiveTimeout = receiveTimeout;
 
+            ClearConnectionLog();
+
             UpdateBothLogs($"Connecting to {ip}...");
             UpdateConnectionLog($"Connecting to {ip}...\n");
 
@@ -373,6 +375,29 @@ namespace DDMAutoGUI.utilities
                     }
                 }
 
+                string laserResponse = await TestLaserConnection();
+                if (laserResponse != "-1")
+                {
+                    SocketException ex = new SocketException(-1, "Laser connection test failed");
+                    throw ex;
+                }
+                UpdateConnectionLog($"✓ Laser Sensor");
+
+                bool topCameraConnected = await Task.Run(() => App.CameraManager.TestCameraConnection(CameraManager.CellCamera.top));
+                if (!topCameraConnected)
+                {
+                    SocketException ex = new SocketException(-1, "Top camera not connected");
+                    throw ex;
+                }
+                UpdateConnectionLog($"✓ Top Camera");
+
+                bool sideCameraConnected = await Task.Run(() => App.CameraManager.TestCameraConnection(CameraManager.CellCamera.side));
+                if (!sideCameraConnected)
+                {
+                    SocketException ex = new SocketException(-1, "Side camera not connected");
+                    throw ex;
+                }
+                UpdateConnectionLog($"✓ Side Camera");
 
 
                 UpdateConnectionLog($"\nConnected successfully");
@@ -710,6 +735,12 @@ namespace DDMAutoGUI.utilities
             UpdateRobotLog(logLine);
         }
 
+        private void ClearConnectionLog()
+        {
+            connectionLog = string.Empty;
+            ConnectionLogUpdated?.Invoke(this, EventArgs.Empty);
+        }
+
         private void UpdateConnectionLog(string logLine)
         {
             connectionLog += logLine + "\n";
@@ -797,6 +828,7 @@ namespace DDMAutoGUI.utilities
             string response = await SendStatusCommand("DDM_GetSystemState", muteLog);
             return response;
         }
+
         public async Task<string> GetIOLinkStatusRemote()
         {
             string input = $"DDM_GetIOLinkStatus";
@@ -807,6 +839,17 @@ namespace DDMAutoGUI.utilities
                 ioLinkString = response.Substring(response.IndexOf(" ") + 1);
             }
             return ioLinkString;
+        }
+
+        public async Task<string> TestLaserConnection()
+        {
+            string input = $"DDM_TestLaserConnection";
+            string response = await SendStatusCommand(input);
+            if (response.Split(" ").Length > 1)
+            {
+                response = response.Split(" ")[1];
+            }
+            return response;
         }
 
         public async Task<string> GetTCSVersion()

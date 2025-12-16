@@ -71,6 +71,21 @@ namespace DDMAutoGUI.utilities
             cameraSideSN = null;
         }
 
+        public async Task<bool> TestCameraConnection(CellCamera cellCamera)
+        {
+            CellSettings settings = App.SettingsManager.GetAllSettings();
+            if (settings != null)
+            {
+                cameraTopSN = settings.camera_top_sn;
+                cameraSideSN = settings.camera_side_sn;
+            }
+            CameraAcquisitionResult result = AcquireAndSave(cellCamera, null, true);
+            return result.success;
+        }
+
+
+
+
 
 
         public void OpenExplorerToImages()
@@ -81,10 +96,15 @@ namespace DDMAutoGUI.utilities
 
         public CameraAcquisitionResult AcquireAndSave(CellCamera cellCamera, Image displayElement)
         {
-            return AcquireAndSave(cellCamera, displayElement, defaultImageFormat);
+            return AcquireAndSave(cellCamera, displayElement, defaultImageFormat, false);
         }
 
-        public CameraAcquisitionResult AcquireAndSave(CellCamera cellCamera, Image displayElement, CellImageFormat imgFormat)
+        public CameraAcquisitionResult AcquireAndSave(CellCamera cellCamera, Image displayElement, bool skipSave)
+        {
+            return AcquireAndSave(cellCamera, displayElement, defaultImageFormat, skipSave);
+        }
+
+        public CameraAcquisitionResult AcquireAndSave(CellCamera cellCamera, Image displayElement, CellImageFormat imgFormat, bool skipSave)
         {
             string sfx = string.Empty;
             switch (imgFormat)
@@ -168,14 +188,17 @@ namespace DDMAutoGUI.utilities
                 ArenaNET.IImage image = device.GetImage(2000);
 
                 // save image
-                switch (imgFormat)
+                if (!skipSave)
                 {
-                    case CellImageFormat.PNG:
-                        SaveImagePNG(image, acqFilePath);
-                        break;
-                    case CellImageFormat.JPG:
-                        SaveImageJPG(image, acqFilePath);
-                        break;
+                    switch (imgFormat)
+                    {
+                        case CellImageFormat.PNG:
+                            SaveImagePNG(image, acqFilePath);
+                            break;
+                        case CellImageFormat.JPG:
+                            SaveImageJPG(image, acqFilePath);
+                            break;
+                    }
                 }
 
                 // clean up

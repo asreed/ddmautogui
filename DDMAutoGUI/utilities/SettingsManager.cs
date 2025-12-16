@@ -248,6 +248,7 @@ namespace DDMAutoGUI.utilities
 
                     // Now you can use fileContents as needed
                     CellSettings settings = JsonSerializer.Deserialize<CellSettings>(rawJson);
+                    currentSettings = settings;
                     Debug.Print($"Settings file read successfully from controller");
                     if (settings != null)
                     {
@@ -267,7 +268,6 @@ namespace DDMAutoGUI.utilities
             }
 
         }
-
 
         private CellSettings ReadSettingsFromController()
         {
