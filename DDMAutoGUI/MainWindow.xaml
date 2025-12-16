@@ -44,7 +44,7 @@
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="350"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
@@ -70,20 +70,20 @@
                                                 Width="100"
                                                 Click="Con_ConnectBtn_Click"
                                                 Style="{StaticResource BlueButton}"/>
-                                        <TextBlock x:Name="Con_ErrorMsgTxb"
-                                                   Visibility="Visible"
-                                                   Grid.Row="1" 
-                                                   Grid.Column="0" 
-                                                   Grid.ColumnSpan="2" 
-                                                   TextWrapping="Wrap" 
-                                                   Margin="3"
-                                                   Text="Connection error message"/>
                                     </Grid>
                                 </GroupBox>
-                                <GroupBox Header="Connection Status">
-                                    <Label x:Name="Con_StatusLbl" Content="Not connected"/>
+                                <GroupBox Header="Connection Log">
+
+                                    <TextBox x:Name="Con_LogTxt" 
+                                            Text=""
+                                             Height="250"
+                                             IsReadOnly="True"
+                                            Style="{StaticResource MonoTextBox}"/>
+                                    <!--<Label x:Name="Con_StatusLbl" Content="Not connected"/>-->
                                     <!--<Grid>
                                         <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
@@ -100,19 +100,32 @@
                                                 <Setter Property="Margin" Value="0"/>
                                                 <Setter Property="Padding" Value="2"/>
                                                 <Setter Property="VerticalContentAlignment" Value="Center"/>
-                                                <Setter Property="Foreground" Value="Gray"/>
+                                                <Setter Property="Foreground" Value="#FFB7B7B7"/>
                                             </Style>
                                         </Grid.Resources>
-                                        <Label Grid.Row="0" Grid.Column="0" Content="x" HorizontalAlignment="Center"/>
-                                        <Label Grid.Row="0" Grid.Column="1" Content="Controller TCS" Margin="6,0,0,0"/>
-                                        <Label Grid.Row="1" Grid.Column="0" Content="x" HorizontalAlignment="Center"/>
-                                        <Label Grid.Row="1" Grid.Column="1" Content="Controller Settings" Margin="6,0,0,0"/>
-                                        <Label Grid.Row="2" Grid.Column="0" Content="x" HorizontalAlignment="Center"/>
-                                        <Label Grid.Row="2" Grid.Column="1" Content="Top Camera" Margin="6,0,0,0"/>
-                                        <Label Grid.Row="3" Grid.Column="0" Content="x" HorizontalAlignment="Center"/>
-                                        <Label Grid.Row="3" Grid.Column="1" Content="Side Camera" Margin="6,0,0,0"/>
+                                        <Label Grid.Row="0" Grid.Column="0" Content="x"/>
+                                        <Label Grid.Row="0" Grid.Column="1" Content="Controller TCS"/>
+                                        <Label Grid.Row="1" Grid.Column="0" Content="x"/>
+                                        <Label Grid.Row="1" Grid.Column="1" Content="Controller Settings"/>
+                                        <Label Grid.Row="2" Grid.Column="0" Content="x"/>
+                                        <Label Grid.Row="2" Grid.Column="1" Content="IO Link Devices"/>
+                                        <Label Grid.Row="3" Grid.Column="0" Content="x"/>
+                                        <Label Grid.Row="3" Grid.Column="1" Content="Top Camera"/>
+                                        <Label Grid.Row="4" Grid.Column="0" Content="x"/>
+                                        <Label Grid.Row="4" Grid.Column="1" Content="Side Camera"/>
+                                        <Label Grid.Row="5" Grid.Column="0" Content="x"/>
+                                        <Label Grid.Row="5" Grid.Column="1" Content="Laser Sensor"/>
+                                        <Label Grid.Row="6" Grid.Column="0" Content="x"/>
+                                        <Label Grid.Row="6" Grid.Column="1" Content="DAQ"/>
                                     </Grid>-->
                                 </GroupBox>
+                                <!--<GroupBox Header="Message">
+                                    <TextBlock x:Name="Con_ErrorMsgTxb"
+                                                   Visibility="Visible"
+                                                   TextWrapping="Wrap"
+                                                   Margin="3"
+                                                   Text="Connection error message"/>
+                                </GroupBox>-->
                             </StackPanel>
                         </Grid>
                     </Grid>
@@ -209,6 +222,7 @@
 
                                                     <TextBox x:Name="Disp_LogTxt" 
                                                              Text="(no data)"
+                                                             IsReadOnly="True"
                                                              Style="{StaticResource MonoTextBox}"/>
                                                 </GroupBox>
                                                 <GroupBox Header="Progress" Grid.Row="1">

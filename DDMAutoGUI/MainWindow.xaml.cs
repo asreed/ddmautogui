@@ -54,6 +54,7 @@ namespace DDMAutoGUI
             App.ControllerManager.ControllerConnected += MainWindowSingle_OnConnected;
             App.ControllerManager.ControllerDisconnected += MainWindowSingle_OnDisconnected;
             App.ControllerManager.ControllerStateChanged += MainWindowSingle_OnChangeControllerState;
+            App.ControllerManager.ConnectionLogUpdated += MainWindowSingle_OnChangeConnectionLog;
             App.ControllerManager.StatusLogUpdated += MainWindowSingle_OnChangeStatusLog;
             App.ControllerManager.RobotLogUpdated += MainWindowSingle_OnChangeRobotLog;
             App.ControllerManager.ConnectionStateChanged += MainWindowSingle_OnChangeConnectionState;
@@ -95,7 +96,7 @@ namespace DDMAutoGUI
             Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
             Disp_ProcessPrg.Value = 0;
 
-            Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
+            //Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
 
             string savedIP = App.LocalDataManager.localData.controller_ip;
             Con_IPTxt.Text = savedIP;
@@ -138,7 +139,7 @@ namespace DDMAutoGUI
             float x, t, d;
             int n;
 
-            CellSettings settings = App.SettingsManager.currentSettings;
+            CellSettings settings = App.SettingsManager.GetAllSettings();
             CSMotor motor = new CSMotor();
             string motorName = string.Empty;
 
@@ -732,7 +733,18 @@ namespace DDMAutoGUI
             // Start cure timer
 
 
+
             // Move to Hall sensor and collect polarity data
+
+            x = motor.hall_sensor.x.Value;
+            t = motor.hall_sensor.t.Value;
+
+            resultsManager.AddToLog("Measuring magnet polarity");
+            resultsManager.AddToLog($"Moving to [{x}, {t}]");
+
+            await App.ControllerManager.MoveJ(x, t);
+
+            //response = await App.ControllerManager.
 
 
             // Send data to Matlab and process
@@ -745,24 +757,6 @@ namespace DDMAutoGUI
 
 
             // Move to load position
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1157,7 +1151,7 @@ namespace DDMAutoGUI
         }
         private void DisplaySettingsToPanel()
         {
-            CellSettings s = App.SettingsManager.currentSettings;
+            CellSettings s = App.SettingsManager.GetAllSettings();
             CSMotor m = App.SettingsManager.GetSettingsForSelectedSize();
 
 
@@ -1242,17 +1236,18 @@ namespace DDMAutoGUI
             Adv_Cell_ConnectedStatusTxt.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
             Adv_Cell_ConnectedStatusTxt.Text = "Connected";
 
-            Adv_Cell_TCSVersionLbl.Text = await App.ControllerManager.GetTCSVersion();
-            Adv_Cell_PACVersionLbl.Text = await App.ControllerManager.GetPACVersion();
+            string TCS = await App.ControllerManager.GetTCSVersion();
+            string PAC = await App.ControllerManager.GetPACVersion();
+
+            Adv_Cell_TCSVersionLbl.Text = TCS;
+            Adv_Cell_PACVersionLbl.Text = PAC;
 
             Con_ConnectBtn.Content = "Connected";
             Con_ConnectBtn.IsEnabled = false;
-            Con_ErrorMsgTxb.Text = string.Empty;
-            Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
+            //Con_ErrorMsgTxb.Text = string.Empty;
+            //Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
 
             Status_StatusTxt.Text = $"Connected ({App.ControllerManager.CONNECTION_STATE.connectedIP})";
-            string TCS = await App.ControllerManager.GetTCSVersion();
-            string PAC = await App.ControllerManager.GetPACVersion();
             Status_TCSGrd.Visibility = Visibility.Visible;
             Status_TCSTxt.Text = TCS;
             Status_PACGrd.Visibility = Visibility.Visible;
@@ -1358,17 +1353,23 @@ namespace DDMAutoGUI
 
             if (App.ControllerManager.CONNECTION_STATE.isConnected)
             {
-                Con_StatusLbl.Content = "Connected";
+                //Con_StatusLbl.Content = "Connected";
             }
             else
             {
-                Con_StatusLbl.Content = "Not connected";
+                //Con_StatusLbl.Content = "Not connected";
             }
         }
 
         public void MainWindowSingle_OnChangeConnectionState(object sender, EventArgs e)
         {
             UpdateButtonLocks();
+        }
+
+        public void MainWindowSingle_OnChangeConnectionLog(object sender, EventArgs e)
+        {
+            Con_LogTxt.Text = App.ControllerManager.GetConnectionLog();
+            Con_LogTxt.ScrollToEnd();
         }
 
         public void MainWindowSingle_OnChangeStatusLog(object sender, EventArgs e)
@@ -1451,8 +1452,8 @@ namespace DDMAutoGUI
         {
             Con_ConnectBtn.IsEnabled = false;
             Con_ConnectBtn.Content = "Connecting...";
-            Con_ErrorMsgTxb.Text = string.Empty;
-            Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
+            //Con_ErrorMsgTxb.Text = string.Empty;
+            //Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
             App.LocalDataManager.localData.controller_ip = Con_IPTxt.Text;
 
             DeviceConnState connState = await App.ConnectionManager.ConnectToAllDevices(Con_IPTxt.Text);
@@ -1460,13 +1461,13 @@ namespace DDMAutoGUI
 
             if (connState.controllerConnected)
             {
-                Con_ErrorMsgTxb.Text = string.Empty;
-                Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
+                //Con_ErrorMsgTxb.Text = string.Empty;
+                //Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
             }
             else
             {
-                Con_ErrorMsgTxb.Text = "Unable to connect. Check IP address and make sure TCS is running.";
-                Con_ErrorMsgTxb.Visibility = Visibility.Visible;
+                //Con_ErrorMsgTxb.Text = "Unable to connect. Check IP address and make sure TCS is running.";
+                //Con_ErrorMsgTxb.Visibility = Visibility.Visible;
             }
         }
 
@@ -1583,7 +1584,7 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            CellSettings s = App.SettingsManager.currentSettings;
+            CellSettings s = App.SettingsManager.GetAllSettings();
             float x = s.ddm_common.load.x.Value;
             float t = s.ddm_common.load.t.Value;
 
@@ -1597,7 +1598,7 @@ namespace DDMAutoGUI
         {
             LockRobotButtons(true);
 
-            CellSettings s = App.SettingsManager.currentSettings;
+            CellSettings s = App.SettingsManager.GetAllSettings();
             float x = s.ddm_common.camera_top.x.Value;
             float t = s.ddm_common.camera_top.t.Value;
 
@@ -1693,7 +1694,7 @@ namespace DDMAutoGUI
 
         private async void Adv_Cell_MeasureRingBtn_Click(object sender, RoutedEventArgs e)
         {
-            CellSettings s = App.SettingsManager.currentSettings;
+            CellSettings s = App.SettingsManager.GetAllSettings();
             CSMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float xPos = m.laser_ring.x.Value;
             float tPos = m.laser_ring.t.Value;
@@ -1718,7 +1719,7 @@ namespace DDMAutoGUI
 
         private async void Adv_Cell_MeasureMagBtn_Click(object sender, RoutedEventArgs e)
         {
-            CellSettings s = App.SettingsManager.currentSettings;
+            CellSettings s = App.SettingsManager.GetAllSettings();
             CSMotor m = App.SettingsManager.GetSettingsForSelectedSize();
             float xPos = m.laser_mag.x.Value;
             float tPos = m.laser_mag.t.Value;
@@ -2029,12 +2030,12 @@ namespace DDMAutoGUI
 
         private void Adv_DAQ_GetA0Btn_Click(object sender, RoutedEventArgs e)
         {
-            double v0 = App.DAQManager.GetVoltage();
-            Adv_DAQ_A0Txb.Text = $"{v0:F5} V";
+            //double v0 = App.DAQManager.GetVoltage();
+            //Adv_DAQ_A0Txb.Text = $"{v0:F5} V";
         }
         private void Adv_DAQ_GetA0TimedBtn_Click(object sender, RoutedEventArgs e)
         {
-            App.DAQManager.GetVoltageTimed();
+            //App.DAQManager.GetVoltageTimed();
         }
     }
 }

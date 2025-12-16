@@ -58,8 +58,11 @@ namespace DDMAutoGUI.utilities
         public async void CameraManager_OnConnected(object sender, EventArgs e)
         {
             CellSettings settings = App.SettingsManager.GetAllSettings();
-            cameraTopSN = settings.camera_top_sn;
-            cameraSideSN = settings.camera_side_sn;
+            if (settings != null)
+            {
+                cameraTopSN = settings.camera_top_sn;
+                cameraSideSN = settings.camera_side_sn;
+            }
         }
 
         public void CameraManager_OnDisconnected(object sender, EventArgs e)

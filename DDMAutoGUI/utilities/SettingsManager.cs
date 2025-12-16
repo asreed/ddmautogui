@@ -139,7 +139,7 @@ namespace DDMAutoGUI.utilities
             ddm_170_tall
         }
         public DDMSize selectedSize = DDMSize.ddm_116; // default to 116
-        public CellSettings currentSettings { get; private set; } = new CellSettings();
+        private CellSettings currentSettings = new CellSettings();
 
         public SettingsManager()
         {
@@ -228,6 +228,46 @@ namespace DDMAutoGUI.utilities
         {
             currentSettings = ReadSettingsFromController();
         }
+
+        public bool VerifySettingsExistOnController(string ip)
+        {
+            string rawJson = "";
+            try
+            {
+                // Create an FTP request
+                FtpWebRequest? request = WebRequest.Create("ftp://" + ip + "/" + settingsFTPPath) as FtpWebRequest;
+                request.Method = WebRequestMethods.Ftp.DownloadFile;
+
+                // Get the response from the server
+                using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
+                using (Stream responseStream = response.GetResponseStream())
+                using (StreamReader reader = new StreamReader(responseStream))
+                {
+                    // Read the contents of the response stream into a string
+                    rawJson = reader.ReadToEnd();
+
+                    // Now you can use fileContents as needed
+                    CellSettings settings = JsonSerializer.Deserialize<CellSettings>(rawJson);
+                    Debug.Print($"Settings file read successfully from controller");
+                    if (settings != null)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Debug.Print($"Error reading settings file: {ex.Message}");
+                return false;
+            }
+
+        }
+
 
         private CellSettings ReadSettingsFromController()
         {

@@ -192,6 +192,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="MatlabExecutables\" />
+    <Folder Include="MatlabResults\" />
     <Folder Include="Results\" />
   </ItemGroup>
 

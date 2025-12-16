@@ -86,11 +86,23 @@ namespace DDMAutoGUI.utilities
         }
     }
 
+    public class IOLinkStatus
+    {
+        public bool isMasterConnected { get; set; }
+        public bool[] isPortConnected { get; set; }
+        public IOLinkStatus()
+        {
+            isMasterConnected = false;
+            isPortConnected = new bool[8];
+        }
+    }
+
     public class ControllerManager
     {
 
         public string CORRECT_TCS_VERSION = "Tcs_ddm_cell_1_1_4"; // ???? ?????????????
 
+        private string connectionLog = string.Empty;
         private string statusLog = string.Empty;
         private string robotLog = string.Empty;
 
@@ -107,6 +119,7 @@ namespace DDMAutoGUI.utilities
         public event EventHandler ControllerConnected;
         public event EventHandler ControllerDisconnected;
         public event EventHandler ControllerStateChanged;
+        public event EventHandler ConnectionLogUpdated;
         public event EventHandler StatusLogUpdated;
         public event EventHandler RobotLogUpdated;
         public event EventHandler ConnectionStateChanged;
@@ -311,6 +324,8 @@ namespace DDMAutoGUI.utilities
             robotClient.ReceiveTimeout = receiveTimeout;
 
             UpdateBothLogs($"Connecting to {ip}...");
+            UpdateConnectionLog($"Connecting to {ip}...\n");
+
             try
             {
                 await statusClient.ConnectAsync(statusEP);
@@ -325,7 +340,42 @@ namespace DDMAutoGUI.utilities
                     throw ex;
                 }
 
-                UpdateBothLogs("Connection succeeded");
+                UpdateConnectionLog($"✓ Controller TCS");
+
+                bool settingsExist = App.SettingsManager.VerifySettingsExistOnController(ip);
+                if (!settingsExist)
+                {
+                    SocketException ex = new SocketException(-1, "Unable to load settings file from controller");
+                    throw ex;
+                }
+                UpdateConnectionLog($"✓ Controller Settings");
+
+                string ioLinkString = await GetIOLinkStatusRemote();
+                IOLinkStatus ioLinkStatus = ParseIOLinkStatus(ioLinkString);
+                if (!ioLinkStatus.isMasterConnected)
+                {
+                    SocketException ex = new SocketException(-1, "I/O-Link Master not connected");
+                    throw ex;
+                }
+                UpdateConnectionLog($"✓ I/O-Link Master");
+
+                for (int i = 0; i < ioLinkStatus.isPortConnected.Length; i++)
+                {
+                    if (ioLinkStatus.isPortConnected[i])
+                    {
+                        UpdateConnectionLog($"✓ I/O-Link Port {i}");
+                    }
+                    else
+                    {
+                        //SocketException ex = new SocketException(-1, $"I/O-Link Port {i} not connected");
+                        //throw ex;
+
+                    }
+                }
+
+
+
+                UpdateConnectionLog($"\nConnected successfully");
 
                 CONNECTION_STATE.isConnected = true;
                 CONNECTION_STATE.connectedIP = ip;
@@ -343,6 +393,9 @@ namespace DDMAutoGUI.utilities
                 robotClient.Close();
                 UpdateBothLogs("Connection failed");
                 UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
+
+                UpdateConnectionLog($"\nConnection error:");
+                UpdateConnectionLog($"{e.ErrorCode}: {e.Message}");
 
                 CONNECTION_STATE.isConnected = false;
                 CONNECTION_STATE.connectedIP = string.Empty;
@@ -551,6 +604,23 @@ namespace DDMAutoGUI.utilities
             return data;
         }
 
+        public IOLinkStatus ParseIOLinkStatus(string ioLinkString)
+        {
+            IOLinkStatus status = new IOLinkStatus();
+            int ports = status.isPortConnected.Length;
+
+            String[] ioLinkStringArray = ioLinkString.Split(" ");
+            if (ioLinkStringArray.Length == ports + 1)
+            {
+                status.isMasterConnected = ioLinkStringArray[0] != "0";
+                for (int i = 0; i < ports; i++)
+                {
+                    status.isPortConnected[i] = ioLinkStringArray[i + 1] != "0";
+                }
+            }
+            return status;
+        }
+
 
 
         // ==================================================================
@@ -640,6 +710,12 @@ namespace DDMAutoGUI.utilities
             UpdateRobotLog(logLine);
         }
 
+        private void UpdateConnectionLog(string logLine)
+        {
+            connectionLog += logLine + "\n";
+            ConnectionLogUpdated?.Invoke(this, EventArgs.Empty);
+        }
+
 
 
         // ==================================================================
@@ -691,6 +767,11 @@ namespace DDMAutoGUI.utilities
         // ==================================================================
         // Public state set/get methods
 
+        public string GetConnectionLog()
+        {
+            return connectionLog;
+        }
+
         public string GetStatusLog()
         {
             return statusLog;
@@ -715,6 +796,17 @@ namespace DDMAutoGUI.utilities
         {
             string response = await SendStatusCommand("DDM_GetSystemState", muteLog);
             return response;
+        }
+        public async Task<string> GetIOLinkStatusRemote()
+        {
+            string input = $"DDM_GetIOLinkStatus";
+            string response = await SendStatusCommand(input);
+            string ioLinkString = string.Empty;
+            if (response.Split(" ").Length > 1)
+            {
+                ioLinkString = response.Substring(response.IndexOf(" ") + 1);
+            }
+            return ioLinkString;
         }
 
         public async Task<string> GetTCSVersion()
@@ -874,16 +966,16 @@ namespace DDMAutoGUI.utilities
         }
 
         public async Task<string> DispenseToRing(
-            int id_valveNum, 
+            int id_sys_num, 
             float id_time, 
             float id_xPos,
             float id_tPos,
-            int od_valveNum,
+            int od_sys_num,
             float od_time,
             float od_xPos,
             float od_tPos)
         {
-            string input = $"DDM_DispenseToRing {id_valveNum} {id_time} {id_xPos} {id_tPos} {od_valveNum} {od_time} {od_xPos} {od_tPos}";
+            string input = $"DDM_DispenseToRing {id_sys_num} {id_time} {id_xPos} {id_tPos} {od_sys_num} {od_time} {od_xPos} {od_tPos}";
             return await SendRobotCommand(input);
         }
 
