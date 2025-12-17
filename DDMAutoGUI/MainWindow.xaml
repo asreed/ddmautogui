@@ -50,7 +50,7 @@
 
                         <Grid Grid.Row="1" Grid.Column="1">
                             <StackPanel Orientation="Vertical">
-                                <GroupBox Header="IP Address">
+                                <GroupBox Header="Controller IP Address">
 
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -76,8 +76,9 @@
 
                                     <TextBox x:Name="Con_LogTxt" 
                                             Text=""
-                                             Height="250"
+                                             Height="300"
                                              IsReadOnly="True"
+                                             VerticalScrollBarVisibility="Disabled"
                                             Style="{StaticResource MonoTextBox}"/>
                                     <!--<Label x:Name="Con_StatusLbl" Content="Not connected"/>-->
                                     <!--<Grid>
@@ -158,7 +159,8 @@
                                                 <Grid>
 
                                                     <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
-                                                        <Expander Header="Simulate" Margin="0,6,0,6" Padding="3">
+                                                        
+                                                        <Expander Header="Simulate" Margin="0,6,0,6" Padding="3" Visibility="Collapsed">
                                                             <Border Margin="0,0,0,0" Padding="6" Background="{StaticResource TextBoxBlueLight}" CornerRadius="6">
                                                                 <StackPanel Orientation="Vertical">
                                                                     <CheckBox x:Name="Disp_Sim_SimChk" Content="Simulate"/>
@@ -368,6 +370,38 @@
                             </Grid>
                         </Border>
                         <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="4">
+
+                            <TabItem Header="Options">
+                                <StackPanel Orientation="Vertical" Margin="6">
+                                    <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox x:Name="Adv_Opt_Con_ControllerChk" Content="Controller" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_IOLinkChk" Content="IO Link Devices" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_TopCamChk" Content="Top Camera" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_SideCamChk" Content="Side Camera" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_LaserChk" Content="Laser Sensor" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_DAQChk" Content="DAQ Device" IsChecked="True"/>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox x:Name="Adv_Opt_Disp_HealthChk" Content="Health Check" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk" Content="Top Photo" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk" Content="Side Photo" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Ring Height" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_DispChk" Content="Dispense" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Magnet Polarity" IsChecked="True"/>
+                                        </StackPanel>
+                                    </GroupBox>
+                                </StackPanel>
+                                <!--</StackPanel>-->
+                                <!--<StackPanel Orientation="Vertical" Margin="6">
+                                    <Button x:Name="Adv_Res_OpenFolderBtn" Click="Adv_Res_OpenFolderBtn_Click" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Test Matlab script" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                </StackPanel>-->
+                            </TabItem>
                             <TabItem Header="Cell Control Panel">
 
                                 <Grid>

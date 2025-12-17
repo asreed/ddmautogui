@@ -97,6 +97,17 @@ namespace DDMAutoGUI.utilities
         }
     }
 
+    public class HealthResult
+    {
+        public bool isHealthy { get; set; }
+        public List<string> issues { get; set; }
+        public HealthResult()
+        {
+            isHealthy = false;
+            issues = new List<string>();
+        }
+    }
+
     public class ControllerManager
     {
 
@@ -308,6 +319,7 @@ namespace DDMAutoGUI.utilities
 
         // ==================================================================
         // General TCS messaging (port 10000 and 10100)
+        // (Connect routine also does verification of connections to various subsystems)
 
         public async Task<bool> Connect(string ip)
         {
@@ -326,84 +338,104 @@ namespace DDMAutoGUI.utilities
             ClearConnectionLog();
 
             UpdateBothLogs($"Connecting to {ip}...");
-            UpdateConnectionLog($"Connecting to {ip}...\n");
+            UpdateConnectionLog($"Connecting to workcell...\n");
 
             try
             {
-                await statusClient.ConnectAsync(statusEP);
-                await robotClient.ConnectAsync(robotEP);
-
-                // It seems to be possible that the connection succeeds even for some
-                // apparently random IP addresses... Need to send test command
-
-                if (await TestStatusConnection() != "0")
+                if (App.advancedOptions.connectionOptions.controller)
                 {
-                    SocketException ex = new SocketException(-1, "Failed test command");
-                    throw ex;
-                }
+                    await statusClient.ConnectAsync(statusEP);
+                    await robotClient.ConnectAsync(robotEP);
 
-                UpdateConnectionLog($"✓ Controller TCS");
+                    // It seems to be possible that the connection succeeds even for some
+                    // apparently random IP addresses... Need to send test command
 
-                bool settingsExist = App.SettingsManager.VerifySettingsExistOnController(ip);
-                if (!settingsExist)
-                {
-                    SocketException ex = new SocketException(-1, "Unable to load settings file from controller");
-                    throw ex;
-                }
-                UpdateConnectionLog($"✓ Controller Settings");
-
-                string ioLinkString = await GetIOLinkStatusRemote();
-                IOLinkStatus ioLinkStatus = ParseIOLinkStatus(ioLinkString);
-                if (!ioLinkStatus.isMasterConnected)
-                {
-                    SocketException ex = new SocketException(-1, "I/O-Link Master not connected");
-                    throw ex;
-                }
-                UpdateConnectionLog($"✓ I/O-Link Master");
-
-                for (int i = 0; i < ioLinkStatus.isPortConnected.Length; i++)
-                {
-                    if (ioLinkStatus.isPortConnected[i])
+                    if (await TestStatusConnection() != "0")
                     {
-                        UpdateConnectionLog($"✓ I/O-Link Port {i}");
+                        SocketException ex = new SocketException(-1, "Failed test command");
+                        throw ex;
                     }
-                    else
+
+                    UpdateConnectionLog($"✓ Controller TCS");
+
+                    bool settingsExist = App.SettingsManager.VerifySettingsExistOnController(ip);
+                    if (!settingsExist)
                     {
-                        //SocketException ex = new SocketException(-1, $"I/O-Link Port {i} not connected");
-                        //throw ex;
+                        SocketException ex = new SocketException(-1, "Unable to load settings file from controller");
+                        throw ex;
+                    }
+                    UpdateConnectionLog($"✓ Controller Settings");
 
+                }
+
+                if (App.advancedOptions.connectionOptions.ioLinkDevices)
+                {
+                    string ioLinkString = await GetIOLinkStatusRemote();
+                    IOLinkStatus ioLinkStatus = ParseIOLinkStatus(ioLinkString);
+                    if (!ioLinkStatus.isMasterConnected)
+                    {
+                        SocketException ex = new SocketException(-1, "I/O-Link Master not connected");
+                        throw ex;
+                    }
+                    UpdateConnectionLog($"✓ I/O-Link Master");
+
+                    for (int i = 0; i < ioLinkStatus.isPortConnected.Length; i++)
+                    {
+                        if (ioLinkStatus.isPortConnected[i])
+                        {
+                            UpdateConnectionLog($"✓ I/O-Link Port {i}");
+                        }
+                        else
+                        {
+                            //SocketException ex = new SocketException(-1, $"I/O-Link Port {i} not connected");
+                            //throw ex;
+
+                        }
                     }
                 }
 
-                string laserResponse = await TestLaserConnection();
-                if (laserResponse != "-1")
+                if (App.advancedOptions.connectionOptions.laserSensor)
                 {
-                    SocketException ex = new SocketException(-1, "Laser connection test failed");
-                    throw ex;
+                    string laserResponse = await TestLaserConnection();
+                    if (laserResponse != "-1")
+                    {
+                        SocketException ex = new SocketException(-1, "Laser connection test failed");
+                        throw ex;
+                    }
+                    UpdateConnectionLog($"✓ Laser Sensor");
                 }
-                UpdateConnectionLog($"✓ Laser Sensor");
 
-                bool topCameraConnected = await Task.Run(() => App.CameraManager.TestCameraConnection(CameraManager.CellCamera.top));
-                if (!topCameraConnected)
-                {
-                    SocketException ex = new SocketException(-1, "Top camera not connected");
-                    throw ex;
-                }
-                UpdateConnectionLog($"✓ Top Camera");
 
-                bool sideCameraConnected = await Task.Run(() => App.CameraManager.TestCameraConnection(CameraManager.CellCamera.side));
-                if (!sideCameraConnected)
+                if (App.advancedOptions.connectionOptions.topCamera)
                 {
-                    SocketException ex = new SocketException(-1, "Side camera not connected");
-                    throw ex;
+                    bool topCameraConnected = await Task.Run(() => App.CameraManager.TestCameraConnection(CameraManager.CellCamera.top));
+                    if (!topCameraConnected)
+                    {
+                        SocketException ex = new SocketException(-1, "Top camera not connected");
+                        throw ex;
+                    }
+                    UpdateConnectionLog($"✓ Top Camera");
                 }
-                UpdateConnectionLog($"✓ Side Camera");
+
+
+                if (App.advancedOptions.connectionOptions.sideCamera)
+                {
+                    bool sideCameraConnected = await Task.Run(() => App.CameraManager.TestCameraConnection(CameraManager.CellCamera.side));
+                    if (!sideCameraConnected)
+                    {
+                        SocketException ex = new SocketException(-1, "Side camera not connected");
+                        throw ex;
+                    }
+                    UpdateConnectionLog($"✓ Side Camera");
+                }
 
 
                 UpdateConnectionLog($"\nConnected successfully");
 
                 CONNECTION_STATE.isConnected = true;
                 CONNECTION_STATE.connectedIP = ip;
+                CONNECTION_STATE.connectedTCS = await GetTCSVersion();
+                CONNECTION_STATE.connectedPAC = await GetPACVersion();
                 ControllerConnected?.Invoke(this, EventArgs.Empty);
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
@@ -411,19 +443,21 @@ namespace DDMAutoGUI.utilities
                 return true;
 
             }
-            catch (SocketException e)
+            catch (SocketException ex)
             {
 
                 statusClient.Close();
                 robotClient.Close();
                 UpdateBothLogs("Connection failed");
-                UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
+                UpdateBothLogs($"{ex.ErrorCode}: {ex.Message}");
 
                 UpdateConnectionLog($"\nConnection error:");
-                UpdateConnectionLog($"{e.ErrorCode}: {e.Message}");
+                UpdateConnectionLog($"{ex.ErrorCode}: {ex.Message}");
 
                 CONNECTION_STATE.isConnected = false;
                 CONNECTION_STATE.connectedIP = string.Empty;
+                CONNECTION_STATE.connectedTCS = string.Empty;
+                CONNECTION_STATE.connectedPAC = string.Empty;
                 ControllerDisconnected?.Invoke(this, EventArgs.Empty);
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
                 return false;
@@ -447,12 +481,17 @@ namespace DDMAutoGUI.utilities
             }
             catch (SocketException e)
             {
-                UpdateBothLogs("Disconnection failed");
+                UpdateBothLogs("Disconnection failed (?)");
                 UpdateBothLogs($"{e.ErrorCode}: {e.Message}");
             }
 
+            ClearConnectionLog();
+            UpdateConnectionLog("Disconnected");
+
             CONNECTION_STATE.isConnected = false;
             CONNECTION_STATE.connectedIP = string.Empty;
+            CONNECTION_STATE.connectedTCS = string.Empty;
+            CONNECTION_STATE.connectedPAC = string.Empty;
             ControllerDisconnected?.Invoke(this, EventArgs.Empty);
             ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
@@ -571,6 +610,35 @@ namespace DDMAutoGUI.utilities
         // ==================================================================
         // Public helpers
 
+        public async Task<HealthResult> CheckSystemHealth()
+        {
+            HealthResult result = new HealthResult();
+
+            // check connection to workcell
+            if (CONNECTION_STATE.isConnected == false)
+            {
+                result.issues.Add("Workcell not connected");
+            }
+
+            // check safety interlocks
+            if (CONTROLLER_STATE.safetyErrorState != 0)
+            {
+                result.issues.Add($"Safety error in workcell: {CONTROLLER_STATE.safetyErrorState}");
+            }
+
+            // check laser calibration
+
+            // check flow calibration
+
+
+            if (result.issues.Count == 0)
+            {
+                result.isHealthy = true;
+            }
+
+            return result;
+        }
+
         public List<ResultsHeightMeasurement> ParseHeightData(string rawString)
         {
             string[] responseArray = rawString.Split(" ");
@@ -622,7 +690,9 @@ namespace DDMAutoGUI.utilities
                     data.shot_result = true;
                     data.shot_message = string.Empty;
                 }
-            } else {
+            }
+            else
+            {
                 data.shot_result = false;
                 data.shot_message = response;
             }
@@ -902,12 +972,15 @@ namespace DDMAutoGUI.utilities
                 }
                 await Task.Delay(500);
             }
+            response = response.Split(" ").Length > 1 ? response.Substring(response.IndexOf(" ") + 1) : response;
             return response;
         }
 
         public async Task<string> Home()
         {
-            string response = "not implemented yet";
+            string input = $"Home";
+            string response = await SendRobotCommand(input);
+            response = response.Split(" ").Length > 1 ? response.Substring(response.IndexOf(" ") + 1) : response;
             return response;
         }
 
@@ -1009,8 +1082,8 @@ namespace DDMAutoGUI.utilities
         }
 
         public async Task<string> DispenseToRing(
-            int id_sys_num, 
-            float id_time, 
+            int id_sys_num,
+            float id_time,
             float id_xPos,
             float id_tPos,
             int od_sys_num,
