@@ -207,28 +207,30 @@ namespace DDMAutoGUI
 
                 resultsManager.AddToLog($"Dispense process started for motor {motorName}");
 
-                resultsManager.AddToLog("Checking system health...");
 
-                HealthResult healthResult = await App.ControllerManager.CheckSystemHealth();
-                if (healthResult.isHealthy == false)
+                if (App.advancedOptions.dispenseOptions.healthCheck)
                 {
-                    resultsManager.AddToLog("Issues found:");
-                    StringBuilder sb = new StringBuilder();
-                    foreach (string issue in healthResult.issues)
+                    resultsManager.AddToLog("Checking system health...");
+                    HealthResult healthResult = await App.ControllerManager.CheckSystemHealth();
+                    if (healthResult.isHealthy == false)
                     {
-                        resultsManager.AddToLog($"{tb}{issue}");
+                        resultsManager.AddToLog("Issues found:");
+                        StringBuilder sb = new StringBuilder();
+                        foreach (string issue in healthResult.issues)
+                        {
+                            resultsManager.AddToLog($"{tb}{issue}");
+                        }
+                        throw new Exception("System health check failed");
                     }
-                    throw new Exception("System health check failed");
-
-                }
-                else
-                {
-                    resultsManager.AddToLog("System OK");
+                    else
+                    {
+                        resultsManager.AddToLog("System OK");
+                    }
                 }
 
                 resultsManager.AddToLog("Enabling power...");
                 response = await App.ControllerManager.EnablePower();
-                if (response != "0")
+                if (response != "1")
                 {
                     throw new Exception("Failed to enable power");
                 } else
@@ -246,6 +248,16 @@ namespace DDMAutoGUI
                 {
                     resultsManager.AddToLog("Homed");
                 }
+
+                if (App.advancedOptions.dispenseOptions.topPhoto)
+                {
+                    resultsManager.AddToLog("Taking top photo...");
+                    x = settings.ddm_common.camera_top.x.Value;
+                    t = settings.ddm_common.camera_top.t.Value;
+                    await App.ControllerManager.MoveJ(x, t);
+                }
+
+
 
 
 
@@ -2060,7 +2072,7 @@ namespace DDMAutoGUI
             CameraManager.CellCamera camera = CameraManager.CellCamera.top;
 
             // something about Lucid driver can't be async; need to wrap
-            result = await Task.Run(() => App.CameraManager.AcquireAndSave(camera, acquiredImageDisplay));
+            result = await App.CameraManager.AcquireAndSave(camera, acquiredImageDisplay);
 
             if (result.success)
             {
@@ -2083,7 +2095,7 @@ namespace DDMAutoGUI
             CameraManager.CellCamera camera = CameraManager.CellCamera.side;
 
             // something about Lucid driver can't be async; need to wrap
-            result = await Task.Run(() => App.CameraManager.AcquireAndSave(camera, acquiredImageDisplay));
+            result = await App.CameraManager.AcquireAndSave(camera, acquiredImageDisplay);
 
             if (result.success)
             {

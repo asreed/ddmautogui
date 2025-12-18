@@ -1,8 +1,8 @@
 {
-  "last_saved": "2025-09-09T09:45:11.1543538-07:00",
+  "last_saved": "2025-12-17T11:13:23.9914203-08:00",
   "camera_top_sn": "252902469",
-  "camera_side_sn": "253100546",
-  "laser_delay": 0.050,
+  "camera_side_sn": "252902472",
+  "laser_delay": 0.05,
   "dispense_pass_criteria": {
     "max_id_vol_dev_percent": 10,
     "max_od_vol_dev_percent": 10
@@ -16,22 +16,22 @@
     "sys_2_max_pressure_dev_percent": 15,
     "sys_1_flow_calib": [
       {
-        "flow": 0.25,
-        "pressure": 4.5
+        "pressure": 4.5,
+        "flow": 0.25
       },
       {
-        "flow": 0.40,
-        "pressure": 6.8
+        "pressure": 6.8,
+        "flow": 0.4
       },
       {
-        "flow": 0.90,
-        "pressure": 14.8
+        "pressure": 14.8,
+        "flow": 0.9
       }
     ],
     "sys_2_flow_calib": [
       {
-        "flow": 0.40,
-        "pressure": 33.5
+        "pressure": 33.5,
+        "flow": 0.4
       }
     ]
   },
@@ -63,7 +63,7 @@
       "t": 0
     },
     "camera_top": {
-      "x": 262.936,
+      "x": 271.000,
       "t": 0
     }
   },
@@ -77,7 +77,7 @@
       "target_flow_od": 0.25
     },
     "post_spin_time": 0,
-    "post_spin_speed": 100.0,
+    "post_spin_speed": 100,
     "laser_ring_num": 6,
     "laser_mag_num": 48,
     "camera_side": {
@@ -115,7 +115,7 @@
       "target_flow_od": 0.25
     },
     "post_spin_time": 0,
-    "post_spin_speed": 100.0,
+    "post_spin_speed": 100,
     "laser_ring_num": 6,
     "laser_mag_num": 60,
     "camera_side": {
@@ -131,7 +131,7 @@
       "t": 0
     },
     "laser_mag": {
-      "x": 355.90,
+      "x": 355.9,
       "t": 0
     },
     "laser_ring": {
@@ -147,13 +147,13 @@
     "shot_settings": {
       "sys_num_id": 2,
       "sys_num_od": 1,
-      "target_vol_id": 0.750,
-      "target_vol_od": 0.850,
-      "target_flow_id": 0.40,
-      "target_flow_od": 0.40
+      "target_vol_id": 0.75,
+      "target_vol_od": 0.85,
+      "target_flow_id": 0.4,
+      "target_flow_od": 0.4
     },
     "post_spin_time": 0,
-    "post_spin_speed": 100.0,
+    "post_spin_speed": 100,
     "laser_ring_num": 6,
     "laser_mag_num": 80,
     "camera_side": {
@@ -185,13 +185,13 @@
     "shot_settings": {
       "sys_num_id": 1,
       "sys_num_od": 1,
-      "target_vol_id": 1.310,
-      "target_vol_od": 1.570,
-      "target_flow_id": 0.90,
-      "target_flow_od": 0.90
+      "target_vol_id": 1.31,
+      "target_vol_od": 1.57,
+      "target_flow_id": 0.9,
+      "target_flow_od": 0.9
     },
     "post_spin_time": 0,
-    "post_spin_speed": 100.0,
+    "post_spin_speed": 100,
     "laser_ring_num": 6,
     "laser_mag_num": 88,
     "camera_side": {
@@ -207,7 +207,7 @@
       "t": 0
     },
     "laser_mag": {
-      "x": 320.50,
+      "x": 320.5,
       "t": 0
     },
     "laser_ring": {
@@ -225,11 +225,11 @@
       "sys_num_od": 1,
       "target_vol_id": 1.953,
       "target_vol_od": 2.344,
-      "target_flow_id": 0.40,
-      "target_flow_od": 0.90
+      "target_flow_id": 0.4,
+      "target_flow_od": 0.9
     },
     "post_spin_time": 0,
-    "post_spin_speed": 100.0,
+    "post_spin_speed": 100,
     "laser_ring_num": 6,
     "laser_mag_num": 88,
     "camera_side": {
@@ -245,7 +245,7 @@
       "t": 0
     },
     "laser_mag": {
-      "x": 320.50,
+      "x": 320.5,
       "t": 0
     },
     "laser_ring": {

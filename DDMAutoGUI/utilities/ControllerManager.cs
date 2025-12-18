@@ -922,6 +922,15 @@ namespace DDMAutoGUI.utilities
             return response;
         }
 
+        public async Task<string> LightsOn()
+        {
+            return await SendRobotCommand($"DDM_LightsOn");
+        }
+        public async Task<string> LightsOff()
+        {
+            return await SendRobotCommand($"DDM_LightsOff");
+        }
+
         public async Task<string> GetTCSVersion()
         {
             string response = await SendStatusCommand("DDM_GetTCSVersion");
@@ -978,9 +987,12 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> Home()
         {
-            string input = $"Home";
-            string response = await SendRobotCommand(input);
-            response = response.Split(" ").Length > 1 ? response.Substring(response.IndexOf(" ") + 1) : response;
+            string response = "";
+            response = await SendRobotCommand("attach 1");
+            if (response != "0") return response;
+            response = await SendRobotCommand("home");
+            if (response != "0") return response;
+            response = await SendRobotCommand("attach 0");
             return response;
         }
 

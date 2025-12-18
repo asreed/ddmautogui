@@ -79,7 +79,7 @@ namespace DDMAutoGUI.utilities
                 cameraTopSN = settings.camera_top_sn;
                 cameraSideSN = settings.camera_side_sn;
             }
-            CameraAcquisitionResult result = AcquireAndSave(cellCamera, null, true);
+            CameraAcquisitionResult result = await AcquireAndSave(cellCamera, null, true);
             return result.success;
         }
 
@@ -94,17 +94,17 @@ namespace DDMAutoGUI.utilities
         }
 
 
-        public CameraAcquisitionResult AcquireAndSave(CellCamera cellCamera, Image displayElement)
+        public async Task<CameraAcquisitionResult> AcquireAndSave(CellCamera cellCamera, Image displayElement)
         {
-            return AcquireAndSave(cellCamera, displayElement, defaultImageFormat, false);
+            return await AcquireAndSave(cellCamera, displayElement, defaultImageFormat, false);
         }
 
-        public CameraAcquisitionResult AcquireAndSave(CellCamera cellCamera, Image displayElement, bool skipSave)
+        public async Task<CameraAcquisitionResult> AcquireAndSave(CellCamera cellCamera, Image displayElement, bool skipSave)
         {
-            return AcquireAndSave(cellCamera, displayElement, defaultImageFormat, skipSave);
+            return await AcquireAndSave(cellCamera, displayElement, defaultImageFormat, skipSave);
         }
 
-        public CameraAcquisitionResult AcquireAndSave(CellCamera cellCamera, Image displayElement, CellImageFormat imgFormat, bool skipSave)
+        public async Task<CameraAcquisitionResult> AcquireAndSave(CellCamera cellCamera, Image displayElement, CellImageFormat imgFormat, bool skipSave)
         {
             string sfx = string.Empty;
             switch (imgFormat)
@@ -172,7 +172,6 @@ namespace DDMAutoGUI.utilities
                     return result;
                 }
 
-
                 ArenaNET.IDevice device = system.CreateDevice(selectedDeviceInfo);
 
                 // enable stream auto negotiate packet size
@@ -183,9 +182,22 @@ namespace DDMAutoGUI.utilities
                 var streamPacketResendEnableNode = (ArenaNET.IBoolean)device.TLStreamNodeMap.GetNode("StreamPacketResendEnable");
                 streamPacketResendEnableNode.Value = true;
 
+
+                // turn lights on
+                if (skipSave == false)
+                {
+                    await App.ControllerManager.LightsOn();
+                }
+
                 // get image
                 device.StartStream();
                 ArenaNET.IImage image = device.GetImage(2000);
+
+                // turn lights off
+                if (skipSave == false)
+                {
+                    await App.ControllerManager.LightsOff();
+                }
 
                 // save image
                 if (!skipSave)
@@ -213,7 +225,7 @@ namespace DDMAutoGUI.utilities
             }
             catch (Exception ex)
             {
-
+                await App.ControllerManager.LightsOff();
                 Debug.Print("\nException thrown: {0}", ex.Message);
                 result.errorMsg = ex.Message;
                 result.success = false;
