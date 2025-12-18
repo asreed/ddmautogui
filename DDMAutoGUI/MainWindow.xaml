@@ -853,10 +853,25 @@
                                                                 <RowDefinition Height="Auto"/>
                                                                 <RowDefinition Height="Auto"/>
                                                                 <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
 
 
-                                                            <GroupBox Header="Robot"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                                                            <GroupBox Header="System"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                                                                <Grid>
+                                                                    <Grid.RowDefinitions>
+                                                                        <RowDefinition Height="Auto"/>
+                                                                        <RowDefinition Height="Auto"/>
+                                                                    </Grid.RowDefinitions>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="150"/>
+                                                                        <ColumnDefinition/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Label Grid.Row="0" Grid.Column="0" Content="System pressure:"/>
+                                                                    <Label Grid.Row="0" Grid.Column="1" x:Name="roSysPressure" Content="-" Style="{DynamicResource readout}"/>
+                                                                </Grid>
+                                                            </GroupBox>
+                                                            <GroupBox Header="Robot"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                                                                 <Grid>
                                                                     <Grid.RowDefinitions>
                                                                         <RowDefinition Height="Auto"/>
@@ -896,7 +911,7 @@
                                                             </GroupBox>
 
 
-                                                            <GroupBox Header="Dispense System 1 (ID)"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                                                            <GroupBox Header="Dispense System 1 (ID)"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                                                                 <Grid>
                                                                     <Grid.RowDefinitions>
                                                                         <RowDefinition Height="Auto"/>
@@ -921,7 +936,7 @@
                                                                 </Grid>
                                                             </GroupBox>
 
-                                                            <GroupBox Header="Dispense System 2 (OD)"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                                                            <GroupBox Header="Dispense System 2 (OD)"  Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
                                                                 <Grid>
                                                                     <Grid.RowDefinitions>
                                                                         <RowDefinition Height="Auto"/>

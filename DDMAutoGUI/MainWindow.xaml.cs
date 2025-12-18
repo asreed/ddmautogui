@@ -1331,6 +1331,7 @@ namespace DDMAutoGUI
             FormatReadout(roFlowErr1, contState.flowError1);
             FormatReadout(roFlowVol2, contState.flowVolume2, "mL");
             FormatReadout(roFlowErr2, contState.flowError2);
+            FormatReadout(roSysPressure, contState.systemPressure, "psi");
             FormatReadout(roSafetyContState, contState.safetyControllerState);
             FormatReadout(roSafetyErrState, contState.safetyErrorState);
         }

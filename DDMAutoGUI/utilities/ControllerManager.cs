@@ -40,6 +40,7 @@ namespace DDMAutoGUI.utilities
         public int flowError1 { get; set; }
         public float flowVolume2 { get; set; }
         public int flowError2 { get; set; }
+        public float systemPressure { get; set; }
         public bool isSimulated { get; set; }
         public int safetyControllerState { get; set; }
         public int safetyErrorState { get; set; }
@@ -757,10 +758,12 @@ namespace DDMAutoGUI.utilities
                         flowVolume2 = float.Parse(parts[14]),
                         flowError2 = int.Parse(parts[15]),
 
-                        isSimulated = parts[16] != "0",
+                        systemPressure = float.Parse(parts[16]),
 
-                        safetyControllerState = int.Parse(parts[17]),
-                        safetyErrorState = int.Parse(parts[18]),
+                        isSimulated = parts[17] != "0",
+
+                        safetyControllerState = int.Parse(parts[18]),
+                        safetyErrorState = int.Parse(parts[19]),
 
                         parseError = false,
                         parseErrorMessage = "",
