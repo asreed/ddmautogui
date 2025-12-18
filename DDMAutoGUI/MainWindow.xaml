@@ -767,7 +767,7 @@
 
                                                 </TabItem>
 
-                                                <TabItem Header="Dispense">
+                                                <TabItem Header="Dispense" Visibility="Collapsed">
 
                                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                                         <StackPanel Orientation="Vertical">

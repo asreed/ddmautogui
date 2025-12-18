@@ -384,7 +384,7 @@ namespace DDMAutoGUI.utilities
                     {
                         if (ioLinkStatus.isPortConnected[i])
                         {
-                            UpdateConnectionLog($"✓ I/O-Link Port {i}");
+                            UpdateConnectionLog($"✓ I/O-Link Port {i+1}");
                         }
                         else
                         {

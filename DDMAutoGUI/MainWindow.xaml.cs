@@ -138,6 +138,8 @@ namespace DDMAutoGUI
             string displayMessage = string.Empty;
             bool saveResults = false; // only save results if dispense step is reached
 
+            int sysID, sysOD;
+
             string tb = "  "; // for log formatting
 
 
@@ -294,7 +296,9 @@ namespace DDMAutoGUI
 
 
 
-                // SET PRESSURES
+                // SET PRESSURES HERE?
+
+
 
 
                 if (App.advancedOptions.dispenseOptions.ringHeight)
@@ -329,6 +333,125 @@ namespace DDMAutoGUI
 
 
 
+                if (App.advancedOptions.dispenseOptions.dispense)
+                {
+
+                    App.ResultsManager.AddToLog("Setting dispense system pressures...");
+                    float pressureID, pressureOD;
+                    sysID = motor.shot_settings.sys_num_id.Value;
+                    sysOD = motor.shot_settings.sys_num_od.Value;
+                    pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
+                    pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
+
+                    // maybe there's a cleaner way to do this:
+                    float? _pressure1 = null, _pressure2 = null;
+                    if (sysID == 1)
+                    {
+                        _pressure1 = pressureID;
+                    }
+                    else if (sysID == 2)
+                    {
+                        _pressure2 = pressureID;
+                    }
+                    if (sysOD == 1)
+                    {
+                        _pressure1 = pressureOD;
+                    }
+                    else if (sysOD == 2)
+                    {
+                        _pressure2 = pressureOD;
+                    }
+                    //(if sysID == sysOD, both local pressures will be identical anyway so no need to check)
+
+                    if (_pressure1 != null)
+                    {
+                        App.ResultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1:F3} psi");
+                        response = await App.ControllerManager.SetRegPressure(1, _pressure1.Value);
+                    }
+                    else
+                    {
+                        App.ResultsManager.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
+                    }
+                    if (_pressure2 != null)
+                    {
+                        App.ResultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2:F3} psi");
+                        response = await App.ControllerManager.SetRegPressure(2, _pressure2.Value);
+                    }
+                    else
+                    {
+                        App.ResultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
+                    }
+                    App.ResultsManager.AddToLog("Pressures set");
+
+
+
+                    float xID = motor.disp_id.x.Value;
+                    float tID = motor.disp_id.t.Value;
+                    float xOD = motor.disp_od.x.Value;
+                    float tOD = motor.disp_od.t.Value;
+                    float targetTimeID = motor.shot_settings.target_vol_id.Value / motor.shot_settings.target_flow_id.Value;
+                    float targetTimeOD = motor.shot_settings.target_vol_od.Value / motor.shot_settings.target_flow_od.Value;
+
+                    App.ResultsManager.AddToLog("Dispensing cyanoacrylate...");
+                    response = await App.ControllerManager.DispenseToRing(
+                        sysID,
+                        targetTimeID,
+                        xID,
+                        tID,
+                        sysOD,
+                        targetTimeOD,
+                        xOD,
+                        tOD);
+
+                    Debug.Print(response);
+
+                    ResultsShotData shotData = App.ControllerManager.ParseDispenseResponse(response); // sets volumes, times, result pass/fail, message
+                    shotData.motor_type = motorName;
+                    shotData.valve_num_id = sysID;
+                    shotData.valve_num_od = sysOD;
+                    shotData.pressure_id = pressureID;
+                    shotData.pressure_od = pressureOD;
+
+                    App.ResultsManager.currentResults.shot_data = shotData;
+
+                    string substance_id = motor.shot_settings.sys_num_id == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
+                    string substance_od = motor.shot_settings.sys_num_od == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
+
+
+                    App.ResultsManager.AddToLog("Dispense complete");
+                    App.ResultsManager.AddToLog("Results:");
+                    App.ResultsManager.AddToLog($"{tb}ID:");
+                    App.ResultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_id})");
+                    App.ResultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id:F3} mL ({shotData.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value:F1}% of target)");
+                    App.ResultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_id:F3} s");
+                    App.ResultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_id:F3} psi");
+                    App.ResultsManager.AddToLog($"{tb}OD:");
+                    App.ResultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_od})");
+                    App.ResultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_od:F3} mL ({shotData.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value:F1}% of target)");
+                    App.ResultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_od:F3} s");
+                    App.ResultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_od:F3} psi");
+                    Disp_ProcessPrg.Value = 80;
+                }
+
+
+
+
+
+
+
+
+
+
+
+                App.ResultsManager.AddToLog("Waiting for cure timer...");
+                await Task.Delay(2000);
+
+                App.ResultsManager.AddToLog("Cure timer finished");
+                Disp_ProcessPrg.Value = 90;
+                App.ResultsManager.AddToLog("Moving to unload...");
+                x = settings.ddm_common.load.x.Value;
+                t = settings.ddm_common.load.t.Value;
+                response = await App.ControllerManager.MoveJ(x, t);
 
 
 
@@ -369,6 +492,9 @@ namespace DDMAutoGUI
                 displayMessage = msg;
             }
 
+            App.ResultsManager.AddToLog("Process complete");
+            Disp_ProcessPrg.Value = 100;
+
             // Save results to file
             if (saveResults)
             {
@@ -378,7 +504,6 @@ namespace DDMAutoGUI
                 App.ResultsManager.AddToLog("Saving results to results folder");
                 App.ResultsManager.SaveDataToFile();
             }
-            Disp_ProcessPrg.Value = 100;
 
 
 
