@@ -40,7 +40,6 @@ namespace DDMAutoGUI
 
         private List<ResultsHeightMeasurement> laserRingData;
         private List<ResultsHeightMeasurement> laserMagData;
-        private ResultsManager resultsManager;
 
 
         //private ProcessResults processData;
@@ -127,19 +126,12 @@ namespace DDMAutoGUI
         private async void RunFullDispenseProcess()
         {
 
-            bool doSidePhoto = true;
-            bool doPreTopPhoto = true;
-            bool doMatlabPhoto = true;
-            bool doRingMeasure = true;
-            bool doMagMeasure = true;
-            bool doDispense = true;
-            bool doHallMeasure = true;
-            bool doPostTopPhoto = true;
-            bool doAutoCalib = true;
-
             float x, t, d;
             int n;
             string response;
+
+            string topImagePath = string.Empty;
+            string sideImagePath = string.Empty;
 
             bool errorEncountered = false;
             string errorMessage = string.Empty;
@@ -193,10 +185,9 @@ namespace DDMAutoGUI
             }
 
 
-            resultsManager = App.ResultsManager;
-            resultsManager.UpdateProcessLog += MainWindowSingle_Disp_UpdateProcessLog;
-            resultsManager.ClearCurrentResults();
-            resultsManager.CreateNewResults();
+            App.ResultsManager.UpdateProcessLog += MainWindowSingle_Disp_UpdateProcessLog;
+            App.ResultsManager.ClearCurrentResults();
+            App.ResultsManager.CreateNewResults();
             Disp_LogTxt.Text = "";
 
             Disp_ProcessPrg.Value = 0;
@@ -205,40 +196,43 @@ namespace DDMAutoGUI
             try
             {
 
-                resultsManager.AddToLog($"Dispense process started for motor {motorName}");
+                App.ResultsManager.AddToLog($"Dispense process started for motor {motorName}");
 
 
                 if (App.advancedOptions.dispenseOptions.healthCheck)
                 {
-                    resultsManager.AddToLog("Checking system health...");
+                    App.ResultsManager.AddToLog("Checking system health...");
                     HealthResult healthResult = await App.ControllerManager.CheckSystemHealth();
                     if (healthResult.isHealthy == false)
                     {
-                        resultsManager.AddToLog("Issues found:");
+                        App.ResultsManager.AddToLog("Issues found:");
                         StringBuilder sb = new StringBuilder();
                         foreach (string issue in healthResult.issues)
                         {
-                            resultsManager.AddToLog($"{tb}{issue}");
+                            App.ResultsManager.AddToLog($"{tb}{issue}");
                         }
                         throw new Exception("System health check failed");
                     }
                     else
                     {
-                        resultsManager.AddToLog("System OK");
+                        App.ResultsManager.AddToLog("System OK");
                     }
                 }
+                Disp_ProcessPrg.Value = 5;
 
-                resultsManager.AddToLog("Enabling power...");
+
+
+                App.ResultsManager.AddToLog("Enabling power...");
                 response = await App.ControllerManager.EnablePower();
                 if (response != "1")
                 {
                     throw new Exception("Failed to enable power");
                 } else
                 {
-                    resultsManager.AddToLog("Power enabled");
+                    App.ResultsManager.AddToLog("Power enabled");
                 }
 
-                resultsManager.AddToLog("Homing...");
+                App.ResultsManager.AddToLog("Homing...");
                 response = await App.ControllerManager.Home();
                 if (response != "0")
                 {
@@ -246,16 +240,94 @@ namespace DDMAutoGUI
                 }
                 else
                 {
-                    resultsManager.AddToLog("Homed");
+                    App.ResultsManager.AddToLog("Homed");
                 }
+
+                Disp_ProcessPrg.Value = 10;
+
+
 
                 if (App.advancedOptions.dispenseOptions.topPhoto)
                 {
-                    resultsManager.AddToLog("Taking top photo...");
+                    App.ResultsManager.AddToLog("Acquiring top photo...");
                     x = settings.ddm_common.camera_top.x.Value;
                     t = settings.ddm_common.camera_top.t.Value;
-                    await App.ControllerManager.MoveJ(x, t);
+                    response = await App.ControllerManager.MoveJ(x, t);
+                    
+                    CameraAcquisitionResult camResult = await App.CameraManager.AcquireAndSave(CameraManager.CellCamera.top, null);
+
+                    if (!camResult.success)
+                    {
+                        throw new Exception($"Top camera acquisition failed: {camResult.errorMsg}");
+                    }
+                    else
+                    {
+                        topImagePath = camResult.filePath;
+                        App.ResultsManager.AddToLog($"Top photo acquired");
+                    }
                 }
+                Disp_ProcessPrg.Value = 20;
+
+
+
+                if (App.advancedOptions.dispenseOptions.sidePhoto)
+                {
+                    App.ResultsManager.AddToLog("Acquiring side photo...");
+                    x = motor.camera_side.x.Value;
+                    t = motor.camera_side.t.Value;
+                    response = await App.ControllerManager.MoveJ(x, t);
+
+                    CameraAcquisitionResult camResult = await App.CameraManager.AcquireAndSave(CameraManager.CellCamera.side, null);
+
+                    if (!camResult.success)
+                    {
+                        throw new Exception($"Top camera acquisition failed: {camResult.errorMsg}");
+                    }
+                    else
+                    {
+                        sideImagePath = camResult.filePath;
+                        App.ResultsManager.AddToLog($"Side photo acquired");
+                    }
+                }
+                Disp_ProcessPrg.Value = 30;
+
+
+
+
+                // SET PRESSURES
+
+
+                if (App.advancedOptions.dispenseOptions.ringHeight)
+                {
+                    App.ResultsManager.AddToLog("Collecting ring height data...");
+                    x = motor.laser_ring.x.Value;
+                    t = motor.laser_ring.t.Value;
+                    response = await App.ControllerManager.MoveJ(x, t);
+
+                    n = motor.laser_ring_num.Value;
+                    d = settings.laser_delay.Value;
+                    response = await App.ControllerManager.MeasureHeights(x, t, n, d);
+
+                    App.ResultsManager.currentResults.ring_heights = App.ControllerManager.ParseHeightData(response);
+                    App.ResultsManager.AddToLog("Ring height data collected");
+                    Disp_ProcessPrg.Value = 35;
+
+                    App.ResultsManager.AddToLog("Collecting magnet/concentrator height data...");
+                    x = motor.laser_mag.x.Value;
+                    t = motor.laser_mag.t.Value;
+                    response = await App.ControllerManager.MoveJ(x, t);
+
+                    n = motor.laser_mag_num.Value;
+                    d = settings.laser_delay.Value;
+                    response = await App.ControllerManager.MeasureHeights(x, t, n, d);
+
+                    App.ResultsManager.currentResults.mag_heights = App.ControllerManager.ParseHeightData(response);
+                    App.ResultsManager.AddToLog("Magnet/concentrator height data collected");
+
+                }
+                Disp_ProcessPrg.Value = 40;
+
+
 
 
 
@@ -266,8 +338,10 @@ namespace DDMAutoGUI
             }
             catch (Exception ex)
             {
-                resultsManager.AddToLog($"Process failed: {ex.Message}");
+                App.ResultsManager.AddToLog($"Process failed: {ex.Message}");
             }
+
+            Disp_ProcessPrg.Value = 95;
 
 
 
@@ -285,25 +359,26 @@ namespace DDMAutoGUI
             else
             {
                 App.ResultsManager.DeterminePassFail(
-                    resultsManager.currentResults,
+                    App.ResultsManager.currentResults,
                     settings,
                     motor,
                     out pass,
                     out msg);
-                resultsManager.currentResults.overall_process_result = pass;
-                resultsManager.currentResults.overall_proces_message = msg;
+                App.ResultsManager.currentResults.overall_process_result = pass;
+                App.ResultsManager.currentResults.overall_proces_message = msg;
                 displayMessage = msg;
             }
 
             // Save results to file
             if (saveResults)
             {
-                string resultsPath = resultsManager.CreateResultsFolder();
-                resultsManager.AddToLog("Saving settings to results folder");
+                string resultsPath = App.ResultsManager.CreateResultsFolder();
+                App.ResultsManager.AddToLog("Saving settings to results folder");
                 App.SettingsManager.SaveSettingsCopyToLocal(settings, resultsPath);
-                resultsManager.AddToLog("Saving results to results folder");
-                resultsManager.SaveDataToFile();
+                App.ResultsManager.AddToLog("Saving results to results folder");
+                App.ResultsManager.SaveDataToFile();
             }
+            Disp_ProcessPrg.Value = 100;
 
 
 
@@ -311,7 +386,7 @@ namespace DDMAutoGUI
 
             // Prepare and display results page
 
-            Results res = resultsManager.currentResults;
+            Results res = App.ResultsManager.currentResults;
             if (pass)
             {
                 Disp_Res_PassBdr.Visibility = Visibility.Visible;
@@ -325,15 +400,15 @@ namespace DDMAutoGUI
             Disp_Res_ResMessageTxb.Text = displayMessage;
 
 
-            Disp_Res_SNTxb.Text = resultsManager.currentResults.ring_sn;
-            var data = resultsManager.currentResults.shot_data;
+            Disp_Res_SNTxb.Text = App.ResultsManager.currentResults.ring_sn;
+            var data = App.ResultsManager.currentResults.shot_data;
             //Disp_Res_VolIDTxb.Text = $"{data.vol_id:F3} mL ({Math.Round(data.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value, 1):F1}% of target)";
             //Disp_Res_VolODTxb.Text = $"{data.vol_od:F3} mL ({Math.Round(data.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value, 1):F1}% of target)";
             Dispense_GoToStep(2);
 
             // Clean up
-            resultsManager.UpdateProcessLog -= MainWindowSingle_Disp_UpdateProcessLog;
-            resultsManager.ClearCurrentResults();
+            App.ResultsManager.UpdateProcessLog -= MainWindowSingle_Disp_UpdateProcessLog;
+            App.ResultsManager.ClearCurrentResults();
 
             return;
 
@@ -1554,10 +1629,10 @@ namespace DDMAutoGUI
 
         public void MainWindowSingle_Disp_UpdateProcessLog(object sender, EventArgs e)
         {
-            if (resultsManager != null)
+            if (App.ResultsManager != null)
             {
-                ResultsLogLine logline = resultsManager.currentResults.process_log.Last();
-                Disp_LogTxt.Text += logline.timestamp?.ToString(resultsManager.dateFormatShort) + ": " + logline.message + "\n";
+                ResultsLogLine logline = App.ResultsManager.currentResults.process_log.Last();
+                Disp_LogTxt.Text += logline.timestamp?.ToString(App.ResultsManager.dateFormatShort) + ": " + logline.message + "\n";
                 Disp_LogTxt.CaretIndex = Disp_LogTxt.Text.Length;
                 Disp_LogTxt.ScrollToEnd();
             }
@@ -1692,22 +1767,22 @@ namespace DDMAutoGUI
 
         private void Disp_SaveLogBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (resultsManager != null)
+            if (App.ResultsManager != null)
             {
-                resultsManager.SaveDataToFile();
+                App.ResultsManager.SaveDataToFile();
             }
         }
 
         private void Disp_ViewLogBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (resultsManager != null)
+            if (App.ResultsManager != null)
             {
                 TextDataViewer viewer = new TextDataViewer();
-                string log = resultsManager.GetLogAsString();
+                string log = App.ResultsManager.GetLogAsString();
                 if (log != null)
                 {
                     viewer.Owner = this;
-                    viewer.PopulateData(resultsManager.GetLogAsString(), "Process Log");
+                    viewer.PopulateData(App.ResultsManager.GetLogAsString(), "Process Log");
                     viewer.ShowDialog();
                 }
             }
@@ -1715,9 +1790,9 @@ namespace DDMAutoGUI
 
         private void Disp_OpenFolderBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (resultsManager != null)
+            if (App.ResultsManager != null)
             {
-                resultsManager.OpenBrowserToDirectory();
+                App.ResultsManager.OpenBrowserToDirectory();
             }
         }
 
