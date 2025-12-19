@@ -2,10 +2,10 @@
   "releases": [
     {
       "version": "1.2.1",
-      "releaseDate": "",
-      "releaseIntent": "UNRELEASED",
+      "releaseDate": "2025-12-19",
+      "releaseIntent": "ENGINEERING ONLY",
       "releaseDisplayNotes": "Intended for Gen 1 Phase 1b cell built for production.",
-      "releaseNotes": "(in progress)"
+      "releaseNotes": "Changes to integrate new door switches and system pressure sensor. Changes to monitor new safety controller thread and status in TCS. Other changes made to accommodate changes to TCS and PAC files. System state string changed. Settings added. Connection routine updated to test connection to more devices than only the controller. NI dll included in anticipation of collecting data from DAQ with C# rather than Matlab. Lights added for vision. Password protection added to advanced tab."
     },
     {
       "version": "1.2.0",

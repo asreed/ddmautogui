@@ -18,6 +18,8 @@ namespace DDMAutoGUI.utilities
         public string? camera_top_sn { get; set; }
         public string? camera_side_sn { get; set; }
         public float? laser_delay { get; set; }
+        public float? hall_spin_speed { get; set; }
+        public float? hall_spin_time { get; set; }
         public CSDispesePassCriteria? dispense_pass_criteria { get; set; }
         public CSDispense? dispense_system { get; set; }
         public CSLaser? laser_calib { get; set; }

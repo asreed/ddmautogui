@@ -377,8 +377,8 @@
                                         <StackPanel Orientation="Vertical">
                                             <CheckBox x:Name="Adv_Opt_Con_ControllerChk" Content="Controller" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Con_IOLinkChk" Content="IO Link Devices" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_TopCamChk" Content="Top Camera" IsChecked="False"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_SideCamChk" Content="Side Camera" IsChecked="False"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_TopCamChk" Content="Top Camera" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_SideCamChk" Content="Side Camera" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Con_LaserChk" Content="Laser Sensor" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Con_DAQChk" Content="DAQ Device" IsChecked="True"/>
                                         </StackPanel>
@@ -388,9 +388,9 @@
                                             <CheckBox x:Name="Adv_Opt_Disp_HealthChk" Content="Health Check" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk" Content="Top Photo" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk" Content="Side Photo" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Ring Height" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Ring &amp; Mag/Conc Height" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_DispChk" Content="Dispense" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="True"/>
+                                            <!--<CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="True"/>-->
                                             <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Magnet Polarity" IsChecked="True"/>
                                         </StackPanel>
                                     </GroupBox>

@@ -440,11 +440,22 @@ namespace DDMAutoGUI
                         throw new Exception("Dispense failed");
                     }
 
-                    Disp_ProcessPrg.Value = 80;
+                    Disp_ProcessPrg.Value = 70;
                 }
 
 
+                if (App.advancedOptions.dispenseOptions.magnetPolarity)
+                {
+                    App.ResultsManager.AddToLog("Checking magnet polarity...");
+                    x = motor.hall_sensor.x.Value;
+                    t = motor.hall_sensor.t.Value;
+                    response = await App.ControllerManager.MoveJ(x, t);
 
+                    float hallTime = settings.hall_spin_time.Value;
+                    float hallSpeed = settings.hall_spin_speed.Value;
+                    response = await App.ControllerManager.SpinInPlace(hallTime, hallSpeed);
+
+                }
 
 
 
@@ -1593,7 +1604,7 @@ namespace DDMAutoGUI
             App.advancedOptions.dispenseOptions.sidePhoto = Adv_Opt_Disp_SidePhotoChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.ringHeight = Adv_Opt_Disp_RingHeightChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.dispense = Adv_Opt_Disp_DispChk.IsChecked ?? false;
-            App.advancedOptions.dispenseOptions.autocalibrate = Adv_Opt_Disp_AutoCalibChk.IsChecked ?? false;
+            //App.advancedOptions.dispenseOptions.autocalibrate = Adv_Opt_Disp_AutoCalibChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.magnetPolarity = Adv_Opt_Disp_MagPolChk.IsChecked ?? false;
         }
 
