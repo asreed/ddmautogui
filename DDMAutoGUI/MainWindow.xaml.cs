@@ -144,6 +144,8 @@ namespace DDMAutoGUI
 
 
 
+            LoadAdvancedOptions();
+
             CellSettings settings = App.SettingsManager.GetAllSettings();
             CSMotor motor = new CSMotor();
             string motorName = string.Empty;
@@ -417,19 +419,27 @@ namespace DDMAutoGUI
                     string substance_id = motor.shot_settings.sys_num_id == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
                     string substance_od = motor.shot_settings.sys_num_od == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
 
+                    if (shotData.shot_result == true)
+                    {
+                        App.ResultsManager.AddToLog("Dispense successful");
+                        App.ResultsManager.AddToLog("Results:");
+                        App.ResultsManager.AddToLog($"{tb}ID:");
+                        App.ResultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_id})");
+                        App.ResultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id:F3} mL ({shotData.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value:F1}% of target)");
+                        App.ResultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_id:F3} s");
+                        App.ResultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_id:F3} psi");
+                        App.ResultsManager.AddToLog($"{tb}OD:");
+                        App.ResultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_od})");
+                        App.ResultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_od:F3} mL ({shotData.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value:F1}% of target)");
+                        App.ResultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_od:F3} s");
+                        App.ResultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_od:F3} psi");
+                    }
+                    else
+                    {
+                        App.ResultsManager.AddToLog($"Dispense failed: {shotData.shot_message}");
+                        throw new Exception("Dispense failed");
+                    }
 
-                    App.ResultsManager.AddToLog("Dispense complete");
-                    App.ResultsManager.AddToLog("Results:");
-                    App.ResultsManager.AddToLog($"{tb}ID:");
-                    App.ResultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_id})");
-                    App.ResultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_id:F3} mL ({shotData.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value:F1}% of target)");
-                    App.ResultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_id:F3} s");
-                    App.ResultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_id:F3} psi");
-                    App.ResultsManager.AddToLog($"{tb}OD:");
-                    App.ResultsManager.AddToLog($"{tb}{tb}Valve {motor.shot_settings.sys_num_id} ({substance_od})");
-                    App.ResultsManager.AddToLog($"{tb}{tb}Dispense volume: {shotData.vol_od:F3} mL ({shotData.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value:F1}% of target)");
-                    App.ResultsManager.AddToLog($"{tb}{tb}Dispense time: {shotData.time_od:F3} s");
-                    App.ResultsManager.AddToLog($"{tb}{tb}Pressure: {shotData.pressure_od:F3} psi");
                     Disp_ProcessPrg.Value = 80;
                 }
 
@@ -1581,6 +1591,7 @@ namespace DDMAutoGUI
             App.advancedOptions.dispenseOptions.healthCheck = Adv_Opt_Disp_HealthChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.topPhoto = Adv_Opt_Disp_TopPhotoChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.sidePhoto = Adv_Opt_Disp_SidePhotoChk.IsChecked ?? false;
+            App.advancedOptions.dispenseOptions.ringHeight = Adv_Opt_Disp_RingHeightChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.dispense = Adv_Opt_Disp_DispChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.autocalibrate = Adv_Opt_Disp_AutoCalibChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.magnetPolarity = Adv_Opt_Disp_MagPolChk.IsChecked ?? false;

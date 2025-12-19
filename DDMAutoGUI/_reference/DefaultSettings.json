@@ -81,8 +81,8 @@
     "laser_ring_num": 6,
     "laser_mag_num": 48,
     "camera_side": {
-      "x": 0,
-      "t": 0
+      "x": 490,
+      "t": -121.982
     },
     "disp_id": {
       "x": 617.844,
@@ -97,7 +97,7 @@
       "t": 0
     },
     "laser_ring": {
-      "x": 0,
+      "x": 374.18,
       "t": 0
     },
     "hall_sensor": {
@@ -119,8 +119,8 @@
     "laser_ring_num": 6,
     "laser_mag_num": 60,
     "camera_side": {
-      "x": 0,
-      "t": 0
+      "x": 490,
+      "t": -121.982
     },
     "disp_id": {
       "x": 600.734,
@@ -135,7 +135,7 @@
       "t": 0
     },
     "laser_ring": {
-      "x": 0,
+      "x": 355.9,
       "t": 0
     },
     "hall_sensor": {
@@ -195,8 +195,8 @@
     "laser_ring_num": 6,
     "laser_mag_num": 88,
     "camera_side": {
-      "x": 0,
-      "t": 0
+      "x": 490,
+      "t": -121.982
     },
     "disp_id": {
       "x": 568.3,
@@ -211,7 +211,7 @@
       "t": 0
     },
     "laser_ring": {
-      "x": 0,
+      "x": 320.5,
       "t": 0
     },
     "hall_sensor": {
@@ -233,8 +233,8 @@
     "laser_ring_num": 6,
     "laser_mag_num": 88,
     "camera_side": {
-      "x": 0,
-      "t": 0
+      "x": 490,
+      "t": -121.982
     },
     "disp_id": {
       "x": 669.779,
@@ -249,7 +249,7 @@
       "t": 0
     },
     "laser_ring": {
-      "x": 0,
+      "x": 320.5,
       "t": 0
     },
     "hall_sensor": {
