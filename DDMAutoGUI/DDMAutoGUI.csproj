@@ -56,14 +56,22 @@
     <None Remove="Resources\icons\camera.ico" />
     <None Remove="Resources\icons\connect.ico" />
     <None Remove="Resources\icons\document.ico" />
+    <None Remove="Resources\icons\drop-w.ico" />
+    <None Remove="Resources\icons\drop.ico" />
+    <None Remove="Resources\icons\fluid-w.ico" />
+    <None Remove="Resources\icons\fluid.ico" />
+    <None Remove="Resources\icons\gear-w.ico" />
+    <None Remove="Resources\icons\gear.ico" />
     <None Remove="Resources\icons\info-circle-ph.png" />
     <None Remove="Resources\icons\info-circle.ico" />
     <None Remove="Resources\icons\info-circle.png" />
     <None Remove="Resources\icons\info.ico" />
+    <None Remove="Resources\icons\lan-w.ico" />
     <None Remove="Resources\icons\lan.ico" />
     <None Remove="Resources\icons\list-2.ico" />
     <None Remove="Resources\icons\list.ico" />
     <None Remove="Resources\icons\plug.ico" />
+    <None Remove="Resources\icons\settings.ico" />
     <None Remove="Resources\icons\sliders.ico" />
     <None Remove="Resources\icons\svg-cr\alert.png" />
     <None Remove="Resources\icons\svg-cr\camera-big.png" />
@@ -79,6 +87,8 @@
     <None Remove="Resources\icons\svg-cr\tools.png" />
     <None Remove="Resources\icons\tools.ico" />
     <None Remove="Resources\icons\tools.png" />
+    <None Remove="Resources\icons\tree-w.ico" />
+    <None Remove="Resources\icons\tree.ico" />
     <None Remove="Resources\icons\tune.ico" />
     <None Remove="Resources\icons\warning.ico" />
   </ItemGroup>
@@ -87,45 +97,12 @@
     <Content Include="ReleaseHistory.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\icons\settings.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Resources\icons\book.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\braces.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\cable.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\camera.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\document.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\image_search.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\info.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\lan.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\plug.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\tools.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\tune.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\warning.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\logos\b.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -147,6 +124,12 @@
     <Resource Include="Libraries\SaveNET_v142.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Content Include="Resources\icons\fluid.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\tree.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

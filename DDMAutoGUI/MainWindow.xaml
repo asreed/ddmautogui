@@ -5,10 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DDMAutoGUI"
         mc:Ignorable="d"
-        Title="DDM Automation Cell Manager" Height="750" Width="1024" WindowStartupLocation="CenterScreen" WindowState="Normal" Background="WhiteSmoke">
-
-
-
+        Title="DDM Automation Cell Manager" Height="750" Width="1024" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="WhiteSmoke">
+    
     <Grid Margin="4">
 
         <Grid.RowDefinitions>
@@ -33,7 +31,7 @@
         <Grid Grid.Row="1">
 
             <TabControl TabStripPlacement="Left">
-                <TabItem Header="Connect" Tag="Resources/icons/lan.ico"  Style="{StaticResource MainTab}">
+                <TabItem Header="Connect" Tag="Resources/icons/tree.ico"  Style="{StaticResource MainTab}">
 
                     <Grid Margin="4">
 
@@ -132,7 +130,7 @@
                     </Grid>
 
                 </TabItem>
-                <TabItem x:Name="DispTab" Header="Dispense" Tag="Resources/icons/tools.ico" Style="{StaticResource MainTab}" IsEnabled="False">
+                <TabItem x:Name="DispTab" Header="Dispense" Tag="Resources/icons/fluid.ico" Style="{StaticResource MainTab}" IsEnabled="False">
 
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <Grid Margin="6">
@@ -329,9 +327,9 @@
                 </TabItem>
                 
                 <!-- blank tab for visual spacing only -->
-                <TabItem Style="{StaticResource MainTab}" Height="16" Background="Transparent" BorderBrush="Transparent" IsEnabled="False"></TabItem>
+                <!--<TabItem Style="{StaticResource MainTab}" Height="500" Background="Transparent" BorderBrush="Transparent" IsEnabled="False"></TabItem>-->
                 
-                <TabItem x:Name="AdvTab" Header="Advanced" Tag="Resources/icons/tune.ico" Style="{StaticResource MainTab}" Height="40">
+                <TabItem x:Name="AdvTab" Header="Settings" Tag="Resources/icons/settings.ico" Style="{StaticResource MainTab}" Height="30">
 
                     <Grid Margin="4">
                         <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Visibility="Collapsed">

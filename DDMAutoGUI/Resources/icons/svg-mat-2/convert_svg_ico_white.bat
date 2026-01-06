@@ -4,6 +4,6 @@ REM "256,128,64,24,16"
 
 @echo off
 for %%f in (*.svg) do (
-    magick -density 1200 -background transparent -define icon:auto-resize="64,32,24,16" "%%f" "%%~nf.ico"
+    magick -density 1200 -background transparent -gravity center -define icon:auto-resize="64,32,24,16" "%%f" -fill white -opaque black "%%~nf-w.ico"
 )
 echo complete

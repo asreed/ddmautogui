@@ -1,0 +1,15 @@
+Download from:
+https://fonts.google.com/icons?icon.set=Material+Symbols&icon.style=Rounded&icon.size=36&icon.color=%23000000&icon.platform=web
+
+Google Fonts
+Material Symbols (new)
+Rounded
+
+Weight: 400
+Grade: 0
+Optical Size: 40px
+Color: #000000
+
+1. Download SVG
+2. Run batch file to convert to ICO
+3. Copy to Resources/icons/
