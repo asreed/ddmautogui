@@ -182,6 +182,12 @@
             <Setter Property="Padding" Value="10,3,10,3"/>
         </Style>
 
+        <Style TargetType="ProgressBar">
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
+        </Style>
+
         <Style TargetType="PasswordBox">
             <Setter Property="Background" Value="{StaticResource TextBoxBlueLight}"/>
             <Setter Property="BorderBrush" Value="{StaticResource TextBoxBlue}"/>

@@ -54,6 +54,7 @@
     <None Remove="Libraries\ArenaNET_v142.dll" />
     <None Remove="Libraries\SaveNET_v142.dll" />
     <None Remove="Resources\icons\camera.ico" />
+    <None Remove="Resources\icons\centerpoint.ico" />
     <None Remove="Resources\icons\connect.ico" />
     <None Remove="Resources\icons\document.ico" />
     <None Remove="Resources\icons\drop-w.ico" />
@@ -85,6 +86,7 @@
     <None Remove="Resources\icons\svg-cr\list.png" />
     <None Remove="Resources\icons\svg-cr\tools.ico" />
     <None Remove="Resources\icons\svg-cr\tools.png" />
+    <None Remove="Resources\icons\target.ico" />
     <None Remove="Resources\icons\tools.ico" />
     <None Remove="Resources\icons\tools.png" />
     <None Remove="Resources\icons\tree-w.ico" />
@@ -97,7 +99,13 @@
     <Content Include="ReleaseHistory.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\icons\centerpoint.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\icons\settings.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\target.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

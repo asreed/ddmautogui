@@ -63,6 +63,7 @@ namespace DDMAutoGUI
         public static LocalDataManager LocalDataManager { get; private set; }
         public static DAQManager DAQManager { get; private set; }
 
+        public static string calibrationPassword = "ddm";
         public static string advancedSettingsPassword = "ddm";
 
 

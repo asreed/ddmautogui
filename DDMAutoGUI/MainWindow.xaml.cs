@@ -94,6 +94,8 @@ namespace DDMAutoGUI
             Status_SimBdr.Visibility = Visibility.Collapsed;
             Adv_PWEntryBdr.Visibility = Visibility.Visible;
             Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
+            Cal_PWEntryBdr.Visibility = Visibility.Visible;
+            Cal_AllControlsTcl.Visibility = Visibility.Collapsed;
             Disp_ProcessPrg.Value = 0;
 
             //Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
@@ -1844,12 +1846,14 @@ namespace DDMAutoGUI
             LoadAdvancedOptions();
             Con_ConnectBtn.IsEnabled = false;
             Con_ConnectBtn.Content = "Connecting...";
+            Con_ConnectPrg.Visibility = Visibility.Visible;
             //Con_ErrorMsgTxb.Text = string.Empty;
             //Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
             App.LocalDataManager.localData.controller_ip = Con_IPTxt.Text;
 
             DeviceConnState connState = await App.ConnectionManager.ConnectToAllDevices(Con_IPTxt.Text);
 
+            Con_ConnectPrg.Visibility = Visibility.Collapsed;
 
             if (connState.controllerConnected)
             {
@@ -2370,6 +2374,28 @@ namespace DDMAutoGUI
             }
         }
 
+        private void Cal_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (Cal_PWBox.Password == App.calibrationPassword)
+            {
+                Cal_PWEntryBdr.Visibility = Visibility.Collapsed;
+                Cal_PWMessageTxb.Visibility = Visibility.Collapsed;
+                Cal_AllControlsTcl.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Cal_PWMessageTxb.Visibility = Visibility.Visible;
+                Cal_PWMessageTxb.Text = "Incorrect password";
+            }
+        }
+
+        private void Cal_PWBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Cal_PWSubmitBtn_Click(sender, e);
+            }
+        }
         private void Adv_Misc_TestMatlabBtn_Click(object sender, RoutedEventArgs e)
         {
             string exePath = @"C:\Users\areed\Documents\MATLAB\MatlabTestProject1\StandaloneDesktopApp1\output\build\MyDesktopApplication.exe";
