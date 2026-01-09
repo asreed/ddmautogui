@@ -1950,6 +1950,31 @@ namespace DDMAutoGUI
 
 
 
+        private async void Cal_CalPosBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+            Cal_PosPrg.Visibility = Visibility.Visible;
+            string response = await App.ControllerManager.CalibratePosition();
+            Con_ConnectPrg.Visibility = Visibility.Collapsed;
+
+            if (response == "0")
+            {
+                Cal_PosResultTxb.Text = "Success";
+            }
+            else
+            {
+                Cal_PosResultTxb.Text = response;
+            }
+        }
+
+        private void Cal_PosUpdateBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Cal_PosJ1Txb.Text = $"{App.ControllerManager.CONTROLLER_STATE.posRotary}";
+            Cal_PosJ2Txb.Text = $"{App.ControllerManager.CONTROLLER_STATE.posLinear}";
+        }
+
+
+
 
 
 

@@ -353,8 +353,7 @@ namespace DDMAutoGUI.utilities
 
                     if (await TestStatusConnection() != "0")
                     {
-                        SocketException ex = new SocketException(-1, "Failed test command");
-                        throw ex;
+                        throw new Exception($"{ErrorCodes.conCont.code}: {ErrorCodes.conCont.msg}");
                     }
 
                     UpdateConnectionLog($"✓ Controller TCS");
@@ -362,8 +361,7 @@ namespace DDMAutoGUI.utilities
                     bool settingsExist = App.SettingsManager.VerifySettingsExistOnController(ip);
                     if (!settingsExist)
                     {
-                        SocketException ex = new SocketException(-1, "Unable to load settings file from controller");
-                        throw ex;
+                        throw new Exception($"{ErrorCodes.conSettings.code}: {ErrorCodes.conSettings.msg}");
                     }
                     UpdateConnectionLog($"✓ Controller Settings");
 
@@ -375,8 +373,7 @@ namespace DDMAutoGUI.utilities
                     IOLinkStatus ioLinkStatus = ParseIOLinkStatus(ioLinkString);
                     if (!ioLinkStatus.isMasterConnected)
                     {
-                        SocketException ex = new SocketException(-1, "I/O-Link Master not connected");
-                        throw ex;
+                        throw new Exception($"{ErrorCodes.conIOMaster.code}: {ErrorCodes.conIOMaster.msg}");
                     }
                     UpdateConnectionLog($"✓ I/O-Link Master");
 
@@ -384,13 +381,21 @@ namespace DDMAutoGUI.utilities
                     {
                         if (ioLinkStatus.isPortConnected[i])
                         {
-                            UpdateConnectionLog($"✓ I/O-Link Port {i+1}");
+                            UpdateConnectionLog($"✓ I/O-Link Port {i + 1}");
                         }
                         else
                         {
-                            //SocketException ex = new SocketException(-1, $"I/O-Link Port {i} not connected");
-                            //throw ex;
-
+                            switch (i)
+                            {
+                                case 0:
+                                    throw new Exception($"{ErrorCodes.conIO1.code}: {ErrorCodes.conIO1.msg}");
+                                case 1:
+                                    throw new Exception($"{ErrorCodes.conIO2.code}: {ErrorCodes.conIO2.msg}");
+                                case 2:
+                                    throw new Exception($"{ErrorCodes.conIO3.code}: {ErrorCodes.conIO3.msg}");
+                                case 3:
+                                    throw new Exception($"{ErrorCodes.conIO4.code}: {ErrorCodes.conIO4.msg}");
+                            }
                         }
                     }
                 }
@@ -400,8 +405,7 @@ namespace DDMAutoGUI.utilities
                     string laserResponse = await TestLaserConnection();
                     if (laserResponse != "-1")
                     {
-                        SocketException ex = new SocketException(-1, "Laser connection test failed");
-                        throw ex;
+                        throw new Exception($"{ErrorCodes.conLaser.code}: {ErrorCodes.conLaser.msg}");
                     }
                     UpdateConnectionLog($"✓ Laser Sensor");
                 }
@@ -412,8 +416,7 @@ namespace DDMAutoGUI.utilities
                     bool topCameraConnected = await Task.Run(() => App.CameraManager.TestCameraConnection(CameraManager.CellCamera.top));
                     if (!topCameraConnected)
                     {
-                        SocketException ex = new SocketException(-1, "Top camera not connected");
-                        throw ex;
+                        throw new Exception($"{ErrorCodes.conCamTop.code}: {ErrorCodes.conCamTop.msg}");
                     }
                     UpdateConnectionLog($"✓ Top Camera");
                 }
@@ -424,8 +427,7 @@ namespace DDMAutoGUI.utilities
                     bool sideCameraConnected = await Task.Run(() => App.CameraManager.TestCameraConnection(CameraManager.CellCamera.side));
                     if (!sideCameraConnected)
                     {
-                        SocketException ex = new SocketException(-1, "Side camera not connected");
-                        throw ex;
+                        throw new Exception($"{ErrorCodes.conCamSide.code}: {ErrorCodes.conCamSide.msg}");
                     }
                     UpdateConnectionLog($"✓ Side Camera");
                 }
@@ -446,14 +448,33 @@ namespace DDMAutoGUI.utilities
             }
             catch (SocketException ex)
             {
+                // catches socket exceptions when controller can't connect
 
                 statusClient.Close();
                 robotClient.Close();
-                UpdateBothLogs("Connection failed");
-                UpdateBothLogs($"{ex.ErrorCode}: {ex.Message}");
+                UpdateBothLogs($"Connection failed ({ex.Message})");
+                UpdateBothLogs($"{ErrorCodes.conCont.code}: {ErrorCodes.conCont.msg}");
 
-                UpdateConnectionLog($"\nConnection error:");
-                UpdateConnectionLog($"{ex.ErrorCode}: {ex.Message}");
+                UpdateConnectionLog($"\nConnection failed ({ex.Message})");
+                UpdateConnectionLog($"{ErrorCodes.conCont.code}: {ErrorCodes.conCont.msg}");
+
+                CONNECTION_STATE.isConnected = false;
+                CONNECTION_STATE.connectedIP = string.Empty;
+                CONNECTION_STATE.connectedTCS = string.Empty;
+                CONNECTION_STATE.connectedPAC = string.Empty;
+                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
+                ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                statusClient.Close();
+                robotClient.Close();
+                UpdateBothLogs($"Connection failed");
+                UpdateBothLogs($"{ex.Message}");
+
+                UpdateConnectionLog($"\nConnection failed");
+                UpdateConnectionLog($"{ex.Message}");
 
                 CONNECTION_STATE.isConnected = false;
                 CONNECTION_STATE.connectedIP = string.Empty;
@@ -929,6 +950,7 @@ namespace DDMAutoGUI.utilities
         {
             return await SendRobotCommand($"DDM_LightsOn");
         }
+
         public async Task<string> LightsOff()
         {
             return await SendRobotCommand($"DDM_LightsOff");
@@ -1096,6 +1118,12 @@ namespace DDMAutoGUI.utilities
             return await SendRobotCommand(input);
         }
 
+        public async Task<string> CalibratePosition()
+        {
+            string response = $"DDM_CalibratePosition";
+            return await SendRobotCommand(response);
+        }
+
         public async Task<string> DispenseToRing(
             int id_sys_num,
             float id_time,
@@ -1109,6 +1137,7 @@ namespace DDMAutoGUI.utilities
             string input = $"DDM_DispenseToRing {id_sys_num} {id_time} {id_xPos} {id_tPos} {od_sys_num} {od_time} {od_xPos} {od_tPos}";
             return await SendRobotCommand(input);
         }
+
 
 
 

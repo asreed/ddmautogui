@@ -16,6 +16,30 @@ namespace DDMAutoGUI
     /// </summary>
     /// 
 
+    public static class ErrorCodes
+    {
+        public static ErrorCode conCont     = new ErrorCode(-5000, "Unable to connect to controller");
+        public static ErrorCode conSettings = new ErrorCode(-5001, "Unable to load settings from controller");
+        public static ErrorCode conIOMaster = new ErrorCode(-5000, "Unable to connect to I/O-Link Master");
+        public static ErrorCode conIO1      = new ErrorCode(-5000, "Unable to connect to I/O-Link device 1 (flow sensor 1)");
+        public static ErrorCode conIO2      = new ErrorCode(-5000, "Unable to connect to I/O-Link device 2 (flow sensor 2)");
+        public static ErrorCode conIO3      = new ErrorCode(-5000, "Unable to connect to I/O-Link device 3 (analog input)");
+        public static ErrorCode conIO4      = new ErrorCode(-5000, "Unable to connect to I/O-Link device 4 (analog output)");
+        public static ErrorCode conLaser    = new ErrorCode(-5000, "Unable to connect to laser displacement sensor");
+        public static ErrorCode conCamTop   = new ErrorCode(-5000, "Unable to connect to connect to top camera");
+        public static ErrorCode conCamSide  = new ErrorCode(-5000, "Unable to connect to connect to side camera");
+    }
+
+    public class ErrorCode
+    {
+        public int code { get; set; } = -1;
+        public string msg { get; set; } = "";
+        public ErrorCode(int _code, string _msg)
+        {
+            code = _code;
+            msg = _msg;
+        }
+    }
 
     public class AdvancedOptions
     {

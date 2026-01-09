@@ -384,8 +384,12 @@
                                         <TextBlock Text="4. Click the calibrate button below"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Vertical" Margin="12" HorizontalAlignment="Left">
-                                        <Button Style="{StaticResource BlueButton}" Content="Calibrate position" Margin="0"/>
-                                        <!--<ProgressBar IsIndeterminate="True" Height="5" Margin="0,4,0,0" BorderBrush="Transparent"/>-->
+                                        <Button Style="{StaticResource BlueButton}" Content="Calibrate position" Margin="0" Click="Cal_CalPosBtn_Click"/>
+                                        <ProgressBar Visibility="Collapsed" IsIndeterminate="True" Height="5" Margin="0,4,0,0" BorderBrush="Transparent" x:Name="Cal_PosPrg"/>
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Vertical" Margin="12" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="Cal_PosResultTxb" Text="(No result)"/>
                                     </StackPanel>
 
                                     <Grid HorizontalAlignment="Left" Margin="6" Background="WhiteSmoke">
@@ -405,9 +409,11 @@
                                         </Grid.RowDefinitions>
                                         <TextBlock Grid.Row="0" Grid.Column="0" Text="J1"/>
                                         <TextBlock Grid.Row="1" Grid.Column="0" Text="J2"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="x"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="x"/>
+                                        
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="x" x:Name="Cal_PosJ1Txb"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="x" x:Name="Cal_PosJ2Txb"/>
                                     </Grid>
+                                    <Button Style="{StaticResource SmallButton}" Content="Update" HorizontalAlignment="Left" Click="Cal_PosUpdateBtn_Click"/>
 
                                 </StackPanel>
 
