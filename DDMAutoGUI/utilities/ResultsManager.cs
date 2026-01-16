@@ -62,8 +62,6 @@ namespace DDMAutoGUI.utilities
         public string saveFolderNoSNPrefix = "Ring_No_SN_";
 
         public string fileNameResults = "ProcessResults";
-        public string fileNamePhotoBefore = "Before";
-        public string fileNamePhotoAfter = "After";
 
         public string dateFormatLong = "MM-dd-yyy HH:mm:ss.fff";
         public string dateFormatShort = "HH:mm:ss.ff";
@@ -227,6 +225,12 @@ namespace DDMAutoGUI.utilities
             string resultsFilePath = currentResultsFolderPath + "\\" + fileNameResults + ".json";
 
             File.WriteAllText(resultsFilePath, resultsString);
+        }
+
+        public void CopyPhotoToResultsFolder(string photoPath, string fileName)
+        {
+            string destPath = currentResultsFolderPath + "\\" + fileName + ".jpg";
+            File.Copy(photoPath, destPath, true);
         }
 
         public void OpenBrowserToDirectory()

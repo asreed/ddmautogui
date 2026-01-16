@@ -67,6 +67,7 @@
     <None Remove="Resources\icons\info-circle.ico" />
     <None Remove="Resources\icons\info-circle.png" />
     <None Remove="Resources\icons\info.ico" />
+    <None Remove="Resources\icons\infocircle.ico" />
     <None Remove="Resources\icons\lan-w.ico" />
     <None Remove="Resources\icons\lan.ico" />
     <None Remove="Resources\icons\list-2.ico" />
@@ -100,6 +101,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\icons\centerpoint.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\infocircle.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\icons\settings.ico">
@@ -172,6 +176,9 @@
   <ItemGroup>
     <None Update="LocalData.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\icons\svg-mat-2\info.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="Resources\icons\svg-cr\connect.svg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>

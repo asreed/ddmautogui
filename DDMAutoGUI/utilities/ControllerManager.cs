@@ -468,6 +468,8 @@ namespace DDMAutoGUI.utilities
             }
             catch (Exception ex)
             {
+                // caches other exceptions with ddm-specific error messages
+
                 statusClient.Close();
                 robotClient.Close();
                 UpdateBothLogs($"Connection failed");

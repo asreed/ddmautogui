@@ -225,8 +225,8 @@
         <!-- Tabs -->
         
         <Style TargetType="TabItem" x:Key="MainTab">
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Height" Value="75"/>
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="Height" Value="70"/>
             <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
 
             <Setter Property="Template">
@@ -239,13 +239,13 @@
                                     Cursor="Hand"
                                     BorderThickness="1,1,1,1" 
                                     CornerRadius="6,0,0,6"
-                                    Padding="6"
+                                    Padding="12,6,6,6"
                                     Margin="6,0,-1,-1"
                                     Panel.ZIndex="1">
                                 <StackPanel x:Name="mainPanel"
                                             Orientation="Horizontal" 
                                             VerticalAlignment="Center"
-                                            HorizontalAlignment="Center">
+                                            HorizontalAlignment="Left">
                                     <Image 
                                         Width="18"
                                         Height="18"

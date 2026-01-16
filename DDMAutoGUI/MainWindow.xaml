@@ -163,10 +163,22 @@
                                             <Grid x:Name="tabContainer1">
 
                                                 <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                    </Grid.RowDefinitions>
 
-                                                    <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
+                                                    <GroupBox Header="Motor SN" Grid.Row="0" Grid.Column="1">
+                                                        <StackPanel Orientation="Vertical">
+                                                            <TextBox x:Name="Disp_MotorSNTxt" Height="42"/>
+                                                        </StackPanel>
+                                                    </GroupBox>
 
-                                                        <Expander Header="Simulate" Margin="0,6,0,6" Padding="3" Visibility="Collapsed">
+                                                    <!--<Expander Header="Simulate" Margin="0,6,0,6" Padding="3" Visibility="Collapsed">
                                                             <Border Margin="0,0,0,0" Padding="6" Background="{StaticResource TextBoxBlueLight}" CornerRadius="6">
                                                                 <StackPanel Orientation="Vertical">
                                                                     <CheckBox x:Name="Disp_Sim_SimChk" Content="Simulate"/>
@@ -180,8 +192,8 @@
                                                                     </StackPanel>
                                                                 </StackPanel>
                                                             </Border>
-                                                        </Expander>
-                                                        <GroupBox Header="Motor Size">
+                                                        </Expander>-->
+                                                        <GroupBox Header="Motor Size" Grid.Row="0" Grid.Column="0">
                                                             <StackPanel Orientation="Vertical">
                                                                 <RadioButton Content="DDM 57" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57"/>
                                                                 <RadioButton Content="DDM 95" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95"/>
@@ -190,7 +202,7 @@
                                                                 <RadioButton Content="DDM 170 Tall" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170Tall"/>
                                                             </StackPanel>
                                                         </GroupBox>
-                                                        <GroupBox Header="Options" Visibility="Collapsed">
+                                                        <!--<GroupBox Header="Options" Visibility="Collapsed">
                                                             <StackPanel Orientation="Vertical">
                                                                 <CheckBox Visibility="Collapsed" IsChecked="False" x:Name="Disp_SNPhotoChk" Content="Serial number photo" Padding="8"/>
                                                                 <CheckBox IsChecked="False" x:Name="Disp_PrePhotoChk" Content="Pre-process photo" Padding="8"/>
@@ -200,13 +212,15 @@
                                                                 <CheckBox Visibility="Collapsed" IsChecked="False" x:Name="Disp_PostPhotoChk" Content="Post-process photo" Padding="8"/>
                                                                 <CheckBox IsChecked="False" x:Name="Disp_AutoCalibChk" Content="Autocalibrate after dispense" Padding="8"/>
                                                             </StackPanel>
-                                                        </GroupBox>
-                                                        <Button 
+                                                        </GroupBox>-->
+                                                    <Button 
+                                                            Grid.Row="1"
+                                                            Grid.Column="0"
+                                                            Grid.ColumnSpan="2"
                                                             x:Name="Disp_BeginBtn"
                                                             Content="Begin Dispense" 
                                                             Style="{DynamicResource BlueButton}" 
                                                             Click="Disp_BeginBtn_Click"/>
-                                                    </StackPanel>
 
                                                 </Grid>
 
@@ -334,7 +348,7 @@
                 <!-- blank tab for visual spacing only -->
                 <!--<TabItem Style="{StaticResource MainTab}" Height="500" Background="Transparent" BorderBrush="Transparent" IsEnabled="False"></TabItem>-->
 
-                <TabItem x:Name="CalibTab" Header="Calibrate" Tag="Resources/icons/centerpoint.ico" Style="{StaticResource MainTab}" Height="30">
+                <TabItem x:Name="CalibTab" Header="Calibrate" Tag="Resources/icons/centerpoint.ico" Style="{StaticResource MainTab}">
 
                     <Grid Margin="4">
                         <Border x:Name="Cal_PWEntryBdr" Background="WhiteSmoke" Visibility="Collapsed">
@@ -409,7 +423,7 @@
                                         </Grid.RowDefinitions>
                                         <TextBlock Grid.Row="0" Grid.Column="0" Text="J1"/>
                                         <TextBlock Grid.Row="1" Grid.Column="0" Text="J2"/>
-                                        
+
                                         <TextBlock Grid.Row="0" Grid.Column="1" Text="x" x:Name="Cal_PosJ1Txb"/>
                                         <TextBlock Grid.Row="1" Grid.Column="1" Text="x" x:Name="Cal_PosJ2Txb"/>
                                     </Grid>
@@ -564,10 +578,10 @@
                                         <StackPanel Orientation="Vertical">
                                             <CheckBox x:Name="Adv_Opt_Con_ControllerChk" Content="Controller" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Con_IOLinkChk" Content="IO Link Devices" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_TopCamChk" Content="Top Camera" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_SideCamChk" Content="Side Camera" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_TopCamChk" Content="Top Camera" IsChecked="False"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_SideCamChk" Content="Side Camera" IsChecked="False"/>
                                             <CheckBox x:Name="Adv_Opt_Con_LaserChk" Content="Laser Sensor" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_DAQChk" Content="DAQ Device" IsChecked="True"/>
+                                            <CheckBox Visibility="Collapsed" x:Name="Adv_Opt_Con_DAQChk" Content="DAQ Device" IsChecked="True"/>
                                         </StackPanel>
                                     </GroupBox>
                                     <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">
@@ -575,10 +589,10 @@
                                             <CheckBox x:Name="Adv_Opt_Disp_HealthChk" Content="Health Check" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk" Content="Top Photo" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk" Content="Side Photo" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Ring &amp; Mag/Conc Height" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Ring &amp; Mag/Conc Height" IsChecked="False"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_DispChk" Content="Dispense" IsChecked="True"/>
-                                            <!--<CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="True"/>-->
-                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Magnet Polarity" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="False"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Magnet Polarity" IsChecked="False"/>
                                         </StackPanel>
                                     </GroupBox>
                                 </StackPanel>
@@ -590,28 +604,7 @@
                                 </StackPanel>-->
                             </TabItem>
 
-                            <TabItem Header="Calibration">
 
-                                <TabControl Margin="4">
-                                    <TabItem Header="Position">
-
-
-
-
-                                    </TabItem>
-                                    <TabItem Header="Height Sensor">
-
-
-                                    </TabItem>
-                                    <TabItem Header="Flow Rate">
-
-
-                                    </TabItem>
-
-                                </TabControl>
-
-
-                            </TabItem>
                             <TabItem Header="Cell Control Panel">
 
                                 <Grid>
@@ -706,11 +699,11 @@
 
                                     <Grid Grid.Row="1" x:Name="robotBtnContainer">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
                                             <ColumnDefinition Width="320"/>
+                                            <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
 
-                                        <GroupBox Header="Robot Thread Commands" Grid.Column="0">
+                                        <GroupBox Header="Robot Thread Commands" Grid.Column="1">
 
 
                                             <TabControl>
@@ -1028,7 +1021,7 @@
 
                                         </GroupBox>
 
-                                        <GroupBox Header="System State" Grid.Column="1">
+                                        <GroupBox Header="System State" Grid.Column="0">
 
                                             <TabControl>
                                                 <TabItem Header="Overview">
@@ -1401,13 +1394,6 @@
                                 <windows:LocalDataPanel/>
 
                             </TabItem>
-                            <TabItem Header="Misc">
-                                <StackPanel Orientation="Vertical" Margin="6">
-                                    <Button x:Name="Adv_Res_OpenFolderBtn" Click="Adv_Res_OpenFolderBtn_Click" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Test Matlab script" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                </StackPanel>
-                            </TabItem>
                             <TabItem Header="DAQ">
                                 <StackPanel Orientation="Vertical" Margin="6">
                                     <TextBlock x:Name="Adv_DAQ_A0Txb" Text="-" />
@@ -1416,42 +1402,12 @@
 
                                 </StackPanel>
                             </TabItem>
-                            <TabItem Header="About">
-                                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-
-                                    <Grid Margin="12">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="60"/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <Image Source="/resources/logos/b.ico" Width="40" VerticalAlignment="Top" Margin="0,6,0,0"/>
-
-                                        <Grid Grid.Column="1" VerticalAlignment="Center">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition/>
-                                                <RowDefinition/>
-                                            </Grid.RowDefinitions>
-
-                                            <Label Grid.Row="0" 
-                                               Content="DDM Automation Cell Manager" 
-                                               Padding="0" 
-                                               Foreground="{StaticResource BrooksBlue}" 
-                                               FontSize="16" FontWeight="Bold"/>
-
-                                            <TextBlock Grid.Row="1"
-                                               Name="Adv_Abt_InfoTxb" 
-                                               Text="(application info)" 
-                                               Padding="0" 
-                                               TextWrapping="Wrap" 
-                                               Foreground="{StaticResource BrooksBlue}" 
-                                               FontSize="10" VerticalAlignment="Top"/>
-
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
+                            <TabItem Header="Misc">
+                                <StackPanel Orientation="Vertical" Margin="6">
+                                    <Button x:Name="Adv_Res_OpenFolderBtn" Click="Adv_Res_OpenFolderBtn_Click" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Test Matlab script" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                </StackPanel>
                             </TabItem>
                         </TabControl>
 
@@ -1459,6 +1415,48 @@
 
 
                 </TabItem>
+
+                <TabItem x:Name="AboutTab" Header="About" Tag="Resources/icons/infocircle.ico" Style="{StaticResource MainTab}" Height="30">
+                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                        <Grid Margin="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <Image Source="/resources/logos/b.ico" Width="40" VerticalAlignment="Top" Margin="0,6,0,0"/>
+
+                            <Grid Grid.Column="1" VerticalAlignment="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <Label Grid.Row="0" 
+                                       Content="DDM Automation Cell Manager" 
+                                       Padding="0" 
+                                       Foreground="{StaticResource BrooksBlue}" 
+                                       FontSize="18"
+                                       />
+
+                                <TextBlock Grid.Row="1"
+                                           Name="Adv_Abt_InfoTxb" 
+                                           Text="(application info)" 
+                                           Padding="0" 
+                                           TextWrapping="Wrap" 
+                                           Foreground="{StaticResource BrooksBlue}" 
+                                           FontSize="10" VerticalAlignment="Top"/>
+
+                            </Grid>
+                        </Grid>
+                    </Grid>
+
+                </TabItem>
+
+
             </TabControl>
         </Grid>
 

@@ -9,6 +9,7 @@ Weight: 400
 Grade: 0
 Optical Size: 40px
 Color: #000000
+Size: 36px
 
 1. Download SVG
 2. Run batch file to convert to ICO

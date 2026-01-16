@@ -1,6 +1,7 @@
 ﻿using DDMAutoGUI.utilities;
 using DDMAutoGUI.Utilities;
 using DDMAutoGUI.windows;
+using NationalInstruments.Restricted;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -196,6 +197,8 @@ namespace DDMAutoGUI
             App.ResultsManager.CreateNewResults();
             Disp_LogTxt.Text = "";
 
+            App.ResultsManager.currentResults.ring_sn = Disp_MotorSNTxt.Text.Trim(); // until we can figure out SN from camera
+
             Disp_ProcessPrg.Value = 0;
             Dispense_GoToStep(1);
 
@@ -341,9 +344,11 @@ namespace DDMAutoGUI
                 {
 
                     App.ResultsManager.AddToLog("Setting dispense system pressures...");
-                    float pressureID, pressureOD;
+
                     sysID = motor.shot_settings.sys_num_id.Value;
                     sysOD = motor.shot_settings.sys_num_od.Value;
+
+                    float pressureID, pressureOD;
                     pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
                     pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
 
@@ -407,6 +412,11 @@ namespace DDMAutoGUI
                         xOD,
                         tOD);
 
+
+                    // If the dispense command has been called, save results.
+                    // Need to save if there's a possibility of any liquid at all on the ring, even if the process fails.
+                    saveResults = true;
+
                     Debug.Print(response);
 
                     ResultsShotData shotData = App.ControllerManager.ParseDispenseResponse(response); // sets volumes, times, result pass/fail, message
@@ -444,6 +454,91 @@ namespace DDMAutoGUI
 
                     Disp_ProcessPrg.Value = 70;
                 }
+
+
+
+                if (App.advancedOptions.dispenseOptions.autocalibrate)
+                {
+                    // Adjust pressures
+
+                    if (App.ResultsManager.currentResults.shot_data == null)
+                    {
+                        App.ResultsManager.AddToLog($"Autocalibration failed: no results data loaded (???)");
+                        throw new Exception("Autocalibration failed");
+                    }
+
+                    CSDispenseCalib[] newSys1Calib;
+                    CSDispenseCalib[] newSys2Calib;
+                    bool calibSuccess;
+                    FlowCalibration.CalibratePressures(
+                        App.ResultsManager.currentResults.shot_data,
+                        App.SettingsManager.GetAllSettings(),
+                        App.LocalDataManager.localData,
+                        out calibSuccess,
+                        out newSys1Calib,
+                        out newSys2Calib);
+
+                    if (calibSuccess)
+                    {
+                        App.LocalDataManager.UpdateCalib(1, newSys1Calib);
+                        App.LocalDataManager.UpdateCalib(2, newSys2Calib);
+                    }
+                    else
+                    {
+                        // ??
+                    }
+
+                    App.ResultsManager.AddToLog("Saving updated calibration data to local storage...");
+                    App.LocalDataManager.SaveLocalDataToFile();
+                    App.ResultsManager.AddToLog("Calibration data saved");
+
+                    App.ResultsManager.AddToLog("Adjusting dispense system pressures...");
+
+                    sysID = motor.shot_settings.sys_num_id.Value;
+                    sysOD = motor.shot_settings.sys_num_od.Value;
+
+
+                    float pressureID, pressureOD;
+                    pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
+                    pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
+
+                    float? _pressure1 = null, _pressure2 = null;
+                    if (sysID == 1)
+                    {
+                        _pressure1 = pressureID;
+                    }
+                    else if (sysID == 2)
+                    {
+                        _pressure2 = pressureID;
+                    }
+                    if (sysOD == 1)
+                    {
+                        _pressure1 = pressureOD;
+                    }
+                    else if (sysOD == 2)
+                    {
+                        _pressure2 = pressureOD;
+                    }
+                    if (_pressure1 != null)
+                    {
+                        App.ResultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1:F3} psi");
+                    }
+                    else
+                    {
+                        App.ResultsManager.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
+                    }
+                    if (_pressure2 != null)
+                    {
+                        App.ResultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2:F3} psi");
+                    }
+                    else
+                    {
+                        App.ResultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
+                    }
+                    App.ResultsManager.AddToLog("System pressures adjusted");
+                }
+
+
 
 
                 if (App.advancedOptions.dispenseOptions.magnetPolarity)
@@ -522,9 +617,12 @@ namespace DDMAutoGUI
             if (saveResults)
             {
                 string resultsPath = App.ResultsManager.CreateResultsFolder();
+                App.ResultsManager.AddToLog("Saving photos to results folder");
+                App.ResultsManager.CopyPhotoToResultsFolder(topImagePath, "Top");
+                App.ResultsManager.CopyPhotoToResultsFolder(sideImagePath, "Side");
                 App.ResultsManager.AddToLog("Saving settings to results folder");
                 App.SettingsManager.SaveSettingsCopyToLocal(settings, resultsPath);
-                App.ResultsManager.AddToLog("Saving results to results folder");
+                App.ResultsManager.AddToLog("Saving all results data to results folder");
                 App.ResultsManager.SaveDataToFile();
             }
 
@@ -550,8 +648,8 @@ namespace DDMAutoGUI
 
             Disp_Res_SNTxb.Text = App.ResultsManager.currentResults.ring_sn;
             var data = App.ResultsManager.currentResults.shot_data;
-            //Disp_Res_VolIDTxb.Text = $"{data.vol_id:F3} mL ({Math.Round(data.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value, 1):F1}% of target)";
-            //Disp_Res_VolODTxb.Text = $"{data.vol_od:F3} mL ({Math.Round(data.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value, 1):F1}% of target)";
+            Disp_Res_VolIDTxb.Text = $"{data.vol_id:F3} mL ({Math.Round(data.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value, 1):F1}% of target)";
+            Disp_Res_VolODTxb.Text = $"{data.vol_od:F3} mL ({Math.Round(data.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value, 1):F1}% of target)";
             Dispense_GoToStep(2);
 
             // Clean up
@@ -1606,7 +1704,7 @@ namespace DDMAutoGUI
             App.advancedOptions.dispenseOptions.sidePhoto = Adv_Opt_Disp_SidePhotoChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.ringHeight = Adv_Opt_Disp_RingHeightChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.dispense = Adv_Opt_Disp_DispChk.IsChecked ?? false;
-            //App.advancedOptions.dispenseOptions.autocalibrate = Adv_Opt_Disp_AutoCalibChk.IsChecked ?? false;
+            App.advancedOptions.dispenseOptions.autocalibrate = Adv_Opt_Disp_AutoCalibChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.magnetPolarity = Adv_Opt_Disp_MagPolChk.IsChecked ?? false;
         }
 
