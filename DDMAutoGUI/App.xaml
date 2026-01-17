@@ -226,7 +226,7 @@
         
         <Style TargetType="TabItem" x:Key="MainTab">
             <Setter Property="Width" Value="120"/>
-            <Setter Property="Height" Value="70"/>
+            <Setter Property="Height" Value="50"/>
             <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
 
             <Setter Property="Template">
@@ -238,23 +238,23 @@
                                     BorderBrush="{TemplateBinding BorderBrush}" 
                                     Cursor="Hand"
                                     BorderThickness="1,1,1,1" 
-                                    CornerRadius="6,0,0,6"
-                                    Padding="12,6,6,6"
-                                    Margin="6,0,-1,-1"
-                                    Panel.ZIndex="1">
-                                <StackPanel x:Name="mainPanel"
+                                    CornerRadius="0"
+                                    Padding="12"
+                                    Margin="4,0,-1,-1">
+
+                                    <StackPanel x:Name="mainPanel"
                                             Orientation="Horizontal" 
                                             VerticalAlignment="Center"
                                             HorizontalAlignment="Left">
                                     <Image 
                                         Width="18"
                                         Height="18"
-                                        Margin="0,0,4,0"
+                                        Margin="0,0,8,0"
                                         Source="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=Tag}"/>
                                     <ContentPresenter x:Name="mainLabel" ContentSource="Header">
                                         <ContentPresenter.Resources>
                                             <Style TargetType="TextBlock">
-                                                <!--<Setter Property="Margin" Value="0,1,0,0"/>-->
+                                                <Setter Property="Margin" Value="0,1,0,0"/>
                                                 <!--<Setter Property="FontWeight" Value="Bold"/>-->
                                                 <Setter Property="FontSize" Value="12"/>
                                             </Style>
@@ -268,8 +268,14 @@
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter Property="Background" Value="White" />
                                 <Setter TargetName="mainBorder" Property="BorderThickness" Value="1,1,0,1"/>
-                                <Setter TargetName="mainBorder" Property="Margin" Value="0,0,-1,-1"/>
-                                <Setter TargetName="mainBorder" Property="Panel.ZIndex" Value="100"/>
+                                <Setter TargetName="mainBorder" Property="Padding" Value="16"/>
+                                <Setter TargetName="mainBorder" Property="Margin" Value="0,-2,-1,-3"/>
+                                
+                                <Setter TargetName="mainLabel" Property="Panel.ZIndex" Value="100"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="False">
+                                
+                                <Setter TargetName="mainLabel" Property="Panel.ZIndex" Value="1"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <!--<Setter Property="Background" Value="#fff" />-->
@@ -1056,7 +1062,7 @@
             <!--<Setter Property="Background" Value="WhiteSmoke"/>-->
             <Style.Resources>
                 <Style TargetType="TextBlock">
-                    <Setter Property="Foreground" Value="#999"/>
+                    <Setter Property="Foreground" Value="#FFF"/>
                     <Setter Property="FontSize" Value="10"/>
                     <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
                     <Setter Property="VerticalAlignment" Value="Center"/>

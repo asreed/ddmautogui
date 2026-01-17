@@ -85,8 +85,8 @@ namespace DDMAutoGUI
                 Adv_Con_RobotSendBtn,
                 //Adv_Cell_AutoStartBtn,
                 //Adv_Cell_AutoStopBtn,
-                Adv_Cell_EStopBtn,
-                Adv_Cell_ECloseValvesBtn,
+                //Adv_Cell_EStopBtn,
+                //Adv_Cell_ECloseValvesBtn,
 
             };
 
@@ -99,6 +99,7 @@ namespace DDMAutoGUI
             Cal_AllControlsTcl.Visibility = Visibility.Collapsed;
             Disp_ProcessPrg.Value = 0;
 
+            AdvTab.Visibility = Visibility.Collapsed;
             //Con_ErrorMsgTxb.Visibility = Visibility.Collapsed;
 
             string savedIP = App.LocalDataManager.localData.controller_ip;
@@ -135,13 +136,18 @@ namespace DDMAutoGUI
 
             string topImagePath = string.Empty;
             string sideImagePath = string.Empty;
+            string topAfterImagePath = string.Empty;
 
             bool errorEncountered = false;
             string errorMessage = string.Empty;
             string displayMessage = string.Empty;
             bool saveResults = false; // only save results if dispense step is reached
 
-            int sysID, sysOD;
+            int sysID = 0;
+            int sysOD = 0;
+
+            float pressureID = 0f;
+            float pressureOD = 0f;
 
             string tb = "  "; // for log formatting
 
@@ -208,7 +214,7 @@ namespace DDMAutoGUI
                 App.ResultsManager.AddToLog($"Dispense process started for motor {motorName}");
 
 
-                if (App.advancedOptions.dispenseOptions.healthCheck)
+                if (App.advancedOptions.dispenseOptions.checkHealth)
                 {
                     App.ResultsManager.AddToLog("Checking system health...");
                     HealthResult healthResult = await App.ControllerManager.CheckSystemHealth();
@@ -230,125 +236,13 @@ namespace DDMAutoGUI
                 Disp_ProcessPrg.Value = 5;
 
 
-
-                App.ResultsManager.AddToLog("Enabling power...");
-                response = await App.ControllerManager.EnablePower();
-                if (response != "1")
-                {
-                    throw new Exception("Failed to enable power");
-                } else
-                {
-                    App.ResultsManager.AddToLog("Power enabled");
-                }
-
-                App.ResultsManager.AddToLog("Homing...");
-                response = await App.ControllerManager.Home();
-                if (response != "0")
-                {
-                    throw new Exception("Failed to home");
-                }
-                else
-                {
-                    App.ResultsManager.AddToLog("Homed");
-                }
-
-                Disp_ProcessPrg.Value = 10;
-
-
-
-                if (App.advancedOptions.dispenseOptions.topPhoto)
-                {
-                    App.ResultsManager.AddToLog("Acquiring top photo...");
-                    x = settings.ddm_common.camera_top.x.Value;
-                    t = settings.ddm_common.camera_top.t.Value;
-                    response = await App.ControllerManager.MoveJ(x, t);
-                    
-                    CameraAcquisitionResult camResult = await App.CameraManager.AcquireAndSave(CameraManager.CellCamera.top, null);
-
-                    if (!camResult.success)
-                    {
-                        throw new Exception($"Top camera acquisition failed: {camResult.errorMsg}");
-                    }
-                    else
-                    {
-                        topImagePath = camResult.filePath;
-                        App.ResultsManager.AddToLog($"Top photo acquired");
-                    }
-                }
-                Disp_ProcessPrg.Value = 20;
-
-
-
-                if (App.advancedOptions.dispenseOptions.sidePhoto)
-                {
-                    App.ResultsManager.AddToLog("Acquiring side photo...");
-                    x = motor.camera_side.x.Value;
-                    t = motor.camera_side.t.Value;
-                    response = await App.ControllerManager.MoveJ(x, t);
-
-                    CameraAcquisitionResult camResult = await App.CameraManager.AcquireAndSave(CameraManager.CellCamera.side, null);
-
-                    if (!camResult.success)
-                    {
-                        throw new Exception($"Top camera acquisition failed: {camResult.errorMsg}");
-                    }
-                    else
-                    {
-                        sideImagePath = camResult.filePath;
-                        App.ResultsManager.AddToLog($"Side photo acquired");
-                    }
-                }
-                Disp_ProcessPrg.Value = 30;
-
-
-
-
-                // SET PRESSURES HERE?
-
-
-
-
-                if (App.advancedOptions.dispenseOptions.ringHeight)
-                {
-                    App.ResultsManager.AddToLog("Collecting ring height data...");
-                    x = motor.laser_ring.x.Value;
-                    t = motor.laser_ring.t.Value;
-                    response = await App.ControllerManager.MoveJ(x, t);
-
-                    n = motor.laser_ring_num.Value;
-                    d = settings.laser_delay.Value;
-                    response = await App.ControllerManager.MeasureHeights(x, t, n, d);
-
-                    App.ResultsManager.currentResults.ring_heights = App.ControllerManager.ParseHeightData(response);
-                    App.ResultsManager.AddToLog("Ring height data collected");
-                    Disp_ProcessPrg.Value = 35;
-
-                    App.ResultsManager.AddToLog("Collecting magnet/concentrator height data...");
-                    x = motor.laser_mag.x.Value;
-                    t = motor.laser_mag.t.Value;
-                    response = await App.ControllerManager.MoveJ(x, t);
-
-                    n = motor.laser_mag_num.Value;
-                    d = settings.laser_delay.Value;
-                    response = await App.ControllerManager.MeasureHeights(x, t, n, d);
-
-                    App.ResultsManager.currentResults.mag_heights = App.ControllerManager.ParseHeightData(response);
-                    App.ResultsManager.AddToLog("Magnet/concentrator height data collected");
-
-                }
-                Disp_ProcessPrg.Value = 40;
-
-
-
                 if (App.advancedOptions.dispenseOptions.dispense)
                 {
-
-                    App.ResultsManager.AddToLog("Setting dispense system pressures...");
+                    App.ResultsManager.AddToLog($"Setting dispense system pressures for {motorName}...");
 
                     sysID = motor.shot_settings.sys_num_id.Value;
                     sysOD = motor.shot_settings.sys_num_od.Value;
 
-                    float pressureID, pressureOD;
                     pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
                     pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
 
@@ -393,6 +287,118 @@ namespace DDMAutoGUI
                     App.ResultsManager.AddToLog("Pressures set");
 
 
+                }
+
+
+
+                App.ResultsManager.AddToLog("Enabling power...");
+                response = await App.ControllerManager.EnablePower();
+                if (response != "1")
+                {
+                    throw new Exception("Failed to enable power");
+                }
+                else
+                {
+                    App.ResultsManager.AddToLog("Power enabled");
+                }
+
+                App.ResultsManager.AddToLog("Homing...");
+                response = await App.ControllerManager.Home();
+                if (response != "0")
+                {
+                    throw new Exception("Failed to home");
+                }
+                else
+                {
+                    App.ResultsManager.AddToLog("Homed");
+                }
+
+                Disp_ProcessPrg.Value = 10;
+
+
+
+                if (App.advancedOptions.dispenseOptions.photoTop)
+                {
+                    App.ResultsManager.AddToLog("Acquiring preprocess top photo...");
+                    x = settings.ddm_common.camera_top.x.Value;
+                    t = settings.ddm_common.camera_top.t.Value;
+                    response = await App.ControllerManager.MoveJ(x, t);
+
+                    CameraAcquisitionResult camResult = await App.CameraManager.AcquireAndSave(CameraManager.CellCamera.top, null);
+
+                    if (!camResult.success)
+                    {
+                        throw new Exception($"Preprocess top camera acquisition failed: {camResult.errorMsg}");
+                    }
+                    else
+                    {
+                        topImagePath = camResult.filePath;
+                        App.ResultsManager.AddToLog($"Preprocess top photo acquired");
+                    }
+                }
+                Disp_ProcessPrg.Value = 20;
+
+
+
+                if (App.advancedOptions.dispenseOptions.photoSide)
+                {
+                    App.ResultsManager.AddToLog("Acquiring side photo...");
+                    x = motor.camera_side.x.Value;
+                    t = motor.camera_side.t.Value;
+                    response = await App.ControllerManager.MoveJ(x, t);
+
+                    CameraAcquisitionResult camResult = await App.CameraManager.AcquireAndSave(CameraManager.CellCamera.side, null);
+
+                    if (!camResult.success)
+                    {
+                        throw new Exception($"Side camera acquisition failed: {camResult.errorMsg}");
+                    }
+                    else
+                    {
+                        sideImagePath = camResult.filePath;
+                        App.ResultsManager.AddToLog($"Side photo acquired");
+                    }
+                }
+                Disp_ProcessPrg.Value = 30;
+
+
+                if (App.advancedOptions.dispenseOptions.measureHeights)
+                {
+                    App.ResultsManager.AddToLog("Collecting ring height data...");
+                    x = motor.laser_ring.x.Value;
+                    t = motor.laser_ring.t.Value;
+                    response = await App.ControllerManager.MoveJ(x, t);
+
+                    n = motor.laser_ring_num.Value;
+                    d = settings.laser_delay.Value;
+                    response = await App.ControllerManager.MeasureHeights(x, t, n, d);
+
+                    // Save results if any height data is collected (for now?)
+                    saveResults = true;
+
+                    App.ResultsManager.currentResults.ring_heights = App.ControllerManager.ParseHeightData(response);
+                    App.ResultsManager.AddToLog("Ring height data collected");
+                    Disp_ProcessPrg.Value = 35;
+
+                    App.ResultsManager.AddToLog("Collecting magnet/concentrator height data...");
+                    x = motor.laser_mag.x.Value;
+                    t = motor.laser_mag.t.Value;
+                    response = await App.ControllerManager.MoveJ(x, t);
+
+                    n = motor.laser_mag_num.Value;
+                    d = settings.laser_delay.Value;
+                    response = await App.ControllerManager.MeasureHeights(x, t, n, d);
+
+                    App.ResultsManager.currentResults.mag_heights = App.ControllerManager.ParseHeightData(response);
+                    App.ResultsManager.AddToLog("Magnet/concentrator height data collected");
+
+                }
+                Disp_ProcessPrg.Value = 40;
+
+
+
+                if (App.advancedOptions.dispenseOptions.dispense)
+                {
 
                     float xID = motor.disp_id.x.Value;
                     float tID = motor.disp_id.t.Value;
@@ -400,6 +406,10 @@ namespace DDMAutoGUI
                     float tOD = motor.disp_od.t.Value;
                     float targetTimeID = motor.shot_settings.target_vol_id.Value / motor.shot_settings.target_flow_id.Value;
                     float targetTimeOD = motor.shot_settings.target_vol_od.Value / motor.shot_settings.target_flow_od.Value;
+
+                    App.ResultsManager.AddToLog("Waiting for pressures to stabilize...");
+                    response = await App.ControllerManager.WaitBothRegPressures(5);
+                    App.ResultsManager.AddToLog("Pressures stabilized");
 
                     App.ResultsManager.AddToLog("Dispensing cyanoacrylate...");
                     response = await App.ControllerManager.DispenseToRing(
@@ -497,8 +507,6 @@ namespace DDMAutoGUI
                     sysID = motor.shot_settings.sys_num_id.Value;
                     sysOD = motor.shot_settings.sys_num_od.Value;
 
-
-                    float pressureID, pressureOD;
                     pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
                     pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
 
@@ -522,6 +530,7 @@ namespace DDMAutoGUI
                     if (_pressure1 != null)
                     {
                         App.ResultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1:F3} psi");
+                        response = await App.ControllerManager.SetRegPressure(1, _pressure1.Value);
                     }
                     else
                     {
@@ -530,6 +539,7 @@ namespace DDMAutoGUI
                     if (_pressure2 != null)
                     {
                         App.ResultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2:F3} psi");
+                        response = await App.ControllerManager.SetRegPressure(2, _pressure2.Value);
                     }
                     else
                     {
@@ -541,7 +551,7 @@ namespace DDMAutoGUI
 
 
 
-                if (App.advancedOptions.dispenseOptions.magnetPolarity)
+                if (App.advancedOptions.dispenseOptions.checkPolarity)
                 {
                     App.ResultsManager.AddToLog("Checking magnet polarity...");
                     x = motor.hall_sensor.x.Value;
@@ -553,6 +563,28 @@ namespace DDMAutoGUI
                     response = await App.ControllerManager.SpinInPlace(hallTime, hallSpeed);
 
                 }
+
+
+                if (App.advancedOptions.dispenseOptions.photoTopAfter)
+                {
+                    App.ResultsManager.AddToLog("Acquiring postprocess top photo...");
+                    x = settings.ddm_common.camera_top.x.Value;
+                    t = settings.ddm_common.camera_top.t.Value;
+                    response = await App.ControllerManager.MoveJ(x, t);
+
+                    CameraAcquisitionResult camResult = await App.CameraManager.AcquireAndSave(CameraManager.CellCamera.top, null);
+
+                    if (!camResult.success)
+                    {
+                        throw new Exception($"Top camera acquisition failed: {camResult.errorMsg}");
+                    }
+                    else
+                    {
+                        topAfterImagePath = camResult.filePath;
+                        App.ResultsManager.AddToLog($"Postprocess top photo acquired");
+                    }
+                }
+                Disp_ProcessPrg.Value = 20;
 
 
 
@@ -580,6 +612,7 @@ namespace DDMAutoGUI
             catch (Exception ex)
             {
                 App.ResultsManager.AddToLog($"Process failed: {ex.Message}");
+                errorEncountered = true;
             }
 
             Disp_ProcessPrg.Value = 95;
@@ -617,9 +650,18 @@ namespace DDMAutoGUI
             if (saveResults)
             {
                 string resultsPath = App.ResultsManager.CreateResultsFolder();
-                App.ResultsManager.AddToLog("Saving photos to results folder");
-                App.ResultsManager.CopyPhotoToResultsFolder(topImagePath, "Top");
-                App.ResultsManager.CopyPhotoToResultsFolder(sideImagePath, "Side");
+                if (topImagePath != String.Empty || sideImagePath != String.Empty)
+                {
+                    App.ResultsManager.AddToLog("Saving photos to results folder");
+                }
+                if (topImagePath != String.Empty)
+                {
+                    App.ResultsManager.CopyPhotoToResultsFolder(topImagePath, "Top");
+                }
+                if (sideImagePath != String.Empty)
+                {
+                    App.ResultsManager.CopyPhotoToResultsFolder(sideImagePath, "Side");
+                }
                 App.ResultsManager.AddToLog("Saving settings to results folder");
                 App.SettingsManager.SaveSettingsCopyToLocal(settings, resultsPath);
                 App.ResultsManager.AddToLog("Saving all results data to results folder");
@@ -648,13 +690,16 @@ namespace DDMAutoGUI
 
             Disp_Res_SNTxb.Text = App.ResultsManager.currentResults.ring_sn;
             var data = App.ResultsManager.currentResults.shot_data;
-            Disp_Res_VolIDTxb.Text = $"{data.vol_id:F3} mL ({Math.Round(data.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value, 1):F1}% of target)";
-            Disp_Res_VolODTxb.Text = $"{data.vol_od:F3} mL ({Math.Round(data.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value, 1):F1}% of target)";
+            if (data != null && data.vol_id != null && data.vol_od != null)
+            {
+                Disp_Res_VolIDTxb.Text = $"{data.vol_id:F3} mL ({Math.Round(data.vol_id.Value * 100 / motor.shot_settings.target_vol_id.Value, 1):F1}% of target)";
+                Disp_Res_VolODTxb.Text = $"{data.vol_od:F3} mL ({Math.Round(data.vol_od.Value * 100 / motor.shot_settings.target_vol_od.Value, 1):F1}% of target)";
+            }
             Dispense_GoToStep(2);
 
             // Clean up
             App.ResultsManager.UpdateProcessLog -= MainWindowSingle_Disp_UpdateProcessLog;
-            App.ResultsManager.ClearCurrentResults();
+            //App.ResultsManager.ClearCurrentResults();
 
             return;
 
@@ -1699,13 +1744,14 @@ namespace DDMAutoGUI
             App.advancedOptions.connectionOptions.laserSensor = Adv_Opt_Con_LaserChk.IsChecked ?? false;
             App.advancedOptions.connectionOptions.daqDevice = Adv_Opt_Con_DAQChk.IsChecked ?? false;
 
-            App.advancedOptions.dispenseOptions.healthCheck = Adv_Opt_Disp_HealthChk.IsChecked ?? false;
-            App.advancedOptions.dispenseOptions.topPhoto = Adv_Opt_Disp_TopPhotoChk.IsChecked ?? false;
-            App.advancedOptions.dispenseOptions.sidePhoto = Adv_Opt_Disp_SidePhotoChk.IsChecked ?? false;
-            App.advancedOptions.dispenseOptions.ringHeight = Adv_Opt_Disp_RingHeightChk.IsChecked ?? false;
+            App.advancedOptions.dispenseOptions.checkHealth = Adv_Opt_Disp_HealthChk.IsChecked ?? false;
+            App.advancedOptions.dispenseOptions.photoTop = Adv_Opt_Disp_TopPhotoChk.IsChecked ?? false;
+            App.advancedOptions.dispenseOptions.photoSide = Adv_Opt_Disp_SidePhotoChk.IsChecked ?? false;
+            App.advancedOptions.dispenseOptions.measureHeights = Adv_Opt_Disp_RingHeightChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.dispense = Adv_Opt_Disp_DispChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.autocalibrate = Adv_Opt_Disp_AutoCalibChk.IsChecked ?? false;
-            App.advancedOptions.dispenseOptions.magnetPolarity = Adv_Opt_Disp_MagPolChk.IsChecked ?? false;
+            App.advancedOptions.dispenseOptions.checkPolarity = Adv_Opt_Disp_MagPolChk.IsChecked ?? false;
+            App.advancedOptions.dispenseOptions.photoTopAfter = Adv_Opt_Disp_TopPhotoAfterChk.IsChecked ?? false;
         }
 
 
@@ -2578,6 +2624,24 @@ namespace DDMAutoGUI
         private void Adv_DAQ_GetA0TimedBtn_Click(object sender, RoutedEventArgs e)
         {
             //App.DAQManager.GetVoltageTimed();
+        }
+
+        private void Dev_Btn_Click(object sender, RoutedEventArgs e)
+        {
+            MainTabControl.SelectedIndex = 4;
+        }
+
+        private void Disp_Res_ViewResBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string data_string = App.ResultsManager.GetCurrentResultsAsString();
+
+            TextDataViewer viewer = new TextDataViewer();
+            if (data_string != null)
+            {
+                viewer.Owner = this;
+                viewer.PopulateData(data_string, "Results Data");
+                viewer.ShowDialog();
+            }
         }
     }
 }

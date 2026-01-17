@@ -110,26 +110,39 @@ namespace DDMAutoGUI.utilities
                 return;
             }
 
-            float vol_id = results.shot_data.vol_id.Value;
-            float vol_od = results.shot_data.vol_od.Value;
-            float target_vol_id = motorSettings.shot_settings.target_vol_id.Value;
-            float target_vol_od = motorSettings.shot_settings.target_vol_od.Value;
-            float dev_id = settings.dispense_pass_criteria.max_id_vol_dev_percent.Value;
-            float dev_od = settings.dispense_pass_criteria.max_od_vol_dev_percent.Value;
-
-            if (Math.Abs(target_vol_id - vol_id) / target_vol_id * 100 > dev_id)
+            if (results.shot_data.motor_type == null)
             {
-                message = $"ID volume {vol_id:F3} mL is outside of acceptable deviation {dev_id:F1}% from target {target_vol_id:F3} mL";
-                return;
-            }
-            if (Math.Abs(target_vol_od - vol_od) / target_vol_od * 100 > dev_od)
-            {
-                message = $"OD volume {vol_id:F3} mL is outside of acceptable deviation {dev_id:F1}% from target {target_vol_id:F3} mL";
+                message = "No shot data available";
                 return;
             }
 
-            pass = true;
-            message = "Process completed successfully";
+            try
+            {
+                float vol_id = results.shot_data.vol_id.Value;
+                float vol_od = results.shot_data.vol_od.Value;
+                float target_vol_id = motorSettings.shot_settings.target_vol_id.Value;
+                float target_vol_od = motorSettings.shot_settings.target_vol_od.Value;
+                float dev_id = settings.dispense_pass_criteria.max_id_vol_dev_percent.Value;
+                float dev_od = settings.dispense_pass_criteria.max_od_vol_dev_percent.Value;
+
+                if (Math.Abs(target_vol_id - vol_id) / target_vol_id * 100 > dev_id)
+                {
+                    message = $"ID volume {vol_id:F3} mL is outside of acceptable deviation {dev_id:F1}% from target {target_vol_id:F3} mL";
+                    return;
+                }
+                if (Math.Abs(target_vol_od - vol_od) / target_vol_od * 100 > dev_od)
+                {
+                    message = $"OD volume {vol_id:F3} mL is outside of acceptable deviation {dev_id:F1}% from target {target_vol_id:F3} mL";
+                    return;
+                }
+
+                pass = true;
+                message = "Process completed successfully";
+            } catch
+            {
+                message = "Unknown error processing shot data";
+                return;
+            }
         }
 
 
@@ -255,6 +268,12 @@ namespace DDMAutoGUI.utilities
                 sb.Append('\n');
             }
             return sb.ToString();
+        }
+
+        public string GetCurrentResultsAsString()
+        {
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            return JsonSerializer.Serialize<Results>(currentResults, options);
         }
 
 

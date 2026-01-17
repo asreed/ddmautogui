@@ -1071,6 +1071,12 @@ namespace DDMAutoGUI.utilities
             return await SendRobotCommand(input);
         }
 
+        public async Task<string> WaitBothRegPressures(float timeout)
+        {
+            string input = $"DDM_WaitBothRegPressures {timeout}";
+            return await SendRobotCommand(input);
+        }
+
         public async Task<string> GetRegPressure(int index)
         {
             string input = $"DDM_GetRegPressure {index}";

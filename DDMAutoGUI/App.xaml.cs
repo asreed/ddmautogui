@@ -61,13 +61,14 @@ namespace DDMAutoGUI
 
     public class DispenseOptions
     {
-        public bool healthCheck { get; set; } = true;
-        public bool topPhoto { get; set; } = true;
-        public bool sidePhoto { get; set; } = true;
-        public bool ringHeight { get; set; } = true;
+        public bool checkHealth { get; set; } = true;
+        public bool photoTop { get; set; } = true;
+        public bool photoSide { get; set; } = true;
+        public bool measureHeights { get; set; } = true;
         public bool dispense { get; set; } = true;
         public bool autocalibrate { get; set; } = true;
-        public bool magnetPolarity { get; set; } = true;
+        public bool checkPolarity { get; set; } = true;
+        public bool photoTopAfter { get; set; } = true;
         public DispenseOptions() { }
     }
 

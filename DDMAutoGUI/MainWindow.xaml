@@ -5,13 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DDMAutoGUI"
         mc:Ignorable="d"
-        Title="DDM Automation Cell Manager" Height="750" Width="1024" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="WhiteSmoke">
+        Title="DDM Automation Cell Manager" Height="750" Width="1024" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="#bbb">
 
     <Grid Margin="4">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -28,10 +29,10 @@
 
         </Grid>
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Grid.RowSpan="2">
 
-            <TabControl TabStripPlacement="Left">
-                <TabItem Header="Connect" Tag="Resources/icons/tree.ico"  Style="{StaticResource MainTab}">
+            <TabControl x:Name="MainTabControl" TabStripPlacement="Left">
+                <TabItem Header="Connect" Tag="Resources/icons/tree.ico" Style="{StaticResource MainTab}">
 
                     <Grid Margin="4">
 
@@ -324,6 +325,7 @@
                                                         </Grid>
                                                     </GroupBox>
                                                     <StackPanel Grid.Row="3" Orientation="Vertical">
+                                                        <Button x:Name="Disp_Res_ViewResBtn"  Content="View Detailed Results" Click="Disp_Res_ViewResBtn_Click"/>
                                                         <Button x:Name="Disp_Res_FinishBtn" Click="Disp_Res_FinishBtn_Click" Content="Finish" Style="{DynamicResource BlueButton}">
                                                             <!--<StackPanel Orientation="Horizontal">
                                                                 <Image Source="/Resources/icons/tools.ico"/>
@@ -351,7 +353,7 @@
                 <TabItem x:Name="CalibTab" Header="Calibrate" Tag="Resources/icons/centerpoint.ico" Style="{StaticResource MainTab}">
 
                     <Grid Margin="4">
-                        <Border x:Name="Cal_PWEntryBdr" Background="WhiteSmoke" Visibility="Collapsed">
+                        <Border x:Name="Cal_PWEntryBdr" Background="White" Visibility="Collapsed">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -532,10 +534,51 @@
                 </TabItem>
 
 
-                <TabItem x:Name="AdvTab" Header="Developer" Tag="Resources/icons/settings.ico" Style="{StaticResource MainTab}" Height="30">
 
-                    <Grid Margin="4">
-                        <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Visibility="Collapsed">
+                <TabItem x:Name="AboutTab" Header="About" Tag="Resources/icons/infocircle.ico" Style="{StaticResource MainTab}">
+                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                        <Grid Margin="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <Image Source="/resources/logos/b.ico" Width="50" VerticalAlignment="Top" Margin="0,6,0,0"/>
+
+                            <Grid Grid.Column="1" VerticalAlignment="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <Label Grid.Row="0" 
+                                       Content="DDM Automation Cell Manager" 
+                                       Padding="0" 
+                                       Foreground="{StaticResource BrooksBlue}" 
+                                       FontSize="18"
+                                       />
+
+                                <TextBlock Grid.Row="1"
+                                           Name="Adv_Abt_InfoTxb" 
+                                           Text="(application info)" 
+                                           Padding="0" 
+                                           TextWrapping="Wrap" 
+                                           Foreground="{StaticResource BrooksBlue}" 
+                                           FontSize="10" VerticalAlignment="Top"/>
+
+                            </Grid>
+                        </Grid>
+                    </Grid>
+
+                </TabItem>
+
+                <TabItem x:Name="AdvTab" Header="Dev" Tag="Resources/icons/settings.ico" Style="{StaticResource MainTab}" Visibility="Visible">
+
+                    <Grid Background="#222" Margin="-2">
+                        <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Margin="8" Visibility="Hidden">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -570,7 +613,8 @@
                                 </GroupBox>
                             </Grid>
                         </Border>
-                        <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="4">
+
+                        <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="8"  Background="WhiteSmoke">
 
                             <TabItem Header="Options">
                                 <StackPanel Orientation="Vertical" Margin="6">
@@ -586,13 +630,14 @@
                                     </GroupBox>
                                     <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">
                                         <StackPanel Orientation="Vertical">
-                                            <CheckBox x:Name="Adv_Opt_Disp_HealthChk" Content="Health Check" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk" Content="Top Photo" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk" Content="Side Photo" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Ring &amp; Mag/Conc Height" IsChecked="False"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_HealthChk" Content="Check Health" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk" Content="Photo Top" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk" Content="Photo Side" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Measure Heights" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_DispChk" Content="Dispense" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="False"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Magnet Polarity" IsChecked="False"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Measure Polarity" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoAfterChk" Content="Photo Top After" IsChecked="True"/>
                                         </StackPanel>
                                     </GroupBox>
                                 </StackPanel>
@@ -689,12 +734,12 @@
                                                 <TextBlock Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_PACVersionLbl" Text="-"/>
                                             </Grid>
                                         </GroupBox>
-                                        <GroupBox Header="Emergency" Grid.Column="3">
+                                        <!--<GroupBox Header="Emergency" Grid.Column="3">
                                             <StackPanel Orientation="Horizontal" Grid.Column="1">
                                                 <Button x:Name="Adv_Cell_EStopBtn" Content="E STOP" Style="{DynamicResource RedButton}" Padding="10" Click="Adv_Cell_EStopBtn_Click" VerticalAlignment="Top"/>
                                                 <Button x:Name="Adv_Cell_ECloseValvesBtn" Content="CLOSE VALVES" Style="{DynamicResource RedButton}" Padding="10" Click="Adv_Cell_ECloseValvesBtn_Click" VerticalAlignment="Top"/>
                                             </StackPanel>
-                                        </GroupBox>
+                                        </GroupBox>-->
                                     </Grid>
 
                                     <Grid Grid.Row="1" x:Name="robotBtnContainer">
@@ -1416,51 +1461,19 @@
 
                 </TabItem>
 
-                <TabItem x:Name="AboutTab" Header="About" Tag="Resources/icons/infocircle.ico" Style="{StaticResource MainTab}" Height="30">
-                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-
-                        <Grid Margin="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="60"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-
-                            <Image Source="/resources/logos/b.ico" Width="40" VerticalAlignment="Top" Margin="0,6,0,0"/>
-
-                            <Grid Grid.Column="1" VerticalAlignment="Center">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-
-                                <Label Grid.Row="0" 
-                                       Content="DDM Automation Cell Manager" 
-                                       Padding="0" 
-                                       Foreground="{StaticResource BrooksBlue}" 
-                                       FontSize="18"
-                                       />
-
-                                <TextBlock Grid.Row="1"
-                                           Name="Adv_Abt_InfoTxb" 
-                                           Text="(application info)" 
-                                           Padding="0" 
-                                           TextWrapping="Wrap" 
-                                           Foreground="{StaticResource BrooksBlue}" 
-                                           FontSize="10" VerticalAlignment="Top"/>
-
-                            </Grid>
-                        </Grid>
-                    </Grid>
-
-                </TabItem>
-
-
             </TabControl>
         </Grid>
 
-        <Grid Grid.Row="2" Style="{StaticResource StatusBarBottom}">
+        <Grid Grid.Row="2">
+            <Button 
+                x:Name="Dev_Btn"
+                Click="Dev_Btn_Click"
+                Content="Dev" 
+                HorizontalAlignment="Left" 
+                Style="{StaticResource SmallButton}"/>
+        </Grid>
+
+        <Grid Grid.Row="3" Style="{StaticResource StatusBarBottom}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition/>
