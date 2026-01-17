@@ -662,6 +662,10 @@ namespace DDMAutoGUI
                 {
                     App.ResultsManager.CopyPhotoToResultsFolder(sideImagePath, "Side");
                 }
+                if (topAfterImagePath != String.Empty)
+                {
+                    App.ResultsManager.CopyPhotoToResultsFolder(topAfterImagePath, "Top Post");
+                }
                 App.ResultsManager.AddToLog("Saving settings to results folder");
                 App.SettingsManager.SaveSettingsCopyToLocal(settings, resultsPath);
                 App.ResultsManager.AddToLog("Saving all results data to results folder");
