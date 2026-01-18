@@ -27,7 +27,7 @@
                     <TextBox 
                         Name="LocalDataTxt" 
                         Text="--" 
-                        IsReadOnly="True"
+                        IsReadOnly="False"
                         Style="{StaticResource MonoTextBox}"/>
                 </Grid>
             </TabItem>

@@ -1,6 +1,13 @@
 ﻿{
   "releases": [
     {
+      "version": "1.2.2",
+      "releaseDate": "2026-01-18",
+      "releaseIntent": "ENGINEERING ONLY",
+      "releaseDisplayNotes": "Intended for Gen 1 Phase 1b cell built for production.",
+      "releaseNotes": "Changes to make dispense process and autocalibration more robust. Results data udpated to include more reference information for easier analysis. TCS updated. Various minor bug fixes and visual improvements."
+    },
+    {
       "version": "1.2.1",
       "releaseDate": "2025-12-19",
       "releaseIntent": "ENGINEERING ONLY",

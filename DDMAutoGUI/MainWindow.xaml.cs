@@ -232,6 +232,9 @@ namespace DDMAutoGUI
                     {
                         App.ResultsManager.AddToLog("System OK");
                     }
+
+                    response = await App.ControllerManager.SetZeroShift(3);
+                    response = await App.ControllerManager.WaitBothRegPressures(5);
                 }
                 Disp_ProcessPrg.Value = 5;
 
@@ -284,6 +287,17 @@ namespace DDMAutoGUI
                     {
                         App.ResultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
                     }
+
+
+
+                    App.ResultsManager.AddToLog("Waiting for pressures to settle...");
+                    response = await App.ControllerManager.WaitBothRegPressures(10);
+                    await Task.Delay(1000);
+                    App.ResultsManager.AddToLog("Pressures settled");
+                    App.ResultsManager.AddToLog("Zeroing flow sensors...");
+                    response = await App.ControllerManager.SetZeroShift(3);
+                    App.ResultsManager.AddToLog("Flow sensors zeroed");
+
                     App.ResultsManager.AddToLog("Pressures set");
 
 
@@ -2250,19 +2264,19 @@ namespace DDMAutoGUI
             LockRobotButtons(false);
         }
 
-        private async void Adv_Cell_MoveSpinBtn_Click(object sender, RoutedEventArgs e)
-        {
-            LockRobotButtons(true);
+        //private async void Adv_Cell_MoveSpinBtn_Click(object sender, RoutedEventArgs e)
+        //{
+        //    LockRobotButtons(true);
 
-            CSMotor m = App.SettingsManager.GetSettingsForSelectedSize();
-            float time = m.post_spin_time.Value;
-            float speed = m.post_spin_speed.Value;
+        //    CSMotor m = App.SettingsManager.GetSettingsForSelectedSize();
+        //    float time = m.post_spin_time.Value;
+        //    float speed = m.post_spin_speed.Value;
 
-            string response = await App.ControllerManager.SpinInPlace(time, speed);
-            //Adv_Cell_MoveSpinOutLbl.Content = response;
+        //    string response = await App.ControllerManager.SpinInPlace(time, speed);
+        //    //Adv_Cell_MoveSpinOutLbl.Content = response;
 
-            LockRobotButtons(false);
-        }
+        //    LockRobotButtons(false);
+        //}
 
         private async void Adv_Cell_MeasureRingBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -2653,6 +2667,85 @@ namespace DDMAutoGUI
         private void Disp_Res_OpenFileBtn_Click(object sender, RoutedEventArgs e)
         {
             App.ResultsManager.OpenBrowserToDirectory();
+        }
+
+        private void MainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.Source is TabControl)
+            {
+                TabControl tc = (TabControl)sender;
+                switch (tc.SelectedIndex)
+                {
+                    case 0:
+                        // Connection Tab
+
+                        break;
+
+                    case 1:
+                        // Dispense Tab
+
+                        break;
+
+                    case 2:
+                        // Calibration Tab
+
+                        Calib_Flow_116_CalibPrg.Visibility = Visibility.Collapsed;
+                        Calib_Flow_116_DecideGrd.Visibility = Visibility.Collapsed;
+
+
+                        try
+                        {
+                            // Fill in flow calibration info
+                            CellSettings settings = App.SettingsManager.GetAllSettings();
+                            LocalData localData = App.LocalDataManager.localData;
+
+
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.Print("Error populating flow calibration data: " + ex.Message);
+                        }
+
+                        break;
+
+                    case 3:
+                        // Dev Tab
+
+                        break;
+                }
+            }
+        }
+
+        private void Calib_Flow_116_AcceptBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Calib_Flow_116_RejectBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Calib_Flow_116_CalibBtn_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Calib_Flow_116_CalibBtn.IsEnabled = false;
+                Calib_Flow_116_CalibPrg.Visibility = Visibility.Visible;
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                Debug.Print("Error during flow calibration: " + ex.Message);
+
+            }
+
+            Calib_Flow_116_CalibBtn.IsEnabled = true;
+            Calib_Flow_116_CalibPrg.Visibility = Visibility.Collapsed;
         }
     }
 }

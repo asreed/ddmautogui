@@ -126,7 +126,9 @@ namespace DDMAutoGUI.windows
 
         private void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
-            App.LocalDataManager.SaveLocalDataToFile();
+            LocalData newData = App.LocalDataManager.DeserializeLocalDataFromString(LocalDataTxt.Text);
+            App.LocalDataManager.localData = newData;
+            App.LocalDataManager.SaveLocalDataToFile(newData);
             PopulateLocalDataTree(App.LocalDataManager.localData);
             PopulateRawLocalData(App.LocalDataManager.localData);
         }

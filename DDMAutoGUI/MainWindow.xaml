@@ -31,7 +31,7 @@
 
         <Grid Grid.Row="1" Grid.RowSpan="2">
 
-            <TabControl x:Name="MainTabControl" TabStripPlacement="Left">
+            <TabControl x:Name="MainTabControl" TabStripPlacement="Left" SelectionChanged="MainTabControl_SelectionChanged">
                 <TabItem Header="Connect" Tag="Resources/icons/tree.ico" Style="{StaticResource MainTab}">
 
                     <Grid Margin="4">
@@ -67,7 +67,7 @@
                                         <Button Grid.Column="1" 
                                                 x:Name="Con_ConnectBtn" 
                                                 Content="Connect" 
-                                                Width="100"
+                                                Width="110"
                                                 Click="Con_ConnectBtn_Click"
                                                 Style="{StaticResource BlueButton}"/>
                                         <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
@@ -390,10 +390,6 @@
                                         <TextBlock Text="3. Insert the calibration pin into the top plate (location tbd)"/>
                                         <TextBlock Text="4. Click the calibrate button below"/>
                                     </StackPanel>-->
-                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                                        <Button Style="{StaticResource BlackButton}" Content="Calibrate position" Margin="0" Click="Cal_CalPosBtn_Click"/>
-                                        <ProgressBar Visibility="Collapsed" IsIndeterminate="True" Height="5" Margin="0,4,0,0" BorderBrush="Transparent" x:Name="Cal_PosPrg"/>
-                                    </StackPanel>
 
                                     <StackPanel Orientation="Vertical" Margin="12" HorizontalAlignment="Left">
                                         <TextBlock x:Name="Cal_PosResultTxb" Text="(No result)"/>
@@ -420,8 +416,12 @@
                                         <TextBlock Grid.Row="0" Grid.Column="1" Text="x" x:Name="Cal_PosJ1Txb"/>
                                         <TextBlock Grid.Row="1" Grid.Column="1" Text="x" x:Name="Cal_PosJ2Txb"/>
                                     </Grid>
-                                    <Button Style="{StaticResource SmallButton}" Content="Update" HorizontalAlignment="Left" Click="Cal_PosUpdateBtn_Click"/>
+                                    <Button Style="{StaticResource SmallButton}" Content="Update" HorizontalAlignment="Left" Click="Cal_PosUpdateBtn_Click" IsEnabled="False"/>
 
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="0,12,0,0">
+                                        <Button Style="{StaticResource BlackButton}" Content="Calibrate position" Margin="0" Click="Cal_CalPosBtn_Click" IsEnabled="False"/>
+                                        <ProgressBar Visibility="Collapsed" IsIndeterminate="True" Height="5" Margin="0,4,0,0" BorderBrush="Transparent" x:Name="Cal_PosPrg"/>
+                                    </StackPanel>
                                 </StackPanel>
 
 
@@ -435,9 +435,6 @@
                                         <TextBlock Text="2. Place the height calibration disk onto the plate."/>
                                         <TextBlock Text="3. Click the calibrate button below"/>
                                     </StackPanel>-->
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Style="{StaticResource BlackButton}" Content="Calibrate height sensor" Margin="0"/>
-                                    </StackPanel>
                                     <Grid HorizontalAlignment="Left" Margin="6" Background="WhiteSmoke">
                                         <Grid.Resources>
                                             <Style TargetType="TextBlock">
@@ -469,53 +466,107 @@
                                         <TextBlock Grid.Row="0" Grid.Column="2" Text="phi"/>
                                         <TextBlock Grid.Row="0" Grid.Column="3" Text="R^2"/>
                                     </Grid>
+                                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                        <Button Style="{StaticResource BlackButton}" Content="Calibrate height sensor" Margin="0" IsEnabled="False"/>
+                                    </StackPanel>
                                 </StackPanel>
 
                             </TabItem>
                             <TabItem Header="Flow Rate">
 
-                                <StackPanel Orientation="Vertical" Margin="12">
-                                    <!--<StackPanel Orientation="Vertical" Margin="12">
-                                        <TextBlock Text="1. Remove all tooling."/>
-                                        <TextBlock Text="2. Place the adhesive catch tray onto the plate"/>
-                                        <TextBlock Text="3. Click the calibrate button below"/>
-                                    </StackPanel>-->
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Style="{StaticResource BlackButton}" Content="Calibrate flow rate" Margin="0"/>
-                                    </StackPanel>
+                                <TabControl Margin="4">
+                                    <TabItem Header="DDM 57">
+                                        <StackPanel Orientation="Vertical" Margin="12" Height="150">
+                                        </StackPanel>
+                                    </TabItem>
+                                    <TabItem Header="DDM 95">
+                                        <StackPanel Orientation="Vertical" Margin="12" Height="150">
+                                        </StackPanel>
+                                    </TabItem>
+                                    <TabItem Header="DDM 116">
+                                        <StackPanel Orientation="Vertical" Margin="12">
 
-                                    <Grid HorizontalAlignment="Left" Margin="6" Background="WhiteSmoke">
-                                        <Grid.Resources>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Margin" Value="4"/>
-                                                <Setter Property="VerticalAlignment" Value="Center"/>
-                                            </Style>
-                                        </Grid.Resources>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition Width="70"/>
-                                            <ColumnDefinition Width="70"/>
-                                            <ColumnDefinition Width="70"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                        </Grid.RowDefinitions>
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="DDM 57"/>
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="DDM 95"/>
-                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="DDM 116"/>
-                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="DDM 170"/>
-                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="DDM 170 Tall"/>
 
-                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Targ flow"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Real flow"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="3" Text="Pressure"/>
-                                    </Grid>
-                                </StackPanel>
+                                            <Grid Margin="0,12,0,0" Background="WHite">
+                                                <Grid.Resources>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Margin" Value="2"/>
+                                                        <Setter Property="Padding" Value="6,4"/>
+                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        <Setter Property="Background" Value="WhiteSmoke"/>
+                                                    </Style>
+                                                </Grid.Resources>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Last calibrated"/>
+                                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Target flow"/>
+                                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Reference pressure"/>
+                                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Calibrated pressure"/>
+
+
+                                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="Calib_Flow_116_DateTxb" Text=""/>
+                                                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="Calib_Flow_116_HoursTxb" Text=""/>
+                                                <TextBlock Grid.Row="3" Grid.Column="1" x:Name="Calib_Flow_116_TFlowTxb" Text=""/>
+                                                <TextBlock Grid.Row="4" Grid.Column="1" x:Name="Calib_Flow_116_RPresTxb" Text=""/>
+                                                <TextBlock Grid.Row="5" Grid.Column="1" x:Name="Calib_Flow_116_CPresTxb" Text=""/>
+
+                                            </Grid>
+
+                                            <StackPanel Orientation="Vertical" Margin="0,18,0,0">
+                                                <Button x:Name="Calib_Flow_116_CalibBtn" 
+                                                        Click="Calib_Flow_116_CalibBtn_Click"
+                                                        Style="{StaticResource BlackButton}" 
+                                                        Content="Calibrate DDM 116 flow rate" 
+                                                        Margin="0"/>
+                                                <ProgressBar x:Name="Calib_Flow_116_CalibPrg"
+                                                             Margin="4"
+                                                             Height="5"
+                                                             BorderBrush="Transparent"
+                                                             IsIndeterminate="True"
+                                                             Visibility="Visible"/>
+                                                <Grid x:Name="Calib_Flow_116_DecideGrd" Visibility="Collapsed">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Button x:Name="Calib_Flow_116_AcceptBtn" 
+                                                            Click="Calib_Flow_116_AcceptBtn_Click"
+                                                            Grid.Column="0"
+                                                            Style="{StaticResource GreenButton}" 
+                                                            Content="Accept"/>
+                                                    <Button x:Name="Calib_Flow_116_RejectBtn" 
+                                                            Click="Calib_Flow_116_RejectBtn_Click"
+                                                            Grid.Column="1"
+                                                            Style="{StaticResource RedButton}" 
+                                                            Content="Reject"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                    </TabItem>
+
+                                    <TabItem Header="DDM 170">
+                                        <StackPanel Orientation="Vertical" Margin="12" Height="150">
+                                        </StackPanel>
+                                    </TabItem>
+                                    <TabItem Header="DDM 170 Tall">
+                                        <StackPanel Orientation="Vertical" Margin="12" Height="150">
+                                        </StackPanel>
+                                    </TabItem>
+                                </TabControl>
+
+                                
 
                             </TabItem>
 

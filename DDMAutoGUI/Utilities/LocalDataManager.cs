@@ -128,11 +128,11 @@ namespace DDMAutoGUI.utilities
             return DeserializeLocalDataFromString(rawJson);
         }
 
-        public bool SaveLocalDataToFile()
+        public bool SaveLocalDataToFile(LocalData newData)
         {
             try
             {
-                string rawJson = SerializeDataFromJson(localData);
+                string rawJson = SerializeDataFromJson(newData);
                 File.WriteAllText(localDataFilePath, rawJson);
                 Debug.Print($"Local data file saved successfully");
                 return true;
@@ -142,6 +142,11 @@ namespace DDMAutoGUI.utilities
                 Debug.Print($"Error saving local data to file: {ex.Message}");
                 return false;
             }
+        }
+
+        public bool SaveLocalDataToFile()
+        {
+            return SaveLocalDataToFile(localData);
         }
 
         public string SerializeDataFromJson(LocalData data)
