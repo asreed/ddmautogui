@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DDMAutoGUI"
         mc:Ignorable="d"
-        Title="DDM Automation Cell Manager" Height="750" Width="1024" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="#bbb">
+        Title="DDM Automation Cell Manager" Height="750" Width="1024" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="#FFC2C9D6">
 
     <Grid Margin="4">
 
@@ -43,7 +43,7 @@
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="350"/>
+                            <ColumnDefinition Width="275"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
@@ -83,7 +83,7 @@
 
                                     <TextBox x:Name="Con_LogTxt" 
                                             Text=""
-                                             Height="300"
+                                             Height="250"
                                              IsReadOnly="True"
                                              VerticalScrollBarVisibility="Disabled"
                                             Style="{StaticResource MonoTextBox}"/>
@@ -151,7 +151,7 @@
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="500"/>
+                                <ColumnDefinition Width="450"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
@@ -166,56 +166,32 @@
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition/>
-                                                        <ColumnDefinition/>
                                                     </Grid.ColumnDefinitions>
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition/>
                                                         <RowDefinition/>
+                                                        <RowDefinition/>
                                                     </Grid.RowDefinitions>
 
-                                                    <GroupBox Header="Motor SN" Grid.Row="0" Grid.Column="1">
+                                                    <GroupBox Header="Motor SN" Grid.Row="0" Grid.Column="0">
                                                         <StackPanel Orientation="Vertical">
                                                             <TextBox x:Name="Disp_MotorSNTxt" Height="42"/>
                                                         </StackPanel>
                                                     </GroupBox>
 
-                                                    <!--<Expander Header="Simulate" Margin="0,6,0,6" Padding="3" Visibility="Collapsed">
-                                                            <Border Margin="0,0,0,0" Padding="6" Background="{StaticResource TextBoxBlueLight}" CornerRadius="6">
-                                                                <StackPanel Orientation="Vertical">
-                                                                    <CheckBox x:Name="Disp_Sim_SimChk" Content="Simulate"/>
-                                                                    <StackPanel Orientation="Horizontal">
-                                                                        <TextBlock Text="Flow rate ID" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                                                        <TextBox x:Name="Disp_Sim_FlowIDTxt" Width="60" Style="{StaticResource SmallTextBox}" Margin="0,0,8,0"/>
-                                                                    </StackPanel>
-                                                                    <StackPanel Orientation="Horizontal">
-                                                                        <TextBlock Text="Flow rate OD" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                                                        <TextBox x:Name="Disp_Sim_FlowODTxt" Width="60" Style="{StaticResource SmallTextBox}" Margin="0,0,8,0"/>
-                                                                    </StackPanel>
-                                                                </StackPanel>
-                                                            </Border>
-                                                        </Expander>-->
-                                                        <GroupBox Header="Motor Size" Grid.Row="0" Grid.Column="0">
-                                                            <StackPanel Orientation="Vertical">
-                                                                <RadioButton Content="DDM 57" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57"/>
-                                                                <RadioButton Content="DDM 95" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95"/>
-                                                                <RadioButton Content="DDM 116" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor116"/>
-                                                                <RadioButton Content="DDM 170" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170"/>
-                                                                <RadioButton Content="DDM 170 Tall" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170Tall"/>
-                                                            </StackPanel>
-                                                        </GroupBox>
-                                                        <!--<GroupBox Header="Options" Visibility="Collapsed">
-                                                            <StackPanel Orientation="Vertical">
-                                                                <CheckBox Visibility="Collapsed" IsChecked="False" x:Name="Disp_SNPhotoChk" Content="Serial number photo" Padding="8"/>
-                                                                <CheckBox IsChecked="False" x:Name="Disp_PrePhotoChk" Content="Pre-process photo" Padding="8"/>
-                                                                <CheckBox Visibility="Collapsed" IsChecked="False" x:Name="Disp_MeasureRingChk" Content="Ring height measurement" Padding="8"/>
-                                                                <CheckBox Visibility="Collapsed" IsChecked="False" x:Name="Disp_MeasureMagChk" Content="Magnet and concentrator height measurement" Padding="8"/>
-                                                                <CheckBox IsChecked="True" x:Name="Disp_DispenseChk" Content="Dispense cyanoacrylate" Padding="8"/>
-                                                                <CheckBox Visibility="Collapsed" IsChecked="False" x:Name="Disp_PostPhotoChk" Content="Post-process photo" Padding="8"/>
-                                                                <CheckBox IsChecked="False" x:Name="Disp_AutoCalibChk" Content="Autocalibrate after dispense" Padding="8"/>
-                                                            </StackPanel>
-                                                        </GroupBox>-->
+
+                                                    <GroupBox Header="Motor Size" Grid.Row="1" Grid.Column="0">
+                                                        <StackPanel Orientation="Vertical">
+                                                            <RadioButton Content="DDM 57" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57"/>
+                                                            <RadioButton Content="DDM 95" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95"/>
+                                                            <RadioButton Content="DDM 116" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor116"/>
+                                                            <RadioButton Content="DDM 170" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170"/>
+                                                            <RadioButton Content="DDM 170 Tall" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170Tall"/>
+                                                        </StackPanel>
+                                                    </GroupBox>
+
                                                     <Button 
-                                                            Grid.Row="1"
+                                                            Grid.Row="2"
                                                             Grid.Column="0"
                                                             Grid.ColumnSpan="2"
                                                             x:Name="Disp_BeginBtn"
@@ -325,13 +301,16 @@
                                                         </Grid>
                                                     </GroupBox>
                                                     <StackPanel Grid.Row="3" Orientation="Vertical">
-                                                        <Button x:Name="Disp_Res_ViewResBtn"  Content="View Detailed Results" Click="Disp_Res_ViewResBtn_Click"/>
                                                         <Button x:Name="Disp_Res_FinishBtn" Click="Disp_Res_FinishBtn_Click" Content="Finish" Style="{DynamicResource BlueButton}">
                                                             <!--<StackPanel Orientation="Horizontal">
                                                                 <Image Source="/Resources/icons/tools.ico"/>
                                                                 <Label Content="Configure Next Process"/>
                                                             </StackPanel>-->
                                                         </Button>
+                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                                            <Button x:Name="Disp_Res_ViewResBtn"  Content="View Details" Click="Disp_Res_ViewResBtn_Click" Style="{StaticResource SmallButton}" Visibility="Collapsed"/>
+                                                            <Button x:Name="Disp_Res_OpenFileBtn"  Content="Open Folder" Click="Disp_Res_OpenFileBtn_Click"  Style="{StaticResource SmallButton}"/>
+                                                        </StackPanel>
                                                     </StackPanel>
 
                                                 </Grid>
@@ -350,10 +329,21 @@
                 <!-- blank tab for visual spacing only -->
                 <!--<TabItem Style="{StaticResource MainTab}" Height="500" Background="Transparent" BorderBrush="Transparent" IsEnabled="False"></TabItem>-->
 
-                <TabItem x:Name="CalibTab" Header="Calibrate" Tag="Resources/icons/centerpoint.ico" Style="{StaticResource MainTab}">
+                <TabItem x:Name="CalibTab" Header="Calibrate" Tag="Resources/icons/centerpoint.ico" Style="{StaticResource MainTab}" IsEnabled="False">
 
-                    <Grid Margin="4">
-                        <Border x:Name="Cal_PWEntryBdr" Background="White" Visibility="Collapsed">
+                    <Grid Margin="6">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="400"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!--<Border x:Name="Cal_PWEntryBdr" Background="White" Visibility="Collapsed">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -387,20 +377,21 @@
                                     </StackPanel>
                                 </GroupBox>
                             </Grid>
-                        </Border>
-                        <TabControl x:Name="Cal_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="4">
+                        </Border>-->
+
+                        <TabControl Grid.Row="1" Grid.Column="1" x:Name="Cal_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top">
                             <TabItem Header="Position">
 
                                 <StackPanel Orientation="Vertical" Margin="12">
 
-                                    <StackPanel Orientation="Vertical" Margin="12">
+                                    <!--<StackPanel Orientation="Vertical" Margin="12">
                                         <TextBlock Text="1. Remove all tooling."/>
                                         <TextBlock Text="2. Move the carriage all the way to the front (closest to operator)."/>
                                         <TextBlock Text="3. Insert the calibration pin into the top plate (location tbd)"/>
                                         <TextBlock Text="4. Click the calibrate button below"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Vertical" Margin="12" HorizontalAlignment="Left">
-                                        <Button Style="{StaticResource BlueButton}" Content="Calibrate position" Margin="0" Click="Cal_CalPosBtn_Click"/>
+                                    </StackPanel>-->
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                        <Button Style="{StaticResource BlackButton}" Content="Calibrate position" Margin="0" Click="Cal_CalPosBtn_Click"/>
                                         <ProgressBar Visibility="Collapsed" IsIndeterminate="True" Height="5" Margin="0,4,0,0" BorderBrush="Transparent" x:Name="Cal_PosPrg"/>
                                     </StackPanel>
 
@@ -439,13 +430,13 @@
                             <TabItem Header="Height Sensor">
 
                                 <StackPanel Orientation="Vertical" Margin="12">
-                                    <StackPanel Orientation="Vertical" Margin="12">
+                                    <!--<StackPanel Orientation="Vertical" Margin="12">
                                         <TextBlock Text="1. Remove all tooling."/>
                                         <TextBlock Text="2. Place the height calibration disk onto the plate."/>
                                         <TextBlock Text="3. Click the calibrate button below"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="12">
-                                        <Button Style="{StaticResource BlueButton}" Content="Calibrate height sensor" Margin="0"/>
+                                    </StackPanel>-->
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Style="{StaticResource BlackButton}" Content="Calibrate height sensor" Margin="0"/>
                                     </StackPanel>
                                     <Grid HorizontalAlignment="Left" Margin="6" Background="WhiteSmoke">
                                         <Grid.Resources>
@@ -484,13 +475,13 @@
                             <TabItem Header="Flow Rate">
 
                                 <StackPanel Orientation="Vertical" Margin="12">
-                                    <StackPanel Orientation="Vertical" Margin="12">
+                                    <!--<StackPanel Orientation="Vertical" Margin="12">
                                         <TextBlock Text="1. Remove all tooling."/>
                                         <TextBlock Text="2. Place the adhesive catch tray onto the plate"/>
                                         <TextBlock Text="3. Click the calibrate button below"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="12">
-                                        <Button Style="{StaticResource BlueButton}" Content="Calibrate flow rate" Margin="0"/>
+                                    </StackPanel>-->
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Style="{StaticResource BlackButton}" Content="Calibrate flow rate" Margin="0"/>
                                     </StackPanel>
 
                                     <Grid HorizontalAlignment="Left" Margin="6" Background="WhiteSmoke">
@@ -535,7 +526,7 @@
 
 
 
-                <TabItem x:Name="AboutTab" Header="About" Tag="Resources/icons/infocircle.ico" Style="{StaticResource MainTab}">
+                <TabItem x:Name="AboutTab" Header="About" Tag="Resources/icons/infocircle.ico" Style="{StaticResource MainTab}" Visibility="Collapsed">
                     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
 
                         <Grid Margin="12">
@@ -577,8 +568,8 @@
 
                 <TabItem x:Name="AdvTab" Header="Dev" Tag="Resources/icons/settings.ico" Style="{StaticResource MainTab}" Visibility="Visible">
 
-                    <Grid Background="#bbb" Margin="-2">
-                        <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Margin="20" Visibility="Hidden">
+                    <Grid Margin="-2">
+                        <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Margin="6" Visibility="Hidden">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -614,7 +605,7 @@
                             </Grid>
                         </Border>
 
-                        <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="20"  Background="WhiteSmoke">
+                        <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="6"  Background="WhiteSmoke">
 
                             <TabItem Header="Options">
                                 <StackPanel Orientation="Vertical" Margin="6">
@@ -663,14 +654,13 @@
 
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="180"/>
-                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <StackPanel Grid.Column="0" Orientation="Vertical">
 
-                                            <GroupBox Header="Connection">
+                                            <GroupBox Header="Connection" Grid.Column="0">
                                                 <TextBlock
                                                     x:Name="Adv_Cell_ConnectedStatusTxt"
                                                     Text="Not connected" 
@@ -678,10 +668,10 @@
                                                     TextWrapping="Wrap"
                                                     TextAlignment="Left"
                                                     HorizontalAlignment="Left" 
-                                                    VerticalAlignment="Center"/>
+                                                    VerticalAlignment="Top"/>
                                             </GroupBox>
 
-                                            <GroupBox Header="Auto Status">
+                                            <!--<GroupBox Header="Auto Status" Visibility="Collapsed">
                                                 <StackPanel Orientation="Vertical">
                                                     <TextBlock
                                                         x:Name="Adv_Cell_AutoStatusTxt"
@@ -692,16 +682,15 @@
                                                         HorizontalAlignment="Left" 
                                                         VerticalAlignment="Center"/>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <!--<Button x:Name="Adv_Cell_AutoStartBtn" Content="Start" Click="Adv_Cell_AutoStartBtn_Click"/>-->
-                                                        <!--<Button x:Name="Adv_Cell_AutoStopBtn" Content="Stop" Click="Adv_Cell_AutoStopBtn_Click"/>-->
+                                                        --><!--<Button x:Name="Adv_Cell_AutoStartBtn" Content="Start" Click="Adv_Cell_AutoStartBtn_Click"/>-->
+                                                        <!--<Button x:Name="Adv_Cell_AutoStopBtn" Content="Stop" Click="Adv_Cell_AutoStopBtn_Click"/>--><!--
                                                     </StackPanel>
                                                 </StackPanel>
-                                            </GroupBox>
-                                        </StackPanel>
+                                            </GroupBox>-->
 
                                         <GroupBox Grid.Column="1" Header="Motor Settings" >
-                                            <StackPanel Orientation="Vertical">
-                                                <ComboBox x:Name="Adv_Cell_MotorSizeCmb" VerticalAlignment="Top" SelectionChanged="Adv_Cell_MotorSizeCmb_OnSelectionChanged">
+                                            <StackPanel Orientation="Horizontal">
+                                                <ComboBox x:Name="Adv_Cell_MotorSizeCmb" VerticalAlignment="Top" SelectionChanged="Adv_Cell_MotorSizeCmb_OnSelectionChanged" Height="28">
                                                     <ComboBoxItem Content="DDM 57" />
                                                     <ComboBoxItem Content="DDM 95" />
                                                     <ComboBoxItem Content="DDM 116" IsSelected="True"/>
@@ -709,11 +698,11 @@
                                                     <ComboBoxItem Content="DDM 170 Tall" />
                                                 </ComboBox>
                                                 <!--<Button x:Name="Adv_Cell_OpenSettingsBtn" Content="Open file" Click="Adv_Cell_OpenSettingsBtn_Click" Style="{StaticResource SmallButton}" />-->
-                                                <Button x:Name="Adv_Cell_ReloadSettingsBtn" Content="Reload" Click="Adv_Cell_ReloadSettingsBtn_Click" Style="{StaticResource SmallButton}" />
+                                                <Button x:Name="Adv_Cell_ReloadSettingsBtn" Content="Reload" Click="Adv_Cell_ReloadSettingsBtn_Click" Style="{StaticResource SmallButton}" VerticalAlignment="Top" Height="28" Margin="12,0,0,0"/>
                                             </StackPanel>
                                         </GroupBox>
 
-                                        <GroupBox Header="Version Information" Grid.Column="2">
+                                        <GroupBox Header="Version Information" Grid.Column="2" Visibility="Collapsed">
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
@@ -727,7 +716,7 @@
 
                                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Manager UI:"/>
                                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Controller TCS:"/>
-                                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Controller config:"/>
+                                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Controller config:" Margin="0,0,12,0"/>
 
                                                 <TextBlock Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_GUIVersionLbl" Text="-"/>
                                                 <TextBlock Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_TCSVersionLbl" Text="-"/>
@@ -812,7 +801,7 @@
                                                                     <Label  Grid.Row="1" Grid.Column="2" x:Name="Adv_Cell_MoveCamTopOutLbl" Content="-"/>
 
                                                                     <Label  Grid.Row="2" Grid.Column="0" x:Name="Adv_Cell_MoveCamSideInLbl" Content="-"/>
-                                                                    <Button Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_MoveCamSideBtn" Content="Move, camera side" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveCamSideBtn_Click" IsEnabled="False"/>
+                                                                    <Button Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_MoveCamSideBtn" Content="Move, camera side" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveCamSideBtn_Click"/>
                                                                     <Label  Grid.Row="2" Grid.Column="2" x:Name="Adv_Cell_MoveCamSideOutLbl" Content="-"/>
 
                                                                     <Label  Grid.Row="3" Grid.Column="0" x:Name="Adv_Cell_MoveLaserRingInLbl" Content="-"/>
@@ -831,9 +820,9 @@
                                                                     <Button Grid.Row="6" Grid.Column="1" x:Name="Adv_Cell_MoveDispODBtn" Content="Move, dispense OD" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveDispODBtn_Click"/>
                                                                     <Label  Grid.Row="6" Grid.Column="2" x:Name="Adv_Cell_MoveDispODOutLbl" Content="-"/>
 
-                                                                    <Label  Grid.Row="7" Grid.Column="0" x:Name="Adv_Cell_MoveSpinInLbl" Content="-"/>
+                                                                    <!--<Label  Grid.Row="7" Grid.Column="0" x:Name="Adv_Cell_MoveSpinInLbl" Content="-"/>
                                                                     <Button Grid.Row="7" Grid.Column="1" x:Name="Adv_Cell_MoveSpinBtn" Content="Move, spin in place" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveSpinBtn_Click"/>
-                                                                    <Label  Grid.Row="7" Grid.Column="2" x:Name="Adv_Cell_MoveSpinOutLbl" Content="-"/>
+                                                                    <Label  Grid.Row="7" Grid.Column="2" x:Name="Adv_Cell_MoveSpinOutLbl" Content="-"/>-->
 
                                                                 </Grid>
                                                             </GroupBox>
@@ -848,7 +837,7 @@
 
                                                 </TabItem>
 
-                                                <TabItem Header="Height Sensor">
+                                                <TabItem Header="Height Sensor" Visibility="Collapsed">
 
 
                                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -1465,12 +1454,6 @@
         </Grid>
 
         <Grid Grid.Row="2">
-            <Button 
-                x:Name="Dev_Btn"
-                Click="Dev_Btn_Click"
-                Content="Dev" 
-                HorizontalAlignment="Left" 
-                Style="{StaticResource SmallButton}"/>
         </Grid>
 
         <Grid Grid.Row="3" Style="{StaticResource StatusBarBottom}">
@@ -1480,6 +1463,16 @@
             </Grid.ColumnDefinitions>
             <Border Padding="8,4,4,4" Grid.Column="0">
                 <StackPanel Orientation="Horizontal">
+
+                    <Grid Margin="0,0,12,0">
+                        <Button x:Name="Dev_Btn"
+                                Click="Dev_Btn_Click"
+                                Padding="4"
+                                Margin="0"
+                                Style="{StaticResource SmallDevIconButton}">
+                            <Image Source="/Resources/icons/settings.ico" Height="20" Opacity="0.75"/>
+                        </Button>
+                    </Grid>
                     <Grid Margin="0,0,12,0">
                         <StackPanel Grid.Column="0" Orientation="Horizontal">
                             <TextBlock Text="Status: "/>

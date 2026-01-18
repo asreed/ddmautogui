@@ -1,25 +1,25 @@
 {
-  "controller_ip": "10.33.240.47",
-  "last_sys_1_calib_update": "2025-09-17",
-  "last_sys_2_calib_update": "2025-09-17",
+  "controller_ip": "192.168.0.1",
+  "last_sys_1_calib_update": "2026-01-17T19:48:05.5298899-08:00",
+  "last_sys_2_calib_update": "2026-01-17T19:48:05.5298941-08:00",
   "current_sys_1_flow_calib": [
     {
-      "flow": 0.25,
-      "pressure": 4.5
+      "pressure": 4.7584095,
+      "flow": 0.25
     },
     {
-      "flow": 0.40,
-      "pressure": 6.8
+      "pressure": 7.190485,
+      "flow": 0.4
     },
     {
-      "flow": 0.90,
-      "pressure": 14.8
+      "pressure": 15.649879,
+      "flow": 0.9
     }
   ],
   "current_sys_2_flow_calib": [
     {
-      "flow": 0.40,
-      "pressure": 33.5
+      "pressure": 29.72533,
+      "flow": 0.15
     }
   ]
 }

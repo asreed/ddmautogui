@@ -20,17 +20,24 @@ namespace DDMAutoGUI.utilities
             LocalData localData,
             out bool success,
             out CSDispenseCalib[] newSys1Calib,
-            out CSDispenseCalib[] newSys2Calib)
+            out CSDispenseCalib[] newSys2Calib,
+            out float sf1,
+            out float sf2)
         {
+
 
             /// <summary>
             /// Takes cell settings data, compares to the latest entry in the results history, and
             /// estimates pressure adjustments required to improve shot volume accuracy for the next
-            /// run. Updates results history flow calibrations. 
+            /// run.
             /// </summary>
 
             success = false;
             CSShot targetShotData = null;
+
+            CSDispenseCalib[] sys1CalibOriginal = localData.current_sys_1_flow_calib;
+            CSDispenseCalib[] sys2CalibOriginal = localData.current_sys_2_flow_calib;
+
 
             switch (prevShotData.motor_type)
             {
@@ -55,10 +62,11 @@ namespace DDMAutoGUI.utilities
 
 
 
-            // calculate real flow rate (from last dispense (results history))
+            // calculate real flow rate (from given shot data)
             // get target flow rate (from settings (cell settings))
-            // get corrective scale factor for flow rate
-            // apply scale factor to flow rate lookup (results history)
+            // get calib data (from local data)
+            // apply scale factor to flow rate lookup
+            // return new calib data
 
             float lastFlowID = prevShotData.vol_id.Value / prevShotData.time_id.Value;
             float targetFlowID = targetShotData.target_flow_id.Value;
@@ -73,8 +81,8 @@ namespace DDMAutoGUI.utilities
 
 
             // default to 1.0 (no scaling)
-            float sf1 = 1f;
-            float sf2 = 1f; 
+            sf1 = 1f;
+            sf2 = 1f;
 
             if (sysID == sysOD)
             {
@@ -96,33 +104,93 @@ namespace DDMAutoGUI.utilities
             CSDispenseCalib[] sys1Calib = localData.current_sys_1_flow_calib;
             CSDispenseCalib[] sys2Calib = localData.current_sys_2_flow_calib;
 
-
-
-            // TODO ADD CHECKS HERE TO SEE IF PRESSURES ARE DRIFTING TOO FAR OUT OF RANGE
-
-            // PRESSURES HIGHER THAN EXPECTED MEANS FLOW IS SLOWING AND EITHER MAINTENANCE OR RECALIBRATION IS REQUIRED
-
-
-
-            Debug.Print("Updated calibration values:");
+            Debug.Print("Updating calibration values:");
             for (int i = 0; i < sys1Calib.Length; i++)
             {
                 sys1Calib[i].pressure *= sf1;
                 Debug.Print($"  Sys 1: ({sys1Calib[i].flow:0.00}, {sys1Calib[i].pressure,5:0.000})");
             }
-            for (int i=0; i < sys2Calib.Length; i++)
+            for (int i = 0; i < sys2Calib.Length; i++)
             {
                 sys2Calib[i].pressure *= sf2;
                 Debug.Print($"  Sys 2: ({sys2Calib[i].flow:0.00}, {sys2Calib[i].pressure,5:0.000})");
+            }
+
+
+
+
+
+
+            // CHECK PRESSURES AGAINST ABSOLUTE LIMITS
+
+            float sys1MaxPressure = cellSettings.dispense_system.sys_1_max_pressure.Value;
+            float sys2MaxPressure = cellSettings.dispense_system.sys_2_max_pressure.Value;
+
+            for (int i = 0; i < sys1Calib.Length; i++)
+            {
+                if (sys1Calib[i].pressure > sys1MaxPressure || sys1Calib[i].pressure < 0)
+                {
+                    Debug.Print($"Calibration failed: System 1 pressure {i} out of range ({sys1Calib[i].pressure})");
+                    newSys1Calib = localData.current_sys_1_flow_calib;
+                    newSys2Calib = localData.current_sys_2_flow_calib;
+                    success = false;
+                    return;
+                }
+            }
+            for (int i = 0; i < sys2Calib.Length; i++) {
+
+                if (sys2Calib[i].pressure > sys2MaxPressure || sys2Calib[i].pressure < 0)
+                {
+                    Debug.Print($"Calibration failed: System 2 pressure {i} out of range ({sys2Calib[i].pressure})");
+                    newSys1Calib = localData.current_sys_1_flow_calib;
+                    newSys2Calib = localData.current_sys_2_flow_calib;
+                    success = false;
+                    return;
+                }
+            }
+
+
+
+
+
+            // CHECK PRESSURES AGAINST RELATIVE LIMITS (DRIFTING TOO FAR FROM ORIGINAL CALIBRATION)
+
+
+            for (int i = 0; i < sys1Calib.Length; i++)
+            {
+                float newPressure = sys1Calib[i].pressure.Value;
+                float originalPressure = localData.current_sys_1_flow_calib[i].pressure.Value;
+                float diff = (newPressure - originalPressure) / originalPressure;
+
+                if (diff > cellSettings.dispense_system.sys_1_max_pressure_dev_percent)
+                {
+                    Debug.Print($"Calibration failed: System 1 pressure {i} deviated too far from calib ({diff})");
+                    newSys1Calib = localData.current_sys_1_flow_calib;
+                    newSys2Calib = localData.current_sys_2_flow_calib;
+                    success = false;
+                    return;
+                }
+            }
+            for (int i = 0; i < sys2Calib.Length; i++)
+            {
+                float newPressure = sys2Calib[i].pressure.Value;
+                float originalPressure = localData.current_sys_2_flow_calib[i].pressure.Value;
+                float diff = (newPressure - originalPressure) / originalPressure;
+
+                if (diff > cellSettings.dispense_system.sys_2_max_pressure_dev_percent)
+                {
+                    Debug.Print($"Calibration failed: System 2 pressure {i} deviated too far from calib ({diff})");
+                    newSys1Calib = localData.current_sys_1_flow_calib;
+                    newSys2Calib = localData.current_sys_2_flow_calib;
+                    success = false;
+                    return;
+                }
             }
 
             newSys1Calib = sys1Calib;
             newSys2Calib = sys2Calib;
             success = true;
         }
-
-
-
 
     }
 }

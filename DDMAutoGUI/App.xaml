@@ -378,7 +378,7 @@
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="#333"/>
-            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Padding" Value="20,12"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="3"/>
@@ -463,6 +463,76 @@
             <Setter Property="Padding" Value="5"/>
         </Style>
 
+        <Style TargetType="{x:Type Button}" x:Key="SmallDevIconButton">
+
+            <!-- If an image is included, apply styles accordingly -->
+            <Style.Resources>
+                <Style TargetType="Image">
+                    <Setter Property="Height" Value="18"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+                <Style TargetType="Label">
+                    <Setter Property="Foreground" Value="Black"/>
+                    <Setter Property="Margin" Value="6,0,0,0"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </Style.Resources>
+
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="#99000000"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
+
+            <Setter Property="Template">
+
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="mainBorder"
+                                Grid.Column="0"
+                                Grid.Row="0"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="0"
+                                CornerRadius="8"
+                                >
+                                <ContentPresenter 
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Width="Auto"
+                                    Height="Auto"
+                                    />
+                            </Border>
+
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="mainBorder" Property="Background" Value="#66FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="mainBorder" Property="Background" Value="#aaFFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <!--<Setter Property="Foreground" Value="#999"/>
+                                <Setter TargetName="mainBorder" Property="Background" Value="WhiteSmoke"/>
+                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="#aaa"/>-->
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+
         <!-- Accent buttons -->
 
         <Style x:Key="BlueButton" TargetType="Button">
@@ -486,7 +556,7 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryBlueDarkDark}"/>
-            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Padding" Value="20,12"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="3"/>
@@ -906,7 +976,7 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Padding" Value="20,12"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="3"/>
@@ -1058,12 +1128,12 @@
 
         <Style x:Key="StatusBarBottom" TargetType="Grid">
             <Setter Property="Margin" Value="-4,0,-4,-4"/>
-            <Setter Property="Height" Value="26"/>
+            <Setter Property="Height" Value="36"/>
             <!--<Setter Property="Background" Value="WhiteSmoke"/>-->
             <Style.Resources>
                 <Style TargetType="TextBlock">
-                    <Setter Property="Foreground" Value="#FFF"/>
-                    <Setter Property="FontSize" Value="10"/>
+                    <Setter Property="Foreground" Value="#444"/>
+                    <Setter Property="FontSize" Value="11"/>
                     <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
                     <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>

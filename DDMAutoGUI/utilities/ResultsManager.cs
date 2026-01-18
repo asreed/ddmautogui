@@ -15,6 +15,8 @@ namespace DDMAutoGUI.utilities
 {
     public class ResultsShotData
     {
+        // Contains only directly measured shot data
+
         public string? motor_type { get; set; }
         public bool? shot_result { get; set; }
         public string? shot_message { get; set; }
@@ -27,8 +29,25 @@ namespace DDMAutoGUI.utilities
         public float? vol_id { get; set; }
         public float? vol_od { get; set; }
     }
+    public class ResultsReferenceData
+    {
+        // Contains reference/calibration data 
+        // (may be redundant to settings and local data)
+        public string? substance_id { get; set; }
+        public string? substance_od { get; set; }
 
-    public class ResultsHeightMeasurement
+        public float? target_vol_id { get; set; }
+        public float? target_vol_od { get; set; }
+        public float? target_flow_id { get; set; }
+        public float? target_flow_od { get; set; }
+        public float? calib_pressure_id { get; set; }
+        public float? calib_pressure_od { get; set; }
+        public float? autocal_sf_1 { get; set; }
+        public float? autocal_sf_2 { get; set; }
+
+    }
+
+        public class ResultsHeightMeasurement
     {
         public float? t { get; set; }
         public float? z { get; set; }
@@ -46,6 +65,7 @@ namespace DDMAutoGUI.utilities
         public string? ring_sn { get; set; }
         public string? tool_sn { get; set; }
         public ResultsShotData? shot_data { get; set; }
+        public ResultsReferenceData? reference_data { get; set; }
         public bool? overall_process_result { get; set; }
         public string? overall_proces_message { get; set; }
         public List<ResultsHeightMeasurement>? ring_heights { get; set; }

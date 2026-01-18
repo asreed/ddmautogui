@@ -95,8 +95,8 @@ namespace DDMAutoGUI
             Status_SimBdr.Visibility = Visibility.Collapsed;
             Adv_PWEntryBdr.Visibility = Visibility.Visible;
             Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
-            Cal_PWEntryBdr.Visibility = Visibility.Visible;
-            Cal_AllControlsTcl.Visibility = Visibility.Collapsed;
+            //Cal_PWEntryBdr.Visibility = Visibility.Visible;
+            //Cal_AllControlsTcl.Visibility = Visibility.Collapsed;
             Disp_ProcessPrg.Value = 0;
 
             AdvTab.Visibility = Visibility.Collapsed;
@@ -436,7 +436,20 @@ namespace DDMAutoGUI
                     shotData.pressure_id = pressureID;
                     shotData.pressure_od = pressureOD;
 
+                    ResultsReferenceData referenceData = new ResultsReferenceData
+                    {
+                        substance_id = motor.shot_settings.sys_num_id == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents,
+                        substance_od = motor.shot_settings.sys_num_od == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents,
+                        target_vol_id = motor.shot_settings.target_vol_id,
+                        target_vol_od = motor.shot_settings.target_vol_od,
+                        target_flow_id = motor.shot_settings.target_flow_id,
+                        target_flow_od = motor.shot_settings.target_flow_od,
+                        calib_pressure_id = pressureID,
+                        calib_pressure_od = pressureOD
+                    };
+
                     App.ResultsManager.currentResults.shot_data = shotData;
+                    App.ResultsManager.currentResults.reference_data = referenceData;
 
                     string substance_id = motor.shot_settings.sys_num_id == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
                     string substance_od = motor.shot_settings.sys_num_od == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
@@ -469,7 +482,8 @@ namespace DDMAutoGUI
 
                 if (App.advancedOptions.dispenseOptions.autocalibrate)
                 {
-                    // Adjust pressures
+
+                    App.ResultsManager.AddToLog("Autocalibrating...");
 
                     if (App.ResultsManager.currentResults.shot_data == null)
                     {
@@ -479,14 +493,18 @@ namespace DDMAutoGUI
 
                     CSDispenseCalib[] newSys1Calib;
                     CSDispenseCalib[] newSys2Calib;
+                    float sf1, sf2;
                     bool calibSuccess;
+
                     FlowCalibration.CalibratePressures(
                         App.ResultsManager.currentResults.shot_data,
                         App.SettingsManager.GetAllSettings(),
                         App.LocalDataManager.localData,
                         out calibSuccess,
                         out newSys1Calib,
-                        out newSys2Calib);
+                        out newSys2Calib,
+                        out sf1,
+                        out sf2);
 
                     if (calibSuccess)
                     {
@@ -495,8 +513,11 @@ namespace DDMAutoGUI
                     }
                     else
                     {
-                        // ??
+                        throw new Exception("Autocalibration failed");
                     }
+
+                    App.ResultsManager.currentResults.reference_data.autocal_sf_1 = sf1;
+                    App.ResultsManager.currentResults.reference_data.autocal_sf_2 = sf2;
 
                     App.ResultsManager.AddToLog("Saving updated calibration data to local storage...");
                     App.LocalDataManager.SaveLocalDataToFile();
@@ -1482,32 +1503,11 @@ namespace DDMAutoGUI
 
         private void Dispense_GoToStep(int step)
         {
-            // called when moving to the step
             tabLock = false;
             dispTabControl.SelectedIndex = step;
             currentStep = step;
             tabLock = true;
 
-            switch (step)
-            {
-                case 0:
-
-                    // config
-
-                    break;
-                case 1:
-
-                    // process
-
-                    break;
-                case 2:
-
-                    // results
-
-                    break;
-
-            }
-            //processData.AddToLog($"Moved to step {step}");
         }
 
         private void ControllerManager_ControllerStateChanged(object? sender, EventArgs e)
@@ -1666,7 +1666,7 @@ namespace DDMAutoGUI
             Adv_Cell_MoveLaserMagInLbl.Content = blank;
             Adv_Cell_MoveDispIDInLbl.Content = blank;
             Adv_Cell_MoveDispODInLbl.Content = blank;
-            Adv_Cell_MoveSpinInLbl.Content = blank;
+            //Adv_Cell_MoveSpinInLbl.Content = blank;
             Adv_Cell_MeasureRingInLbl.Content = blank;
             Adv_Cell_MeasureMagInLbl.Content = blank;
             Adv_Cell_DispShotsInLbl.Content = blank;
@@ -1691,7 +1691,7 @@ namespace DDMAutoGUI
                 Adv_Cell_MoveLaserMagInLbl.Content = $"[{m.laser_mag.x}, {m.laser_mag.t}]";
                 Adv_Cell_MoveDispIDInLbl.Content = $"[{m.disp_id.x}, {m.disp_id.t}]";
                 Adv_Cell_MoveDispODInLbl.Content = $"[{m.disp_od.x}, {m.disp_od.t}]";
-                Adv_Cell_MoveSpinInLbl.Content = $"{m.post_spin_time}s, {m.post_spin_speed}%";
+                //Adv_Cell_MoveSpinInLbl.Content = $"{m.post_spin_time}s, {m.post_spin_speed}%";
 
                 Adv_Cell_MeasureRingInLbl.Content = $"{m.laser_ring_num} places, {s.laser_delay} s each";
                 Adv_Cell_MeasureMagInLbl.Content = $"{m.laser_mag_num} places, {s.laser_delay} s each";
@@ -1718,7 +1718,7 @@ namespace DDMAutoGUI
             Adv_Cell_MoveLaserMagBtn.IsEnabled = !state;
             Adv_Cell_MoveDispIDBtn.IsEnabled = !state;
             Adv_Cell_MoveDispODBtn.IsEnabled = !state;
-            Adv_Cell_MoveSpinBtn.IsEnabled = !state;
+            //Adv_Cell_MoveSpinBtn.IsEnabled = !state;
             Adv_Cell_MeasureRingBtn.IsEnabled = !state;
             Adv_Cell_MeasureMagBtn.IsEnabled = !state;
             Adv_Cell_SetPres1Btn.IsEnabled = !state;
@@ -1795,6 +1795,7 @@ namespace DDMAutoGUI
             Status_PACTxt.Text = PAC;
 
             DispTab.IsEnabled = true;
+            CalibTab.IsEnabled = true;
 
             PopulateMotorSettings(Adv_Cell_MotorSizeCmb);
         }
@@ -1803,7 +1804,7 @@ namespace DDMAutoGUI
         {
             Adv_Cell_ConnectedStatusTxt.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
             Adv_Cell_ConnectedStatusTxt.Text = "Not connected";
-            Adv_Cell_AutoStatusTxt.Text = "-";
+            //Adv_Cell_AutoStatusTxt.Text = "-";
 
             Adv_Cell_TCSVersionLbl.Text = "-";
             Adv_Cell_PACVersionLbl.Text = "-";
@@ -1820,6 +1821,7 @@ namespace DDMAutoGUI
             Alert_MsgBarBdr.Visibility = Visibility.Collapsed;
 
             DispTab.IsEnabled = false;
+            CalibTab.IsEnabled = false;
 
             DisableAllReadouts();
             BlankOutMotorSettings();
@@ -1871,24 +1873,24 @@ namespace DDMAutoGUI
                             break;
                     }
 
-                    Adv_Cell_AutoStatusTxt.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
-                    Adv_Cell_AutoStatusTxt.Text = "Parse OK";
+                    //Adv_Cell_AutoStatusTxt.Foreground = new BrushConverter().ConvertFrom("Black") as SolidColorBrush;
+                    //Adv_Cell_AutoStatusTxt.Text = "Parse OK";
                     Status_SimBdr.Visibility = contState.isSimulated ? Visibility.Visible : Visibility.Collapsed;
                     FormatAllReadouts(contState);
                 }
                 else
                 {
                     // Connected with bad parse
-                    Adv_Cell_AutoStatusTxt.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
-                    Adv_Cell_AutoStatusTxt.Text = "-";
+                    //Adv_Cell_AutoStatusTxt.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
+                    //Adv_Cell_AutoStatusTxt.Text = "-";
                     DisableAllReadouts();
                 }
             }
             else
             {
                 // Disconnected
-                Adv_Cell_AutoStatusTxt.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
-                Adv_Cell_AutoStatusTxt.Text = $"Parse error: {contState.parseErrorMessage}";
+                //Adv_Cell_AutoStatusTxt.Foreground = new BrushConverter().ConvertFrom("Red") as SolidColorBrush;
+                //Adv_Cell_AutoStatusTxt.Text = $"Parse error: {contState.parseErrorMessage}";
                 DisableAllReadouts();
             }
 
@@ -2257,7 +2259,7 @@ namespace DDMAutoGUI
             float speed = m.post_spin_speed.Value;
 
             string response = await App.ControllerManager.SpinInPlace(time, speed);
-            Adv_Cell_MoveSpinOutLbl.Content = response;
+            //Adv_Cell_MoveSpinOutLbl.Content = response;
 
             LockRobotButtons(false);
         }
@@ -2547,28 +2549,28 @@ namespace DDMAutoGUI
             }
         }
 
-        private void Cal_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (Cal_PWBox.Password == App.calibrationPassword)
-            {
-                Cal_PWEntryBdr.Visibility = Visibility.Collapsed;
-                Cal_PWMessageTxb.Visibility = Visibility.Collapsed;
-                Cal_AllControlsTcl.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                Cal_PWMessageTxb.Visibility = Visibility.Visible;
-                Cal_PWMessageTxb.Text = "Incorrect password";
-            }
-        }
+        //private void Cal_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (Cal_PWBox.Password == App.calibrationPassword)
+        //    {
+        //        Cal_PWEntryBdr.Visibility = Visibility.Collapsed;
+        //        Cal_PWMessageTxb.Visibility = Visibility.Collapsed;
+        //        Cal_AllControlsTcl.Visibility = Visibility.Visible;
+        //    }
+        //    else
+        //    {
+        //        Cal_PWMessageTxb.Visibility = Visibility.Visible;
+        //        Cal_PWMessageTxb.Text = "Incorrect password";
+        //    }
+        //}
 
-        private void Cal_PWBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                Cal_PWSubmitBtn_Click(sender, e);
-            }
-        }
+        //private void Cal_PWBox_KeyDown(object sender, KeyEventArgs e)
+        //{
+        //    if (e.Key == Key.Enter)
+        //    {
+        //        Cal_PWSubmitBtn_Click(sender, e);
+        //    }
+        //}
         private void Adv_Misc_TestMatlabBtn_Click(object sender, RoutedEventArgs e)
         {
             string exePath = @"C:\Users\areed\Documents\MATLAB\MatlabTestProject1\StandaloneDesktopApp1\output\build\MyDesktopApplication.exe";
@@ -2646,6 +2648,11 @@ namespace DDMAutoGUI
                 viewer.PopulateData(data_string, "Results Data");
                 viewer.ShowDialog();
             }
+        }
+
+        private void Disp_Res_OpenFileBtn_Click(object sender, RoutedEventArgs e)
+        {
+            App.ResultsManager.OpenBrowserToDirectory();
         }
     }
 }
