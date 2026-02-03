@@ -87,6 +87,7 @@ namespace DDMAutoGUI
         public static ResultsManager ResultsManager { get; private set; }
         public static LocalDataManager LocalDataManager { get; private set; }
         public static DAQManager DAQManager { get; private set; }
+        public static OCRManager OCRManager { get; private set; }
 
         public static string calibrationPassword = "ddm";
         public static string advancedSettingsPassword = "ddm";
@@ -103,6 +104,7 @@ namespace DDMAutoGUI
             App.ControllerManager = new ControllerManager();
             App.CameraManager = new CameraManager();
             App.DAQManager = new DAQManager();
+            App.OCRManager = new OCRManager();
 
             App.LocalDataManager = new LocalDataManager();
             App.SettingsManager = new SettingsManager();

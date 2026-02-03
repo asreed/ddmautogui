@@ -18,25 +18,24 @@ namespace DDMAutoGUI.utilities
             ResultsShotData prevShotData,
             CellSettings cellSettings,
             LocalData localData,
+            int calibIdx,
+
             out bool success,
-            out CSDispenseCalib[] newSys1Calib,
-            out CSDispenseCalib[] newSys2Calib,
             out float sf1,
             out float sf2)
         {
 
 
             /// <summary>
-            /// Takes cell settings data, compares to the latest entry in the results history, and
+            /// Takes cell settings data, compares to the latest shot data, and
             /// estimates pressure adjustments required to improve shot volume accuracy for the next
-            /// run.
+            /// run. If new calib looks OK, new calib is copied into local data and saved to file.
             /// </summary>
 
             success = false;
             CSShot targetShotData = null;
-
-            CSDispenseCalib[] sys1CalibOriginal = localData.current_sys_1_flow_calib;
-            CSDispenseCalib[] sys2CalibOriginal = localData.current_sys_2_flow_calib;
+            LDCalib calibOriginal = localData.calib_data[calibIdx];
+            LDCalib calibNew = calibOriginal.Clone();
 
 
             switch (prevShotData.motor_type)
@@ -63,7 +62,7 @@ namespace DDMAutoGUI.utilities
 
 
             // calculate real flow rate (from given shot data)
-            // get target flow rate (from settings (cell settings))
+            // get target flow rate (from cell settings)
             // get calib data (from local data)
             // apply scale factor to flow rate lookup
             // return new calib data
@@ -98,23 +97,17 @@ namespace DDMAutoGUI.utilities
                 sf2 = sysID == 2 ? sfID : sfOD;
             }
 
-            Debug.Print($"Individual scale factors calculated: ID: {sfID:F3}, OD: {sfOD:F3}");
-            Debug.Print($"Applying scale factors: system 1: {sf1:F3}, system 2: {sf2:F3}");
-
-            CSDispenseCalib[] sys1Calib = localData.current_sys_1_flow_calib;
-            CSDispenseCalib[] sys2Calib = localData.current_sys_2_flow_calib;
+            Debug.Print($"Individual scale factors calculated:\n  ID: {sfID:F3}\n  OD: {sfOD:F3}");
+            Debug.Print($"Applying scale factors:\n  Sys 1: {sf1:F3}\n  Sys 2: {sf2:F3}");
 
             Debug.Print("Updating calibration values:");
-            for (int i = 0; i < sys1Calib.Length; i++)
-            {
-                sys1Calib[i].pressure *= sf1;
-                Debug.Print($"  Sys 1: ({sys1Calib[i].flow:0.00}, {sys1Calib[i].pressure,5:0.000})");
-            }
-            for (int i = 0; i < sys2Calib.Length; i++)
-            {
-                sys2Calib[i].pressure *= sf2;
-                Debug.Print($"  Sys 2: ({sys2Calib[i].flow:0.00}, {sys2Calib[i].pressure,5:0.000})");
-            }
+            calibNew.sys_1_pressure *= sf1;
+            calibNew.sys_2_pressure *= sf2;
+            Debug.Print($"  Sys 1: ({calibNew.sys_1_pressure,5:0.000})");
+            Debug.Print($"  Sys 1: ({calibNew.sys_2_pressure,5:0.000})");
+            //Debug.Print($"  Sys 1: ({calibNew.sys_1_flow:0.00}, {calibNew.sys_1_pressure,5:0.000})");
+            //Debug.Print($"  Sys 1: ({calibNew.sys_2_flow:0.00}, {calibNew.sys_2_pressure,5:0.000})");
+
 
 
 
@@ -126,27 +119,17 @@ namespace DDMAutoGUI.utilities
             float sys1MaxPressure = cellSettings.dispense_system.sys_1_max_pressure.Value;
             float sys2MaxPressure = cellSettings.dispense_system.sys_2_max_pressure.Value;
 
-            for (int i = 0; i < sys1Calib.Length; i++)
+            if (calibNew.sys_1_pressure > sys1MaxPressure || calibNew.sys_1_pressure < 0)
             {
-                if (sys1Calib[i].pressure > sys1MaxPressure || sys1Calib[i].pressure < 0)
-                {
-                    Debug.Print($"Calibration failed: System 1 pressure {i} out of range ({sys1Calib[i].pressure})");
-                    newSys1Calib = localData.current_sys_1_flow_calib;
-                    newSys2Calib = localData.current_sys_2_flow_calib;
-                    success = false;
-                    return;
-                }
+                Debug.Print($"Calibration failed: System 1 pressure out of range ({calibNew.sys_1_pressure})");
+                success = false;
+                return;
             }
-            for (int i = 0; i < sys2Calib.Length; i++) {
-
-                if (sys2Calib[i].pressure > sys2MaxPressure || sys2Calib[i].pressure < 0)
-                {
-                    Debug.Print($"Calibration failed: System 2 pressure {i} out of range ({sys2Calib[i].pressure})");
-                    newSys1Calib = localData.current_sys_1_flow_calib;
-                    newSys2Calib = localData.current_sys_2_flow_calib;
-                    success = false;
-                    return;
-                }
+            if (calibNew.sys_2_pressure > sys2MaxPressure || calibNew.sys_2_pressure < 0)
+            {
+                Debug.Print($"Calibration failed: System 2 pressure out of range ({calibNew.sys_2_pressure})");
+                success = false;
+                return;
             }
 
 
@@ -155,40 +138,38 @@ namespace DDMAutoGUI.utilities
 
             // CHECK PRESSURES AGAINST RELATIVE LIMITS (DRIFTING TOO FAR FROM ORIGINAL CALIBRATION)
 
+            float newPressure;
+            float originalPressure;
+            float diff;
 
-            for (int i = 0; i < sys1Calib.Length; i++)
+            newPressure = calibNew.sys_1_pressure.Value;
+            originalPressure = calibOriginal.sys_1_pressure.Value;
+            diff = Math.Abs((newPressure - originalPressure) / originalPressure);
+
+            if (diff > cellSettings.dispense_system.sys_1_max_pressure_dev_percent)
             {
-                float newPressure = sys1Calib[i].pressure.Value;
-                float originalPressure = localData.current_sys_1_flow_calib[i].pressure.Value;
-                float diff = (newPressure - originalPressure) / originalPressure;
-
-                if (diff > cellSettings.dispense_system.sys_1_max_pressure_dev_percent)
-                {
-                    Debug.Print($"Calibration failed: System 1 pressure {i} deviated too far from calib ({diff})");
-                    newSys1Calib = localData.current_sys_1_flow_calib;
-                    newSys2Calib = localData.current_sys_2_flow_calib;
-                    success = false;
-                    return;
-                }
-            }
-            for (int i = 0; i < sys2Calib.Length; i++)
-            {
-                float newPressure = sys2Calib[i].pressure.Value;
-                float originalPressure = localData.current_sys_2_flow_calib[i].pressure.Value;
-                float diff = (newPressure - originalPressure) / originalPressure;
-
-                if (diff > cellSettings.dispense_system.sys_2_max_pressure_dev_percent)
-                {
-                    Debug.Print($"Calibration failed: System 2 pressure {i} deviated too far from calib ({diff})");
-                    newSys1Calib = localData.current_sys_1_flow_calib;
-                    newSys2Calib = localData.current_sys_2_flow_calib;
-                    success = false;
-                    return;
-                }
+                Debug.Print($"Calibration failed: System 1 pressure deviated too far from calib ({diff})");
+                success = false;
+                return;
             }
 
-            newSys1Calib = sys1Calib;
-            newSys2Calib = sys2Calib;
+            newPressure = calibNew.sys_1_pressure.Value;
+            originalPressure = calibOriginal.sys_1_pressure.Value;
+            diff = Math.Abs((newPressure - originalPressure) / originalPressure);
+
+            if (diff > cellSettings.dispense_system.sys_2_max_pressure_dev_percent)
+            {
+                Debug.Print($"Calibration failed: System 2 pressure deviated too far from calib ({diff})");
+                success = false;
+                return;
+            }
+
+
+
+            // If checks pass, copy new calib data to local data
+
+            localData.calib_data[calibIdx] = calibNew.Clone();
+            App.LocalDataManager.SaveLocalDataToFile();
             success = true;
         }
 

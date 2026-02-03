@@ -1,0 +1,103 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+
+namespace DDMAutoGUI.Utilities
+{
+
+    public class OCRData
+    {
+        public List<OCRResult> results { get; set; }
+    }
+
+    public class OCRResult
+    {
+        public string file { get; set; }
+        public List<OCRString> strings { get; set; }
+    }
+
+    public class OCRString
+    {
+        public string text { get; set; }
+        public float score { get; set; }
+    }
+
+
+
+    public class OCRManager
+    {
+
+        public static string ocrScriptName = "process_images.py";
+        public static string ocrOutputFileName = "ocr_results.json";
+
+        public string ocrScriptPath;
+        public string ocrInputFolder;
+        public string ocrOutputFile;
+
+        public OCRManager()
+        {
+            string appDir = AppContext.BaseDirectory;
+            ocrScriptPath = System.IO.Path.Combine(appDir, "Utilities", "Vision", ocrScriptName);
+            ocrInputFolder = System.IO.Path.Combine(appDir, "acquisitions");
+            ocrOutputFile = System.IO.Path.Combine(appDir, "acquisitions", ocrOutputFileName);
+        }
+
+
+
+        public async Task<OCRData> RunOCR()
+        {
+            await Task.Run(() =>
+            {
+                string arguments =
+                    $"\"{ocrScriptPath}\" " +
+                    $"--input-folder \"{ocrInputFolder}\" " +
+                    $"--output-file \"{ocrOutputFile}\"";
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "py",
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+
+                using (var process = new Process())
+                {
+                    process.StartInfo = startInfo;
+                    process.OutputDataReceived += (s, e) =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(e.Data))
+                            Debug.WriteLine(e.Data);
+                    };
+
+                    process.ErrorDataReceived += (s, e) =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(e.Data))
+                            Debug.WriteLine("ERR: " + e.Data);
+                    };
+
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    process.WaitForExit();
+
+                    int exitCode = process.ExitCode;
+                    Debug.WriteLine($"Python process exited with code {exitCode}");
+                }
+            });
+
+            string fileContent = File.ReadAllText(ocrOutputFile);
+
+            OCRData ocrData = System.Text.Json.JsonSerializer.Deserialize<OCRData>(fileContent);
+            return ocrData;
+        }
+    }
+
+}
+

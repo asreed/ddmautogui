@@ -94,12 +94,6 @@ namespace DDMAutoGUI.utilities
         public CSLaserCoeff? ddm_170_coeff { get; set; }
     }
 
-    public class CSDispenseCalib
-    {
-        public float? pressure { get; set; }
-        public float? flow { get; set; }
-    }
-
     public class CSDispense
     {
         public string? sys_1_contents { get; set; }
@@ -108,8 +102,6 @@ namespace DDMAutoGUI.utilities
         public float? sys_2_max_pressure { get; set; }
         public float? sys_1_max_pressure_dev_percent { get; set; }
         public float? sys_2_max_pressure_dev_percent { get; set; }
-        public CSDispenseCalib[] sys_1_flow_calib { get; set; }
-        public CSDispenseCalib[] sys_2_flow_calib { get; set; }
     }
 
     public class CSDispesePassCriteria

@@ -18,14 +18,25 @@
 
         <Grid Grid.Row="0">
 
-            <Border 
-                x:Name="Alert_MsgBarBdr"
-                Visibility="Collapsed"
-                Style="{StaticResource AlertBar}"
-                Margin="0,0,0,4">
+            <StackPanel Orientation="Vertical">
 
-                <TextBlock x:Name="Alert_MsgTxb" Text="Alert Message"/>
-            </Border>
+                <Border 
+                    x:Name="Warning_MsgBarBdr"
+                    Visibility="Collapsed"
+                    Style="{StaticResource WarningBar}"
+                    Margin="0,0,0,4">
+
+                    <TextBlock x:Name="Warning_MsgTxb" Text="Warning Message"/>
+                </Border>
+                <Border 
+                    x:Name="Alert_MsgBarBdr"
+                    Visibility="Collapsed"
+                    Style="{StaticResource AlertBar}"
+                    Margin="0,0,0,4">
+
+                    <TextBlock x:Name="Alert_MsgTxb" Text="Alert Message"/>
+                </Border>
+            </StackPanel>
 
         </Grid>
 
@@ -1425,7 +1436,7 @@
 
 
                             </TabItem>
-                            <TabItem Header="Camera">
+                            <TabItem Header="Vision">
 
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -1433,6 +1444,34 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="300"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid Grid.Row="0" Grid.Column="1">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <GroupBox Header="OCR Processing" Grid.Row="0">
+                                            <StackPanel Orientation="Vertical">
+                                                <TextBox x:Name="Adv_Cam_OCRPathTxb"/>
+                                                <Button x:Name="Adv_Cam_RunOCR" Click="Adv_Cam_RunOCR_Click" Content="Process" Style="{StaticResource SmallButton}"/>
+
+                                                <ProgressBar
+                                                     x:Name="Adv_Cam_OCRPrg"
+                                                     Margin="4"
+                                                     Height="5"
+                                                     BorderBrush="Transparent"
+                                                     IsIndeterminate="True"
+                                                     Visibility="Collapsed"/>
+                                            </StackPanel>
+                                        </GroupBox>
+                                        <GroupBox Grid.Row="1" Header="OCR Results">
+                                            <TextBox x:Name="Adv_Cam_OCRResTxb" Style="{StaticResource MonoTextBox}" FontSize="9.5"/>
+                                        </GroupBox>
+                                    </Grid>
 
 
                                     <Grid Grid.Row="0" Background="White" Margin="6,6,6,0">

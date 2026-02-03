@@ -14,28 +14,9 @@
     "sys_2_contents": "Permabond 825",
     "sys_1_max_pressure": 55,
     "sys_2_max_pressure": 55,
-    "sys_1_max_pressure_dev_percent": 15,
-    "sys_2_max_pressure_dev_percent": 15,
-    "sys_1_flow_calib": [
-      {
-        "pressure": 4.5,
-        "flow": 0.25
-      },
-      {
-        "pressure": 6.8,
-        "flow": 0.4
-      },
-      {
-        "pressure": 14.8,
-        "flow": 0.9
-      }
-    ],
-    "sys_2_flow_calib": [
-      {
-        "pressure": 30.0,
-        "flow": 0.15
-      }
-    ]
+    "sys_1_max_pressure_dev_percent": 30,
+    "sys_2_max_pressure_dev_percent": 80,
+    "calib_exp_hours": 2
   },
   "laser_calib": {
     "ddm_57_coeff": {

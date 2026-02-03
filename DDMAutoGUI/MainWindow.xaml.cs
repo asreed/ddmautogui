@@ -243,36 +243,41 @@ namespace DDMAutoGUI
                 {
                     App.ResultsManager.AddToLog($"Setting dispense system pressures for {motorName}...");
 
-                    sysID = motor.shot_settings.sys_num_id.Value;
-                    sysOD = motor.shot_settings.sys_num_od.Value;
+                    int idx = App.LocalDataManager.GetCalibIdxFromMotorName(motorName);
 
-                    pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
-                    pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
+                    //sysID = motor.shot_settings.sys_num_id.Value;
+                    //sysOD = motor.shot_settings.sys_num_od.Value;
 
-                    // maybe there's a cleaner way to do this:
-                    float? _pressure1 = null, _pressure2 = null;
-                    if (sysID == 1)
-                    {
-                        _pressure1 = pressureID;
-                    }
-                    else if (sysID == 2)
-                    {
-                        _pressure2 = pressureID;
-                    }
-                    if (sysOD == 1)
-                    {
-                        _pressure1 = pressureOD;
-                    }
-                    else if (sysOD == 2)
-                    {
-                        _pressure2 = pressureOD;
-                    }
-                    //(if sysID == sysOD, both local pressures will be identical anyway so no need to check)
+                    //pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
+                    //pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
+
+                    float _pressure1 = App.LocalDataManager.localData.calib_data[idx].sys_1_pressure.Value;
+                    float _pressure2 = App.LocalDataManager.localData.calib_data[idx].sys_2_pressure.Value;
+
+                    //// maybe there's a cleaner way to do this:
+                    //float? _pressure1 = null, _pressure2 = null;
+                    //if (sysID == 1)
+                    //{
+                    //    _pressure1 = pressureID;
+                    //}
+                    //else if (sysID == 2)
+                    //{
+                    //    _pressure2 = pressureID;
+                    //}
+                    //if (sysOD == 1)
+                    //{
+                    //    _pressure1 = pressureOD;
+                    //}
+                    //else if (sysOD == 2)
+                    //{
+                    //    _pressure2 = pressureOD;
+                    //}
+                    ////(if sysID == sysOD, both local pressures will be identical anyway so no need to check)
 
                     if (_pressure1 != null)
                     {
                         App.ResultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1:F3} psi");
-                        response = await App.ControllerManager.SetRegPressure(1, _pressure1.Value);
+                        response = await App.ControllerManager.SetRegPressure(1, _pressure1);
                     }
                     else
                     {
@@ -281,7 +286,7 @@ namespace DDMAutoGUI
                     if (_pressure2 != null)
                     {
                         App.ResultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2:F3} psi");
-                        response = await App.ControllerManager.SetRegPressure(2, _pressure2.Value);
+                        response = await App.ControllerManager.SetRegPressure(2, _pressure2);
                     }
                     else
                     {
@@ -497,7 +502,7 @@ namespace DDMAutoGUI
                 if (App.advancedOptions.dispenseOptions.autocalibrate)
                 {
 
-                    App.ResultsManager.AddToLog("Autocalibrating...");
+                    App.ResultsManager.AddToLog("Autocalibrating pressures...");
 
                     if (App.ResultsManager.currentResults.shot_data == null)
                     {
@@ -505,25 +510,22 @@ namespace DDMAutoGUI
                         throw new Exception("Autocalibration failed");
                     }
 
-                    CSDispenseCalib[] newSys1Calib;
-                    CSDispenseCalib[] newSys2Calib;
-                    float sf1, sf2;
                     bool calibSuccess;
+                    float sf1, sf2;
+                    int idx = App.LocalDataManager.GetCalibIdxFromMotorName(motorName);
 
                     FlowCalibration.CalibratePressures(
                         App.ResultsManager.currentResults.shot_data,
                         App.SettingsManager.GetAllSettings(),
                         App.LocalDataManager.localData,
+                        idx,
                         out calibSuccess,
-                        out newSys1Calib,
-                        out newSys2Calib,
                         out sf1,
                         out sf2);
 
                     if (calibSuccess)
                     {
-                        App.LocalDataManager.UpdateCalib(1, newSys1Calib);
-                        App.LocalDataManager.UpdateCalib(2, newSys2Calib);
+
                     }
                     else
                     {
@@ -533,39 +535,48 @@ namespace DDMAutoGUI
                     App.ResultsManager.currentResults.reference_data.autocal_sf_1 = sf1;
                     App.ResultsManager.currentResults.reference_data.autocal_sf_2 = sf2;
 
-                    App.ResultsManager.AddToLog("Saving updated calibration data to local storage...");
-                    App.LocalDataManager.SaveLocalDataToFile();
-                    App.ResultsManager.AddToLog("Calibration data saved");
+                    float _pressure1 = App.LocalDataManager.localData.calib_data[idx].sys_1_pressure.Value;
+                    float _pressure2 = App.LocalDataManager.localData.calib_data[idx].sys_2_pressure.Value;
+
+                    App.ResultsManager.AddToLog($"Autocalibration succeeded");
+                    App.ResultsManager.AddToLog($"{tb}System 1:");
+                    App.ResultsManager.AddToLog($"{tb}{tb}SF: {sf1:F3}");
+                    App.ResultsManager.AddToLog($"{tb}{tb}New pressure: {_pressure1:F3}");
+                    App.ResultsManager.AddToLog($"{tb}System 2:");
+                    App.ResultsManager.AddToLog($"{tb}{tb}SF: {sf2:F3}");
+                    App.ResultsManager.AddToLog($"{tb}{tb}New pressure: {_pressure2:F3}");
+                    App.ResultsManager.AddToLog($"Autocalibration succeeded");
 
                     App.ResultsManager.AddToLog("Adjusting dispense system pressures...");
 
-                    sysID = motor.shot_settings.sys_num_id.Value;
-                    sysOD = motor.shot_settings.sys_num_od.Value;
+                    //sysID = motor.shot_settings.sys_num_id.Value;
+                    //sysOD = motor.shot_settings.sys_num_od.Value;
 
-                    pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
-                    pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
+                    //pressureID = App.LocalDataManager.GetPressureFromFlowrate(sysID, motor.shot_settings.target_flow_id.Value).Value;
+                    //pressureOD = App.LocalDataManager.GetPressureFromFlowrate(sysOD, motor.shot_settings.target_flow_od.Value).Value;
 
-                    float? _pressure1 = null, _pressure2 = null;
-                    if (sysID == 1)
-                    {
-                        _pressure1 = pressureID;
-                    }
-                    else if (sysID == 2)
-                    {
-                        _pressure2 = pressureID;
-                    }
-                    if (sysOD == 1)
-                    {
-                        _pressure1 = pressureOD;
-                    }
-                    else if (sysOD == 2)
-                    {
-                        _pressure2 = pressureOD;
-                    }
+                    //float? _pressure1 = null, _pressure2 = null;
+                    //if (sysID == 1)
+                    //{
+                    //    _pressure1 = pressureID;
+                    //}
+                    //else if (sysID == 2)
+                    //{
+                    //    _pressure2 = pressureID;
+                    //}
+                    //if (sysOD == 1)
+                    //{
+                    //    _pressure1 = pressureOD;
+                    //}
+                    //else if (sysOD == 2)
+                    //{
+                    //    _pressure2 = pressureOD;
+                    //}
+
                     if (_pressure1 != null)
                     {
                         App.ResultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1:F3} psi");
-                        response = await App.ControllerManager.SetRegPressure(1, _pressure1.Value);
+                        response = await App.ControllerManager.SetRegPressure(1, _pressure1);
                     }
                     else
                     {
@@ -574,7 +585,7 @@ namespace DDMAutoGUI
                     if (_pressure2 != null)
                     {
                         App.ResultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2:F3} psi");
-                        response = await App.ControllerManager.SetRegPressure(2, _pressure2.Value);
+                        response = await App.ControllerManager.SetRegPressure(2, _pressure2);
                     }
                     else
                     {
@@ -2746,6 +2757,23 @@ namespace DDMAutoGUI
 
             Calib_Flow_116_CalibBtn.IsEnabled = true;
             Calib_Flow_116_CalibPrg.Visibility = Visibility.Collapsed;
+        }
+
+        private async void Adv_Cam_RunOCR_Click(object sender, RoutedEventArgs e)
+        {
+            string name = Adv_Cam_OCRPathTxb.Text;
+            Adv_Cam_OCRPrg.Visibility = Visibility.Visible;
+
+            OCRData data = await App.OCRManager.RunOCR();
+            if (data != null)
+            {
+                Adv_Cam_OCRResTxb.Text = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+            } else
+            {
+                Adv_Cam_OCRResTxb.Text = "Error reading OCR results";
+            }
+
+            Adv_Cam_OCRPrg.Visibility = Visibility.Collapsed;
         }
     }
 }

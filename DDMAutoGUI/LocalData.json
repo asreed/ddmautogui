@@ -1,25 +1,45 @@
 {
   "controller_ip": "192.168.0.1",
-  "last_sys_1_calib_update": "2026-01-17T19:48:05.5298899-08:00",
-  "last_sys_2_calib_update": "2026-01-17T19:48:05.5298941-08:00",
-  "current_sys_1_flow_calib": [
+  "calib_data": [
     {
-      "pressure": 4.7584095,
-      "flow": 0.25
+      "type": "ddm_57",
+      "last_update": "2026-01-17T19:48:05.5298899-08:00",
+      "sys_1_pressure": 4.7584095,
+      "sys_1_flow": 0.25,
+      "sys_2_pressure": null,
+      "sys_2_flow": null
     },
     {
-      "pressure": 7.190485,
-      "flow": 0.4
+      "type": "ddm_95",
+      "last_update": "2026-01-17T19:48:05.5298899-08:00",
+      "sys_1_pressure": 7.190485,
+      "sys_1_flow": 0.4,
+      "sys_2_pressure": null,
+      "sys_2_flow": null
     },
     {
-      "pressure": 15.649879,
-      "flow": 0.9
-    }
-  ],
-  "current_sys_2_flow_calib": [
+      "type": "ddm_116",
+      "last_update": "2026-01-17T19:48:05.5298899-08:00",
+      "sys_1_pressure": 7.190485,
+      "sys_1_flow": 0.4,
+      "sys_2_pressure": 29.72533,
+      "sys_2_flow": 0.15
+    },
     {
-      "pressure": 29.72533,
-      "flow": 0.15
+      "type": "ddm_170",
+      "last_update": "2026-01-17T19:48:05.5298899-08:00",
+      "sys_1_pressure": 15.649879,
+      "sys_1_flow": 0.9,
+      "sys_2_pressure": null,
+      "sys_2_flow": null
+    },
+    {
+      "type": "ddm_170_tall",
+      "last_update": "2026-01-17T19:48:05.5298899-08:00",
+      "sys_1_pressure": 15.649879,
+      "sys_1_flow": 0.9,
+      "sys_2_pressure": null,
+      "sys_2_flow": null
     }
   ]
 }
