@@ -1,22 +1,43 @@
 {
   "last_saved": "2026-01-16T18:04:20.3975532-08:00",
+  "controller_ip": "192.168.0.1",
   "camera_top_sn": "252902469",
   "camera_side_sn": "252902472",
   "laser_delay": 0.05,
   "hall_spin_speed": 50,
   "hall_spin_time": 3,
-  "dispense_pass_criteria": {
-    "max_id_vol_dev_percent": 10,
-    "max_od_vol_dev_percent": 10
-  },
   "dispense_system": {
     "sys_1_contents": "Permabond 801",
     "sys_2_contents": "Permabond 825",
     "sys_1_max_pressure": 55,
     "sys_2_max_pressure": 55,
-    "sys_1_max_pressure_dev_percent": 30,
+    "sys_1_max_pressure_dev_percent": 50,
     "sys_2_max_pressure_dev_percent": 80,
-    "calib_exp_hours": 2
+    "id_vol_max_err_percent": 10,
+    "od_vol_max_err_percent": 10,
+    "calib_exp_hours": 2,
+    "default_pressures": {
+      "ddm_57": {
+        "sys_1_pressure": 4.8,
+        "sys_2_pressure": null
+      },
+      "ddm_95": {
+        "sys_1_pressure": 7.2,
+        "sys_2_pressure": null
+      },
+      "ddm_116": {
+        "sys_1_pressure": 7.2,
+        "sys_2_pressure": 29.7
+      },
+      "ddm_170": {
+        "sys_1_pressure": 15.6,
+        "sys_2_pressure": null
+      },
+      "ddm_170_tall": {
+        "sys_1_pressure": 15.6,
+        "sys_2_pressure": null
+      }
+    }
   },
   "laser_calib": {
     "ddm_57_coeff": {
@@ -52,12 +73,12 @@
   },
   "ddm_57": {
     "shot_settings": {
-      "sys_num_id": 1,
-      "sys_num_od": 1,
-      "target_vol_id": 0.157,
-      "target_vol_od": 0.205,
-      "target_flow_id": 0.25,
-      "target_flow_od": 0.25
+      "id_sys_num": 1,
+      "id_target_vol": 0.157,
+      "id_target_flow": 0.25,
+      "od_sys_num": 1,
+      "od_target_vol": 0.205,
+      "od_target_flow": 0.25
     },
     "post_spin_time": 0,
     "post_spin_speed": 100,
@@ -67,11 +88,11 @@
       "x": 490,
       "t": -121.982
     },
-    "disp_id": {
+    "id_disp": {
       "x": 617.844,
       "t": 0
     },
-    "disp_od": {
+    "od_disp": {
       "x": 613.206,
       "t": 0
     },
@@ -90,12 +111,12 @@
   },
   "ddm_95": {
     "shot_settings": {
-      "sys_num_id": 1,
-      "sys_num_od": 1,
-      "target_vol_id": 0.453,
-      "target_vol_od": 0.558,
-      "target_flow_id": 0.25,
-      "target_flow_od": 0.25
+      "id_sys_num": 1,
+      "id_target_vol": 0.453,
+      "id_target_flow": 0.25,
+      "od_sys_num": 1,
+      "od_target_vol": 0.558,
+      "od_target_flow": 0.25
     },
     "post_spin_time": 0,
     "post_spin_speed": 100,
@@ -105,11 +126,11 @@
       "x": 490,
       "t": -121.982
     },
-    "disp_id": {
+    "id_disp": {
       "x": 600.734,
       "t": 0
     },
-    "disp_od": {
+    "od_disp": {
       "x": 596.067,
       "t": 0
     },
@@ -128,12 +149,12 @@
   },
   "ddm_116": {
     "shot_settings": {
-      "sys_num_id": 2,
-      "sys_num_od": 1,
-      "target_vol_id": 0.75,
-      "target_vol_od": 0.85,
-      "target_flow_id": 0.15,
-      "target_flow_od": 0.4
+      "id_sys_num": 2,
+      "id_target_vol": 0.75,
+      "id_target_flow": 0.15,
+      "od_sys_num": 1,
+      "od_target_vol": 0.85,
+      "od_target_flow": 0.4
     },
     "post_spin_time": 0,
     "post_spin_speed": 100,
@@ -143,11 +164,11 @@
       "x": 581.97,
       "t": -121.982
     },
-    "disp_id": {
+    "id_disp": {
       "x": 694.305,
       "t": 0
     },
-    "disp_od": {
+    "od_disp": {
       "x": 584.841,
       "t": 0
     },
@@ -166,12 +187,12 @@
   },
   "ddm_170": {
     "shot_settings": {
-      "sys_num_id": 1,
-      "sys_num_od": 1,
-      "target_vol_id": 1.31,
-      "target_vol_od": 1.57,
-      "target_flow_id": 0.9,
-      "target_flow_od": 0.9
+      "id_sys_num": 1,
+      "id_target_vol": 1.31,
+      "id_target_flow": 0.9,
+      "od_sys_num": 1,
+      "od_target_vol": 1.57,
+      "od_target_flow": 0.9
     },
     "post_spin_time": 0,
     "post_spin_speed": 100,
@@ -181,11 +202,11 @@
       "x": 490,
       "t": -121.982
     },
-    "disp_id": {
+    "id_disp": {
       "x": 568.3,
       "t": 0
     },
-    "disp_od": {
+    "od_disp": {
       "x": 558.939,
       "t": 0
     },
@@ -204,12 +225,12 @@
   },
   "ddm_170_tall": {
     "shot_settings": {
-      "sys_num_id": 2,
-      "sys_num_od": 1,
-      "target_vol_id": 1.953,
-      "target_vol_od": 2.344,
-      "target_flow_id": 0.15,
-      "target_flow_od": 0.9
+      "id_sys_num": 2,
+      "id_target_vol": 1.953,
+      "id_target_flow": 0.15,
+      "od_sys_num": 1,
+      "od_target_vol": 2.344,
+      "od_target_flow": 0.9
     },
     "post_spin_time": 0,
     "post_spin_speed": 100,
@@ -219,11 +240,11 @@
       "x": 490,
       "t": -121.982
     },
-    "disp_id": {
+    "id_disp": {
       "x": 669.779,
       "t": 0
     },
-    "disp_od": {
+    "od_disp": {
       "x": 558.939,
       "t": 0
     },

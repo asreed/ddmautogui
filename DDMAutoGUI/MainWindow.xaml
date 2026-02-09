@@ -577,7 +577,7 @@
                                     </TabItem>
                                 </TabControl>
 
-                                
+
 
                             </TabItem>
 
@@ -631,6 +631,7 @@
                 <TabItem x:Name="AdvTab" Header="Dev" Tag="Resources/icons/settings.ico" Style="{StaticResource MainTab}" Visibility="Visible">
 
                     <Grid Margin="-2">
+
                         <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Margin="6" Visibility="Hidden">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -668,141 +669,232 @@
                         </Border>
 
                         <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="6"  Background="WhiteSmoke">
-
-                            <TabItem Header="Options">
-                                <StackPanel Orientation="Vertical" Margin="6">
-                                    <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
-                                        <StackPanel Orientation="Vertical">
-                                            <CheckBox x:Name="Adv_Opt_Con_ControllerChk" Content="Controller" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_IOLinkChk" Content="IO Link Devices" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_TopCamChk" Content="Top Camera" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_SideCamChk" Content="Side Camera" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_LaserChk" Content="Laser Sensor" IsChecked="True"/>
-                                            <CheckBox Visibility="Collapsed" x:Name="Adv_Opt_Con_DAQChk" Content="DAQ Device" IsChecked="True"/>
-                                        </StackPanel>
-                                    </GroupBox>
-                                    <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">
-                                        <StackPanel Orientation="Vertical">
-                                            <CheckBox x:Name="Adv_Opt_Disp_HealthChk" Content="Check Health" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk" Content="Photo Top" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk" Content="Photo Side" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Measure Heights" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_DispChk" Content="Dispense" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Measure Polarity" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoAfterChk" Content="Photo Top After" IsChecked="True"/>
-                                        </StackPanel>
-                                    </GroupBox>
-                                </StackPanel>
-                                <!--</StackPanel>-->
-                                <!--<StackPanel Orientation="Vertical" Margin="6">
-                                    <Button x:Name="Adv_Res_OpenFolderBtn" Click="Adv_Res_OpenFolderBtn_Click" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Test Matlab script" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                </StackPanel>-->
-                            </TabItem>
-
-
                             <TabItem Header="Cell Control Panel">
 
-                                <Grid>
+                                <Grid x:Name="robotBtnContainer">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="320"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
 
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
+                                    <GroupBox Header="System State" Grid.Column="0">
+                                        <TabControl>
+                                            <TabItem Header="Overview">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                    <Grid>
 
-                                    <Grid Grid.Row="0">
+                                                        <Grid.Resources>
+                                                            <Style TargetType="Label">
+                                                                <Setter Property="Padding" Value="0"/>
+                                                                <Setter Property="Margin" Value="2"/>
+                                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            </Style>
 
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="180"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
+                                                            <Style TargetType="Label" x:Key="readout">
+                                                                <Setter Property="Padding" Value="5,2,5,2"/>
+                                                                <Setter Property="Margin" Value="2"/>
+                                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                                                <Setter Property="Background" Value="WhiteSmoke"/>
+                                                            </Style>
+                                                        </Grid.Resources>
+
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition/>
+                                                            <ColumnDefinition/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+
+                                                        <GroupBox Header="System"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="150"/>
+                                                                    <ColumnDefinition/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <Label Grid.Row="0" Grid.Column="0" Content="System pressure:"/>
+                                                                <Label Grid.Row="0" Grid.Column="1" x:Name="roSysPressure" Content="-" Style="{DynamicResource readout}"/>
+                                                            </Grid>
+                                                        </GroupBox>
+                                                        <GroupBox Header="Robot"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="150"/>
+                                                                    <ColumnDefinition/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <Label Grid.Row="0" Grid.Column="0" Content="Power enabled:"/>
+                                                                <Label Grid.Row="0" Grid.Column="1" x:Name="roPowerEnabled" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="1" Grid.Column="0" Content="Robot homed:"/>
+                                                                <Label Grid.Row="1" Grid.Column="1" x:Name="roRobotHomed" Content="-" Style="{DynamicResource readout}"/>
 
 
-                                            <GroupBox Header="Connection" Grid.Column="0">
-                                                <TextBlock
-                                                    x:Name="Adv_Cell_ConnectedStatusTxt"
-                                                    Text="Not connected" 
-                                                    Foreground="Red"
-                                                    TextWrapping="Wrap"
-                                                    TextAlignment="Left"
-                                                    HorizontalAlignment="Left" 
-                                                    VerticalAlignment="Top"/>
-                                            </GroupBox>
+                                                                <Label Grid.Row="2" Grid.Column="0" Content="Linear position:"/>
+                                                                <Label Grid.Row="2" Grid.Column="1" x:Name="roLinPos" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="3" Grid.Column="0" Content="Rotary position:"/>
+                                                                <Label Grid.Row="3" Grid.Column="1" x:Name="roRotPos" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="4" Grid.Column="0" Content="Rail flags:"/>
+                                                                <Grid Grid.Row="4" Grid.Column="1">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition/>
+                                                                        <ColumnDefinition/>
+                                                                        <ColumnDefinition/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Label Grid.Column="0" x:Name="roLinFlag1" Content="-" Style="{DynamicResource readout}"/>
+                                                                    <Label Grid.Column="1" x:Name="roLinFlag2" Content="-" Style="{DynamicResource readout}"/>
+                                                                    <Label Grid.Column="2" x:Name="roLinFlag3" Content="-" Style="{DynamicResource readout}"/>
+                                                                </Grid>
 
-                                            <!--<GroupBox Header="Auto Status" Visibility="Collapsed">
-                                                <StackPanel Orientation="Vertical">
-                                                    <TextBlock
-                                                        x:Name="Adv_Cell_AutoStatusTxt"
-                                                        Text="No status" 
-                                                        Foreground="Red"
-                                                        TextWrapping="Wrap"
-                                                        TextAlignment="Left"
-                                                        HorizontalAlignment="Left" 
-                                                        VerticalAlignment="Center"/>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        --><!--<Button x:Name="Adv_Cell_AutoStartBtn" Content="Start" Click="Adv_Cell_AutoStartBtn_Click"/>-->
-                                                        <!--<Button x:Name="Adv_Cell_AutoStopBtn" Content="Stop" Click="Adv_Cell_AutoStopBtn_Click"/>--><!--
-                                                    </StackPanel>
-                                                </StackPanel>
-                                            </GroupBox>-->
+                                                            </Grid>
+                                                        </GroupBox>
+                                                        <GroupBox Header="Dispense System 1 (ID)"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="150"/>
+                                                                    <ColumnDefinition/>
+                                                                </Grid.ColumnDefinitions>
 
-                                        <GroupBox Grid.Column="1" Header="Motor Settings" >
+                                                                <Label Grid.Row="0" Grid.Column="0" Content="Pressure command:"/>
+                                                                <Label Grid.Row="0" Grid.Column="1" x:Name="roPresCmd1" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="1" Grid.Column="0" Content="Pressure measurement:"/>
+                                                                <Label Grid.Row="1" Grid.Column="1" x:Name="roPresMeas1" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="2" Grid.Column="0" Content="Flow volume:"/>
+                                                                <Label Grid.Row="2" Grid.Column="1" x:Name="roFlowVol1" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="3" Grid.Column="0" Content="Flow error:"/>
+                                                                <Label Grid.Row="3" Grid.Column="1" x:Name="roFlowErr1" Content="-" Style="{DynamicResource readout}"/>
+
+                                                            </Grid>
+                                                        </GroupBox>
+                                                        <GroupBox Header="Dispense System 2 (OD)"  Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="150"/>
+                                                                    <ColumnDefinition/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <Label Grid.Row="0" Grid.Column="0" Content="Pressure command:"/>
+                                                                <Label Grid.Row="0" Grid.Column="1" x:Name="roPresCmd2" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="1" Grid.Column="0" Content="Pressure measurement:"/>
+                                                                <Label Grid.Row="1" Grid.Column="1" x:Name="roPresMeas2" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="2" Grid.Column="0" Content="Flow volume:"/>
+                                                                <Label Grid.Row="2" Grid.Column="1" x:Name="roFlowVol2" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="3" Grid.Column="0" Content="Flow error:"/>
+                                                                <Label Grid.Row="3" Grid.Column="1" x:Name="roFlowErr2" Content="-" Style="{DynamicResource readout}"/>
+
+                                                            </Grid>
+                                                        </GroupBox>
+
+                                                    </Grid>
+                                                </ScrollViewer>
+                                            </TabItem>
+
+                                            <TabItem Header="Safety">
+                                                <Grid>
+
+                                                    <Grid.Resources>
+                                                        <Style TargetType="Label">
+                                                            <Setter Property="Padding" Value="0"/>
+                                                            <Setter Property="Margin" Value="2"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                        </Style>
+
+                                                        <Style TargetType="Label" x:Key="readout">
+                                                            <Setter Property="Padding" Value="5,2,5,2"/>
+                                                            <Setter Property="Margin" Value="2"/>
+                                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                                            <Setter Property="Background" Value="WhiteSmoke"/>
+                                                        </Style>
+                                                    </Grid.Resources>
+
+
+
+
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+
+                                                    <GroupBox Header="Robot"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                                                        <Grid>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="150"/>
+                                                                <ColumnDefinition/>
+                                                            </Grid.ColumnDefinitions>
+
+                                                            <Label Grid.Row="0" Grid.Column="0" Content="Safety controller state:"/>
+                                                            <Label Grid.Row="0" Grid.Column="1" x:Name="roSafetyContState" Content="-" Style="{DynamicResource readout}"/>
+                                                            <Label Grid.Row="1" Grid.Column="0" Content="Safety error state:"/>
+                                                            <Label Grid.Row="1" Grid.Column="1" x:Name="roSafetyErrState" Content="-" Style="{DynamicResource readout}"/>
+
+                                                        </Grid>
+                                                    </GroupBox>
+                                                </Grid>
+                                            </TabItem>
+
+                                        </TabControl>
+                                    </GroupBox>
+
+                                    <Grid Grid.Column="1">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <GroupBox Grid.Row="0" Header="Motor Settings" >
                                             <StackPanel Orientation="Horizontal">
-                                                <ComboBox x:Name="Adv_Cell_MotorSizeCmb" VerticalAlignment="Top" SelectionChanged="Adv_Cell_MotorSizeCmb_OnSelectionChanged" Height="28">
+                                                <ComboBox x:Name="Adv_Cell_MotorSizeCmb" VerticalAlignment="Center" SelectionChanged="Adv_Cell_MotorSizeCmb_OnSelectionChanged">
                                                     <ComboBoxItem Content="DDM 57" />
                                                     <ComboBoxItem Content="DDM 95" />
                                                     <ComboBoxItem Content="DDM 116" IsSelected="True"/>
                                                     <ComboBoxItem Content="DDM 170" />
                                                     <ComboBoxItem Content="DDM 170 Tall" />
                                                 </ComboBox>
-                                                <!--<Button x:Name="Adv_Cell_OpenSettingsBtn" Content="Open file" Click="Adv_Cell_OpenSettingsBtn_Click" Style="{StaticResource SmallButton}" />-->
-                                                <Button x:Name="Adv_Cell_ReloadSettingsBtn" Content="Reload" Click="Adv_Cell_ReloadSettingsBtn_Click" Style="{StaticResource SmallButton}" VerticalAlignment="Top" Height="28" Margin="12,0,0,0"/>
+                                                <Button x:Name="Adv_Cell_ReloadSettingsBtn" Content="Reload" Click="Adv_Cell_ReloadSettingsBtn_Click" Style="{StaticResource SmallButton}" VerticalAlignment="Top" Height="26" Margin="12,0,0,0" Padding="8,0"/>
                                             </StackPanel>
                                         </GroupBox>
-
-                                        <GroupBox Header="Version Information" Grid.Column="2" Visibility="Collapsed">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition/>
-                                                </Grid.ColumnDefinitions>
-
-                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Manager UI:"/>
-                                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Controller TCS:"/>
-                                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Controller config:" Margin="0,0,12,0"/>
-
-                                                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_GUIVersionLbl" Text="-"/>
-                                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_TCSVersionLbl" Text="-"/>
-                                                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_PACVersionLbl" Text="-"/>
-                                            </Grid>
-                                        </GroupBox>
-                                        <!--<GroupBox Header="Emergency" Grid.Column="3">
-                                            <StackPanel Orientation="Horizontal" Grid.Column="1">
-                                                <Button x:Name="Adv_Cell_EStopBtn" Content="E STOP" Style="{DynamicResource RedButton}" Padding="10" Click="Adv_Cell_EStopBtn_Click" VerticalAlignment="Top"/>
-                                                <Button x:Name="Adv_Cell_ECloseValvesBtn" Content="CLOSE VALVES" Style="{DynamicResource RedButton}" Padding="10" Click="Adv_Cell_ECloseValvesBtn_Click" VerticalAlignment="Top"/>
-                                            </StackPanel>
-                                        </GroupBox>-->
-                                    </Grid>
-
-                                    <Grid Grid.Row="1" x:Name="robotBtnContainer">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="320"/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <GroupBox Header="Robot Thread Commands" Grid.Column="1">
-
-
-                                            <TabControl>
+                                        <GroupBox Header="Robot Thread Commands" Grid.Row="1">
+                                            <TabControl Grid.Row="1">
 
                                                 <TabItem Header="Robot">
 
@@ -882,17 +974,8 @@
                                                                     <Button Grid.Row="6" Grid.Column="1" x:Name="Adv_Cell_MoveDispODBtn" Content="Move, dispense OD" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveDispODBtn_Click"/>
                                                                     <Label  Grid.Row="6" Grid.Column="2" x:Name="Adv_Cell_MoveDispODOutLbl" Content="-"/>
 
-                                                                    <!--<Label  Grid.Row="7" Grid.Column="0" x:Name="Adv_Cell_MoveSpinInLbl" Content="-"/>
-                                                                    <Button Grid.Row="7" Grid.Column="1" x:Name="Adv_Cell_MoveSpinBtn" Content="Move, spin in place" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveSpinBtn_Click"/>
-                                                                    <Label  Grid.Row="7" Grid.Column="2" x:Name="Adv_Cell_MoveSpinOutLbl" Content="-"/>-->
-
                                                                 </Grid>
                                                             </GroupBox>
-
-
-
-
-
 
                                                         </StackPanel>
                                                     </ScrollViewer>
@@ -1114,220 +1197,8 @@
                                                 </TabItem>
 
                                             </TabControl>
-
-                                        </GroupBox>
-
-                                        <GroupBox Header="System State" Grid.Column="0">
-
-                                            <TabControl>
-                                                <TabItem Header="Overview">
-                                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-
-                                                        <Grid>
-
-                                                            <Grid.Resources>
-                                                                <Style TargetType="Label">
-                                                                    <Setter Property="Padding" Value="0"/>
-                                                                    <Setter Property="Margin" Value="2"/>
-                                                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                                                </Style>
-
-                                                                <Style TargetType="Label" x:Key="readout">
-                                                                    <Setter Property="Padding" Value="5,2,5,2"/>
-                                                                    <Setter Property="Margin" Value="2"/>
-                                                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                                                    <Setter Property="Background" Value="WhiteSmoke"/>
-                                                                </Style>
-                                                            </Grid.Resources>
-
-
-
-
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition/>
-                                                                <ColumnDefinition/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <Grid.RowDefinitions>
-                                                                <RowDefinition Height="Auto"/>
-                                                                <RowDefinition Height="Auto"/>
-                                                                <RowDefinition Height="Auto"/>
-                                                                <RowDefinition Height="Auto"/>
-                                                                <RowDefinition Height="Auto"/>
-                                                            </Grid.RowDefinitions>
-
-
-                                                            <GroupBox Header="System"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-                                                                <Grid>
-                                                                    <Grid.RowDefinitions>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                    </Grid.RowDefinitions>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="150"/>
-                                                                        <ColumnDefinition/>
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <Label Grid.Row="0" Grid.Column="0" Content="System pressure:"/>
-                                                                    <Label Grid.Row="0" Grid.Column="1" x:Name="roSysPressure" Content="-" Style="{DynamicResource readout}"/>
-                                                                </Grid>
-                                                            </GroupBox>
-                                                            <GroupBox Header="Robot"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
-                                                                <Grid>
-                                                                    <Grid.RowDefinitions>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                    </Grid.RowDefinitions>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="150"/>
-                                                                        <ColumnDefinition/>
-                                                                    </Grid.ColumnDefinitions>
-
-                                                                    <Label Grid.Row="0" Grid.Column="0" Content="Power enabled:"/>
-                                                                    <Label Grid.Row="0" Grid.Column="1" x:Name="roPowerEnabled" Content="-" Style="{DynamicResource readout}"/>
-                                                                    <Label Grid.Row="1" Grid.Column="0" Content="Robot homed:"/>
-                                                                    <Label Grid.Row="1" Grid.Column="1" x:Name="roRobotHomed" Content="-" Style="{DynamicResource readout}"/>
-
-
-                                                                    <Label Grid.Row="2" Grid.Column="0" Content="Linear position:"/>
-                                                                    <Label Grid.Row="2" Grid.Column="1" x:Name="roLinPos" Content="-" Style="{DynamicResource readout}"/>
-                                                                    <Label Grid.Row="3" Grid.Column="0" Content="Rotary position:"/>
-                                                                    <Label Grid.Row="3" Grid.Column="1" x:Name="roRotPos" Content="-" Style="{DynamicResource readout}"/>
-                                                                    <Label Grid.Row="4" Grid.Column="0" Content="Rail flags:"/>
-                                                                    <Grid Grid.Row="4" Grid.Column="1">
-                                                                        <Grid.ColumnDefinitions>
-                                                                            <ColumnDefinition/>
-                                                                            <ColumnDefinition/>
-                                                                            <ColumnDefinition/>
-                                                                        </Grid.ColumnDefinitions>
-                                                                        <Label Grid.Column="0" x:Name="roLinFlag1" Content="-" Style="{DynamicResource readout}"/>
-                                                                        <Label Grid.Column="1" x:Name="roLinFlag2" Content="-" Style="{DynamicResource readout}"/>
-                                                                        <Label Grid.Column="2" x:Name="roLinFlag3" Content="-" Style="{DynamicResource readout}"/>
-                                                                    </Grid>
-
-                                                                </Grid>
-                                                            </GroupBox>
-
-
-                                                            <GroupBox Header="Dispense System 1 (ID)"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
-                                                                <Grid>
-                                                                    <Grid.RowDefinitions>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                    </Grid.RowDefinitions>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="150"/>
-                                                                        <ColumnDefinition/>
-                                                                    </Grid.ColumnDefinitions>
-
-                                                                    <Label Grid.Row="0" Grid.Column="0" Content="Pressure command:"/>
-                                                                    <Label Grid.Row="0" Grid.Column="1" x:Name="roPresCmd1" Content="-" Style="{DynamicResource readout}"/>
-                                                                    <Label Grid.Row="1" Grid.Column="0" Content="Pressure measurement:"/>
-                                                                    <Label Grid.Row="1" Grid.Column="1" x:Name="roPresMeas1" Content="-" Style="{DynamicResource readout}"/>
-                                                                    <Label Grid.Row="2" Grid.Column="0" Content="Flow volume:"/>
-                                                                    <Label Grid.Row="2" Grid.Column="1" x:Name="roFlowVol1" Content="-" Style="{DynamicResource readout}"/>
-                                                                    <Label Grid.Row="3" Grid.Column="0" Content="Flow error:"/>
-                                                                    <Label Grid.Row="3" Grid.Column="1" x:Name="roFlowErr1" Content="-" Style="{DynamicResource readout}"/>
-
-                                                                </Grid>
-                                                            </GroupBox>
-
-                                                            <GroupBox Header="Dispense System 2 (OD)"  Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
-                                                                <Grid>
-                                                                    <Grid.RowDefinitions>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                        <RowDefinition Height="Auto"/>
-                                                                    </Grid.RowDefinitions>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="150"/>
-                                                                        <ColumnDefinition/>
-                                                                    </Grid.ColumnDefinitions>
-
-                                                                    <Label Grid.Row="0" Grid.Column="0" Content="Pressure command:"/>
-                                                                    <Label Grid.Row="0" Grid.Column="1" x:Name="roPresCmd2" Content="-" Style="{DynamicResource readout}"/>
-                                                                    <Label Grid.Row="1" Grid.Column="0" Content="Pressure measurement:"/>
-                                                                    <Label Grid.Row="1" Grid.Column="1" x:Name="roPresMeas2" Content="-" Style="{DynamicResource readout}"/>
-                                                                    <Label Grid.Row="2" Grid.Column="0" Content="Flow volume:"/>
-                                                                    <Label Grid.Row="2" Grid.Column="1" x:Name="roFlowVol2" Content="-" Style="{DynamicResource readout}"/>
-                                                                    <Label Grid.Row="3" Grid.Column="0" Content="Flow error:"/>
-                                                                    <Label Grid.Row="3" Grid.Column="1" x:Name="roFlowErr2" Content="-" Style="{DynamicResource readout}"/>
-
-                                                                </Grid>
-                                                            </GroupBox>
-
-                                                        </Grid>
-                                                    </ScrollViewer>
-                                                </TabItem>
-
-                                                <TabItem Header="Safety">
-                                                    <Grid>
-
-                                                        <Grid.Resources>
-                                                            <Style TargetType="Label">
-                                                                <Setter Property="Padding" Value="0"/>
-                                                                <Setter Property="Margin" Value="2"/>
-                                                                <Setter Property="VerticalAlignment" Value="Center"/>
-                                                            </Style>
-
-                                                            <Style TargetType="Label" x:Key="readout">
-                                                                <Setter Property="Padding" Value="5,2,5,2"/>
-                                                                <Setter Property="Margin" Value="2"/>
-                                                                <Setter Property="VerticalAlignment" Value="Center"/>
-                                                                <Setter Property="Background" Value="WhiteSmoke"/>
-                                                            </Style>
-                                                        </Grid.Resources>
-
-
-
-
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition/>
-                                                            <ColumnDefinition/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto"/>
-                                                            <RowDefinition Height="Auto"/>
-                                                            <RowDefinition Height="Auto"/>
-                                                            <RowDefinition Height="Auto"/>
-                                                        </Grid.RowDefinitions>
-
-
-                                                        <GroupBox Header="Robot"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-                                                            <Grid>
-                                                                <Grid.RowDefinitions>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                </Grid.RowDefinitions>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="150"/>
-                                                                    <ColumnDefinition/>
-                                                                </Grid.ColumnDefinitions>
-
-                                                                <Label Grid.Row="0" Grid.Column="0" Content="Safety controller state:"/>
-                                                                <Label Grid.Row="0" Grid.Column="1" x:Name="roSafetyContState" Content="-" Style="{DynamicResource readout}"/>
-                                                                <Label Grid.Row="1" Grid.Column="0" Content="Safety error state:"/>
-                                                                <Label Grid.Row="1" Grid.Column="1" x:Name="roSafetyErrState" Content="-" Style="{DynamicResource readout}"/>
-
-                                                            </Grid>
-                                                        </GroupBox>
-                                                    </Grid>
-                                                </TabItem>
-
-                                            </TabControl>
-
-
-
                                         </GroupBox>
                                     </Grid>
-
 
                                 </Grid>
 
@@ -1336,6 +1207,38 @@
 
 
 
+                            </TabItem>
+                            <TabItem Header="Options">
+                                <StackPanel Orientation="Vertical" Margin="6">
+                                    <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox x:Name="Adv_Opt_Con_ControllerChk" Content="Controller" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_IOLinkChk" Content="IO Link Devices" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_TopCamChk" Content="Top Camera" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_SideCamChk" Content="Side Camera" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_LaserChk" Content="Laser Sensor" IsChecked="True"/>
+                                            <CheckBox Visibility="Collapsed" x:Name="Adv_Opt_Con_DAQChk" Content="DAQ Device" IsChecked="True"/>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox x:Name="Adv_Opt_Disp_HealthChk" Content="Check Health" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk" Content="Photo Top" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk" Content="Photo Side" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Measure Heights" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_DispChk" Content="Dispense" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Measure Polarity" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoAfterChk" Content="Photo Top After" IsChecked="True"/>
+                                        </StackPanel>
+                                    </GroupBox>
+                                </StackPanel>
+                                <!--</StackPanel>-->
+                                <!--<StackPanel Orientation="Vertical" Margin="6">
+                                    <Button x:Name="Adv_Res_OpenFolderBtn" Click="Adv_Res_OpenFolderBtn_Click" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Test Matlab script" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                </StackPanel>-->
                             </TabItem>
                             <TabItem Header="TCS Connection">
 
@@ -1536,7 +1439,6 @@
                         </TabControl>
 
                     </Grid>
-
 
                 </TabItem>
 

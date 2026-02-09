@@ -707,10 +707,10 @@ namespace DDMAutoGUI.utilities
             {
                 if (parts.Length == 5)
                 {
-                    data.time_id = float.Parse(parts[1]);
-                    data.vol_id = float.Parse(parts[2]);
-                    data.time_od = float.Parse(parts[3]);
-                    data.vol_od = float.Parse(parts[4]);
+                    data.id_time = float.Parse(parts[1]);
+                    data.id_vol = float.Parse(parts[2]);
+                    data.od_time = float.Parse(parts[3]);
+                    data.od_vol = float.Parse(parts[4]);
                     data.shot_result = true;
                     data.shot_message = string.Empty;
                 }

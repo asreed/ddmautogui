@@ -20,34 +20,35 @@ namespace DDMAutoGUI.utilities
         public string? motor_type { get; set; }
         public bool? shot_result { get; set; }
         public string? shot_message { get; set; }
-        public int? valve_num_id { get; set; }
-        public int? valve_num_od { get; set; }
-        public float? pressure_id { get; set; }
-        public float? pressure_od { get; set; }
-        public float? time_id { get; set; }
-        public float? time_od { get; set; }
-        public float? vol_id { get; set; }
-        public float? vol_od { get; set; }
+        public int? id_valve_num { get; set; }
+        public float? id_pressure { get; set; }
+        public float? id_time { get; set; }
+        public float? id_vol { get; set; }
+        public int? od_valve_num { get; set; }
+        public float? od_pressure { get; set; }
+        public float? od_time { get; set; }
+        public float? od_vol { get; set; }
     }
+
     public class ResultsReferenceData
     {
         // Contains reference/calibration data 
         // (may be redundant to settings and local data)
-        public string? substance_id { get; set; }
-        public string? substance_od { get; set; }
+        public string? id_substance { get; set; }
+        public float? id_target_vol { get; set; }
+        public float? id_target_flow { get; set; }
+        public float? id_calib_pressure { get; set; }
+        public string? od_substance { get; set; }
+        public float? od_target_vol { get; set; }
+        public float? od_target_flow { get; set; }
+        public float? od_calib_pressure { get; set; }
 
-        public float? target_vol_id { get; set; }
-        public float? target_vol_od { get; set; }
-        public float? target_flow_id { get; set; }
-        public float? target_flow_od { get; set; }
-        public float? calib_pressure_id { get; set; }
-        public float? calib_pressure_od { get; set; }
-        public float? autocal_sf_1 { get; set; }
-        public float? autocal_sf_2 { get; set; }
+        public float? sys_1_autocal_sf { get; set; }
+        public float? sys_2_autocal_sf { get; set; }
 
     }
 
-        public class ResultsHeightMeasurement
+    public class ResultsHeightMeasurement
     {
         public float? t { get; set; }
         public float? z { get; set; }
@@ -138,12 +139,12 @@ namespace DDMAutoGUI.utilities
 
             try
             {
-                float vol_id = results.shot_data.vol_id.Value;
-                float vol_od = results.shot_data.vol_od.Value;
-                float target_vol_id = motorSettings.shot_settings.target_vol_id.Value;
-                float target_vol_od = motorSettings.shot_settings.target_vol_od.Value;
-                float dev_id = settings.dispense_pass_criteria.max_id_vol_dev_percent.Value;
-                float dev_od = settings.dispense_pass_criteria.max_od_vol_dev_percent.Value;
+                float vol_id = results.shot_data.id_vol.Value;
+                float vol_od = results.shot_data.od_vol.Value;
+                float target_vol_id = motorSettings.shot_settings.id_target_vol.Value;
+                float target_vol_od = motorSettings.shot_settings.od_target_vol.Value;
+                float dev_id = settings.dispense_system.id_vol_max_err_percent.Value;
+                float dev_od = settings.dispense_system.od_vol_max_err_percent.Value;
 
                 if (Math.Abs(target_vol_id - vol_id) / target_vol_id * 100 > dev_id)
                 {
@@ -158,7 +159,8 @@ namespace DDMAutoGUI.utilities
 
                 pass = true;
                 message = "Process completed successfully";
-            } catch
+            }
+            catch
             {
                 message = "Unknown error processing shot data";
                 return;

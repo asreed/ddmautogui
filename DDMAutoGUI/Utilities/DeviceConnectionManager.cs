@@ -36,7 +36,7 @@ namespace DDMAutoGUI.Utilities
                 daqConnected = false
             };
 
-            App.LocalDataManager.localData.controller_ip = controllerIP;
+            //App.LocalDataManager.localData.controller_ip = controllerIP;
 
             // Connect to controller
             connState.controllerConnected = await App.ControllerManager.Connect(controllerIP);

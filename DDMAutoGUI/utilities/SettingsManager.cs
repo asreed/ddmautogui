@@ -15,12 +15,12 @@ namespace DDMAutoGUI.utilities
     public class CellSettings
     {
         public DateTime? last_saved { get; set; }
+        public string? controller_ip { get; set; }
         public string? camera_top_sn { get; set; }
         public string? camera_side_sn { get; set; }
         public float? laser_delay { get; set; }
         public float? hall_spin_speed { get; set; }
         public float? hall_spin_time { get; set; }
-        public CSDispesePassCriteria? dispense_pass_criteria { get; set; }
         public CSDispense? dispense_system { get; set; }
         public CSLaser? laser_calib { get; set; }
         public CSMotorCommon? ddm_common { get; set; }
@@ -38,12 +38,12 @@ namespace DDMAutoGUI.utilities
     }
     public class CSShot
     {
-        public int? sys_num_id { get; set; }
-        public int? sys_num_od { get; set; }
-        public float? target_vol_id { get; set; }
-        public float? target_vol_od { get; set; }
-        public float? target_flow_id { get; set; }
-        public float? target_flow_od { get; set; }
+        public int? id_sys_num { get; set; }
+        public float? id_target_vol { get; set; }
+        public float? id_target_flow { get; set; }
+        public int? od_sys_num { get; set; }
+        public float? od_target_vol { get; set; }
+        public float? od_target_flow { get; set; }
     }
     public class CSMotorCommon
     {
@@ -58,8 +58,8 @@ namespace DDMAutoGUI.utilities
         public int? laser_ring_num { get; set; }
         public int? laser_mag_num { get; set; }
         public CSLocation? camera_side { get; set; }
-        public CSLocation? disp_id { get; set; }
-        public CSLocation? disp_od { get; set; }
+        public CSLocation? id_disp { get; set; }
+        public CSLocation? od_disp { get; set; }
         public CSLocation? laser_mag { get; set; }
         public CSLocation? laser_ring { get; set; }
         public CSLocation? hall_sensor { get; set; }
@@ -68,7 +68,7 @@ namespace DDMAutoGUI.utilities
         {
             // validate logic. might want to expand checks
 
-            if (disp_id == null || disp_od == null || laser_mag == null || laser_ring == null)
+            if (id_disp == null || od_disp == null || laser_mag == null || laser_ring == null)
             {
                 return false; // invalid if any location is null ...?
             }
@@ -102,12 +102,27 @@ namespace DDMAutoGUI.utilities
         public float? sys_2_max_pressure { get; set; }
         public float? sys_1_max_pressure_dev_percent { get; set; }
         public float? sys_2_max_pressure_dev_percent { get; set; }
+        public float? id_vol_max_err_percent { get; set; }
+        public float? od_vol_max_err_percent { get; set; }
+        public float? calib_exp_hours { get; set; }
+        public CSDefaultPressures? default_pressures { get; set; }
+
     }
 
-    public class CSDispesePassCriteria
+    public class CSDefaultPressures
     {
-        public float? max_id_vol_dev_percent { get; set; }
-        public float? max_od_vol_dev_percent { get; set; }
+        public CSDefaultCalib? ddm_57 { get; set; }
+        public CSDefaultCalib? ddm_95 { get; set; }
+        public CSDefaultCalib? ddm_116 { get; set; }
+        public CSDefaultCalib? ddm_170 { get; set; }
+        public CSDefaultCalib? ddm_170_tall { get; set; }
+
+    }
+
+    public class CSDefaultCalib
+    {
+        public float? sys_1_pressure { get; set; }
+        public float? sys_2_pressure { get; set; }
     }
 
 

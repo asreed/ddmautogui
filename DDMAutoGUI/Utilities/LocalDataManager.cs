@@ -11,24 +11,15 @@ namespace DDMAutoGUI.utilities
 {
     public class LDCalib
     {
-        public string? type { get; set; }
-        public DateTime? last_update {  get; set; }
         public float? sys_1_pressure { get; set; }
-        //public float? sys_1_flow { get; set; }
         public float? sys_2_pressure { get; set; }
-        //public float? sys_2_flow { get; set; }
 
         public LDCalib Clone()
         {
             return new LDCalib
             {
-                type = this.type,
-                last_update = this.last_update,
                 sys_1_pressure = this.sys_1_pressure,
-                //sys_1_flow = this.sys_1_flow,
                 sys_2_pressure = this.sys_2_pressure,
-                //sys_2_flow = this.sys_2_flow
-
             };
         }
 
@@ -36,8 +27,13 @@ namespace DDMAutoGUI.utilities
 
     public class LocalData
     {
-        public string? controller_ip { get; set; }
-        public LDCalib[]? calib_data { get; set; }
+        public DateTime? last_calib { get; set; }
+        public string? last_size { get; set; }
+        public LDCalib? ddm_57 { get; set; }
+        public LDCalib? ddm_95 { get; set; }
+        public LDCalib? ddm_116 { get; set; }
+        public LDCalib? ddm_170 { get; set; }
+        public LDCalib? ddm_170_tall { get; set; }
 
     }
 
@@ -59,19 +55,43 @@ namespace DDMAutoGUI.utilities
             }
         }
 
-        public int GetCalibIdxFromMotorName(string name)
+        public LDCalib GetCalibFromMotorName(string name)
         {
-            int idx = -1;
-            for (int i = 0; i < localData.calib_data.Length; i++)
+            LDCalib calib = null;
+            switch (name)
             {
-                if (localData.calib_data[i].type == name)
-                {
-                    idx = i;
-                    return idx;
-                }
+                case "ddm_57":
+                    calib = localData.ddm_57;
+                    break;
+                case "ddm_95":
+                    calib = localData.ddm_95;
+                    break;
+                case "ddm_116":
+                    calib = localData.ddm_116;
+                    break;
+                case "ddm_170":
+                    calib = localData.ddm_170;
+                    break;
+                case "ddm_170_tall":
+                    calib = localData.ddm_170_tall;
+                    break;
             }
-            return idx;
+            return calib;
         }
+
+        //public int GetCalibIdxFromMotorName(string name)
+        //{
+        //    int idx = -1;
+        //    for (int i = 0; i < localData.calib_data.Length; i++)
+        //    {
+        //        if (localData.calib_data[i].type == name)
+        //        {
+        //            idx = i;
+        //            return idx;
+        //        }
+        //    }
+        //    return idx;
+        //}
 
         private LocalData GetLocalDataFromFile(string historyFilePath)
         {
