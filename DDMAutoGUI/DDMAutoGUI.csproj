@@ -42,6 +42,14 @@
   </ItemGroup>
 	
   <ItemGroup>
+    <None Remove="MatlabExecutables\buildresult.json" />
+    <None Remove="MatlabExecutables\includedSupportPackages.txt" />
+    <None Remove="MatlabExecutables\mccExcludedFiles.log" />
+    <None Remove="MatlabExecutables\PolarityTest.exe" />
+    <None Remove="MatlabExecutables\readme.txt" />
+    <None Remove="MatlabExecutables\requiredMCRProducts.txt" />
+    <None Remove="MatlabExecutables\splash.png" />
+    <None Remove="MatlabExecutables\unresolvedSymbols.txt" />
     <None Remove="Resources\icons\alert-triangle.ico" />
     <None Remove="Resources\icons\book.ico" />
     <None Remove="Resources\icons\braces.ico" />
@@ -94,9 +102,34 @@
     <None Remove="Resources\icons\tree.ico" />
     <None Remove="Resources\icons\tune.ico" />
     <None Remove="Resources\icons\warning.ico" />
+    <None Remove="_reference\DefaultSettings.json" />
   </ItemGroup>
 	
   <ItemGroup>
+    <Content Include="MatlabExecutables\buildresult.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatlabExecutables\includedSupportPackages.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatlabExecutables\mccExcludedFiles.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatlabExecutables\PolarityTest.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatlabExecutables\readme.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatlabExecutables\requiredMCRProducts.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatlabExecutables\splash.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MatlabExecutables\unresolvedSymbols.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ReleaseHistory.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -128,6 +161,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Utilities\Vision\process_images.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="_reference\DefaultSettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -196,7 +232,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="MatlabExecutables\" />
     <Folder Include="MatlabResults\" />
     <Folder Include="Results\" />
   </ItemGroup>

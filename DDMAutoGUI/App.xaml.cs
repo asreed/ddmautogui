@@ -75,7 +75,7 @@ namespace DDMAutoGUI
     public partial class App : Application
     {
 
-        public static bool GUI_SIM_MODE = false;
+        public static bool GUI_SIM_MODE = true;
 
         public static AdvancedOptions advancedOptions = new AdvancedOptions();
 
@@ -88,6 +88,7 @@ namespace DDMAutoGUI
         public static LocalDataManager LocalDataManager { get; private set; }
         public static DAQManager DAQManager { get; private set; }
         public static OCRManager OCRManager { get; private set; }
+        public static FlowCalibrationManager FlowCalibrationManager { get; private set; }
 
         public static string calibrationPassword = "ddm";
         public static string advancedSettingsPassword = "ddm";
@@ -105,6 +106,7 @@ namespace DDMAutoGUI
             App.CameraManager = new CameraManager();
             App.DAQManager = new DAQManager();
             App.OCRManager = new OCRManager();
+            App.FlowCalibrationManager = new FlowCalibrationManager();
 
             App.LocalDataManager = new LocalDataManager();
             App.SettingsManager = new SettingsManager();

@@ -79,6 +79,48 @@ namespace DDMAutoGUI.utilities
             return calib;
         }
 
+        public float? GetPressureFromMotorName(string name, int systemNum)
+        {
+            LDCalib calib = GetCalibFromMotorName(name);
+            if (calib == null)
+            {
+                return null;
+            }
+            switch (systemNum)
+            {
+                case 1:
+                    return calib.sys_1_pressure;
+                case 2:
+                    return calib.sys_2_pressure;
+                default:
+                    return null;
+            }
+        }
+
+        public LDCalib GetCalibFromMotorName(LocalData data, string name)
+        {
+            LDCalib calib = null;
+            switch (name)
+            {
+                case "ddm_57":
+                    calib = data.ddm_57;
+                    break;
+                case "ddm_95":
+                    calib = data.ddm_95;
+                    break;
+                case "ddm_116":
+                    calib = data.ddm_116;
+                    break;
+                case "ddm_170":
+                    calib = data.ddm_170;
+                    break;
+                case "ddm_170_tall":
+                    calib = data.ddm_170_tall;
+                    break;
+            }
+            return calib;
+        }
+
         //public int GetCalibIdxFromMotorName(string name)
         //{
         //    int idx = -1;

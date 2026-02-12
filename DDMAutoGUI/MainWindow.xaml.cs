@@ -225,15 +225,13 @@ namespace DDMAutoGUI
                     App.ResultsManager.AddToLog($"Setting dispense system pressures for {motorName}...");
 
                     LDCalib calib = App.LocalDataManager.GetCalibFromMotorName(motorName);
-
-                    float _pressure1 = calib.sys_1_pressure.Value;
-                    float _pressure2 = calib.sys_2_pressure.Value;
-
+                    float? _pressure1 = calib.sys_1_pressure.Value;
+                    float? _pressure2 = calib.sys_2_pressure.Value;
 
                     if (_pressure1 != null)
                     {
                         App.ResultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1:F3} psi");
-                        response = await App.ControllerManager.SetRegPressure(1, _pressure1);
+                        response = await App.ControllerManager.SetRegPressure(1, _pressure1.Value);
                     }
                     else
                     {
@@ -242,14 +240,12 @@ namespace DDMAutoGUI
                     if (_pressure2 != null)
                     {
                         App.ResultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2:F3} psi");
-                        response = await App.ControllerManager.SetRegPressure(2, _pressure2);
+                        response = await App.ControllerManager.SetRegPressure(2, _pressure2.Value);
                     }
                     else
                     {
                         App.ResultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
                     }
-
-
 
                     App.ResultsManager.AddToLog("Waiting for pressures to settle...");
                     response = await App.ControllerManager.WaitBothRegPressures(10);
@@ -374,6 +370,8 @@ namespace DDMAutoGUI
 
                 if (App.advancedOptions.dispenseOptions.dispense)
                 {
+                    sysID = motor.shot_settings.id_sys_num.Value;
+                    sysOD = motor.shot_settings.od_sys_num.Value;
 
                     float xID = motor.id_disp.x.Value;
                     float tID = motor.id_disp.t.Value;
@@ -385,6 +383,9 @@ namespace DDMAutoGUI
                     App.ResultsManager.AddToLog("Waiting for pressures to stabilize...");
                     response = await App.ControllerManager.WaitBothRegPressures(5);
                     App.ResultsManager.AddToLog("Pressures stabilized");
+
+                    pressureID = float.Parse(await App.ControllerManager.GetRegPressureSetpoint(sysID));
+                    pressureOD = float.Parse(await App.ControllerManager.GetRegPressureSetpoint(sysOD));
 
                     App.ResultsManager.AddToLog("Dispensing cyanoacrylate...");
                     response = await App.ControllerManager.DispenseToRing(
@@ -411,23 +412,23 @@ namespace DDMAutoGUI
                     shotData.id_pressure = pressureID;
                     shotData.od_pressure = pressureOD;
 
+                    string substance_id = motor.shot_settings.id_sys_num == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
+                    string substance_od = motor.shot_settings.od_sys_num == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
+
                     ResultsReferenceData referenceData = new ResultsReferenceData
                     {
-                        id_substance = motor.shot_settings.id_sys_num == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents,
-                        od_substance = motor.shot_settings.od_sys_num == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents,
+                        id_substance = substance_id,
+                        od_substance = substance_od,
                         id_target_vol = motor.shot_settings.id_target_vol,
                         od_target_vol = motor.shot_settings.od_target_vol,
                         id_target_flow = motor.shot_settings.id_target_flow,
                         od_target_flow = motor.shot_settings.od_target_flow,
-                        id_calib_pressure = pressureID,
-                        od_calib_pressure = pressureOD
+                        id_calib_pressure = App.LocalDataManager.GetPressureFromMotorName(motorName, sysID),
+                        od_calib_pressure = App.LocalDataManager.GetPressureFromMotorName(motorName, sysOD)
                     };
 
                     App.ResultsManager.currentResults.shot_data = shotData;
                     App.ResultsManager.currentResults.reference_data = referenceData;
-
-                    string substance_id = motor.shot_settings.id_sys_num == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
-                    string substance_od = motor.shot_settings.od_sys_num == 1 ? settings.dispense_system.sys_1_contents : settings.dispense_system.sys_2_contents;
 
                     if (shotData.shot_result == true)
                     {
@@ -470,7 +471,7 @@ namespace DDMAutoGUI
                     float sf1, sf2;
                     LDCalib calib = App.LocalDataManager.GetCalibFromMotorName(motorName);
 
-                    FlowCalibration.CalibratePressures(
+                    FlowCalibrationManager.CalibratePressures(
                         App.ResultsManager.currentResults.shot_data,
                         App.SettingsManager.GetAllSettings(),
                         App.LocalDataManager.localData,
@@ -478,7 +479,8 @@ namespace DDMAutoGUI
                         out sf1,
                         out sf2);
 
-                    if (!calibSuccess) {
+                    if (!calibSuccess)
+                    {
                         throw new Exception("Autocalibration failed");
                     }
 
@@ -1733,43 +1735,46 @@ namespace DDMAutoGUI
         //}
         private void Adv_Misc_TestMatlabBtn_Click(object sender, RoutedEventArgs e)
         {
-            string exePath = @"C:\Users\areed\Documents\MATLAB\MatlabTestProject1\StandaloneDesktopApp1\output\build\MyDesktopApplication.exe";
-            string filePath1 = "fake_path.jpg";
-            string filePath2 = "fake_path_2.jpg";
 
-            Process process = new Process();
-            process.StartInfo.FileName = exePath;
-            process.StartInfo.Arguments = $"{filePath1} {filePath2}";
-            process.Start();
+            DAQMatlabResults result = App.DAQManager.CollectDataAndProcessML("ddm_116");
 
-            process.WaitForExit();
+            //string exePath = @"C:\Users\areed\Documents\MATLAB\MatlabTestProject1\StandaloneDesktopApp1\output\build\MyDesktopApplication.exe";
+            //string filePath1 = "fake_path.jpg";
+            //string filePath2 = "fake_path_2.jpg";
 
-            string resultsFilePath = AppDomain.CurrentDomain.BaseDirectory + "results\\matlab_results.json";
+            //Process process = new Process();
+            //process.StartInfo.FileName = exePath;
+            //process.StartInfo.Arguments = $"{filePath1} {filePath2}";
+            //process.Start();
 
-            MatlabResult result = new MatlabResult();
-            Debug.Print("Reading Matlab results file from: " + resultsFilePath);
-            try
-            {
-                if (File.Exists(resultsFilePath))
-                {
-                    string rawJson = File.ReadAllText(resultsFilePath);
-                    result = JsonSerializer.Deserialize<MatlabResult>(rawJson);
-                }
-                else
-                {
-                    Debug.Print("Matlab results file does not exist!");
-                }
-            }
-            catch (JsonException ex)
-            {
-                Debug.Print("Error deserializing Matlab results file: " + ex.Message);
-            }
+            //process.WaitForExit();
 
-            Debug.Print("");
-            Debug.Print($"serial number detected: {result.sn_detected}");
-            Debug.Print($"serial number: {result.sn}");
-            Debug.Print($"file path top (in): {result.file_path_top_input}");
-            Debug.Print($"file path side (in): {result.file_path_side_input}");
+            //string resultsFilePath = AppDomain.CurrentDomain.BaseDirectory + "results\\matlab_results.json";
+
+            //MatlabResult result = new MatlabResult();
+            //Debug.Print("Reading Matlab results file from: " + resultsFilePath);
+            //try
+            //{
+            //    if (File.Exists(resultsFilePath))
+            //    {
+            //        string rawJson = File.ReadAllText(resultsFilePath);
+            //        result = JsonSerializer.Deserialize<MatlabResult>(rawJson);
+            //    }
+            //    else
+            //    {
+            //        Debug.Print("Matlab results file does not exist!");
+            //    }
+            //}
+            //catch (JsonException ex)
+            //{
+            //    Debug.Print("Error deserializing Matlab results file: " + ex.Message);
+            //}
+
+            //Debug.Print("");
+            //Debug.Print($"serial number detected: {result.sn_detected}");
+            //Debug.Print($"serial number: {result.sn}");
+            //Debug.Print($"file path top (in): {result.file_path_top_input}");
+            //Debug.Print($"file path side (in): {result.file_path_side_input}");
 
         }
 
@@ -1864,35 +1869,68 @@ namespace DDMAutoGUI
             }
         }
 
-        private void Calib_Flow_116_AcceptBtn_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Calib_Flow_116_RejectBtn_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Calib_Flow_116_CalibBtn_Click(object sender, RoutedEventArgs e)
+        private async void Calib_Flow_116_CalibBtn_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 Calib_Flow_116_CalibBtn.IsEnabled = false;
                 Calib_Flow_116_CalibPrg.Visibility = Visibility.Visible;
 
+                CellSettings settings = App.SettingsManager.GetAllSettings();
+                LocalData localData = App.LocalDataManager.localData;
+                RunCalibResult result = await App.FlowCalibrationManager.RunCalibrationRoutineOnce(settings, localData, "ddm_116");
 
-
-
+                if (result != null)
+                {
+                    if (result.success)
+                    {
+                        // successful calib. display options and wait for user input
+                        Debug.Print("Single calib run successful");
+                        Calib_Flow_116_DecideGrd.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        // unsuccessful calib. reset
+                        throw new Exception($"{result.message}");
+                    }
+                }
+                else
+                {
+                    // null result. check logic to make sure result is not null
+                    Debug.Print("Null result from single calib run (?)");
+                }
             }
             catch (Exception ex)
             {
-                Debug.Print("Error during flow calibration: " + ex.Message);
-
+                Debug.Print($"Error during flow calibration: {ex.Message}");
+                Calib_Flow_116_CalibBtn.IsEnabled = true;
+                Calib_Flow_116_CalibPrg.Visibility = Visibility.Collapsed;
             }
 
+        }
+
+        private void Calib_Flow_116_AcceptBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // if OK, simply reset UI. calib already saved.
             Calib_Flow_116_CalibBtn.IsEnabled = true;
             Calib_Flow_116_CalibPrg.Visibility = Visibility.Collapsed;
+            Calib_Flow_116_DecideGrd.Visibility = Visibility.Collapsed;
+        }
+
+        private async void Calib_Flow_116_RejectBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // if not OK, run calib again
+            Calib_Flow_116_DecideGrd.Visibility = Visibility.Collapsed;
+            await Task.Run(() => Calib_Flow_116_CalibBtn_Click(sender, e));
+        }
+
+        private void Calib_Flow_116_CancelBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // data is already saved... what to do...
+            Calib_Flow_116_CalibBtn.IsEnabled = true;
+            Calib_Flow_116_CalibPrg.Visibility = Visibility.Collapsed;
+            Calib_Flow_116_DecideGrd.Visibility = Visibility.Collapsed;
+
         }
 
         private async void Adv_Cam_RunOCR_Click(object sender, RoutedEventArgs e)
@@ -1904,7 +1942,8 @@ namespace DDMAutoGUI
             if (data != null)
             {
                 Adv_Cam_OCRResTxb.Text = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
-            } else
+            }
+            else
             {
                 Adv_Cam_OCRResTxb.Text = "Error reading OCR results";
             }

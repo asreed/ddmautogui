@@ -36,45 +36,28 @@ namespace DDMAutoGUI.Utilities
         //private int sampleCount = 50; // count
         //private int sampleRate = 10; // Hz
 
+        string exeDirectory = AppDomain.CurrentDomain.BaseDirectory + "MatlabExecutables\\";
+        string exeName = "PolarityTest.exe";
+
+        string resultsDirectory = AppDomain.CurrentDomain.BaseDirectory + "MatlabResults\\";
+        string resultsName = "polarity_results.json";
+
+
         public DAQManager()
         {
             Debug.Print("DAQ manager initialized");
         }
 
-        public void CollectDataAndProcessML(string motorName)
+        public DAQMatlabResults CollectDataAndProcessML(string motorName)
         {
-            string exePath = AppDomain.CurrentDomain.BaseDirectory + "MatlabExecutables\\HallFnct.exe";
-            string resultsPath = AppDomain.CurrentDomain.BaseDirectory + "MatlabResults\\hall_results.json";
+            string exePath = Path.Combine(exeDirectory, exeName);
+            string resultsPath = Path.Combine(resultsDirectory, resultsName);
 
-            string motorNameML = "";
-            switch (motorName)
-            {
-                case "ddm_57":
-                    motorNameML = "57";
-                    break;
-                case "ddm_95":
-                    motorNameML = "95";
-                    break;
-                case "ddm_116":
-                    motorNameML = "116";
-                    break;
-                case "ddm_170":
-                    motorNameML = "170";
-                    break;
-                case "ddm_170_tall":
-                    motorNameML = "170Tall";
-                    break;
-                default:
-                    motorNameML = "?";
-                    break;
-            }
-
-
-            Debug.Print($"Starting Matlab process for motor {motorNameML}");
+            Debug.Print($"Starting Matlab process for motor {motorName}");
 
             Process process = new Process();
             process.StartInfo.FileName = exePath;
-            process.StartInfo.Arguments = $"{resultsPath} {motorNameML}";
+            process.StartInfo.Arguments = $"{motorName} {resultsDirectory} {resultsName}";
             process.Start();
 
             process.WaitForExit();
@@ -111,7 +94,7 @@ namespace DDMAutoGUI.Utilities
                 Debug.Print("Results structure null");
             }
 
-
+            return result;
 
         }
 

@@ -341,6 +341,22 @@ namespace DDMAutoGUI.utilities
             UpdateBothLogs($"Connecting to {ip}...");
             UpdateConnectionLog($"Connecting to workcell...\n");
 
+            if (App.GUI_SIM_MODE)
+            {
+                UpdateConnectionLog($"\nConnected successfully");
+                UpdateConnectionLog($"(!) Simulation mode enabled (!)");
+
+                CONNECTION_STATE.isConnected = true;
+                CONNECTION_STATE.connectedIP = ip;
+                CONNECTION_STATE.connectedTCS = "Simulated";
+                CONNECTION_STATE.connectedPAC = "Simulated";
+                ControllerConnected?.Invoke(this, EventArgs.Empty);
+                ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
+
+                //StartAutoControllerState();
+                return true;
+            }
+
             try
             {
                 if (App.advancedOptions.connectionOptions.controller)
@@ -491,6 +507,12 @@ namespace DDMAutoGUI.utilities
         public async Task Disconnect()
         {
             UpdateBothLogs("Disconnecting...");
+            if (App.GUI_SIM_MODE)
+            {
+                ClearConnectionLog();
+                UpdateConnectionLog("Disconnected from simulation");
+                return;
+            }
             try
             {
 
@@ -1104,6 +1126,11 @@ namespace DDMAutoGUI.utilities
         public async Task<string> MeasureHeights(float xPos, float tStart, int nMeasurements, float delay)
         {
             string input = $"DDM_MeasureHeights {xPos} {tStart} {nMeasurements} {delay}";
+            return await SendRobotCommand(input);
+        }
+        public async Task<string> MeasureHeightSingle()
+        {
+            string input = $"DDM_MeasureHeightSingle";
             return await SendRobotCommand(input);
         }
 
