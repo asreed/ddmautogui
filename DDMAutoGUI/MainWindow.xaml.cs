@@ -1801,7 +1801,7 @@ namespace DDMAutoGUI
 
         private void Dev_Btn_Click(object sender, RoutedEventArgs e)
         {
-            MainTabControl.SelectedIndex = 4;
+            MainTabControl.SelectedIndex = 5;
             Adv_PWBox.Focus();
         }
 

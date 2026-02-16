@@ -15,7 +15,29 @@ namespace DDMAutoGUI.utilities
     {
         public HeightCalibration() { }
 
-        public static void MathNetTest()
+
+        // todo: find a way to use the calibration data to normalize heights for results
+
+
+
+
+
+
+
+        public static List<ResultsHeightMeasurement> GenerateSimulatedHeights(double A, double phi, double noiseStdDev, int numPoints)
+        {
+            List<ResultsHeightMeasurement> heights = new List<ResultsHeightMeasurement>();
+            Random rand = new Random();
+            for (int i = 0; i < numPoints; i++)
+            {
+                double t = (double)i / 360;
+                double z = A * Math.Sin(t * (Math.PI / 180.0) + phi) + (rand.NextDouble() * 2 - 1) * noiseStdDev;
+                heights.Add(new ResultsHeightMeasurement { t = (float)t, z = (float)z });
+            }
+            return heights;
+        }
+
+        public static List<ResultsHeightMeasurement> GetSampleData(string motorName)
         {
             double[,] rawData57 =
             {
@@ -351,19 +373,63 @@ namespace DDMAutoGUI.utilities
                 {355.5, -82.8}
             };
 
-            double A, phi, rSquared;
-            FitDataToSin(rawData57, out A, out phi, out rSquared);
-            Debug.Print($"57 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
-            FitDataToSin(rawData95, out A, out phi, out rSquared);
-            Debug.Print($"95 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
-            FitDataToSin(rawData116, out A, out phi, out rSquared);
-            Debug.Print($"116 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
-            FitDataToSin(rawData170, out A, out phi, out rSquared);
-            Debug.Print($"170 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
+            double[,] dataArray;
+            List<ResultsHeightMeasurement> dataList = new List<ResultsHeightMeasurement>();
 
+            switch (motorName)
+            {
+                case "ddm_57":
+                    dataArray = rawData57;
+                    break;
+                case "ddm_95":
+                    dataArray = rawData95;
+                    break;
+                case "ddm_116":
+                    dataArray = rawData116;
+                    break;
+                case "ddm_170":
+                    dataArray = rawData170;
+                    break;
+                default:
+                    throw new ArgumentException("Invalid motor name");
+            }
+
+            for (int i = 0; i < dataArray.GetLength(0) - 1; i++)
+            {
+                dataList.Insert(i, new ResultsHeightMeasurement());
+                dataList[i].t = (float)dataArray[i, 0]; // angle
+                dataList[i].z = (float)dataArray[i, 1]; // height
+            }
+            return dataList;
         }
 
-        public static void FitDataToSin(double[,] rawData, out double A, out double phi, out double rSquared)
+        public static void MathNetTest()
+        {
+            double A, phi, rSquared;
+            List<ResultsHeightMeasurement> data;
+
+            data = GetSampleData("ddm_57");
+            FitDataToSin(data, out A, out phi, out rSquared);
+            Debug.Print($"57 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
+
+            data = GetSampleData("ddm_95");
+            FitDataToSin(data, out A, out phi, out rSquared);
+            Debug.Print($"95 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
+
+            data = GetSampleData("ddm_116");
+            FitDataToSin(data, out A, out phi, out rSquared);
+            Debug.Print($"116 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
+
+            data = GetSampleData("ddm_170");
+            FitDataToSin(data, out A, out phi, out rSquared);
+            Debug.Print($"170 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
+
+            data = GenerateSimulatedHeights(-10, 0.3, 0.00, 60);
+            FitDataToSin(data, out A, out phi, out rSquared);
+            Debug.Print($"Random simulated data:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
+        }
+
+        public static void FitDataToSin(List<ResultsHeightMeasurement> rawDataList, out double A, out double phi, out double rSquared)
         {
             // https://math.stackexchange.com/questions/902166/fit-sine-wave-to-data
             // https://math.stackexchange.com/questions/3926007/least-squares-regression-of-sine-wave
@@ -384,10 +450,18 @@ namespace DDMAutoGUI.utilities
             // A^2 = A1^2 + A2^2
             // phi = atan(A2 / A1)
 
+            // convert list to array for mathnet
+            double[,] rawDataArray = new double[rawDataList.Count, 2];
+            for (int i = 0; i < rawDataList.Count; i++)
+            {
+                rawDataArray[i, 0] = (double)rawDataList[i].t; // angle
+                rawDataArray[i, 1] = (double)rawDataList[i].z; // height
+            }
+
             var M = Matrix<double>.Build;
             var V = Vector<double>.Build;
 
-            var data = M.DenseOfArray(rawData);
+            var data = M.DenseOfArray(rawDataArray);
             var ones = V.Dense(data.RowCount, 1);
 
             // vector of angle in radians
@@ -412,13 +486,13 @@ namespace DDMAutoGUI.utilities
             // Two possible solutions for A
             // Verify with R^2
 
-            double[,] fitData = GenerateSinCurve(rawData, A, phi);
+            double[,] fitData = GenerateSinCurve(rawDataArray, A, phi);
             rSquared = GetRSquared(dataShifted.ToArray(), fitData);
             if (Math.Abs(rSquared) > 1.0)
             {
                 // try other A
                 A *= -1;
-                fitData = GenerateSinCurve(rawData, A, phi);
+                fitData = GenerateSinCurve(rawDataArray, A, phi);
                 rSquared = GetRSquared(dataShifted.ToArray(), fitData);
                 if (rSquared < 0 || rSquared > 1)
                 {
@@ -432,7 +506,7 @@ namespace DDMAutoGUI.utilities
             }
         }
 
-        public static double[,] GenerateSinCurve(double[,] rawData, double A, double phi)
+        private static double[,] GenerateSinCurve(double[,] rawData, double A, double phi)
         {
             // y(t) = A * sin(x(t) + phi)
 
@@ -447,7 +521,7 @@ namespace DDMAutoGUI.utilities
             return fitData;
         }
 
-        public static double GetRSquared(double[,] rawData, double[,] fitData)
+        private static double GetRSquared(double[,] rawData, double[,] fitData)
         {
             var M = Matrix<double>.Build;
             var data = M.DenseOfArray(rawData);

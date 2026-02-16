@@ -63,8 +63,8 @@
             </Grid>
 
             <StackPanel Orientation="Vertical">
-                <Button Style="{StaticResource BlackButton}" Content="Calibrate Height Sensor" x:Name="CalPosBtn" Click="CalPosBtn_Click"/>
-                <ProgressBar x:Name="CalPosPrg"/>
+                <Button Style="{StaticResource BlackButton}" Content="Calibrate Height Sensor" x:Name="CalHeightBtn" Click="CalHeightBtn_Click"/>
+                <ProgressBar x:Name="CalHeightPrg"/>
             </StackPanel>
         </StackPanel>
 
