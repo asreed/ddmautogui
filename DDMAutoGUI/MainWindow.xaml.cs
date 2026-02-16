@@ -224,7 +224,7 @@ namespace DDMAutoGUI
                 {
                     App.ResultsManager.AddToLog($"Setting dispense system pressures for {motorName}...");
 
-                    LDCalib calib = App.LocalDataManager.GetCalibFromMotorName(motorName);
+                    LDMotorCalib calib = App.LocalDataManager.GetCalibFromMotorName(motorName);
                     float? _pressure1 = calib.sys_1_pressure.Value;
                     float? _pressure2 = calib.sys_2_pressure.Value;
 
@@ -469,12 +469,12 @@ namespace DDMAutoGUI
 
                     bool calibSuccess;
                     float sf1, sf2;
-                    LDCalib calib = App.LocalDataManager.GetCalibFromMotorName(motorName);
+                    LDMotorCalib calib = App.LocalDataManager.GetCalibFromMotorName(motorName);
 
                     FlowCalibrationManager.CalibratePressures(
                         App.ResultsManager.currentResults.shot_data,
                         App.SettingsManager.GetAllSettings(),
-                        App.LocalDataManager.localData,
+                        App.LocalDataManager.GetLocalData(),
                         out calibSuccess,
                         out sf1,
                         out sf2);
@@ -982,6 +982,7 @@ namespace DDMAutoGUI
 
             DispTab.IsEnabled = true;
             CalibTab.IsEnabled = true;
+            ServTab.IsEnabled = true;
 
             PopulateMotorSettings(Adv_Cell_MotorSizeCmb);
         }
@@ -1002,6 +1003,7 @@ namespace DDMAutoGUI
 
             DispTab.IsEnabled = false;
             CalibTab.IsEnabled = false;
+            ServTab.IsEnabled = false;
 
             DisableAllReadouts();
             BlankOutMotorSettings();
@@ -1262,28 +1264,28 @@ namespace DDMAutoGUI
 
 
 
-        private async void Cal_CalPosBtn_Click(object sender, RoutedEventArgs e)
-        {
+        //private async void Cal_CalPosBtn_Click(object sender, RoutedEventArgs e)
+        //{
 
-            Cal_PosPrg.Visibility = Visibility.Visible;
-            string response = await App.ControllerManager.CalibratePosition();
-            Con_ConnectPrg.Visibility = Visibility.Collapsed;
+        //    Cal_PosPrg.Visibility = Visibility.Visible;
+        //    string response = await App.ControllerManager.CalibratePosition();
+        //    Con_ConnectPrg.Visibility = Visibility.Collapsed;
 
-            if (response == "0")
-            {
-                Cal_PosResultTxb.Text = "Success";
-            }
-            else
-            {
-                Cal_PosResultTxb.Text = response;
-            }
-        }
+        //    if (response == "0")
+        //    {
+        //        Cal_PosResultTxb.Text = "Success";
+        //    }
+        //    else
+        //    {
+        //        Cal_PosResultTxb.Text = response;
+        //    }
+        //}
 
-        private void Cal_PosUpdateBtn_Click(object sender, RoutedEventArgs e)
-        {
-            Cal_PosJ1Txb.Text = $"{App.ControllerManager.CONTROLLER_STATE.posRotary}";
-            Cal_PosJ2Txb.Text = $"{App.ControllerManager.CONTROLLER_STATE.posLinear}";
-        }
+        //private void Cal_PosUpdateBtn_Click(object sender, RoutedEventArgs e)
+        //{
+        //    Cal_PosJ1Txb.Text = $"{App.ControllerManager.CONTROLLER_STATE.posRotary}";
+        //    Cal_PosJ2Txb.Text = $"{App.ControllerManager.CONTROLLER_STATE.posLinear}";
+        //}
 
 
 
@@ -1841,23 +1843,8 @@ namespace DDMAutoGUI
                     case 2:
                         // Calibration Tab
 
-                        Calib_Flow_116_CalibPrg.Visibility = Visibility.Collapsed;
-                        Calib_Flow_116_DecideGrd.Visibility = Visibility.Collapsed;
+                        //Calib_Flow_Panel.SetupPanel();
 
-
-                        try
-                        {
-                            // Fill in flow calibration info
-                            CellSettings settings = App.SettingsManager.GetAllSettings();
-                            LocalData localData = App.LocalDataManager.localData;
-
-
-
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.Print("Error populating flow calibration data: " + ex.Message);
-                        }
 
                         break;
 
@@ -1869,69 +1856,6 @@ namespace DDMAutoGUI
             }
         }
 
-        private async void Calib_Flow_116_CalibBtn_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Calib_Flow_116_CalibBtn.IsEnabled = false;
-                Calib_Flow_116_CalibPrg.Visibility = Visibility.Visible;
-
-                CellSettings settings = App.SettingsManager.GetAllSettings();
-                LocalData localData = App.LocalDataManager.localData;
-                RunCalibResult result = await App.FlowCalibrationManager.RunCalibrationRoutineOnce(settings, localData, "ddm_116");
-
-                if (result != null)
-                {
-                    if (result.success)
-                    {
-                        // successful calib. display options and wait for user input
-                        Debug.Print("Single calib run successful");
-                        Calib_Flow_116_DecideGrd.Visibility = Visibility.Visible;
-                    }
-                    else
-                    {
-                        // unsuccessful calib. reset
-                        throw new Exception($"{result.message}");
-                    }
-                }
-                else
-                {
-                    // null result. check logic to make sure result is not null
-                    Debug.Print("Null result from single calib run (?)");
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.Print($"Error during flow calibration: {ex.Message}");
-                Calib_Flow_116_CalibBtn.IsEnabled = true;
-                Calib_Flow_116_CalibPrg.Visibility = Visibility.Collapsed;
-            }
-
-        }
-
-        private void Calib_Flow_116_AcceptBtn_Click(object sender, RoutedEventArgs e)
-        {
-            // if OK, simply reset UI. calib already saved.
-            Calib_Flow_116_CalibBtn.IsEnabled = true;
-            Calib_Flow_116_CalibPrg.Visibility = Visibility.Collapsed;
-            Calib_Flow_116_DecideGrd.Visibility = Visibility.Collapsed;
-        }
-
-        private async void Calib_Flow_116_RejectBtn_Click(object sender, RoutedEventArgs e)
-        {
-            // if not OK, run calib again
-            Calib_Flow_116_DecideGrd.Visibility = Visibility.Collapsed;
-            await Task.Run(() => Calib_Flow_116_CalibBtn_Click(sender, e));
-        }
-
-        private void Calib_Flow_116_CancelBtn_Click(object sender, RoutedEventArgs e)
-        {
-            // data is already saved... what to do...
-            Calib_Flow_116_CalibBtn.IsEnabled = true;
-            Calib_Flow_116_CalibPrg.Visibility = Visibility.Collapsed;
-            Calib_Flow_116_DecideGrd.Visibility = Visibility.Collapsed;
-
-        }
 
         private async void Adv_Cam_RunOCR_Click(object sender, RoutedEventArgs e)
         {

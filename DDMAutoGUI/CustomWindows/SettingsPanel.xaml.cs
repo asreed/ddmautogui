@@ -1,7 +1,6 @@
 ﻿using DDMAutoGUI.utilities;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -16,10 +15,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace DDMAutoGUI.windows
+namespace DDMAutoGUI.CustomWindows
 {
     /// <summary>
-    /// Interaction logic for UserControl1.xaml
+    /// Interaction logic for SettingsPanel.xaml
     /// </summary>
     public partial class SettingsPanel : UserControl
     {
@@ -29,14 +28,7 @@ namespace DDMAutoGUI.windows
             CellSettings settings = App.SettingsManager.GetAllSettings();
             PopulateSettingsTree(settings);
             PopulateSettingsString(settings);
-
         }
-
-
-
-
-
-
 
         private void PopulateSettingsString(CellSettings settings)
         {

@@ -123,7 +123,7 @@ namespace DDMAutoGUI
 
 
 
-            var data = App.LocalDataManager.localData;
+            var data = App.LocalDataManager.GetLocalData();
             App.LocalDataManager.SaveLocalDataToFile();
 
             Debug.Print("App exiting");

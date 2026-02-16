@@ -42,6 +42,7 @@
   </ItemGroup>
 	
   <ItemGroup>
+    <None Remove="LocalData.json" />
     <None Remove="MatlabExecutables\buildresult.json" />
     <None Remove="MatlabExecutables\includedSupportPackages.txt" />
     <None Remove="MatlabExecutables\mccExcludedFiles.log" />
@@ -101,11 +102,17 @@
     <None Remove="Resources\icons\tree-w.ico" />
     <None Remove="Resources\icons\tree.ico" />
     <None Remove="Resources\icons\tune.ico" />
+    <None Remove="Resources\icons\update.ico" />
     <None Remove="Resources\icons\warning.ico" />
+    <None Remove="Resources\icons\wrench-circle.ico" />
+    <None Remove="Resources\icons\wrench.ico" />
     <None Remove="_reference\DefaultSettings.json" />
   </ItemGroup>
 	
   <ItemGroup>
+    <Content Include="LocalData.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="MatlabExecutables\buildresult.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -143,6 +150,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\icons\target.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\update.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\wrench-circle.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\wrench.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -184,13 +200,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Windows\MatlabWindow.xaml.cs">
+    <Compile Update="CustomWindows\MatlabWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Windows\LocalDataPanel.xaml.cs">
+    <Compile Update="CustomWindows\LocalDataPanel.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Windows\TextDataViewer.xaml.cs">
+    <Compile Update="CustomWindows\TextDataViewer.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -213,12 +229,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="LocalData.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="LocalData - backup.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="Resources\icons\svg-mat-2\info.svg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

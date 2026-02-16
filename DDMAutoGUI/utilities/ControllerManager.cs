@@ -347,7 +347,7 @@ namespace DDMAutoGUI.utilities
                 UpdateConnectionLog($"(!) Simulation mode enabled (!)");
 
                 CONNECTION_STATE.isConnected = true;
-                CONNECTION_STATE.connectedIP = ip;
+                CONNECTION_STATE.connectedIP = "Simulated";
                 CONNECTION_STATE.connectedTCS = "Simulated";
                 CONNECTION_STATE.connectedPAC = "Simulated";
                 ControllerConnected?.Invoke(this, EventArgs.Empty);

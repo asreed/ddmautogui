@@ -16,7 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace DDMAutoGUI.windows
+namespace DDMAutoGUI.CustomWindows
 {
     /// <summary>
     /// Interaction logic for UserControl1.xaml
@@ -26,7 +26,7 @@ namespace DDMAutoGUI.windows
         public LocalDataPanel()
         {
             InitializeComponent();
-            LocalData data = App.LocalDataManager.localData;
+            LocalData data = App.LocalDataManager.GetLocalData();
             PopulateLocalDataTree(data);
             PopulateRawLocalData(data);
 
@@ -120,17 +120,17 @@ namespace DDMAutoGUI.windows
 
         private void LoadBtn_Click(object sender, RoutedEventArgs e)
         {
-            PopulateLocalDataTree(App.LocalDataManager.localData);
-            PopulateRawLocalData(App.LocalDataManager.localData);
+            PopulateLocalDataTree(App.LocalDataManager.GetLocalData());
+            PopulateRawLocalData(App.LocalDataManager.GetLocalData());
         }
 
         private void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
             LocalData newData = App.LocalDataManager.DeserializeLocalDataFromString(LocalDataTxt.Text);
-            App.LocalDataManager.localData = newData;
+            App.LocalDataManager.SetLocalData(newData.Clone());
             App.LocalDataManager.SaveLocalDataToFile(newData);
-            PopulateLocalDataTree(App.LocalDataManager.localData);
-            PopulateRawLocalData(App.LocalDataManager.localData);
+            PopulateLocalDataTree(App.LocalDataManager.GetLocalData());
+            PopulateRawLocalData(App.LocalDataManager.GetLocalData());
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using DDMAutoGUI.Utilities;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -69,6 +70,7 @@ namespace DDMAutoGUI.utilities
         public ResultsReferenceData? reference_data { get; set; }
         public bool? overall_process_result { get; set; }
         public string? overall_proces_message { get; set; }
+        public DAQMatlabResults? daq_matlab_results { get; set; }
         public List<ResultsHeightMeasurement>? ring_heights { get; set; }
         public List<ResultsHeightMeasurement>? mag_heights { get; set; }
         public List<ResultsLogLine>? process_log { get; set; }

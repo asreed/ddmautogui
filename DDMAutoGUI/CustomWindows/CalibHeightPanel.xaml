@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="DDMAutoGUI.CustomWindows.CalibHeightPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DDMAutoGUI.CustomWindows"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" 
+             d:DesignWidth="450" 
+             Background="White">
+    <Grid>
+        <StackPanel Orientation="Vertical" Margin="12">
+
+            <Grid Margin="4" Background="White">
+                <Grid.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Margin" Value="2"/>
+                        <Setter Property="Padding" Value="6,4"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <!--<Setter Property="Background" Value="WhiteSmoke"/>-->
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="DDM 57"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="DDM 95"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="DDM 116"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="DDM 170"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="Amplitude"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="Phase"/>
+                <TextBlock Grid.Row="0" Grid.Column="3" Text="Error"/>
+
+
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="-" x:Name="ddm57_a"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="-" x:Name="ddm95_a"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" Text="-" x:Name="ddm116_a"/>
+                <TextBlock Grid.Row="4" Grid.Column="1" Text="-" x:Name="ddm170_a"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="-" x:Name="ddm57_phi"/>
+                <TextBlock Grid.Row="2" Grid.Column="2" Text="-" x:Name="ddm95_phi"/>
+                <TextBlock Grid.Row="3" Grid.Column="2" Text="-" x:Name="ddm116_phi"/>
+                <TextBlock Grid.Row="4" Grid.Column="2" Text="-" x:Name="ddm170_phi"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="3" Text="-" x:Name="ddm57_r2"/>
+                <TextBlock Grid.Row="2" Grid.Column="3" Text="-" x:Name="ddm95_r2"/>
+                <TextBlock Grid.Row="3" Grid.Column="3" Text="-" x:Name="ddm116_r2"/>
+                <TextBlock Grid.Row="4" Grid.Column="3" Text="-" x:Name="ddm170_r2"/>
+
+            </Grid>
+
+            <StackPanel Orientation="Vertical">
+                <Button Style="{StaticResource BlackButton}" Content="Calibrate Height Sensor" x:Name="CalPosBtn" Click="CalPosBtn_Click"/>
+                <ProgressBar x:Name="CalPosPrg"/>
+            </StackPanel>
+        </StackPanel>
+
+    </Grid>
+</UserControl>

@@ -1,0 +1,61 @@
+﻿<UserControl x:Class="DDMAutoGUI.CustomWindows.ServicePanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DDMAutoGUI.CustomWindows"
+             mc:Ignorable="d" 
+             d:DesignHeight="450"
+             d:DesignWidth="400">
+    <Grid>
+        <TabControl Grid.Row="1" Grid.Column="1">
+            <TabItem Header="Flush">
+
+                <TabControl Margin="4">
+                    <TabItem Header="System 1">
+                        <StackPanel Orientation="Vertical">
+
+                            <Label Content="Permabond 801"/>
+                            
+                            <StackPanel Orientation="Vertical">
+                                <Button x:Name="S1_DepresBtn" Click="S1_DepresBtn_Click" Content="Depressurize" Style="{StaticResource BlackButton}"/>
+                                <ProgressBar x:Name="S1_DepresPrg" Visibility="Collapsed"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Button x:Name="S1_FlushBtn" Click="S1_FlushBtn_Click" Content="Set Low Pressure and Flush with Acetone" Style="{StaticResource BlackButton}"/>
+                                <ProgressBar x:Name="S1_FlushPrg" Visibility="Collapsed"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Button x:Name="S1_FillBtn" Click="S1_FillBtn_Click" Content="Set High Pressure and Fill with CA" Style="{StaticResource BlackButton}"/>
+                                <ProgressBar x:Name="S1_FillPrg" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </StackPanel>
+
+
+                    </TabItem>
+                    <TabItem Header="System 2">
+                        <StackPanel Orientation="Vertical">
+
+                            <Label Content="Permabond 825"/>
+
+                            <StackPanel Orientation="Vertical">
+                                <Button x:Name="S2_DepresBtn" Click="S2_DepresBtn_Click" Content="Depressurize" Style="{StaticResource BlackButton}"/>
+                                <ProgressBar x:Name="S2_DepresPrg" Visibility="Collapsed"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Button x:Name="S2_FlushBtn" Click="S2_FlushBtn_Click" Content="Set Low Pressure and Flush with Acetone" Style="{StaticResource BlackButton}"/>
+                                <ProgressBar x:Name="S2_FlushPrg" Visibility="Collapsed"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Button x:Name="S2_FillBtn" Click="S2_FillBtn_Click" Content="Set High Pressure and Fill with CA" Style="{StaticResource BlackButton}"/>
+                                <ProgressBar x:Name="S2_FillPrg" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                    </TabItem>
+                </TabControl>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</UserControl>

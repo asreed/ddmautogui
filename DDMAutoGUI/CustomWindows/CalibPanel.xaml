@@ -1,0 +1,30 @@
+﻿<UserControl xmlns:CustomWindows="clr-namespace:DDMAutoGUI.CustomWindows"  x:Class="DDMAutoGUI.CustomWindows.CalibPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DDMAutoGUI.windows"
+             mc:Ignorable="d" 
+             d:DesignHeight="500"
+             d:DesignWidth="450">
+
+    <Grid>
+
+        <TabControl Grid.Row="1" Grid.Column="1" x:Name="Cal_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top">
+
+            <TabItem Header="Position">
+                <CustomWindows:CalibPositionPanel />
+            </TabItem>
+            <TabItem Header="Height Sensor">
+                <CustomWindows:CalibHeightPanel/>
+            </TabItem>
+            <TabItem Header="Flow Rate">
+                <CustomWindows:CalibFlowPanel />
+            </TabItem>
+
+        </TabControl>
+
+
+
+    </Grid>
+</UserControl>

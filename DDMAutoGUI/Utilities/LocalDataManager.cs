@@ -9,14 +9,14 @@ using System.IO;
 
 namespace DDMAutoGUI.utilities
 {
-    public class LDCalib
+    public class LDMotorCalib
     {
         public float? sys_1_pressure { get; set; }
         public float? sys_2_pressure { get; set; }
 
-        public LDCalib Clone()
+        public LDMotorCalib Clone()
         {
-            return new LDCalib
+            return new LDMotorCalib
             {
                 sys_1_pressure = this.sys_1_pressure,
                 sys_2_pressure = this.sys_2_pressure,
@@ -25,22 +25,36 @@ namespace DDMAutoGUI.utilities
 
     }
 
-    public class LocalData
+    public class LDCalib
     {
         public DateTime? last_calib { get; set; }
         public string? last_size { get; set; }
-        public LDCalib? ddm_57 { get; set; }
-        public LDCalib? ddm_95 { get; set; }
-        public LDCalib? ddm_116 { get; set; }
-        public LDCalib? ddm_170 { get; set; }
-        public LDCalib? ddm_170_tall { get; set; }
+        public LDMotorCalib? ddm_57 { get; set; }
+        public LDMotorCalib? ddm_95 { get; set; }
+        public LDMotorCalib? ddm_116 { get; set; }
+        public LDMotorCalib? ddm_170 { get; set; }
+        public LDMotorCalib? ddm_170_tall { get; set; }
+
+    }
+
+    public class LocalData
+    {
+        public LDCalib? calib_data { get; set; }
+
+        public LocalData Clone()
+        {
+            return new LocalData
+            {
+                calib_data = this.calib_data,
+            };
+        }
 
     }
 
     public class LocalDataManager
     {
         private string localDataFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\LocalData.json";
-        public LocalData localData;
+        private LocalData localData;
 
         public LocalDataManager()
         {
@@ -49,31 +63,42 @@ namespace DDMAutoGUI.utilities
             if (localData == null)
             {
                 Debug.Print("Error reading local data file");
-            } else
+            }
+            else
             {
                 Debug.Print("Local data manager initialized");
             }
         }
 
-        public LDCalib GetCalibFromMotorName(string name)
+        public LocalData GetLocalData()
         {
-            LDCalib calib = null;
+            return localData.Clone();
+        }
+
+        public void SetLocalData(LocalData newData)
+        {
+            localData = newData.Clone();
+        }
+
+        public LDMotorCalib GetCalibFromMotorName(string name)
+        {
+            LDMotorCalib calib = null;
             switch (name)
             {
                 case "ddm_57":
-                    calib = localData.ddm_57;
+                    calib = localData.calib_data.ddm_57;
                     break;
                 case "ddm_95":
-                    calib = localData.ddm_95;
+                    calib = localData.calib_data.ddm_95;
                     break;
                 case "ddm_116":
-                    calib = localData.ddm_116;
+                    calib = localData.calib_data.ddm_116;
                     break;
                 case "ddm_170":
-                    calib = localData.ddm_170;
+                    calib = localData.calib_data.ddm_170;
                     break;
                 case "ddm_170_tall":
-                    calib = localData.ddm_170_tall;
+                    calib = localData.calib_data.ddm_170_tall;
                     break;
             }
             return calib;
@@ -81,7 +106,7 @@ namespace DDMAutoGUI.utilities
 
         public float? GetPressureFromMotorName(string name, int systemNum)
         {
-            LDCalib calib = GetCalibFromMotorName(name);
+            LDMotorCalib calib = GetCalibFromMotorName(name);
             if (calib == null)
             {
                 return null;
@@ -97,25 +122,25 @@ namespace DDMAutoGUI.utilities
             }
         }
 
-        public LDCalib GetCalibFromMotorName(LocalData data, string name)
+        public LDMotorCalib GetCalibFromMotorName(LocalData data, string name)
         {
-            LDCalib calib = null;
+            LDMotorCalib calib = null;
             switch (name)
             {
                 case "ddm_57":
-                    calib = data.ddm_57;
+                    calib = data.calib_data.ddm_57;
                     break;
                 case "ddm_95":
-                    calib = data.ddm_95;
+                    calib = data.calib_data.ddm_95;
                     break;
                 case "ddm_116":
-                    calib = data.ddm_116;
+                    calib = data.calib_data.ddm_116;
                     break;
                 case "ddm_170":
-                    calib = data.ddm_170;
+                    calib = data.calib_data.ddm_170;
                     break;
                 case "ddm_170_tall":
-                    calib = data.ddm_170_tall;
+                    calib = data.calib_data.ddm_170_tall;
                     break;
             }
             return calib;

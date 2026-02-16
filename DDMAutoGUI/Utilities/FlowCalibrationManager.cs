@@ -46,6 +46,18 @@ namespace DDMAutoGUI.utilities
             result.success = false;
             result.message = "";
 
+            if (App.GUI_SIM_MODE)
+            {
+                await Task.Delay(1000); // simulate time delay
+                result.success = true;
+                result.time = DateTime.Now;
+                result.motorName = motorName;
+                result.sf1 = 1.0f;
+                result.sf2 = 1.0f;
+                result.message = "Success (!) SIMULATED (!)";
+                return result;
+            }
+
             try
             {
                 float x, t;
@@ -95,7 +107,7 @@ namespace DDMAutoGUI.utilities
                 }
 
                 // Set pressures based on current calib
-                LDCalib calib = App.LocalDataManager.GetCalibFromMotorName(localData, motorName);
+                LDMotorCalib calib = App.LocalDataManager.GetCalibFromMotorName(localData, motorName);
                 float _pressure1 = calib.sys_1_pressure.Value;
                 float _pressure2 = calib.sys_2_pressure.Value;
                 if (_pressure1 != null)
@@ -238,34 +250,34 @@ namespace DDMAutoGUI.utilities
 
             success = false;
             CSShot targetShotData = null;
-            LDCalib calibOriginal = null;
+            LDMotorCalib calibOriginal = null;
             string tb = "  ";
 
             switch (prevShotData.motor_type)
             {
                 case "ddm_57":
                     targetShotData = cellSettings.ddm_57.shot_settings;
-                    calibOriginal = localData.ddm_57;
+                    calibOriginal = localData.calib_data.ddm_57;
                     break;
                 case "ddm_95":
                     targetShotData = cellSettings.ddm_95.shot_settings;
-                    calibOriginal = localData.ddm_95;
+                    calibOriginal = localData.calib_data.ddm_95;
                     break;
                 case "ddm_116":
                     targetShotData = cellSettings.ddm_116.shot_settings;
-                    calibOriginal = localData.ddm_116;
+                    calibOriginal = localData.calib_data.ddm_116;
                     break;
                 case "ddm_170":
                     targetShotData = cellSettings.ddm_170.shot_settings;
-                    calibOriginal = localData.ddm_170;
+                    calibOriginal = localData.calib_data.ddm_170;
                     break;
                 case "ddm_170_tall":
                     targetShotData = cellSettings.ddm_170_tall.shot_settings;
-                    calibOriginal = localData.ddm_170_tall;
+                    calibOriginal = localData.calib_data.ddm_170_tall;
                     break;
             }
 
-            LDCalib calibNew = calibOriginal.Clone();
+            LDMotorCalib calibNew = calibOriginal.Clone();
 
             Debug.Print($"Calculating scale factors based on motor size {prevShotData.motor_type}");
 
@@ -386,19 +398,19 @@ namespace DDMAutoGUI.utilities
             switch (prevShotData.motor_type)
             {
                 case "ddm_57":
-                    localData.ddm_57 = calibNew.Clone();
+                    localData.calib_data.ddm_57 = calibNew.Clone();
                     break;
                 case "ddm_95":
-                    localData.ddm_95 = calibNew.Clone();
+                    localData.calib_data.ddm_95 = calibNew.Clone();
                     break;
                 case "ddm_116":
-                    localData.ddm_116 = calibNew.Clone();
+                    localData.calib_data.ddm_116 = calibNew.Clone();
                     break;
                 case "ddm_170":
-                    localData.ddm_170 = calibNew.Clone();
+                    localData.calib_data.ddm_170 = calibNew.Clone();
                     break;
                 case "ddm_170_tall":
-                    localData.ddm_170_tall = calibNew.Clone();
+                    localData.calib_data.ddm_170_tall = calibNew.Clone();
                     break;
             }
 

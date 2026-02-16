@@ -106,6 +106,12 @@ namespace DDMAutoGUI.utilities
         public float? sys_2_max_pressure { get; set; }
         public float? sys_1_max_pressure_dev_percent { get; set; }
         public float? sys_2_max_pressure_dev_percent { get; set; }
+        public float? sys_1_flush_pressure { get; set; }
+        public float? sys_2_flush_pressure { get; set; }
+        public float? sys_1_flush_time { get; set; }
+        public float? sys_2_flush_time { get; set; }
+        public float? sys_1_fill_time { get; set; }
+        public float? sys_2_fill_time { get; set; }
         public float? id_vol_max_err_percent { get; set; }
         public float? od_vol_max_err_percent { get; set; }
         public float? calib_exp_hours { get; set; }
@@ -314,7 +320,7 @@ namespace DDMAutoGUI.utilities
 
             if (App.GUI_SIM_MODE)
             {
-                Debug.Print("Settings file simulated using default parameters");
+                Debug.Print("(!) Settings file simulated using default parameters (!)");
                 rawJson = File.ReadAllText(defaultSettingsPath);
                 CellSettings settings = JsonSerializer.Deserialize<CellSettings>(rawJson);
                 Debug.Print($"Default settings file read successfully from file");
