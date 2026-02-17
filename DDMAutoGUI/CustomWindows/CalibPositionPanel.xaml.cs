@@ -26,6 +26,11 @@ namespace DDMAutoGUI.CustomWindows
             InitializeComponent();
         }
 
+        public void SetupPanel()
+        {
+
+        }
+
         private async void CalPosBtn_Click(object sender, RoutedEventArgs e)
         {
             CalPosPrg.Visibility = Visibility.Visible;

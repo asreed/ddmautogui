@@ -48,17 +48,17 @@
                     <StackPanel Orientation="Vertical" Margin="12">
 
 
-                        <Grid Margin="0,12,0,0" Background="WHite">
+                        <Grid Margin="0,12,0,0" Background="White">
                             <Grid.Resources>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Margin" Value="2"/>
                                     <Setter Property="Padding" Value="6,4"/>
                                     <Setter Property="VerticalAlignment" Value="Center"/>
-                                    <!--<Setter Property="Background" Value="WhiteSmoke"/>-->
+                                    <Setter Property="Background" Value="WhiteSmoke"/>
                                 </Style>
                             </Grid.Resources>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="120"/>
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
@@ -86,7 +86,7 @@
                             <TextBlock Grid.Row="2" Grid.Column="2" Text="" x:Name="Calib_116_S2_CalPresTxb"/>
                             <TextBlock Grid.Row="3" Grid.Column="2" Text="" x:Name="Calib_116_S2_CalPresDevTxb"/>
 
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="ID"/>
+                            <!--<TextBlock Grid.Row="4" Grid.Column="1" Text="ID"/>
                             <TextBlock Grid.Row="4" Grid.Column="2" Text="OD"/>
 
                             <TextBlock Grid.Row="5" Grid.Column="0" Text="Ref flow"/>
@@ -96,9 +96,10 @@
                             <TextBlock Grid.Row="6" Grid.Column="1" Text="" x:Name="Calib_116_ID_CalFlowErrTxb"/>
 
                             <TextBlock Grid.Row="5" Grid.Column="2" Text="" x:Name="Calib_116_OD_RefFlowTxb"/>
-                            <TextBlock Grid.Row="6" Grid.Column="2" Text="" x:Name="Calib_116_OD_CalFlowErrTxb"/>
+                            <TextBlock Grid.Row="6" Grid.Column="2" Text="" x:Name="Calib_116_OD_CalFlowErrTxb"/>-->
 
                         </Grid>
+                        
 
                         <StackPanel Orientation="Vertical" Margin="0,18,0,0">
                             <Button x:Name="Calib_116_RunBtn" 
@@ -107,27 +108,6 @@
                                      Content="Calibrate DDM 116 flow rate" 
                                      Margin="0"/>
                             <ProgressBar x:Name="Calib_116_RunPrg"/>
-                            <Grid x:Name="Calib_116_DecideGrd" Visibility="Collapsed">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <Button x:Name="Calib_116_AcceptBtn" 
-                                         Click="Calib_116_AcceptBtn_Click"
-                                         Grid.Column="0"
-                                         Style="{StaticResource GreenButton}" 
-                                         Content="Accept"/>
-                                <Button x:Name="Calib_116_RejectBtn" 
-                                         Click="Calib_116_RejectBtn_Click"
-                                         Grid.Column="1"
-                                         Style="{StaticResource RedButton}" 
-                                         Content="Reject"/>
-                                <Button x:Name="Calib_116_CancelBtn" 
-                                         Click="Calib_116_CancelBtn_Click"
-                                         Grid.Column="2"
-                                         Content="Cancel"/>
-                            </Grid>
                         </StackPanel>
                     </StackPanel>
 

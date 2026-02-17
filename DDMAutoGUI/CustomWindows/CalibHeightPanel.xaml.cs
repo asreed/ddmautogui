@@ -28,7 +28,7 @@ namespace DDMAutoGUI.CustomWindows
 
         }
 
-        public void SetupTable()
+        public void SetupPanel()
         {
             CellSettings settings = App.SettingsManager.GetAllSettings();
 

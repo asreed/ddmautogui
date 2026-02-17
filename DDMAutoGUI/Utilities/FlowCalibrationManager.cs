@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
@@ -26,18 +27,20 @@ namespace DDMAutoGUI.utilities
 
         public FlowCalibrationManager() { }
 
-        public async Task<RunCalibResult> RunCalibrationRoutineOnce(
+        public async Task<RunCalibResult> RunDispenseForManualCalibration(
             CellSettings settings,
             LocalData localData,
             string motorName)
         {
 
             /// <summary>
-            /// Runs calibration routine for given motor size ONCE. Returns success flag and message.
-            /// If successful, returns new pressure settings. Validates and saves to file if successful.
+            /// Runs dispense routine for given motor size ONCE. Returns results object.
+            /// If successful, returns new pressure settings. Does basic validation, does not save.
             /// Iteration handled in calling function if unsuccessful or if visual inspection fails.
             /// 
-            /// RUNS THE ROBOT AROUND
+            /// RUNS THE ROBOT AROUND AND DISPENSES CA.
+            /// 
+            /// DOES NOT SAVE TO FILE.
             /// 
             /// </summary>
 
@@ -52,8 +55,8 @@ namespace DDMAutoGUI.utilities
                 result.success = true;
                 result.time = DateTime.Now;
                 result.motorName = motorName;
-                result.sf1 = 1.0f;
-                result.sf2 = 1.0f;
+                result.sf1 = 0.99f;
+                result.sf2 = 1.02f;
                 result.message = "Success (!) SIMULATED (!)";
                 return result;
             }
@@ -107,22 +110,22 @@ namespace DDMAutoGUI.utilities
                 }
 
                 // Set pressures based on current calib
-                LDMotorCalib calib = App.LocalDataManager.GetCalibFromMotorName(localData, motorName);
-                float _pressure1 = calib.sys_1_pressure.Value;
-                float _pressure2 = calib.sys_2_pressure.Value;
-                if (_pressure1 != null)
+                LDMotorCalib oldCalib = App.LocalDataManager.GetCalibFromMotorName(localData, motorName);
+                float oldPressure1 = oldCalib.sys_1_pressure.Value;
+                float oldPressure2 = oldCalib.sys_2_pressure.Value;
+                if (oldPressure1 != null)
                 {
-                    Debug.Print($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1:F3} psi");
-                    response = await App.ControllerManager.SetRegPressure(1, _pressure1);
+                    Debug.Print($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {oldPressure1:F3} psi");
+                    response = await App.ControllerManager.SetRegPressure(1, oldPressure1);
                 }
                 else
                 {
                     Debug.Print($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
                 }
-                if (_pressure2 != null)
+                if (oldPressure2 != null)
                 {
-                    Debug.Print($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2:F3} psi");
-                    response = await App.ControllerManager.SetRegPressure(2, _pressure2);
+                    Debug.Print($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {oldPressure2:F3} psi");
+                    response = await App.ControllerManager.SetRegPressure(2, oldPressure2);
                 }
                 else
                 {
@@ -163,7 +166,7 @@ namespace DDMAutoGUI.utilities
 
                 Debug.Print(response);
 
-                ResultsShotData shotData = App.ControllerManager.ParseDispenseResponse(response); // sets volumes, times, result pass/fail, message
+                ResultsShotData shotData = App.ControllerManager.ParseDispenseResponse(response); // sets volumes, times, result pass/fail, message.
                 // fill in the rest of the data:
                 shotData.motor_type = motorName;
                 shotData.id_valve_num = sysID;
@@ -181,7 +184,7 @@ namespace DDMAutoGUI.utilities
                     Debug.Print("Results:");
                     Debug.Print($"{tb}ID:");
                     Debug.Print($"{tb}{tb}Valve {motorSettings.shot_settings.id_sys_num} ({substance_id})");
-                    Debug.Print ($"{tb}{tb}Dispense volume: {shotData.id_vol:F3} mL ({shotData.id_vol.Value * 100 / motorSettings.shot_settings.id_target_vol.Value:F1}% of target)");
+                    Debug.Print($"{tb}{tb}Dispense volume: {shotData.id_vol:F3} mL ({shotData.id_vol.Value * 100 / motorSettings.shot_settings.id_target_vol.Value:F1}% of target)");
                     Debug.Print($"{tb}{tb}Dispense time: {shotData.id_time:F3} s");
                     Debug.Print($"{tb}{tb}Pressure: {shotData.id_pressure:F3} psi");
                     Debug.Print($"{tb}OD:");
@@ -201,20 +204,22 @@ namespace DDMAutoGUI.utilities
                 t = settings.ddm_common.load.t.Value;
                 await App.ControllerManager.MoveJ(x, t);
 
-                // Run calibration calculations and save if successful
+                // Run calibration calculations
                 float _sf1, _sf2;
                 bool _calibSuccess;
-                CalibratePressures(shotData, settings, localData, out _calibSuccess, out _sf1, out _sf2);
+                string _message;
+                CalculateNewScaleFactors(shotData, settings, localData, out _calibSuccess, out _message, out _sf1, out _sf2);
 
                 if (!_calibSuccess)
                 {
                     throw new Exception("Calibration failed: Calculation unsuccessful");
                 }
 
-                // Return scale factors and success flag
+                // Return scale factors, success flag, message, and time
+                result.time = DateTime.Now;
+                result.motorName = motorName;
                 result.sf1 = _sf1;
                 result.sf2 = _sf2;
-                result.motorName = motorName;
                 result.message = "Success";
                 result.success = true;
 
@@ -228,12 +233,13 @@ namespace DDMAutoGUI.utilities
             return result;
         }
 
-        public static void CalibratePressures(
+        public static void CalculateNewScaleFactors(
             ResultsShotData prevShotData,
             CellSettings cellSettings,
             LocalData localData,
 
             out bool success,
+            out string message,
             out float sf1,
             out float sf2)
         {
@@ -242,13 +248,18 @@ namespace DDMAutoGUI.utilities
             /// <summary>
             /// Takes cell settings data, compares to the latest shot data, and
             /// estimates pressure adjustments required to improve shot volume accuracy for the next
-            /// run. If new calib looks OK, new calib is copied into local data and saved to file.
+            /// run. Neither saves nor validates calibration.
             /// 
-            /// DOES NOT RUN THE ROBOT AROUND
+            /// DOES NOT RUN THE ROBOT AROUND.
+            /// 
+            /// DOES NOT SAVE TO FILE.
             /// 
             /// </summary>
 
             success = false;
+            message = String.Empty;
+            sf1 = 1.00f;
+            sf2 = 1.00f;
             CSShot targetShotData = null;
             LDMotorCalib calibOriginal = null;
             string tb = "  ";
@@ -281,8 +292,6 @@ namespace DDMAutoGUI.utilities
 
             Debug.Print($"Calculating scale factors based on motor size {prevShotData.motor_type}");
 
-
-
             // calculate real flow rate (from given shot data)
             // get target flow rate (from cell settings)
             // get calib data (from local data)
@@ -299,12 +308,6 @@ namespace DDMAutoGUI.utilities
             float targetFlowOD = targetShotData.od_target_flow.Value;
             float sfOD = targetFlowOD / lastFlowOD;
             float sysOD = targetShotData.od_sys_num.Value;
-
-
-
-            // default to 1.0 (no scaling)
-            sf1 = 1f;
-            sf2 = 1f;
 
             if (sysID == sysOD)
             {
@@ -336,34 +339,26 @@ namespace DDMAutoGUI.utilities
             //Debug.Print($"  Sys 1: ({calibNew.sys_2_flow:0.00}, {calibNew.sys_2_pressure,5:0.000})");
 
 
+            // Basic validation
 
+            // Check pressures against absolute limits
 
-
-
-
-            // CHECK PRESSURES AGAINST ABSOLUTE LIMITS
-
+            bool validated = false;
             float sys1MaxPressure = cellSettings.dispense_system.sys_1_max_pressure.Value;
             float sys2MaxPressure = cellSettings.dispense_system.sys_2_max_pressure.Value;
 
             if (calibNew.sys_1_pressure > sys1MaxPressure || calibNew.sys_1_pressure < 0)
             {
-                Debug.Print($"{tb}Calibration failed: System 1 pressure out of range ({calibNew.sys_1_pressure})");
-                success = false;
+                message = $"Calibration failed: System 1 pressure out of range ({calibNew.sys_1_pressure})";
                 return;
             }
             if (calibNew.sys_2_pressure > sys2MaxPressure || calibNew.sys_2_pressure < 0)
             {
-                Debug.Print($"{tb}Calibration failed: System 2 pressure out of range ({calibNew.sys_2_pressure})");
-                success = false;
+                message = $"Calibration failed: System 2 pressure out of range ({calibNew.sys_2_pressure})";
                 return;
             }
 
-
-
-
-
-            // CHECK PRESSURES AGAINST RELATIVE LIMITS (DRIFTING TOO FAR FROM ORIGINAL CALIBRATION)
+            // Check pressures against relative limits
 
             float newPressure;
             float originalPressure;
@@ -375,8 +370,7 @@ namespace DDMAutoGUI.utilities
 
             if (diff > cellSettings.dispense_system.sys_1_max_pressure_dev_percent)
             {
-                Debug.Print($"{tb}Calibration failed: System 1 pressure deviated too far from calib ({diff})");
-                success = false;
+                message = $"Validation failed: System 1 pressure deviated too far from calib ({diff})";
                 return;
             }
 
@@ -386,38 +380,48 @@ namespace DDMAutoGUI.utilities
 
             if (diff > cellSettings.dispense_system.sys_2_max_pressure_dev_percent)
             {
-                Debug.Print($"{tb}Calibration failed: System 2 pressure deviated too far from calib ({diff})");
-                success = false;
+                message = $"Validation failed: System 2 pressure deviated too far from calib ({diff})";
                 return;
             }
 
+            Debug.Print($"{tb}Calibration calculation successful");
+            message = "Calibration calculation successful";
+            success = true;
+        }
 
+        public void GenerateAndSaveCalibration(RunCalibResult result)
+        {
+            LocalData newLocalData = App.LocalDataManager.GetLocalData();
 
-            // If checks pass, copy new calib data to local data
+            newLocalData.calib_data.last_size = result.motorName;
+            newLocalData.calib_data.last_calib = result.time;
 
-            switch (prevShotData.motor_type)
+            switch (result.motorName)
             {
                 case "ddm_57":
-                    localData.calib_data.ddm_57 = calibNew.Clone();
+                    newLocalData.calib_data.ddm_57.sys_1_pressure *= result.sf1;
+                    newLocalData.calib_data.ddm_57.sys_2_pressure *= result.sf2;
                     break;
                 case "ddm_95":
-                    localData.calib_data.ddm_95 = calibNew.Clone();
+                    newLocalData.calib_data.ddm_95.sys_1_pressure *= result.sf1;
+                    newLocalData.calib_data.ddm_95.sys_2_pressure *= result.sf2;
                     break;
                 case "ddm_116":
-                    localData.calib_data.ddm_116 = calibNew.Clone();
+                    newLocalData.calib_data.ddm_116.sys_1_pressure *= result.sf1;
+                    newLocalData.calib_data.ddm_116.sys_2_pressure *= result.sf2;
                     break;
                 case "ddm_170":
-                    localData.calib_data.ddm_170 = calibNew.Clone();
+                    newLocalData.calib_data.ddm_170.sys_1_pressure *= result.sf1;
+                    newLocalData.calib_data.ddm_170.sys_2_pressure *= result.sf2;
                     break;
                 case "ddm_170_tall":
-                    localData.calib_data.ddm_170_tall = calibNew.Clone();
+                    newLocalData.calib_data.ddm_170_tall.sys_1_pressure *= result.sf1;
+                    newLocalData.calib_data.ddm_170_tall.sys_2_pressure *= result.sf2;
                     break;
             }
 
-            Debug.Print($"{tb}Calibration successful, new calibration saved to local data.");
-
+            App.LocalDataManager.SetLocalData(newLocalData);
             App.LocalDataManager.SaveLocalDataToFile();
-            success = true;
         }
 
     }

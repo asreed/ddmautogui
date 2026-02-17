@@ -22,19 +22,22 @@ namespace DDMAutoGUI.CustomWindows
     /// </summary>
     public partial class CalibFlowPanel : UserControl
     {
+
+        RunCalibResult runCalibResult = new RunCalibResult();
+
+
+
         public CalibFlowPanel()
         {
             InitializeComponent();
 
             Calib_116_RunPrg.Visibility = Visibility.Collapsed;
-            Calib_116_DecideGrd.Visibility = Visibility.Collapsed;
         }
 
         public void SetupPanel()
         {
             try
             {
-                // Fill in flow calibration info
                 CellSettings settings = App.SettingsManager.GetAllSettings();
                 LocalData localData = App.LocalDataManager.GetLocalData();
 
@@ -59,13 +62,11 @@ namespace DDMAutoGUI.CustomWindows
                 Calib_116_S1_CalPresDevTxb.Text = sys1Dev.ToString("F2") + "%";
                 Calib_116_S2_CalPresDevTxb.Text = sys2Dev.ToString("F2") + "%";
 
-                float refFlowID = settings.ddm_116.shot_settings.id_target_flow.Value;
-                float refFlowOD = settings.ddm_116.shot_settings.od_target_flow.Value;
+                //float refFlowID = settings.ddm_116.shot_settings.id_target_flow.Value;
+                //float refFlowOD = settings.ddm_116.shot_settings.od_target_flow.Value;
 
-                Calib_116_ID_RefFlowTxb.Text = refFlowID.ToString("F2") + " mL/s";
-                Calib_116_OD_RefFlowTxb.Text = refFlowOD.ToString("F2") + " mL/s";
-
-
+                //Calib_116_ID_RefFlowTxb.Text = refFlowID.ToString("F2") + " mL/s";
+                //Calib_116_OD_RefFlowTxb.Text = refFlowOD.ToString("F2") + " mL/s";
 
             }
             catch (Exception ex)
@@ -83,28 +84,34 @@ namespace DDMAutoGUI.CustomWindows
 
                 CellSettings settings = App.SettingsManager.GetAllSettings();
                 LocalData localData = App.LocalDataManager.GetLocalData();
-                RunCalibResult result = await App.FlowCalibrationManager.RunCalibrationRoutineOnce(settings, localData, "ddm_116");
 
-                if (result != null)
+                // do the dispense, get a preliminary calibration result back
+                // do preliminary validation
+                // display calibration result for user validation
+                // accept/reject handled by other buttons
+
+                RunCalibResult result = await App.FlowCalibrationManager.RunDispenseForManualCalibration(settings, localData, "ddm_116");
+
+                string caption = "Accept new calibration?";
+                string message = $"New calibration results:\n\nSF1: {result.sf1:F2}\nSF2: {result.sf2:F2}\n\nAccept these results?";
+                MessageBoxResult userInput = MessageBox.Show(message, caption, MessageBoxButton.YesNoCancel);
+
+                if (userInput == MessageBoxResult.Yes)
                 {
-                    if (result.success)
-                    {
-                        // successful calib. display options and wait for user input
-                        Debug.Print("Single calib run successful");
-                        Calib_116_DecideGrd.Visibility = Visibility.Visible;
-
-                        Calib_116_S1_CalPresTxb.Text = result.sf1.ToString("F2") + " psi";
-                    }
-                    else
-                    {
-                        // unsuccessful calib. reset
-                        throw new Exception($"{result.message}");
-                    }
+                    // if OK, save and reset UI
+                    
+                    App.FlowCalibrationManager.GenerateAndSaveCalibration(result);
+                    Calib_116_RunBtn.IsEnabled = true;
+                    Calib_116_RunPrg.Visibility = Visibility.Collapsed;
+                }
+                else if (userInput == MessageBoxResult.No)
+                {
+                    Calib_116_RunBtn_Click(sender, e);
                 }
                 else
                 {
-                    // null result. check logic to make sure result is not null
-                    Debug.Print("Null result from single calib run (?)");
+                    Calib_116_RunBtn.IsEnabled = true;
+                    Calib_116_RunPrg.Visibility = Visibility.Collapsed;
                 }
             }
             catch (Exception ex)
@@ -113,30 +120,8 @@ namespace DDMAutoGUI.CustomWindows
                 Calib_116_RunBtn.IsEnabled = true;
                 Calib_116_RunPrg.Visibility = Visibility.Collapsed;
             }
-        }
 
-        private void Calib_116_AcceptBtn_Click(object sender, RoutedEventArgs e)
-        {
-            // if OK, simply reset UI. calib already saved.
-            Calib_116_RunBtn.IsEnabled = true;
-            Calib_116_RunPrg.Visibility = Visibility.Collapsed;
-            Calib_116_DecideGrd.Visibility = Visibility.Collapsed;
-        }
-
-        private void Calib_116_RejectBtn_Click(object sender, RoutedEventArgs e)
-        {
-            // if not OK, run calib again
-            Calib_116_DecideGrd.Visibility = Visibility.Collapsed;
-            Calib_116_RunBtn_Click(sender, e);
-        }
-
-        private void Calib_116_CancelBtn_Click(object sender, RoutedEventArgs e)
-        {
-            // data is already saved... what to do...
-            Calib_116_RunBtn.IsEnabled = true;
-            Calib_116_RunPrg.Visibility = Visibility.Collapsed;
-            Calib_116_DecideGrd.Visibility = Visibility.Collapsed;
-
+            SetupPanel();
         }
     }
 }

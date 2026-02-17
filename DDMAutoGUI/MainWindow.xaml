@@ -357,7 +357,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         
-                        <CustomWindows:CalibPanel Grid.Row="1" Grid.Column="1"/>
+                        <CustomWindows:CalibPanel Grid.Row="1" Grid.Column="1" x:Name="CalPanel"/>
 
                         <!--<Border x:Name="Cal_PWEntryBdr" Background="White" Visibility="Collapsed">
                             <Grid>

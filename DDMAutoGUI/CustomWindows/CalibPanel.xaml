@@ -13,13 +13,13 @@
         <TabControl Grid.Row="1" Grid.Column="1" x:Name="Cal_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top">
 
             <TabItem Header="Position">
-                <CustomWindows:CalibPositionPanel />
+                <CustomWindows:CalibPositionPanel x:Name="CalPosPanel"/>
             </TabItem>
             <TabItem Header="Height Sensor">
-                <CustomWindows:CalibHeightPanel/>
+                <CustomWindows:CalibHeightPanel x:Name="CalHeightPanel"/>
             </TabItem>
             <TabItem Header="Flow Rate">
-                <CustomWindows:CalibFlowPanel />
+                <CustomWindows:CalibFlowPanel x:Name="CalFlowPanel"/>
             </TabItem>
 
         </TabControl>

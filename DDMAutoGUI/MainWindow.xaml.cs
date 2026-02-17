@@ -1,4 +1,5 @@
-﻿using DDMAutoGUI.utilities;
+﻿using DDMAutoGUI.CustomWindows;
+using DDMAutoGUI.utilities;
 using DDMAutoGUI.Utilities;
 using DDMAutoGUI.windows;
 using NationalInstruments.Restricted;
@@ -468,25 +469,43 @@ namespace DDMAutoGUI
                     }
 
                     bool calibSuccess;
+                    string calibMessage;
                     float sf1, sf2;
-                    LDMotorCalib calib = App.LocalDataManager.GetCalibFromMotorName(motorName);
 
-                    FlowCalibrationManager.CalibratePressures(
+                    FlowCalibrationManager.CalculateNewScaleFactors(
                         App.ResultsManager.currentResults.shot_data,
                         App.SettingsManager.GetAllSettings(),
                         App.LocalDataManager.GetLocalData(),
                         out calibSuccess,
+                        out calibMessage,
                         out sf1,
                         out sf2);
 
                     if (!calibSuccess)
                     {
-                        throw new Exception("Autocalibration failed");
+                        throw new Exception($"Calibration calculation failed: {calibMessage}");
                     }
+
+                    App.ResultsManager.AddToLog($"Calibration calculation succeeded.");
+                    App.ResultsManager.AddToLog($"Saving new calibration to local file...");
+
+                    // create dummy comtainer to pass along
+                    RunCalibResult resultContainer = new RunCalibResult
+                    {
+                        success = calibSuccess,
+                        message = calibMessage,
+                        time = DateTime.Now,
+                        motorName = motorName,
+                        sf1 = sf1,
+                        sf2 = sf2
+                    };
+                    App.FlowCalibrationManager.GenerateAndSaveCalibration(resultContainer);
+                    App.ResultsManager.AddToLog($"Calibration saved to local file");
 
                     App.ResultsManager.currentResults.reference_data.sys_1_autocal_sf = sf1;
                     App.ResultsManager.currentResults.reference_data.sys_2_autocal_sf = sf2;
 
+                    LDMotorCalib calib = App.LocalDataManager.GetCalibFromMotorName(motorName);
                     float _pressure1 = calib.sys_1_pressure.Value;
                     float _pressure2 = calib.sys_2_pressure.Value;
 
@@ -497,11 +516,8 @@ namespace DDMAutoGUI
                     App.ResultsManager.AddToLog($"{tb}System 2:");
                     App.ResultsManager.AddToLog($"{tb}{tb}SF: {sf2:F3}");
                     App.ResultsManager.AddToLog($"{tb}{tb}New pressure: {_pressure2:F3}");
-                    App.ResultsManager.AddToLog($"Autocalibration succeeded");
 
                     App.ResultsManager.AddToLog("Adjusting dispense system pressures...");
-
-
 
                     if (_pressure1 != null)
                     {
@@ -1843,13 +1859,12 @@ namespace DDMAutoGUI
                     case 2:
                         // Calibration Tab
 
-                        //Calib_Flow_Panel.SetupPanel();
-
+                        CalPanel.SetupPanel();
 
                         break;
 
                     case 3:
-                        // Dev Tab
+
 
                         break;
                 }
