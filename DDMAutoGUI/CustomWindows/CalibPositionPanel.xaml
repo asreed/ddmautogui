@@ -33,7 +33,6 @@
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="J1 Position"/>
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="J2 Position"/>
 
-
                 <TextBlock Grid.Row="0" Grid.Column="1" Text="-" x:Name="j1PosTxb"/>
                 <TextBlock Grid.Row="1" Grid.Column="1" Text="-" x:Name="j2PosTxb"/>
 

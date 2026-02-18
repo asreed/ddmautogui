@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DDMAutoGUI.utilities;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -19,11 +20,15 @@ namespace DDMAutoGUI.CustomWindows
     /// <summary>
     /// Interaction logic for CalibPositionPanel.xaml
     /// </summary>
+
+
+
     public partial class CalibPositionPanel : UserControl
     {
         public CalibPositionPanel()
         {
             InitializeComponent();
+            App.ControllerManager.ControllerStateChanged += UpdatePositionLabels;
         }
 
         public void SetupPanel()
@@ -31,18 +36,41 @@ namespace DDMAutoGUI.CustomWindows
 
         }
 
+        public void UpdatePositionLabels(object sender, EventArgs e)
+        {
+            ControllerState contState = App.ControllerManager.CONTROLLER_STATE;
+            if (!contState.parseError)
+            {
+                j1PosTxb.Text = contState.posRotary.ToString("F2") + " deg";
+                j2PosTxb.Text = contState.posLinear.ToString("F2") + " mm";
+            }
+            else
+            {
+                j1PosTxb.Text = "-";
+                j2PosTxb.Text = "-";
+            }
+        }
+
         private async void CalPosBtn_Click(object sender, RoutedEventArgs e)
         {
             CalPosPrg.Visibility = Visibility.Visible;
+
+            string caption = $"Position calibration result";
+            string message = String.Empty;
             try
             {
                 await App.ControllerManager.CalibratePosition();
-                await App.ControllerManager.Home();
+                message = "Position calibration successful";
+                MessageBox.Show(message, caption, MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 Debug.Print("Error during position calibration: " + ex.Message);
+                message = "Error during position calibration: " + ex.Message;
+                MessageBox.Show(message, caption, MessageBoxButton.OK, MessageBoxImage.Error);
             }
+
+
             CalPosPrg.Visibility = Visibility.Collapsed;
         }
     }

@@ -1,0 +1,228 @@
+{
+  "date_saved": "2026-01-18T12:27:55.9143508-08:00",
+  "ring_sn": "autocal_newresformat",
+  "tool_sn": null,
+  "shot_data": {
+    "motor_type": "ddm_116",
+    "shot_result": true,
+    "shot_message": "",
+    "valve_num_id": 2,
+    "valve_num_od": 1,
+    "pressure_id": 30.119379,
+    "pressure_od": 8.246509,
+    "time_id": 5,
+    "time_od": 2.125,
+    "vol_id": 0.745,
+    "vol_od": 0.9
+  },
+  "reference_data": {
+    "substance_id": "Permabond 825",
+    "substance_od": "Permabond 801",
+    "target_vol_id": 0.75,
+    "target_vol_od": 0.85,
+    "target_flow_id": 0.15,
+    "target_flow_od": 0.4,
+    "calib_pressure_id": 30.119379,
+    "calib_pressure_od": 8.246509,
+    "autocal_sf_1": 0.94444454,
+    "autocal_sf_2": 1.0067114
+  },
+  "overall_process_result": true,
+  "overall_proces_message": "Process completed successfully",
+  "ring_heights": [],
+  "mag_heights": [],
+  "process_log": [
+    {
+      "timestamp": "2026-01-18T12:27:15.2840518-08:00",
+      "message": "Dispense process started for motor ddm_116"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:15.2859474-08:00",
+      "message": "Checking system health..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:15.2871032-08:00",
+      "message": "System OK"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:18.7927109-08:00",
+      "message": "Setting dispense system pressures for ddm_116..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:18.7952437-08:00",
+      "message": "Setting pressure for system 1 (Permabond 801) to 8.247 psi"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:18.7985056-08:00",
+      "message": "Setting pressure for system 2 (Permabond 825) to 30.119 psi"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:18.8010787-08:00",
+      "message": "Waiting for pressures to settle..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:20.3054596-08:00",
+      "message": "Pressures settled"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:20.3069067-08:00",
+      "message": "Zeroing flow sensors..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:23.3097079-08:00",
+      "message": "Flow sensors zeroed"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:23.3108503-08:00",
+      "message": "Pressures set"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:23.3116451-08:00",
+      "message": "Enabling power..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:23.315703-08:00",
+      "message": "Power enabled"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:23.3165212-08:00",
+      "message": "Homing..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:24.1781873-08:00",
+      "message": "Homed"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:24.1794942-08:00",
+      "message": "Acquiring preprocess top photo..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:29.6272095-08:00",
+      "message": "Preprocess top photo acquired"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:29.6288114-08:00",
+      "message": "Waiting for pressures to stabilize..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:30.1313389-08:00",
+      "message": "Pressures stabilized"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:30.1325546-08:00",
+      "message": "Dispensing cyanoacrylate..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9155491-08:00",
+      "message": "Dispense successful"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9168925-08:00",
+      "message": "Results:"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9191036-08:00",
+      "message": "  ID:"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9229853-08:00",
+      "message": "    Valve 2 (Permabond 825)"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.934502-08:00",
+      "message": "    Dispense volume: 0.745 mL (99.3% of target)"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9449413-08:00",
+      "message": "    Dispense time: 5.000 s"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9599455-08:00",
+      "message": "    Pressure: 30.119 psi"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9609444-08:00",
+      "message": "  OD:"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9618773-08:00",
+      "message": "    Valve 2 (Permabond 801)"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9629158-08:00",
+      "message": "    Dispense volume: 0.900 mL (105.9% of target)"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9639603-08:00",
+      "message": "    Dispense time: 2.125 s"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9649749-08:00",
+      "message": "    Pressure: 8.247 psi"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9659979-08:00",
+      "message": "Autocalibrating..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9838365-08:00",
+      "message": "Saving updated calibration data to local storage..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9910279-08:00",
+      "message": "Calibration data saved"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.992357-08:00",
+      "message": "Adjusting dispense system pressures..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9934955-08:00",
+      "message": "Setting pressure for system 1 (Permabond 801) to 7.788 psi"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9961716-08:00",
+      "message": "Setting pressure for system 2 (Permabond 825) to 30.322 psi"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9984167-08:00",
+      "message": "System pressures adjusted"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:45.9996894-08:00",
+      "message": "Acquiring postprocess top photo..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:51.7151617-08:00",
+      "message": "Postprocess top photo acquired"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:51.7171919-08:00",
+      "message": "Waiting for cure timer..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:53.7203783-08:00",
+      "message": "Cure timer finished"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:53.721912-08:00",
+      "message": "Moving to unload..."
+    },
+    {
+      "timestamp": "2026-01-18T12:27:55.8859276-08:00",
+      "message": "Process complete"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:55.8885029-08:00",
+      "message": "Saving photos to results folder"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:55.8978774-08:00",
+      "message": "Saving settings to results folder"
+    },
+    {
+      "timestamp": "2026-01-18T12:27:55.9127538-08:00",
+      "message": "Saving all results data to results folder"
+    }
+  ]
+}

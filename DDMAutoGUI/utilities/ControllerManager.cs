@@ -551,6 +551,12 @@ namespace DDMAutoGUI.utilities
             byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
             StringBuilder response = new StringBuilder();
 
+            if (App.GUI_SIM_MODE)
+            {
+                UpdateRobotLog($"<< 0 (!) Generic simulated response (!)");
+                return "0";
+            }
+
             try
             {
                 await robotClient.SendAsync(commandBytes);
@@ -611,6 +617,12 @@ namespace DDMAutoGUI.utilities
 
             byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
             string response = string.Empty;
+
+            if (App.GUI_SIM_MODE)
+            {
+                UpdateStatusLog($"<< 0 (!) Generic simulated response (!)");
+                return "0";
+            }
 
             try
             {
@@ -1011,6 +1023,8 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> EnablePower()
         {
+            if (App.GUI_SIM_MODE) return "1"; // success is 1 for enabling power
+
             string response;
             int timeout = 0;
 
@@ -1036,6 +1050,8 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> Home()
         {
+            if (App.GUI_SIM_MODE) return "0";  // success is 0 for homing
+
             string response = "";
             response = await SendRobotCommand("attach 1");
             if (response != "0") return response;

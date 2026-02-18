@@ -334,6 +334,22 @@ namespace DDMAutoGUI
                 Disp_ProcessPrg.Value = 30;
 
 
+                if (App.advancedOptions.dispenseOptions.runOCR)
+                {
+                    App.ResultsManager.AddToLog("Processing images...");
+                    OCRData ocrData = await App.OCRManager.RunOCR();
+
+                    string toolSN = OCRManagerExtensions.GetBestResultForFile(ocrData, "top.jpg");
+                    App.ResultsManager.AddToLog($"Tool SN found: {toolSN}");
+
+                    string ringSN = OCRManagerExtensions.GetBestResultForFile(ocrData, "side.jpg");
+                    App.ResultsManager.AddToLog($"Ring SN found: {ringSN}");
+
+                    App.ResultsManager.AddToLog($"Images processed");
+                }
+                Disp_ProcessPrg.Value = 35;
+
+
                 if (App.advancedOptions.dispenseOptions.measureHeights)
                 {
                     App.ResultsManager.AddToLog("Collecting ring height data...");
@@ -960,6 +976,7 @@ namespace DDMAutoGUI
             App.advancedOptions.dispenseOptions.checkHealth = Adv_Opt_Disp_HealthChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.photoTop = Adv_Opt_Disp_TopPhotoChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.photoSide = Adv_Opt_Disp_SidePhotoChk.IsChecked ?? false;
+            App.advancedOptions.dispenseOptions.runOCR = Adv_Opt_Disp_RunOCRChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.measureHeights = Adv_Opt_Disp_RingHeightChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.dispense = Adv_Opt_Disp_DispChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.autocalibrate = Adv_Opt_Disp_AutoCalibChk.IsChecked ?? false;

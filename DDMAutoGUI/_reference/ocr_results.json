@@ -1,0 +1,26 @@
+{
+  "results": [
+    {
+      "file": "side.jpg",
+      "strings": [
+        {
+          "text": "0450TW240115",
+          "score": 0.994
+        },
+        {
+          "text": "600817B",
+          "score": 0.994
+        }
+      ]
+    },
+    {
+      "file": "top.jpg",
+      "strings": [
+        {
+          "text": "116-0001",
+          "score": 0.996
+        }
+      ]
+    }
+  ]
+}

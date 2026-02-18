@@ -86,20 +86,31 @@ namespace DDMAutoGUI.CustomWindows
                 LocalData localData = App.LocalDataManager.GetLocalData();
 
                 // do the dispense, get a preliminary calibration result back
-                // do preliminary validation
-                // display calibration result for user validation
-                // accept/reject handled by other buttons
+                // display calibration result for user confirmation
+                // if user accepts, saves and completes
+                // otherwise, recursively re-runs until user accepts or cancels
 
                 RunCalibResult result = await App.FlowCalibrationManager.RunDispenseForManualCalibration(settings, localData, "ddm_116");
 
-                string caption = "Accept new calibration?";
-                string message = $"New calibration results:\n\nSF1: {result.sf1:F2}\nSF2: {result.sf2:F2}\n\nAccept these results?";
-                MessageBoxResult userInput = MessageBox.Show(message, caption, MessageBoxButton.YesNoCancel);
+                float newSys1Pres = localData.calib_data.ddm_116.sys_1_pressure.Value * result.sf1;
+                float newSys2Pres = localData.calib_data.ddm_116.sys_2_pressure.Value * result.sf2;
+
+                string caption = $"Accept new calibration?";
+                string message = "";
+                message += $"Calibration scale factors:\n\n";
+                message += $"SF1: {result.sf1:F2}\n";
+                message += $"SF2: {result.sf2:F2}\n\n";
+                message += $"New calculated pressures:\n\n";
+                message += $"Sys 1: {newSys1Pres:F2} psi\n";
+                message += $"Sys 2: {newSys2Pres:F2} psi\n\n";
+                message += $"Accept results? \"No\" will re-run procedure.";
+
+                MessageBoxResult userInput = MessageBox.Show(message, caption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
 
                 if (userInput == MessageBoxResult.Yes)
                 {
                     // if OK, save and reset UI
-                    
+
                     App.FlowCalibrationManager.GenerateAndSaveCalibration(result);
                     Calib_116_RunBtn.IsEnabled = true;
                     Calib_116_RunPrg.Visibility = Visibility.Collapsed;

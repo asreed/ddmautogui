@@ -64,6 +64,7 @@ namespace DDMAutoGUI
         public bool checkHealth { get; set; } = true;
         public bool photoTop { get; set; } = true;
         public bool photoSide { get; set; } = true;
+        public bool runOCR { get; set; } = true;
         public bool measureHeights { get; set; } = true;
         public bool dispense { get; set; } = true;
         public bool autocalibrate { get; set; } = true;

@@ -1059,6 +1059,7 @@
                                             <CheckBox x:Name="Adv_Opt_Disp_HealthChk" Content="Check Health" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk" Content="Photo Top" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk" Content="Photo Side" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_RunOCRChk" Content="Run OCR" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Measure Heights" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_DispChk" Content="Dispense" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="True"/>
