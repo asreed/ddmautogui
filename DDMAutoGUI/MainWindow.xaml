@@ -238,12 +238,19 @@
                                                              Style="{StaticResource MonoTextBox}"/>
                                                 </GroupBox>
                                                 <GroupBox Header="Progress" Grid.Row="1">
-                                                    <ProgressBar Grid.Row="1"
-                                                                 x:Name="Disp_ProcessPrg"
-                                                                 IsIndeterminate="False"
-                                                                 Visibility="Visible"
-                                                                 Value="50"
-                                                                 Style="{StaticResource ProgressLarge}"/>
+                                                    <StackPanel Orientation="Vertical">
+                                                        <ProgressBar
+                                                            x:Name="Disp_ProcessPrg"
+                                                            IsIndeterminate="False"
+                                                            Visibility="Visible"
+                                                            Value="20"
+                                                            BorderBrush="Transparent"
+                                                            Style="{StaticResource ProgressLarge}"/>
+                                                        <ProgressBar 
+                                                            x:Name="Disp_BusyPrg" 
+                                                            Visibility="Visible"
+                                                            Margin="0,3,0,0"/>
+                                                    </StackPanel>
                                                 </GroupBox>
                                             </Grid>
 
@@ -1197,9 +1204,7 @@
                                                 <TextBox x:Name="Adv_Cam_OCRPathTxb"/>
                                                 <Button x:Name="Adv_Cam_RunOCR" Click="Adv_Cam_RunOCR_Click" Content="Process" Style="{StaticResource SmallButton}"/>
 
-                                                <ProgressBar
-                                                     x:Name="Adv_Cam_OCRPrg"
-                                                     Visibility="Visible"/>
+                                                <ProgressBar x:Name="Adv_Cam_OCRPrg"/>
                                             </StackPanel>
                                         </GroupBox>
                                         <GroupBox Grid.Row="1" Header="OCR Results">

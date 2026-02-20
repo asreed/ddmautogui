@@ -15,10 +15,10 @@
     "sys_2_contents": "Permabond 825",
     "sys_1_max_pressure": 55,
     "sys_2_max_pressure": 55,
-    "sys_1_max_pressure_dev_percent": 50,
+    "sys_1_max_pressure_dev_percent": 80,
     "sys_2_max_pressure_dev_percent": 80,
-    "sys_1_flush_pressure": 5,
-    "sys_2_flush_pressure": 5,
+    "sys_1_flush_pressure": 3,
+    "sys_2_flush_pressure": 3,
     "sys_1_flush_time": 15,
     "sys_2_flush_time": 15,
     "sys_1_fill_time": 15,
@@ -182,7 +182,7 @@
     "post_spin_time": 0,
     "post_spin_speed": 100,
     "laser_ring_num": 6,
-    "laser_mag_num": 8,
+    "laser_mag_num": 80,
     "camera_side": {
       "x": 581.97,
       "t": -121.982

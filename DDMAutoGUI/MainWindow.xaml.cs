@@ -116,6 +116,8 @@ namespace DDMAutoGUI
             int n;
             string response;
 
+            string resultsPath;
+
             string topImagePath = string.Empty;
             string sideImagePath = string.Empty;
             string topAfterImagePath = string.Empty;
@@ -123,7 +125,7 @@ namespace DDMAutoGUI
             bool errorEncountered = false;
             string errorMessage = string.Empty;
             string displayMessage = string.Empty;
-            bool saveResults = false; // only save results if dispense step is reached
+            bool saveResults = true; // save results no matter what (for now)
 
             int sysID = 0;
             int sysOD = 0;
@@ -185,9 +187,13 @@ namespace DDMAutoGUI
             App.ResultsManager.CreateNewResults();
             Disp_LogTxt.Text = "";
 
+            resultsPath = App.ResultsManager.CreateResultsFolder(); // create folder with no SN. rename later if SN detected
             App.ResultsManager.currentResults.ring_sn = Disp_MotorSNTxt.Text.Trim(); // until we can figure out SN from camera
 
+
+
             Disp_ProcessPrg.Value = 0;
+            Disp_BusyPrg.Visibility = Visibility.Visible;
             Dispense_GoToStep(1);
 
             try
@@ -305,6 +311,10 @@ namespace DDMAutoGUI
                     else
                     {
                         topImagePath = camResult.filePath;
+                        if (topImagePath != String.Empty)
+                        {
+                            App.ResultsManager.CopyPhotoToResultsFolder(topImagePath, "Top");
+                        }
                         App.ResultsManager.AddToLog($"Preprocess top photo acquired");
                     }
                 }
@@ -328,6 +338,10 @@ namespace DDMAutoGUI
                     else
                     {
                         sideImagePath = camResult.filePath;
+                        if (sideImagePath != String.Empty)
+                        {
+                            App.ResultsManager.CopyPhotoToResultsFolder(sideImagePath, "Side");
+                        }
                         App.ResultsManager.AddToLog($"Side photo acquired");
                     }
                 }
@@ -337,12 +351,35 @@ namespace DDMAutoGUI
                 if (App.advancedOptions.dispenseOptions.runOCR)
                 {
                     App.ResultsManager.AddToLog("Processing images...");
-                    OCRData ocrData = await App.OCRManager.RunOCR();
+                    OCRData ocrData = await App.OCRManager.RunOCR(resultsPath);
 
-                    string toolSN = OCRManagerExtensions.GetBestResultForFile(ocrData, "top.jpg");
-                    App.ResultsManager.AddToLog($"Tool SN found: {toolSN}");
+                    string toolType = OCRManagerExtensions.GetToolType(ocrData, "Top.jpg");
+                    if (toolType == null)
+                    {
+                        App.ResultsManager.AddToLog($"Unable to determine tool type from image");
+                    }
+                    else
+                    {
+                        if (toolType != motorName)
+                        {
+                            App.ResultsManager.AddToLog($"Tool type detected from image ({toolType}) does not match expected motor type ({motorName})");
+                            throw new Exception("Tool type mismatch");
+                        }
+                        else
+                        {
+                            string toolSN = OCRManagerExtensions.GetToolSN(ocrData, motorName, "Top.jpg");
+                            App.ResultsManager.currentResults.tool_sn = toolSN;
+                            App.ResultsManager.AddToLog($"Tool SN found: {toolSN}");
+                        }
+                    }
 
-                    string ringSN = OCRManagerExtensions.GetBestResultForFile(ocrData, "side.jpg");
+                    string ringSN = OCRManagerExtensions.GetRingSN(ocrData, motorName, "Side.jpg");
+                    if (ringSN == null)
+                    {
+                        App.ResultsManager.AddToLog($"Unable to determine ring SN from image");
+                        throw new Exception("Ring SN not found");
+                    }
+                    App.ResultsManager.currentResults.ring_sn = ringSN;
                     App.ResultsManager.AddToLog($"Ring SN found: {ringSN}");
 
                     App.ResultsManager.AddToLog($"Images processed");
@@ -361,8 +398,6 @@ namespace DDMAutoGUI
                     d = settings.laser_delay.Value;
                     response = await App.ControllerManager.MeasureHeights(x, t, n, d);
 
-                    // Save results if any height data is collected (for now?)
-                    saveResults = true;
 
                     App.ResultsManager.currentResults.ring_heights = App.ControllerManager.ParseHeightData(response);
                     App.ResultsManager.AddToLog("Ring height data collected");
@@ -418,7 +453,7 @@ namespace DDMAutoGUI
 
                     // If the dispense command has been called, save results.
                     // Need to save if there's a possibility of any liquid at all on the ring, even if the process fails.
-                    saveResults = true;
+                    //saveResults = true;
 
                     Debug.Print(response);
 
@@ -592,20 +627,9 @@ namespace DDMAutoGUI
                         App.ResultsManager.AddToLog($"Postprocess top photo acquired");
                     }
                 }
-                Disp_ProcessPrg.Value = 20;
-
-
-
-
-
-
-
-
-                App.ResultsManager.AddToLog("Waiting for cure timer...");
-                await Task.Delay(2000);
-
-                App.ResultsManager.AddToLog("Cure timer finished");
                 Disp_ProcessPrg.Value = 90;
+
+
                 App.ResultsManager.AddToLog("Moving to unload...");
                 x = settings.ddm_common.load.x.Value;
                 t = settings.ddm_common.load.t.Value;
@@ -621,6 +645,20 @@ namespace DDMAutoGUI
             {
                 App.ResultsManager.AddToLog($"Process failed: {ex.Message}");
                 errorEncountered = true;
+
+                Disp_ProcessPrg.IsIndeterminate = true;
+                try
+                {
+                    App.ResultsManager.AddToLog("Attempting to move to unload position...");
+                    x = settings.ddm_common.load.x.Value;
+                    t = settings.ddm_common.load.t.Value;
+                    App.ControllerManager.MoveJ(x, t);
+                }
+                catch (Exception ex2)
+                {
+                    App.ResultsManager.AddToLog($"Failed to move to unload position: {ex2.Message}");
+                }
+                Disp_ProcessPrg.IsIndeterminate = false;
             }
 
             Disp_ProcessPrg.Value = 95;
@@ -657,19 +695,18 @@ namespace DDMAutoGUI
             // Save results to file
             if (saveResults)
             {
-                string resultsPath = App.ResultsManager.CreateResultsFolder();
-                if (topImagePath != String.Empty || sideImagePath != String.Empty)
-                {
-                    App.ResultsManager.AddToLog("Saving photos to results folder");
-                }
-                if (topImagePath != String.Empty)
-                {
-                    App.ResultsManager.CopyPhotoToResultsFolder(topImagePath, "Top");
-                }
-                if (sideImagePath != String.Empty)
-                {
-                    App.ResultsManager.CopyPhotoToResultsFolder(sideImagePath, "Side");
-                }
+                //if (topImagePath != String.Empty || sideImagePath != String.Empty)
+                //{
+                //    App.ResultsManager.AddToLog("Saving photos to results folder");
+                //}
+                //if (topImagePath != String.Empty)
+                //{
+                //    App.ResultsManager.CopyPhotoToResultsFolder(topImagePath, "Top");
+                //}
+                //if (sideImagePath != String.Empty)
+                //{
+                //    App.ResultsManager.CopyPhotoToResultsFolder(sideImagePath, "Side");
+                //}
                 if (topAfterImagePath != String.Empty)
                 {
                     App.ResultsManager.CopyPhotoToResultsFolder(topAfterImagePath, "Top Post");
@@ -710,6 +747,7 @@ namespace DDMAutoGUI
             Dispense_GoToStep(2);
 
             // Clean up
+            Disp_BusyPrg.Visibility = Visibility.Collapsed;
             App.ResultsManager.UpdateProcessLog -= MainWindowSingle_Disp_UpdateProcessLog;
 
             return;
@@ -1894,7 +1932,7 @@ namespace DDMAutoGUI
             string name = Adv_Cam_OCRPathTxb.Text;
             Adv_Cam_OCRPrg.Visibility = Visibility.Visible;
 
-            OCRData data = await App.OCRManager.RunOCR();
+            OCRData data = await App.OCRManager.RunOCR(name);
             if (data != null)
             {
                 Adv_Cam_OCRResTxb.Text = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
