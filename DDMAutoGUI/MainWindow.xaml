@@ -815,6 +815,10 @@
                                                                     <Button Grid.Row="6" Grid.Column="1" x:Name="Adv_Cell_MoveDispODBtn" Content="Move, dispense OD" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveDispODBtn_Click"/>
                                                                     <Label  Grid.Row="6" Grid.Column="2" x:Name="Adv_Cell_MoveDispODOutLbl" Content="-"/>
 
+                                                                    <Label  Grid.Row="7" Grid.Column="0" x:Name="Adv_Cell_MoveHallInLbl" Content="-"/>
+                                                                    <Button Grid.Row="7" Grid.Column="1" x:Name="Adv_Cell_MoveHallBtn" Content="Move, hall" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveHallBtn_Click"/>
+                                                                    <Label  Grid.Row="7" Grid.Column="2" x:Name="Adv_Cell_MoveHallOutLbl" Content="-"/>
+                                                                    
                                                                 </Grid>
                                                             </GroupBox>
 

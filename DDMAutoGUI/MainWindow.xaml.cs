@@ -603,7 +603,44 @@ namespace DDMAutoGUI
 
                     float hallTime = settings.hall_spin_time.Value;
                     float hallSpeed = settings.hall_spin_speed.Value;
-                    response = await App.ControllerManager.SpinInPlace(hallTime, hallSpeed);
+
+                    // start matlab exe running
+                    Task<DAQMatlabResults> matlabTask = App.DAQManager.CollectDataAndProcessML("ddm_116");
+                    
+                    // wait a few second for load
+                    await Task.Delay(5000);
+
+                    // start spin
+                    Task spinTask = App.ControllerManager.SpinInPlace(hallTime, hallSpeed);
+
+                    // now wait for data 
+                    DAQMatlabResults result = await matlabTask;
+
+                    App.ResultsManager.currentResults.daq_matlab_results = result;
+                    App.ResultsManager.CopyPolarityPlotToResultsFolder(result.results_directory + "PolarityPlot.png", "PolarityPlot");
+
+                    if (result.result == 1)
+                    {
+                        App.ResultsManager.AddToLog($"Magnet polarity OK");
+                    }
+                    else if (result.result == 0)
+                    {
+                        App.ResultsManager.AddToLog($"Magnet polarity failed: {result.error_code} {result.error_message}");
+                        throw new Exception("Magnet polarity check failed");
+                    }
+                    else if (result.result == -1)
+                    {
+                        App.ResultsManager.AddToLog($"Magnet polarity check did not complete: {result.error_code} {result.error_message}");
+                        throw new Exception("Magnet polarity check failed");
+                    }
+                    else
+                    {
+                        App.ResultsManager.AddToLog($"Unexpected result from magnet polarity check: {result.result}");
+                        throw new Exception("Magnet polarity check failed");
+                    }
+
+                    // now wait for spin to finish
+                    await spinTask;
 
                 }
 
@@ -709,7 +746,7 @@ namespace DDMAutoGUI
                 //}
                 if (topAfterImagePath != String.Empty)
                 {
-                    App.ResultsManager.CopyPhotoToResultsFolder(topAfterImagePath, "Top Post");
+                    App.ResultsManager.CopyPhotoToResultsFolder(topAfterImagePath, "TopPost");
                 }
                 App.ResultsManager.AddToLog("Saving settings to results folder");
                 App.SettingsManager.SaveSettingsCopyToLocal(settings, resultsPath);
@@ -932,6 +969,7 @@ namespace DDMAutoGUI
             Adv_Cell_MoveLaserMagInLbl.Content = blank;
             Adv_Cell_MoveDispIDInLbl.Content = blank;
             Adv_Cell_MoveDispODInLbl.Content = blank;
+            Adv_Cell_MoveHallInLbl.Content = blank;
             Adv_Cell_MeasureRingInLbl.Content = blank;
             Adv_Cell_MeasureMagInLbl.Content = blank;
             Adv_Cell_DispShotsInLbl.Content = blank;
@@ -956,6 +994,7 @@ namespace DDMAutoGUI
                 Adv_Cell_MoveLaserMagInLbl.Content = $"[{m.laser_mag.x}, {m.laser_mag.t}]";
                 Adv_Cell_MoveDispIDInLbl.Content = $"[{m.id_disp.x}, {m.id_disp.t}]";
                 Adv_Cell_MoveDispODInLbl.Content = $"[{m.od_disp.x}, {m.od_disp.t}]";
+                Adv_Cell_MoveHallInLbl.Content = $"[{m.hall_sensor.x}, {m.hall_sensor.t}]";
 
                 Adv_Cell_MeasureRingInLbl.Content = $"{m.laser_ring_num} places, {s.laser_delay} s each";
                 Adv_Cell_MeasureMagInLbl.Content = $"{m.laser_mag_num} places, {s.laser_delay} s each";
@@ -982,6 +1021,7 @@ namespace DDMAutoGUI
             Adv_Cell_MoveLaserMagBtn.IsEnabled = !state;
             Adv_Cell_MoveDispIDBtn.IsEnabled = !state;
             Adv_Cell_MoveDispODBtn.IsEnabled = !state;
+            Adv_Cell_MoveHallBtn.IsEnabled = !state;
             Adv_Cell_MeasureRingBtn.IsEnabled = !state;
             Adv_Cell_MeasureMagBtn.IsEnabled = !state;
             Adv_Cell_SetPres1Btn.IsEnabled = !state;
@@ -1485,6 +1525,20 @@ namespace DDMAutoGUI
             LockRobotButtons(false);
         }
 
+        private async void Adv_Cell_MoveHallBtn_Click(object sender, RoutedEventArgs e)
+        {
+            LockRobotButtons(true);
+
+            CSMotor m = App.SettingsManager.GetSettingsForSelectedSize();
+            float x = m.hall_sensor.x.Value;
+            float t = m.hall_sensor.t.Value;
+
+            string response = await App.ControllerManager.MoveJ(x, t);
+            Adv_Cell_MoveHallOutLbl.Content = response;
+
+            LockRobotButtons(false);
+        }
+
         //private async void Adv_Cell_MoveSpinBtn_Click(object sender, RoutedEventArgs e)
         //{
         //    LockRobotButtons(true);
@@ -1806,10 +1860,10 @@ namespace DDMAutoGUI
         //        Cal_PWSubmitBtn_Click(sender, e);
         //    }
         //}
-        private void Adv_Misc_TestMatlabBtn_Click(object sender, RoutedEventArgs e)
+        private async void Adv_Misc_TestMatlabBtn_Click(object sender, RoutedEventArgs e)
         {
 
-            DAQMatlabResults result = App.DAQManager.CollectDataAndProcessML("ddm_116");
+            DAQMatlabResults result = await App.DAQManager.CollectDataAndProcessML("ddm_116");
 
             //string exePath = @"C:\Users\areed\Documents\MATLAB\MatlabTestProject1\StandaloneDesktopApp1\output\build\MyDesktopApplication.exe";
             //string filePath1 = "fake_path.jpg";

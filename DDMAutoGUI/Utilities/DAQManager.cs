@@ -18,10 +18,18 @@ namespace DDMAutoGUI.Utilities
     public class DAQMatlabResults
     {
         // Corresponds to 1.0.0 version of Matlab function
+        // Result:
+        //   -1: did not complete
+        //   0: completed, polarity check failed
+        //   1: completed, polarity check passed
+
         public string version { get; set; }
         public int result { get; set; }
         public int error_code { get; set; }
         public string error_message { get; set; }
+        public string results_directory { get; set; }
+        public string plot_filename { get; set; }
+
     }
 
     public class DAQManager
@@ -40,7 +48,9 @@ namespace DDMAutoGUI.Utilities
         string exeName = "PolarityTest.exe";
 
         string resultsDirectory = AppDomain.CurrentDomain.BaseDirectory + "MatlabResults\\";
-        string resultsName = "polarity_results.json";
+        string resultsName = "PolarityResults.json";
+
+        string plotName = "PolarityPlot.png";
 
 
         public DAQManager()
@@ -48,10 +58,10 @@ namespace DDMAutoGUI.Utilities
             Debug.Print("DAQ manager initialized");
         }
 
-        public DAQMatlabResults CollectDataAndProcessML(string motorName)
+        public async Task<DAQMatlabResults> CollectDataAndProcessML(string motorName)
         {
             string exePath = Path.Combine(exeDirectory, exeName);
-            string resultsPath = Path.Combine(resultsDirectory, resultsName);
+            string resultsFilePath = Path.Combine(resultsDirectory, resultsName);
 
             Debug.Print($"Starting Matlab process for motor {motorName}");
 
@@ -60,15 +70,16 @@ namespace DDMAutoGUI.Utilities
             process.StartInfo.Arguments = $"{motorName} {resultsDirectory} {resultsName}";
             process.Start();
 
+            await process.WaitForExitAsync();
             process.WaitForExit();
 
             DAQMatlabResults result = new DAQMatlabResults();
-            Debug.Print($"Reading Matlab results file from: {resultsPath}");
+            Debug.Print($"Reading Matlab results file from: {resultsFilePath}");
             try
             {
-                if (File.Exists(resultsPath))
+                if (File.Exists(resultsFilePath))
                 {
-                    string rawJson = File.ReadAllText(resultsPath);
+                    string rawJson = File.ReadAllText(resultsFilePath);
                     result = JsonSerializer.Deserialize<DAQMatlabResults>(rawJson);
                 }
                 else
@@ -83,12 +94,15 @@ namespace DDMAutoGUI.Utilities
 
             if (result != null)
             {
-
+                result.results_directory = resultsDirectory;
+                result.plot_filename = plotName;
                 Debug.Print($"Results:");
                 Debug.Print($"  Version: {result.version}");
                 Debug.Print($"  Result: {result.result}");
                 Debug.Print($"  Error Code: {result.error_code}");
                 Debug.Print($"  Error Message: {result.error_message}");
+                Debug.Print($"  (added) Plot File Name: {result.plot_filename}");
+                Debug.Print($"  (added) Results Directory: {result.results_directory}");
             } else
             {
                 Debug.Print("Results structure null");
@@ -97,7 +111,6 @@ namespace DDMAutoGUI.Utilities
             return result;
 
         }
-
 
 
 

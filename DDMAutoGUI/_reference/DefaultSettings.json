@@ -1,15 +1,11 @@
 {
-  "last_saved": "2026-01-16T18:04:20.3975532-08:00",
+  "last_saved": "2026-02-20T00:00:00.0000000-08:00",
   "controller_ip": "192.168.0.1",
   "camera_top_sn": "252902469",
   "camera_side_sn": "252902472",
   "laser_delay": 0.05,
+  "hall_spin_time": 10,
   "hall_spin_speed": 50,
-  "hall_spin_time": 3,
-  "calib_surface_height": 2.001,
-  "calib_tool_height": 0.000,
-  "calib_tool_max_diff": 0.400,
-
   "dispense_system": {
     "sys_1_contents": "Permabond 801",
     "sys_2_contents": "Permabond 825",
@@ -28,23 +24,23 @@
     "calib_exp_hours": 2,
     "default_pressures": {
       "ddm_57": {
-        "sys_1_pressure": 4.8,
+        "sys_1_pressure": 4.5,
         "sys_2_pressure": null
       },
       "ddm_95": {
-        "sys_1_pressure": 7.2,
+        "sys_1_pressure": 6.8,
         "sys_2_pressure": null
       },
       "ddm_116": {
-        "sys_1_pressure": 7.2,
-        "sys_2_pressure": 29.7
+        "sys_1_pressure": 6.8,
+        "sys_2_pressure": 30
       },
       "ddm_170": {
-        "sys_1_pressure": 15.6,
+        "sys_1_pressure": 14.8,
         "sys_2_pressure": null
       },
       "ddm_170_tall": {
-        "sys_1_pressure": 15.6,
+        "sys_1_pressure": 14.8,
         "sys_2_pressure": null
       }
     }
@@ -106,7 +102,7 @@
       "t": 0
     },
     "od_disp": {
-      "x": 613.206,
+      "x": 615.206,
       "t": 0
     },
     "laser_mag": {
@@ -176,7 +172,7 @@
       "id_target_vol": 0.75,
       "id_target_flow": 0.15,
       "od_sys_num": 1,
-      "od_target_vol": 0.85,
+      "od_target_vol": 0.893,
       "od_target_flow": 0.4
     },
     "post_spin_time": 0,
@@ -185,14 +181,14 @@
     "laser_mag_num": 80,
     "camera_side": {
       "x": 581.97,
-      "t": -121.982
+      "t": -119.982
     },
     "id_disp": {
       "x": 694.305,
       "t": 0
     },
     "od_disp": {
-      "x": 584.841,
+      "x": 585.768,
       "t": 0
     },
     "laser_mag": {

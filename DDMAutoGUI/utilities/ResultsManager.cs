@@ -270,6 +270,12 @@ namespace DDMAutoGUI.utilities
             File.Copy(photoPath, destPath, true);
         }
 
+        public void CopyPolarityPlotToResultsFolder(string plotPath, string fileName)
+        {
+            string destPath = currentResultsFolderPath + "\\" + fileName + ".png";
+            File.Copy(plotPath, destPath, true);
+        }
+
         public void OpenBrowserToDirectory()
         {
             string directory = saveMainDirectory;
