@@ -827,7 +827,7 @@
 
                                                 </TabItem>
 
-                                                <TabItem Header="Height Sensor" Visibility="Collapsed">
+                                                <TabItem Header="Height Sensor" Visibility="Visible">
 
 
                                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -850,6 +850,7 @@
                                                                         <RowDefinition/>
                                                                     </Grid.RowDefinitions>
 
+
                                                                     <Label  Grid.Row="0" Grid.Column="0" x:Name="Adv_Cell_MeasureRingInLbl" Content="-"/>
                                                                     <Button Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_MeasureRingBtn" Content="Measure ring" Style="{DynamicResource SmallBlackButton}" Click="Adv_Cell_MeasureRingBtn_Click"/>
                                                                     <Label  Grid.Row="0" Grid.Column="2" x:Name="Adv_Cell_MeasureRingOutLbl" Content="-"/>
@@ -862,6 +863,9 @@
 
                                                                     <Button Grid.Row="3" Grid.Column="1" x:Name="Adv_Cell_ShowMagBtn" Content="Show mag and conc data" Style="{DynamicResource SmallButton}" Click="Adv_Cell_ShowMagBtn_Click"/>
 
+                                                                    <Label  Grid.Row="4" Grid.Column="0" x:Name="Adv_Cell_MeasureSingleInLbl" Content="-"/>
+                                                                    <Button Grid.Row="4" Grid.Column="1" x:Name="Adv_Cell_MeasureSingleBtn" Content="Single measurement" Style="{DynamicResource SmallBlackButton}" Click="Adv_Cell_MeasureSingleBtn_Click"/>
+                                                                    <Label  Grid.Row="4" Grid.Column="2" x:Name="Adv_Cell_MeasureSingleOutLbl" Content="-"/>
 
                                                                 </Grid>
                                                             </GroupBox>

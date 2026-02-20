@@ -21,6 +21,8 @@ namespace DDMAutoGUI.utilities
         public float? laser_delay { get; set; }
         public float? hall_spin_speed { get; set; }
         public float? hall_spin_time { get; set; }
+        public float? clearance_check_min { get; set; }
+        public float? clearance_check_max { get; set; }
         public float? calib_surface_height { get; set; }
         public float? calib_tool_height { get; set; }
         public float? calib_tool_max_diff { get; set; }
@@ -52,6 +54,7 @@ namespace DDMAutoGUI.utilities
     {
         public CSLocation? load { get; set; }
         public CSLocation? camera_top { get; set; }
+        public CSLocation? clearance_check { get; set; }
     }
     public class CSMotor
     {

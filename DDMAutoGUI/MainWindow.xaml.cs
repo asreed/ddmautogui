@@ -227,6 +227,27 @@ namespace DDMAutoGUI
                 Disp_ProcessPrg.Value = 5;
 
 
+                // ALWAYS CHECK CLEARANCE
+                App.ResultsManager.AddToLog("Checking clearance on center screw...");
+                x = settings.ddm_common.clearance_check.x.Value;
+                t = settings.ddm_common.clearance_check.t.Value;
+                response = await App.ControllerManager.MoveJ(x, t);
+                response = await App.ControllerManager.MeasureHeightSingle();
+                float height = float.Parse(response.Split(" ")[1]);
+                float min = settings.clearance_check_min.Value;
+                float max = settings.clearance_check_max.Value;
+                if (height > max || height < min)
+                {
+                    App.ResultsManager.AddToLog($"Clearance check failed: measured height {height} um outside of range ({min} - {max} um)");
+                    throw new Exception("Clearance check failed");
+                }
+                else
+                {
+                    App.ResultsManager.AddToLog($"Clearance check passed: {height} um within range ({min} - {max} um)");
+                }
+
+
+
                 if (App.advancedOptions.dispenseOptions.dispense)
                 {
                     App.ResultsManager.AddToLog($"Setting dispense system pressures for {motorName}...");
@@ -1634,6 +1655,14 @@ namespace DDMAutoGUI
                 viewer.PopulateData(sb.ToString(), "Ring Displacement Measurements");
                 viewer.Show();
             }
+        }
+
+        private async void Adv_Cell_MeasureSingleBtn_Click(object sender, RoutedEventArgs e)
+        {
+            LockRobotButtons(true);
+            string response = await App.ControllerManager.MeasureHeightSingle();
+            Adv_Cell_MeasureSingleOutLbl.Content = response;
+            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_SetPres1Btn_Click(object sender, RoutedEventArgs e)

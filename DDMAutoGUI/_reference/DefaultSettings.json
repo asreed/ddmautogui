@@ -6,6 +6,8 @@
   "laser_delay": 0.05,
   "hall_spin_time": 10,
   "hall_spin_speed": 50,
+  "clearance_check_min": 1900,
+  "clearance_check_max": 2400,
   "dispense_system": {
     "sys_1_contents": "Permabond 801",
     "sys_2_contents": "Permabond 825",
@@ -77,6 +79,10 @@
     "camera_top": {
       "x": 271,
       "t": 0
+    },
+    "clearance_check": {
+      "x": 438.925,
+      "t": 0
     }
   },
 
@@ -135,7 +141,7 @@
     "post_spin_time": 0,
     "post_spin_speed": 100,
     "laser_ring_num": 6,
-    "laser_mag_num": 60,
+    "laser_mag_num": 120,
     "camera_side": {
       "x": 490,
       "t": -121.982
@@ -149,16 +155,16 @@
       "t": 0
     },
     "laser_mag": {
-      "x": 355.9,
-      "t": 0
+      "x": 402.636,
+      "t": 38.419
     },
     "laser_ring": {
-      "x": 355.9,
-      "t": 0
+      "x": 396.387,
+      "t": 41.861
     },
     "hall_sensor": {
-      "x": 384.82,
-      "t": -154.38
+      "x": 463.82,
+      "t": 0
     },
     "calib_tool_test": {
       "x": 0,
@@ -169,10 +175,10 @@
   "ddm_116": {
     "shot_settings": {
       "id_sys_num": 2,
-      "id_target_vol": 0.75,
+      "id_target_vol": 0.788,
       "id_target_flow": 0.15,
       "od_sys_num": 1,
-      "od_target_vol": 0.893,
+      "od_target_vol": 0.850,
       "od_target_flow": 0.4
     },
     "post_spin_time": 0,
