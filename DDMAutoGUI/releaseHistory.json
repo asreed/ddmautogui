@@ -3,8 +3,9 @@
     {
       "version": "1.2.3",
       "releaseDate": "(unreleased)",
-      "releaseIntent": "ENGINEERING ONLY",
-      "releaseDisplayNotes": "(in progress)"
+      "releaseIntent": "UNRELEASED TEST ONLY",
+      "releaseDisplayNotes": "(unreleased test only)",
+      "releaseNotes": "Significant changes to flow/pressure calibration strategy. Calibration tab added for position, height sensor, and flow/pressure. Service tab added for acetone flush. OCR capability added. Matlab polarity test updated. PAC files and TCS updated."
     },
     {
       "version": "1.2.2",

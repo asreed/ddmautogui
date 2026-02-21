@@ -1,13 +1,13 @@
 {
-  "last_saved": "2026-02-20T00:00:00.0000000-08:00",
+  "last_saved": "2026-02-20T16:19:55.6477382-08:00",
   "controller_ip": "192.168.0.1",
   "camera_top_sn": "252902469",
   "camera_side_sn": "252902472",
   "laser_delay": 0.05,
-  "hall_spin_time": 10,
   "hall_spin_speed": 50,
-  "clearance_check_min": 1900,
-  "clearance_check_max": 2400,
+  "hall_spin_time": 10,
+  "clearance_check_min": -5000,
+  "clearance_check_max": 3000,
   "dispense_system": {
     "sys_1_contents": "Permabond 801",
     "sys_2_contents": "Permabond 825",
@@ -30,7 +30,7 @@
         "sys_2_pressure": null
       },
       "ddm_95": {
-        "sys_1_pressure": 6.8,
+        "sys_1_pressure": 4.5,
         "sys_2_pressure": null
       },
       "ddm_116": {
@@ -47,7 +47,6 @@
       }
     }
   },
-
   "laser_calib": {
     "ddm_57_coeff": {
       "A": -1,
@@ -70,22 +69,20 @@
       "R2": -1
     }
   },
-
   "ddm_common": {
     "load": {
       "x": 0,
-      "t": 0
+      "t": -50
     },
     "camera_top": {
       "x": 271,
-      "t": 0
+      "t": 40
     },
     "clearance_check": {
       "x": 438.925,
-      "t": 0
+      "t": 40
     }
   },
-
   "ddm_57": {
     "shot_settings": {
       "id_sys_num": 1,
@@ -128,7 +125,6 @@
       "t": 0
     }
   },
-
   "ddm_95": {
     "shot_settings": {
       "id_sys_num": 1,
@@ -148,11 +144,11 @@
     },
     "id_disp": {
       "x": 600.734,
-      "t": 0
+      "t": 130
     },
     "od_disp": {
       "x": 596.067,
-      "t": 0
+      "t": 130
     },
     "laser_mag": {
       "x": 402.636,
@@ -171,39 +167,38 @@
       "t": 0
     }
   },
-
   "ddm_116": {
     "shot_settings": {
       "id_sys_num": 2,
       "id_target_vol": 0.788,
       "id_target_flow": 0.15,
       "od_sys_num": 1,
-      "od_target_vol": 0.850,
+      "od_target_vol": 0.85,
       "od_target_flow": 0.4
     },
     "post_spin_time": 0,
     "post_spin_speed": 100,
     "laser_ring_num": 6,
-    "laser_mag_num": 80,
+    "laser_mag_num": 160,
     "camera_side": {
       "x": 581.97,
-      "t": -119.982
+      "t": 97.962
     },
     "id_disp": {
       "x": 694.305,
-      "t": 0
+      "t": 130
     },
     "od_disp": {
       "x": 585.768,
-      "t": 0
+      "t": 130
     },
     "laser_mag": {
       "x": 394.089,
-      "t": -159.456
+      "t": 93.604
     },
     "laser_ring": {
-      "x": 385.577,
-      "t": -156.375
+      "x": 386.223,
+      "t": 93.604
     },
     "hall_sensor": {
       "x": 455.399,
@@ -214,7 +209,6 @@
       "t": 0
     }
   },
-
   "ddm_170": {
     "shot_settings": {
       "id_sys_num": 1,
@@ -257,7 +251,6 @@
       "t": 0
     }
   },
-
   "ddm_170_tall": {
     "shot_settings": {
       "id_sys_num": 2,

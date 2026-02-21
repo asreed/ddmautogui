@@ -253,12 +253,12 @@ namespace DDMAutoGUI
                     App.ResultsManager.AddToLog($"Setting dispense system pressures for {motorName}...");
 
                     LDMotorCalib calib = App.LocalDataManager.GetCalibFromMotorName(motorName);
-                    float? _pressure1 = calib.sys_1_pressure.Value;
-                    float? _pressure2 = calib.sys_2_pressure.Value;
+                    float? _pressure1 = calib.sys_1_pressure;
+                    float? _pressure2 = calib.sys_2_pressure;
 
                     if (_pressure1 != null)
                     {
-                        App.ResultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1:F3} psi");
+                        App.ResultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1.Value:F3} psi");
                         response = await App.ControllerManager.SetRegPressure(1, _pressure1.Value);
                     }
                     else
@@ -267,7 +267,7 @@ namespace DDMAutoGUI
                     }
                     if (_pressure2 != null)
                     {
-                        App.ResultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2:F3} psi");
+                        App.ResultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2.Value:F3} psi");
                         response = await App.ControllerManager.SetRegPressure(2, _pressure2.Value);
                     }
                     else
@@ -578,23 +578,29 @@ namespace DDMAutoGUI
                     App.ResultsManager.currentResults.reference_data.sys_2_autocal_sf = sf2;
 
                     LDMotorCalib calib = App.LocalDataManager.GetCalibFromMotorName(motorName);
-                    float _pressure1 = calib.sys_1_pressure.Value;
-                    float _pressure2 = calib.sys_2_pressure.Value;
+                    float? _pressure1 = calib.sys_1_pressure;
+                    float? _pressure2 = calib.sys_2_pressure;
 
                     App.ResultsManager.AddToLog($"Autocalibration succeeded");
-                    App.ResultsManager.AddToLog($"{tb}System 1:");
-                    App.ResultsManager.AddToLog($"{tb}{tb}SF: {sf1:F3}");
-                    App.ResultsManager.AddToLog($"{tb}{tb}New pressure: {_pressure1:F3}");
-                    App.ResultsManager.AddToLog($"{tb}System 2:");
-                    App.ResultsManager.AddToLog($"{tb}{tb}SF: {sf2:F3}");
-                    App.ResultsManager.AddToLog($"{tb}{tb}New pressure: {_pressure2:F3}");
+                    if (_pressure1 != null)
+                    {
+                        App.ResultsManager.AddToLog($"{tb}System 1:");
+                        App.ResultsManager.AddToLog($"{tb}{tb}SF: {sf1:F3}");
+                        App.ResultsManager.AddToLog($"{tb}{tb}New pressure: {_pressure1:F3}");
+                    }
+                    if (_pressure2 != null)
+                    {
+                        App.ResultsManager.AddToLog($"{tb}System 2:");
+                        App.ResultsManager.AddToLog($"{tb}{tb}SF: {sf2:F3}");
+                        App.ResultsManager.AddToLog($"{tb}{tb}New pressure: {_pressure2:F3}");
+                    }
 
                     App.ResultsManager.AddToLog("Adjusting dispense system pressures...");
 
                     if (_pressure1 != null)
                     {
-                        App.ResultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1:F3} psi");
-                        response = await App.ControllerManager.SetRegPressure(1, _pressure1);
+                        App.ResultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {_pressure1.Value:F3} psi");
+                        response = await App.ControllerManager.SetRegPressure(1, _pressure1.Value);
                     }
                     else
                     {
@@ -602,8 +608,8 @@ namespace DDMAutoGUI
                     }
                     if (_pressure2 != null)
                     {
-                        App.ResultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2:F3} psi");
-                        response = await App.ControllerManager.SetRegPressure(2, _pressure2);
+                        App.ResultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {_pressure2.Value:F3} psi");
+                        response = await App.ControllerManager.SetRegPressure(2, _pressure2.Value);
                     }
                     else
                     {
@@ -638,7 +644,7 @@ namespace DDMAutoGUI
                     DAQMatlabResults result = await matlabTask;
 
                     App.ResultsManager.currentResults.daq_matlab_results = result;
-                    App.ResultsManager.CopyPolarityPlotToResultsFolder(result.results_directory + "PolarityPlot.png", "PolarityPlot");
+                    App.ResultsManager.CopyPolarityPlotToResultsFolder(result.results_directory + "plot.png", "PolarityPlot");
 
                     if (result.result == 1)
                     {
