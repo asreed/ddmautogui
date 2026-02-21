@@ -105,7 +105,6 @@ namespace DDMAutoGUI
 
 
 
-
         // ==================================================================
         // Main dispense process routine
 
@@ -134,6 +133,8 @@ namespace DDMAutoGUI
             float pressureOD = 0f;
 
             string tb = "  "; // for log formatting
+            string overrideMsg = "Error encountered during dispense. Continue?";
+            string overrideCap = "Override error?";
 
 
 
@@ -227,6 +228,31 @@ namespace DDMAutoGUI
                 Disp_ProcessPrg.Value = 5;
 
 
+
+                App.ResultsManager.AddToLog("Enabling power...");
+                response = await App.ControllerManager.EnablePower();
+                if (response != "1")
+                {
+                    throw new Exception("Failed to enable power");
+                }
+                else
+                {
+                    App.ResultsManager.AddToLog("Power enabled");
+                }
+
+                App.ResultsManager.AddToLog("Homing...");
+                response = await App.ControllerManager.Home();
+                if (response != "0")
+                {
+                    throw new Exception("Failed to home");
+                }
+                else
+                {
+                    App.ResultsManager.AddToLog("Homed");
+                }
+                Disp_ProcessPrg.Value = 10;
+
+
                 // ALWAYS CHECK CLEARANCE
                 App.ResultsManager.AddToLog("Checking clearance on center screw...");
                 x = settings.ddm_common.clearance_check.x.Value;
@@ -239,12 +265,17 @@ namespace DDMAutoGUI
                 if (height > max || height < min)
                 {
                     App.ResultsManager.AddToLog($"Clearance check failed: measured height {height} um outside of range ({min} - {max} um)");
-                    throw new Exception("Clearance check failed");
+                    
+                    string err = "Clearance check failed";
+                    MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
+                    if (mb != MessageBoxResult.OK) throw new Exception(err);
+
                 }
                 else
                 {
                     App.ResultsManager.AddToLog($"Clearance check passed: {height} um within range ({min} - {max} um)");
                 }
+                Disp_ProcessPrg.Value = 15;
 
 
 
@@ -287,32 +318,7 @@ namespace DDMAutoGUI
 
 
                 }
-
-
-
-                App.ResultsManager.AddToLog("Enabling power...");
-                response = await App.ControllerManager.EnablePower();
-                if (response != "1")
-                {
-                    throw new Exception("Failed to enable power");
-                }
-                else
-                {
-                    App.ResultsManager.AddToLog("Power enabled");
-                }
-
-                App.ResultsManager.AddToLog("Homing...");
-                response = await App.ControllerManager.Home();
-                if (response != "0")
-                {
-                    throw new Exception("Failed to home");
-                }
-                else
-                {
-                    App.ResultsManager.AddToLog("Homed");
-                }
-
-                Disp_ProcessPrg.Value = 10;
+                Disp_ProcessPrg.Value = 20;
 
 
 
@@ -327,7 +333,9 @@ namespace DDMAutoGUI
 
                     if (!camResult.success)
                     {
-                        throw new Exception($"Preprocess top camera acquisition failed: {camResult.errorMsg}");
+                        string err = $"Preprocess top camera acquisition failed: {camResult.errorMsg}";
+                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
+                        if (mb != MessageBoxResult.OK) throw new Exception(err);
                     }
                     else
                     {
@@ -339,7 +347,7 @@ namespace DDMAutoGUI
                         App.ResultsManager.AddToLog($"Preprocess top photo acquired");
                     }
                 }
-                Disp_ProcessPrg.Value = 20;
+                Disp_ProcessPrg.Value = 25;
 
 
 
@@ -354,7 +362,9 @@ namespace DDMAutoGUI
 
                     if (!camResult.success)
                     {
-                        throw new Exception($"Side camera acquisition failed: {camResult.errorMsg}");
+                        string err = $"Side camera acquisition failed: {camResult.errorMsg}";
+                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
+                        if (mb != MessageBoxResult.OK) throw new Exception(err);
                     }
                     else
                     {
@@ -384,7 +394,10 @@ namespace DDMAutoGUI
                         if (toolType != motorName)
                         {
                             App.ResultsManager.AddToLog($"Tool type detected from image ({toolType}) does not match expected motor type ({motorName})");
-                            throw new Exception("Tool type mismatch");
+                            
+                            string err = "Tool type mismatch";
+                            MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
+                            if (mb != MessageBoxResult.OK) throw new Exception(err);
                         }
                         else
                         {
@@ -398,14 +411,92 @@ namespace DDMAutoGUI
                     if (ringSN == null)
                     {
                         App.ResultsManager.AddToLog($"Unable to determine ring SN from image");
-                        throw new Exception("Ring SN not found");
+
+                        string err = "Ring SN not found";
+                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
+                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+
+                        // If no serial number found, use the one entered
+                        ringSN = Disp_MotorSNTxt.Text;
+                        App.ResultsManager.currentResults.ring_sn = ringSN;
+                        App.ResultsManager.AddToLog($"No ring SN detected. User entered: {ringSN}");
+
+                        // todo is find better logic. Should we compare the user entered text to the detected text?
                     }
-                    App.ResultsManager.currentResults.ring_sn = ringSN;
-                    App.ResultsManager.AddToLog($"Ring SN found: {ringSN}");
+                    else
+                    {
+                        App.ResultsManager.currentResults.ring_sn = ringSN;
+                        App.ResultsManager.AddToLog($"Ring SN detected: {ringSN}");
+                    }
 
                     App.ResultsManager.AddToLog($"Images processed");
                 }
-                Disp_ProcessPrg.Value = 35;
+                Disp_ProcessPrg.Value = 40;
+
+
+
+
+
+                if (App.advancedOptions.dispenseOptions.checkPolarity)
+                {
+                    App.ResultsManager.AddToLog("Checking magnet polarity...");
+                    x = motor.hall_sensor.x.Value;
+                    t = motor.hall_sensor.t.Value;
+                    response = await App.ControllerManager.MoveJ(x, t);
+
+                    float hallTime = settings.hall_spin_time.Value;
+                    float hallSpeed = settings.hall_spin_speed.Value;
+
+                    // start matlab exe running
+                    Task<DAQMatlabResults> matlabTask = App.DAQManager.CollectDataAndProcessML("ddm_116");
+
+                    // wait a few second for load
+                    await Task.Delay(7000);
+
+                    // start spin
+                    Task spinTask = App.ControllerManager.SpinInPlace(hallTime, hallSpeed);
+
+                    // now wait for data 
+                    DAQMatlabResults result = await matlabTask;
+
+                    App.ResultsManager.currentResults.daq_matlab_results = result;
+                    App.ResultsManager.CopyPolarityPlotToResultsFolder(result.results_directory + "plot.png", "PolarityPlot");
+
+                    if (result.result == 1)
+                    {
+                        App.ResultsManager.AddToLog($"Magnet polarity OK");
+                    }
+                    else if (result.result == 0)
+                    {
+                        App.ResultsManager.AddToLog($"Magnet polarity failed: {result.error_code} {result.error_message}");
+
+                        string err = "Magnet polarity check failed";
+                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
+                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+                    }
+                    else if (result.result == -1)
+                    {
+                        App.ResultsManager.AddToLog($"Magnet polarity check did not complete: {result.error_code} {result.error_message}");
+
+                        string err = "Magnet polarity check failed";
+                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
+                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+                    }
+                    else
+                    {
+                        App.ResultsManager.AddToLog($"Unexpected result from magnet polarity check: {result.result}");
+
+                        string err = "Magnet polarity check failed";
+                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
+                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+                    }
+
+                    // now wait for spin to finish
+                    await spinTask;
+
+                }
+                Disp_ProcessPrg.Value = 50;
+
 
 
                 if (App.advancedOptions.dispenseOptions.measureHeights)
@@ -437,7 +528,7 @@ namespace DDMAutoGUI
                     App.ResultsManager.AddToLog("Magnet/concentrator height data collected");
 
                 }
-                Disp_ProcessPrg.Value = 40;
+                Disp_ProcessPrg.Value = 60;
 
 
 
@@ -521,11 +612,14 @@ namespace DDMAutoGUI
                     else
                     {
                         App.ResultsManager.AddToLog($"Dispense failed: {shotData.shot_message}");
-                        throw new Exception("Dispense failed");
+
+                        string err = "Dispense failed";
+                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
+                        if (mb != MessageBoxResult.Yes) throw new Exception(err);
                     }
 
-                    Disp_ProcessPrg.Value = 70;
                 }
+                Disp_ProcessPrg.Value = 70;
 
 
 
@@ -537,7 +631,10 @@ namespace DDMAutoGUI
                     if (App.ResultsManager.currentResults.shot_data == null)
                     {
                         App.ResultsManager.AddToLog($"Autocalibration failed: no results data loaded (???)");
-                        throw new Exception("Autocalibration failed");
+
+                        string err = "Autocalibration failed";
+                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
+                        if (mb != MessageBoxResult.OK) throw new Exception(err);
                     }
 
                     bool calibSuccess;
@@ -555,7 +652,9 @@ namespace DDMAutoGUI
 
                     if (!calibSuccess)
                     {
-                        throw new Exception($"Calibration calculation failed: {calibMessage}");
+                        string err = "Calibration calculation failed: {calibMessage}";
+                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
+                        if (mb != MessageBoxResult.OK) throw new Exception(err);
                     }
 
                     App.ResultsManager.AddToLog($"Calibration calculation succeeded.");
@@ -621,56 +720,6 @@ namespace DDMAutoGUI
 
 
 
-                if (App.advancedOptions.dispenseOptions.checkPolarity)
-                {
-                    App.ResultsManager.AddToLog("Checking magnet polarity...");
-                    x = motor.hall_sensor.x.Value;
-                    t = motor.hall_sensor.t.Value;
-                    response = await App.ControllerManager.MoveJ(x, t);
-
-                    float hallTime = settings.hall_spin_time.Value;
-                    float hallSpeed = settings.hall_spin_speed.Value;
-
-                    // start matlab exe running
-                    Task<DAQMatlabResults> matlabTask = App.DAQManager.CollectDataAndProcessML("ddm_116");
-                    
-                    // wait a few second for load
-                    await Task.Delay(5000);
-
-                    // start spin
-                    Task spinTask = App.ControllerManager.SpinInPlace(hallTime, hallSpeed);
-
-                    // now wait for data 
-                    DAQMatlabResults result = await matlabTask;
-
-                    App.ResultsManager.currentResults.daq_matlab_results = result;
-                    App.ResultsManager.CopyPolarityPlotToResultsFolder(result.results_directory + "plot.png", "PolarityPlot");
-
-                    if (result.result == 1)
-                    {
-                        App.ResultsManager.AddToLog($"Magnet polarity OK");
-                    }
-                    else if (result.result == 0)
-                    {
-                        App.ResultsManager.AddToLog($"Magnet polarity failed: {result.error_code} {result.error_message}");
-                        throw new Exception("Magnet polarity check failed");
-                    }
-                    else if (result.result == -1)
-                    {
-                        App.ResultsManager.AddToLog($"Magnet polarity check did not complete: {result.error_code} {result.error_message}");
-                        throw new Exception("Magnet polarity check failed");
-                    }
-                    else
-                    {
-                        App.ResultsManager.AddToLog($"Unexpected result from magnet polarity check: {result.result}");
-                        throw new Exception("Magnet polarity check failed");
-                    }
-
-                    // now wait for spin to finish
-                    await spinTask;
-
-                }
-
 
                 if (App.advancedOptions.dispenseOptions.photoTopAfter)
                 {
@@ -683,7 +732,9 @@ namespace DDMAutoGUI
 
                     if (!camResult.success)
                     {
-                        throw new Exception($"Top camera acquisition failed: {camResult.errorMsg}");
+                        string err = $"Top camera acquisition failed: {camResult.errorMsg}";
+                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
+                        if (mb != MessageBoxResult.OK) throw new Exception(err);
                     }
                     else
                     {

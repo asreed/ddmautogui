@@ -21,28 +21,28 @@
     "sys_2_flush_time": 15,
     "sys_1_fill_time": 15,
     "sys_2_fill_time": 15,
-    "id_vol_max_err_percent": 10,
-    "od_vol_max_err_percent": 10,
+    "id_vol_max_err_percent": 5,
+    "od_vol_max_err_percent": 5,
     "calib_exp_hours": 2,
     "default_pressures": {
       "ddm_57": {
-        "sys_1_pressure": 4.5,
+        "sys_1_pressure": 5,
         "sys_2_pressure": null
       },
       "ddm_95": {
-        "sys_1_pressure": 4.5,
+        "sys_1_pressure": 5,
         "sys_2_pressure": null
       },
       "ddm_116": {
-        "sys_1_pressure": 6.8,
-        "sys_2_pressure": 30
+        "sys_1_pressure": 7.8,
+        "sys_2_pressure": 25
       },
       "ddm_170": {
-        "sys_1_pressure": 14.8,
+        "sys_1_pressure": 15.6,
         "sys_2_pressure": null
       },
       "ddm_170_tall": {
-        "sys_1_pressure": 14.8,
+        "sys_1_pressure": 15.6,
         "sys_2_pressure": null
       }
     }

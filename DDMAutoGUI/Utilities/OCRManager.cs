@@ -166,7 +166,7 @@ namespace DDMAutoGUI.Utilities
                 var snString = result.strings.Where(s => s.text.StartsWith(toolPrefix));
                 if (snString != null)
                 {
-                    return snString.First().text;
+                    if (snString.Count() > 0) return snString.First().text;
                 }
                 else
                 {
@@ -202,7 +202,7 @@ namespace DDMAutoGUI.Utilities
                 var snString = result.strings.Where(s => s.text.Length == snLength);
                 if (snString != null)
                 {
-                    if (snString.First().text.Contains("TW"))
+                    if (snString.Count() > 0 && snString.First().text.Contains("TW"))
                     {
                         return snString.First().text;
                     }
