@@ -70,6 +70,7 @@ namespace DDMAutoGUI
         public bool autocalibrate { get; set; } = true;
         public bool checkPolarity { get; set; } = true;
         public bool photoTopAfter { get; set; } = true;
+        public bool overrideWarnings { get; set; } = false;
         public DispenseOptions() { }
     }
 

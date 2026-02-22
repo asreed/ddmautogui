@@ -264,6 +264,23 @@ namespace DDMAutoGUI.utilities
             File.WriteAllText(resultsFilePath, resultsString);
         }
 
+        public void RenameResultsFolder(string ringSN)
+        {
+            if (currentResultsFolderPath == null || currentResultsFolderPath == "")
+            {
+                Debug.Print("Current results folder path is null or empty. Cannot rename folder.");
+                return;
+            }
+            if (ringSN == null || ringSN == "")
+            {
+                Debug.Print("New ring SN is null or empty. Cannot rename folder.");
+                return;
+            }
+            string newFolderPath = saveMainDirectory + saveFolderPrefix + ringSN + "_" + DateTime.Now.ToString(dateFormatFolder);
+            Directory.Move(currentResultsFolderPath, newFolderPath);
+            currentResultsFolderPath = newFolderPath;
+        }
+
         public void CopyPhotoToResultsFolder(string photoPath, string fileName)
         {
             string destPath = currentResultsFolderPath + "\\" + fileName + ".jpg";

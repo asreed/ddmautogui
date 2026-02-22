@@ -190,25 +190,29 @@
             <Setter Property="Padding" Value="10,3,10,3"/>
         </Style>
 
+        <Style TargetType="CheckBox">
+            <Setter Property="Margin" Value="3,3,3,3"/>
+        </Style>
+
         <Style TargetType="ProgressBar">
             <Setter Property="Margin" Value="3"/>
             <Setter Property="Height" Value="5"/>
             <Setter Property="Visibility" Value="Collapsed"/>
             <Setter Property="IsIndeterminate" Value="True"/>
             <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="BorderBrush" Value="#AAA"/>
         </Style>
 
         <Style TargetType="ProgressBar" x:Key="ProgressMain">
             <Setter Property="Height" Value="30"/>
             <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="BorderBrush" Value="#AAA"/>
         </Style>
 
         <Style TargetType="ProgressBar" x:Key="ProgressMainBusy">
             <Setter Property="Height" Value="5"/>
             <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="BorderBrush" Value="#AAA"/>
         </Style>
 
         <Style TargetType="PasswordBox">

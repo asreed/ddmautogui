@@ -92,6 +92,17 @@ namespace DDMAutoGUI
         }
 
 
+        private void ThrowDispenseError(string message)
+        {
+            if (App.advancedOptions.dispenseOptions.overrideWarnings)
+            {
+                string cap = "Override Dispense Error?";
+                string msg = $"{message}\n\nContinue anyway?\n\n'OK' will continue; 'Cancel' will end process.";
+                MessageBoxResult mb = MessageBox.Show(msg, cap, MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                if (mb == MessageBoxResult.OK) return;
+            }
+            throw new Exception(message);
+        }
 
 
 
@@ -135,8 +146,6 @@ namespace DDMAutoGUI
             float pressureOD = 0f;
 
             string tb = "  "; // for log formatting
-            string overrideMsg = "Error encountered during dispense. Continue?";
-            string overrideCap = "Override error?";
 
 
 
@@ -204,7 +213,6 @@ namespace DDMAutoGUI
 
                 App.ResultsManager.AddToLog($"Dispense process started for motor {motorName}");
 
-
                 if (App.advancedOptions.dispenseOptions.checkHealth)
                 {
                     App.ResultsManager.AddToLog("Checking system health...");
@@ -267,10 +275,7 @@ namespace DDMAutoGUI
                 if (height > max || height < min)
                 {
                     App.ResultsManager.AddToLog($"Clearance check failed: measured height {height} um outside of range ({min} - {max} um)");
-
-                    string err = "Clearance check failed";
-                    MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
-                    if (mb != MessageBoxResult.OK) throw new Exception(err);
+                    ThrowDispenseError("Clearance check failed");
 
                 }
                 else
@@ -335,9 +340,7 @@ namespace DDMAutoGUI
 
                     if (!camResult.success)
                     {
-                        string err = $"Preprocess top camera acquisition failed: {camResult.errorMsg}";
-                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
-                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+                        ThrowDispenseError($"Preprocess top camera acquisition failed: {camResult.errorMsg}");
                     }
                     else
                     {
@@ -364,9 +367,7 @@ namespace DDMAutoGUI
 
                     if (!camResult.success)
                     {
-                        string err = $"Side camera acquisition failed: {camResult.errorMsg}";
-                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
-                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+                        ThrowDispenseError($"Side camera acquisition failed: {camResult.errorMsg}");
                     }
                     else
                     {
@@ -397,9 +398,7 @@ namespace DDMAutoGUI
                         {
                             App.ResultsManager.AddToLog($"Tool type detected from image ({toolType}) does not match expected motor type ({motorName})");
 
-                            string err = "Tool type mismatch";
-                            MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
-                            if (mb != MessageBoxResult.OK) throw new Exception(err);
+                            ThrowDispenseError("Tool type mismatch");
                         }
                         else
                         {
@@ -414,9 +413,7 @@ namespace DDMAutoGUI
                     {
                         App.ResultsManager.AddToLog($"Unable to determine ring SN from image");
 
-                        string err = "Ring SN not found";
-                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
-                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+                        ThrowDispenseError("Ring SN not found");
 
                         // If no serial number found, use the one entered
                         ringSN = Disp_MotorSNTxt.Text;
@@ -473,26 +470,17 @@ namespace DDMAutoGUI
                     else if (result.result == 0)
                     {
                         App.ResultsManager.AddToLog($"Magnet polarity failed: {result.error_code} {result.error_message}");
-
-                        string err = "Magnet polarity check failed";
-                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
-                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+                        ThrowDispenseError("Magnet polarity check failed");
                     }
                     else if (result.result == -1)
                     {
                         App.ResultsManager.AddToLog($"Magnet polarity check did not complete: {result.error_code} {result.error_message}");
-
-                        string err = "Magnet polarity check failed";
-                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
-                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+                        ThrowDispenseError("Magnet polarity check failed");
                     }
                     else
                     {
                         App.ResultsManager.AddToLog($"Unexpected result from magnet polarity check: {result.result}");
-
-                        string err = "Magnet polarity check failed";
-                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
-                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+                        ThrowDispenseError("Magnet polarity check failed");
                     }
 
                     // now wait for spin to finish
@@ -616,10 +604,7 @@ namespace DDMAutoGUI
                     else
                     {
                         App.ResultsManager.AddToLog($"Dispense failed: {shotData.shot_message}");
-
-                        string err = "Dispense failed";
-                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
-                        if (mb != MessageBoxResult.Yes) throw new Exception(err);
+                        ThrowDispenseError($"Dispense failed: {shotData.shot_message}");
                     }
 
                 }
@@ -635,10 +620,7 @@ namespace DDMAutoGUI
                     if (App.ResultsManager.currentResults.shot_data == null)
                     {
                         App.ResultsManager.AddToLog($"Autocalibration failed: no results data loaded (???)");
-
-                        string err = "Autocalibration failed";
-                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
-                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+                        ThrowDispenseError("Autocalibration failed");
                     }
 
                     bool calibSuccess;
@@ -656,9 +638,7 @@ namespace DDMAutoGUI
 
                     if (!calibSuccess)
                     {
-                        string err = "Calibration calculation failed: {calibMessage}";
-                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
-                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+                        ThrowDispenseError($"Calibration calculation failed: {calibMessage}");
                     }
 
                     App.ResultsManager.AddToLog($"Calibration calculation succeeded.");
@@ -736,9 +716,7 @@ namespace DDMAutoGUI
 
                     if (!camResult.success)
                     {
-                        string err = $"Top camera acquisition failed: {camResult.errorMsg}";
-                        MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
-                        if (mb != MessageBoxResult.OK) throw new Exception(err);
+                        ThrowDispenseError($"Postprocess top camera acquisition failed: {camResult.errorMsg}");
                     }
                     else
                     {
@@ -834,6 +812,7 @@ namespace DDMAutoGUI
                 App.SettingsManager.SaveSettingsCopyToLocal(settings, resultsPath);
                 App.ResultsManager.AddToLog("Saving all results data to results folder");
                 App.ResultsManager.SaveDataToFile();
+                App.ResultsManager.RenameResultsFolder(App.ResultsManager.currentResults.ring_sn); // rename folder with SN
             }
 
 
@@ -1142,6 +1121,7 @@ namespace DDMAutoGUI
             App.advancedOptions.dispenseOptions.autocalibrate = Adv_Opt_Disp_AutoCalibChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.checkPolarity = Adv_Opt_Disp_MagPolChk.IsChecked ?? false;
             App.advancedOptions.dispenseOptions.photoTopAfter = Adv_Opt_Disp_TopPhotoAfterChk.IsChecked ?? false;
+            App.advancedOptions.dispenseOptions.overrideWarnings = Adv_Opt_Disp_OverrideChk.IsChecked ?? false;
         }
 
 

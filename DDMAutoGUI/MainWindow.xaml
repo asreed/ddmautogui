@@ -194,8 +194,13 @@
                                                         </StackPanel>
                                                     </GroupBox>
 
+                                                    <GroupBox Header="Warning" Grid.Row="1" Grid.Column="0" Style="{StaticResource WarningBox}" x:Name="Disp_Warning_SNBox">
+                                                        <StackPanel Orientation="Vertical">
+                                                            <TextBlock TextWrapping="Wrap" Text="Please enter the serial number for the ring."/>
+                                                        </StackPanel>
+                                                    </GroupBox>
 
-                                                    <GroupBox Header="Motor Size" Grid.Row="1" Grid.Column="0">
+                                                    <GroupBox Header="Motor Size" Grid.Row="2" Grid.Column="0">
                                                         <StackPanel Orientation="Vertical">
                                                             <RadioButton Content="DDM 57" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57" IsEnabled="False"/>
                                                             <RadioButton Content="DDM 95" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95" IsEnabled="False"/>
@@ -205,11 +210,6 @@
                                                         </StackPanel>
                                                     </GroupBox>
 
-                                                    <GroupBox Header="Warning" Grid.Row="2" Grid.Column="0" Style="{StaticResource WarningBox}" x:Name="Disp_Warning_SNBox">
-                                                        <StackPanel Orientation="Vertical">
-                                                            <TextBlock TextWrapping="Wrap" Text="Please enter the serial number for the ring."/>
-                                                        </StackPanel>
-                                                    </GroupBox>
                                                     <GroupBox Header="Warning" Grid.Row="3" Grid.Column="0" Style="{StaticResource WarningBox}" x:Name="Disp_Warning_CalibBox" Visibility="Collapsed">
                                                         <StackPanel Orientation="Vertical">
                                                             <TextBlock TextWrapping="Wrap" Text="Calibration for selected motor size has expired. Please run calibration before dispensing."/>
@@ -544,11 +544,12 @@
                                             <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk" Content="Photo Top" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk" Content="Photo Side" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_RunOCRChk" Content="Run OCR" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Measure Polarity" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Measure Heights" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_DispChk" Content="Dispense" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Measure Polarity" IsChecked="True"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_TopPhotoAfterChk" Content="Photo Top After" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_OverrideChk" Content="Override Dispense Warnings" IsChecked="False" Foreground="{StaticResource PrimaryOrange}"/>
                                         </StackPanel>
                                     </GroupBox>
                                     <GroupBox Header="Other" HorizontalAlignment="Left" Padding="12">
