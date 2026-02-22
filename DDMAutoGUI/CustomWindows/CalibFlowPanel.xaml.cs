@@ -109,9 +109,10 @@ namespace DDMAutoGUI.CustomWindows
 
                 if (userInput == MessageBoxResult.Yes)
                 {
-                    // if OK, save and reset UI
+                    // if OK, save, set new pressures, and reset UI
 
                     App.FlowCalibrationManager.GenerateAndSaveCalibration(result);
+                    App.FlowCalibrationManager.SetPressuresFromCalibration(settings, localData, "ddm_116");
                     Calib_116_RunBtn.IsEnabled = true;
                     Calib_116_RunPrg.Visibility = Visibility.Collapsed;
                 }

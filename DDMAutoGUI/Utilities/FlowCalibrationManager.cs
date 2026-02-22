@@ -234,6 +234,42 @@ namespace DDMAutoGUI.utilities
             return result;
         }
 
+        public async void SetPressuresFromCalibration(
+            CellSettings settings,
+            LocalData localData,
+            string motorName)
+        {
+
+            // Set pressures based on current calib
+            string response = String.Empty;
+            LDMotorCalib calib = App.LocalDataManager.GetCalibFromMotorName(localData, motorName);
+            float? oldPressure1 = calib.sys_1_pressure;
+            float? oldPressure2 = calib.sys_2_pressure;
+            if (oldPressure1 != null)
+            {
+                Debug.Print($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {oldPressure1.Value:F3} psi");
+                response = await App.ControllerManager.SetRegPressure(1, oldPressure1.Value);
+            }
+            else
+            {
+                Debug.Print($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
+            }
+            if (oldPressure2 != null)
+            {
+                Debug.Print($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {oldPressure2.Value:F3} psi");
+                response = await App.ControllerManager.SetRegPressure(2, oldPressure2.Value);
+            }
+            else
+            {
+                Debug.Print($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
+            }
+            Debug.Print("Waiting for pressures to settle...");
+            response = await App.ControllerManager.WaitBothRegPressures(10);
+            await Task.Delay(1000);
+            Debug.Print("Pressures settled");
+            Debug.Print("Pressures set");
+        }
+
         public static void CalculateNewScaleFactors(
             ResultsShotData prevShotData,
             CellSettings cellSettings,

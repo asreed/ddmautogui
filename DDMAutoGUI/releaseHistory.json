@@ -2,10 +2,10 @@
   "releases": [
     {
       "version": "1.2.3",
-      "releaseDate": "(unreleased)",
-      "releaseIntent": "UNRELEASED TEST ONLY",
-      "releaseDisplayNotes": "(unreleased test only)",
-      "releaseNotes": "Significant changes to flow/pressure calibration strategy. Calibration tab added for position, height sensor, and flow/pressure. Service tab added for acetone flush. OCR capability added. Matlab polarity test updated. PAC files and TCS updated."
+      "releaseDate": "2026-02-22",
+      "releaseIntent": "ENGINEERING ONLY",
+      "releaseDisplayNotes": "Pre-release for Gen 1 Phase 1b cell built for production",
+      "releaseNotes": "Significant changes to flow/pressure calibration strategy. Calibration tab added for position, height sensor, and flow/pressure. Service tab added for acetone flush. OCR capability added. Matlab polarity test updated. PAC files and TCS updated. 57, 95, 170, and 170 Tall dispense options locked."
     },
     {
       "version": "1.2.2",
