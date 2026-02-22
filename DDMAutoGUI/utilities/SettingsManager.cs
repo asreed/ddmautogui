@@ -15,12 +15,12 @@ namespace DDMAutoGUI.utilities
     public class CellSettings
     {
         public DateTime? last_saved { get; set; }
-        public string? controller_ip { get; set; }
         public string? camera_top_sn { get; set; }
         public string? camera_side_sn { get; set; }
         public float? laser_delay { get; set; }
-        public float? hall_spin_speed { get; set; }
+        public float? hall_spin_delay { get; set; }
         public float? hall_spin_time { get; set; }
+        public float? hall_spin_speed { get; set; }
         public float? clearance_check_min { get; set; }
         public float? clearance_check_max { get; set; }
         public float? calib_surface_height { get; set; }

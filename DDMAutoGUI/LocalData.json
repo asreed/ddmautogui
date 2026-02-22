@@ -1,4 +1,5 @@
 {
+  "controller_ip": "192.168.0.1",
   "calib_data": {
     "last_calib": "2026-02-20T16:43:03.1893767-08:00",
     "last_size": "ddm_116",

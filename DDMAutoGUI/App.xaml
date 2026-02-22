@@ -178,6 +178,14 @@
             <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
         </Style>
 
+        <Style TargetType="GroupBox" x:Key="WarningBox">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryRed}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryRed}"/>
+            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Margin" Value="3,0,3,3"/>
+            <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
+        </Style>
+
         <Style TargetType="TabItem">
             <Setter Property="Padding" Value="10,3,10,3"/>
         </Style>
@@ -188,11 +196,17 @@
             <Setter Property="Visibility" Value="Collapsed"/>
             <Setter Property="IsIndeterminate" Value="True"/>
             <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
         </Style>
 
-        <Style TargetType="ProgressBar" x:Key="ProgressLarge">
-            <Setter Property="Height" Value="20"/>
+        <Style TargetType="ProgressBar" x:Key="ProgressMain">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
+        </Style>
+
+        <Style TargetType="ProgressBar" x:Key="ProgressMainBusy">
+            <Setter Property="Height" Value="5"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="BorderBrush" Value="Gray"/>
         </Style>
@@ -335,6 +349,8 @@
                                         Fill="Transparent"/>
                                 </Grid>
                                 <TextBlock 
+                                    x:Name="displayText"
+                                    Foreground="Black"
                                     Text="{TemplateBinding Content}" 
                                     VerticalAlignment="Center" 
                                     Margin="8,0,0,0" />
@@ -348,6 +364,10 @@
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="{DynamicResource TextBoxBlueLight}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="displayText" Property="Foreground" Value="#CCC"/>
+                                <Setter TargetName="outerCircle" Property="Stroke" Value="#CCC"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

@@ -66,6 +66,7 @@ namespace DDMAutoGUI
             sb.AppendLine($"Notes: {currentRelease.releaseDisplayNotes}");
             Adv_Abt_InfoTxb.Text = sb.ToString();
 
+
             Status_GUISimBdr.Visibility = App.GUI_SIM_MODE ? Visibility.Visible : Visibility.Collapsed;
 
             allButtons = new List<Button>()
@@ -79,6 +80,7 @@ namespace DDMAutoGUI
             };
 
             UpdateButtonLocks();
+            Disp_BeginBtn.IsEnabled = false;
 
             Status_SimBdr.Visibility = Visibility.Collapsed;
             Adv_PWEntryBdr.Visibility = Visibility.Visible;
@@ -265,7 +267,7 @@ namespace DDMAutoGUI
                 if (height > max || height < min)
                 {
                     App.ResultsManager.AddToLog($"Clearance check failed: measured height {height} um outside of range ({min} - {max} um)");
-                    
+
                     string err = "Clearance check failed";
                     MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
                     if (mb != MessageBoxResult.OK) throw new Exception(err);
@@ -394,7 +396,7 @@ namespace DDMAutoGUI
                         if (toolType != motorName)
                         {
                             App.ResultsManager.AddToLog($"Tool type detected from image ({toolType}) does not match expected motor type ({motorName})");
-                            
+
                             string err = "Tool type mismatch";
                             MessageBoxResult mb = MessageBox.Show($"{overrideMsg}\n{err}", overrideCap, MessageBoxButton.OKCancel);
                             if (mb != MessageBoxResult.OK) throw new Exception(err);
@@ -451,7 +453,9 @@ namespace DDMAutoGUI
                     Task<DAQMatlabResults> matlabTask = App.DAQManager.CollectDataAndProcessML("ddm_116");
 
                     // wait a few second for load
-                    await Task.Delay(7000);
+                    int delay = 5000;
+                    if (settings.hall_spin_delay != null) delay = (int)settings.hall_spin_delay.Value * 1000;
+                    await Task.Delay(delay);
 
                     // start spin
                     Task spinTask = App.ControllerManager.SpinInPlace(hallTime, hallSpeed);
@@ -1308,8 +1312,49 @@ namespace DDMAutoGUI
 
 
 
+        //////////////////// MAIN TAB SELECT HANDLER
+
+        private void MainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.Source is TabControl)
+            {
+                TabControl tc = (TabControl)sender;
+                switch (tc.SelectedIndex)
+                {
+                    case 0:
+                        // Connection Tab
+
+                        break;
+
+                    case 1:
+                        // Dispense Tab
+
+                        // check if calibration is current
+                        //CellSettings settings = App.SettingsManager.GetAllSettings();
+                        //LocalData localData = App.LocalDataManager.GetLocalData();
+
+                        //float expHours = settings.dispense_system.calib_exp_hours.Value;
+                        //DateTime lastCalib = localData.calib_data.last_calib.Value;
+                        //TimeSpan span = DateTime.Now - lastCalib;
+
+                        //Disp_Warning_CalibBox.Visibility = span.TotalHours > expHours ? Visibility.Visible : Visibility.Collapsed;
+
+                        break;
+
+                    case 2:
+                        // Calibration Tab
+
+                        CalPanel.SetupPanel();
+
+                        break;
+
+                    case 3:
 
 
+                        break;
+                }
+            }
+        }
 
 
 
@@ -2034,37 +2079,7 @@ namespace DDMAutoGUI
             App.ResultsManager.OpenBrowserToDirectory();
         }
 
-        private void MainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.Source is TabControl)
-            {
-                TabControl tc = (TabControl)sender;
-                switch (tc.SelectedIndex)
-                {
-                    case 0:
-                        // Connection Tab
 
-                        break;
-
-                    case 1:
-                        // Dispense Tab
-
-                        break;
-
-                    case 2:
-                        // Calibration Tab
-
-                        CalPanel.SetupPanel();
-
-                        break;
-
-                    case 3:
-
-
-                        break;
-                }
-            }
-        }
 
 
         private async void Adv_Cam_RunOCR_Click(object sender, RoutedEventArgs e)
@@ -2083,6 +2098,67 @@ namespace DDMAutoGUI
             }
 
             Adv_Cam_OCRPrg.Visibility = Visibility.Collapsed;
+        }
+
+        private void Adv_Opt_Disp_Force57Chk_Checked(object sender, RoutedEventArgs e)
+        {
+            Disp_Motor57.IsEnabled = true;
+        }
+
+        private void Adv_Opt_Disp_Force95Chk_Checked(object sender, RoutedEventArgs e)
+        {
+            Disp_Motor95.IsEnabled = true;
+        }
+
+        private void Adv_Opt_Disp_Force116Chk_Checked(object sender, RoutedEventArgs e)
+        {
+            Disp_Motor116.IsEnabled = true;
+        }
+
+        private void Adv_Opt_Disp_Force170Chk_Checked(object sender, RoutedEventArgs e)
+        {
+            Disp_Motor170.IsEnabled = true;
+        }
+
+        private void Adv_Opt_Disp_Force170TChk_Checked(object sender, RoutedEventArgs e)
+        {
+            Disp_Motor170Tall.IsEnabled = true;
+        }
+
+        private void Adv_Opt_Disp_Force57Chk_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Disp_Motor57.IsEnabled = false;
+        }
+
+        private void Adv_Opt_Disp_Force95Chk_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Disp_Motor95.IsEnabled = false;
+        }
+
+        private void Adv_Opt_Disp_Force116Chk_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Disp_Motor116.IsEnabled = false;
+        }
+
+        private void Adv_Opt_Disp_Force170Chk_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Disp_Motor170.IsEnabled = false;
+        }
+
+        private void Adv_Opt_Disp_Force170TChk_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Disp_Motor170Tall.IsEnabled = false;
+        }
+
+        private void Disp_MotorSNTxt_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            if (tb != null)
+            {
+                bool state = tb.Text.Length > 0;
+                Disp_BeginBtn.IsEnabled = state;
+                Disp_Warning_SNBox.Visibility = !state ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
     }
 }

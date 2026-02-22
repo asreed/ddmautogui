@@ -184,33 +184,48 @@
                                                         <RowDefinition/>
                                                         <RowDefinition/>
                                                         <RowDefinition/>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
                                                     </Grid.RowDefinitions>
 
                                                     <GroupBox Header="Motor SN" Grid.Row="0" Grid.Column="0">
                                                         <StackPanel Orientation="Vertical">
-                                                            <TextBox x:Name="Disp_MotorSNTxt" Height="42"/>
+                                                            <TextBox x:Name="Disp_MotorSNTxt" Height="42" TextChanged="Disp_MotorSNTxt_TextChanged"/>
                                                         </StackPanel>
                                                     </GroupBox>
 
 
                                                     <GroupBox Header="Motor Size" Grid.Row="1" Grid.Column="0">
                                                         <StackPanel Orientation="Vertical">
-                                                            <RadioButton Content="DDM 57" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57"/>
-                                                            <RadioButton Content="DDM 95" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95"/>
-                                                            <RadioButton Content="DDM 116" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor116"/>
-                                                            <RadioButton Content="DDM 170" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170"/>
-                                                            <RadioButton Content="DDM 170 Tall" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170Tall"/>
+                                                            <RadioButton Content="DDM 57" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57" IsEnabled="False"/>
+                                                            <RadioButton Content="DDM 95" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95" IsEnabled="False"/>
+                                                            <RadioButton Content="DDM 116" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor116" IsEnabled="True" IsChecked="True"/>
+                                                            <RadioButton Content="DDM 170" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170" IsEnabled="False"/>
+                                                            <RadioButton Content="DDM 170 Tall" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170Tall" IsEnabled="False"/>
+                                                        </StackPanel>
+                                                    </GroupBox>
+
+                                                    <GroupBox Header="Warning" Grid.Row="2" Grid.Column="0" Style="{StaticResource WarningBox}" x:Name="Disp_Warning_SNBox">
+                                                        <StackPanel Orientation="Vertical">
+                                                            <TextBlock TextWrapping="Wrap" Text="Please enter the serial number for the ring."/>
+                                                        </StackPanel>
+                                                    </GroupBox>
+                                                    <GroupBox Header="Warning" Grid.Row="3" Grid.Column="0" Style="{StaticResource WarningBox}" x:Name="Disp_Warning_CalibBox" Visibility="Collapsed">
+                                                        <StackPanel Orientation="Vertical">
+                                                            <TextBlock TextWrapping="Wrap" Text="Calibration for selected motor size has expired. Please run calibration before dispensing."/>
                                                         </StackPanel>
                                                     </GroupBox>
 
                                                     <Button 
-                                                            Grid.Row="2"
-                                                            Grid.Column="0"
-                                                            Grid.ColumnSpan="2"
-                                                            x:Name="Disp_BeginBtn"
-                                                            Content="Begin Dispense" 
-                                                            Style="{DynamicResource BlueButton}" 
-                                                            Click="Disp_BeginBtn_Click"/>
+                                                        Grid.Row="4"
+                                                        Grid.Column="0"
+                                                        Grid.ColumnSpan="2"
+                                                        x:Name="Disp_BeginBtn"
+                                                        IsEnabled="False"
+                                                        Content="Begin Dispense" 
+                                                        Style="{DynamicResource BlueButton}" 
+                                                        Height="70"
+                                                        Click="Disp_BeginBtn_Click"/>
 
                                                 </Grid>
 
@@ -241,14 +256,13 @@
                                                     <StackPanel Orientation="Vertical">
                                                         <ProgressBar
                                                             x:Name="Disp_ProcessPrg"
-                                                            IsIndeterminate="False"
-                                                            Visibility="Visible"
                                                             Value="20"
-                                                            BorderBrush="Transparent"
-                                                            Style="{StaticResource ProgressLarge}"/>
+                                                            Style="{StaticResource ProgressMain}"/>
                                                         <ProgressBar 
-                                                            x:Name="Disp_BusyPrg" 
+                                                            x:Name="Disp_BusyPrg"
+                                                            IsIndeterminate="True"
                                                             Visibility="Visible"
+                                                            Style="{StaticResource ProgressMainBusy}"
                                                             Margin="0,3,0,0"/>
                                                     </StackPanel>
                                                 </GroupBox>
@@ -363,7 +377,7 @@
                             <ColumnDefinition Width="400"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        
+
                         <CustomWindows:CalibPanel Grid.Row="1" Grid.Column="1" x:Name="CalPanel"/>
 
                         <!--<Border x:Name="Cal_PWEntryBdr" Background="White" Visibility="Collapsed">
@@ -402,7 +416,7 @@
                             </Grid>
                         </Border>-->
 
-                        
+
                     </Grid>
 
                 </TabItem>
@@ -468,7 +482,7 @@
                     </Grid>
 
                 </TabItem>
-                
+
                 <TabItem x:Name="AdvTab" Header="Dev" Tag="Resources/icons/settings.ico" Style="{StaticResource MainTab}" Visibility="Visible">
 
                     <Grid Margin="-2">
@@ -509,7 +523,55 @@
                             </Grid>
                         </Border>
 
+
                         <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="6"  Background="WhiteSmoke">
+
+                            <TabItem Header="Options">
+                                <StackPanel Orientation="Vertical" Margin="6">
+                                    <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox x:Name="Adv_Opt_Con_ControllerChk" Content="Controller" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_IOLinkChk" Content="IO Link Devices" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_TopCamChk" Content="Top Camera" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_SideCamChk" Content="Side Camera" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_LaserChk" Content="Laser Sensor" IsChecked="True"/>
+                                            <CheckBox Visibility="Collapsed" x:Name="Adv_Opt_Con_DAQChk" Content="DAQ Device" IsChecked="True"/>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox x:Name="Adv_Opt_Disp_HealthChk" Content="Check Health" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk" Content="Photo Top" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk" Content="Photo Side" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_RunOCRChk" Content="Run OCR" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Measure Heights" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_DispChk" Content="Dispense" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Measure Polarity" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoAfterChk" Content="Photo Top After" IsChecked="True"/>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <GroupBox Header="Other" HorizontalAlignment="Left" Padding="12">
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox x:Name="Adv_Opt_Disp_Force57Chk" Content="Force DDM 57 Available" IsChecked="False" Checked="Adv_Opt_Disp_Force57Chk_Checked" Unchecked="Adv_Opt_Disp_Force57Chk_Unchecked"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_Force95Chk" Content="Force DDM 95 Available" IsChecked="False" Checked="Adv_Opt_Disp_Force95Chk_Checked" Unchecked="Adv_Opt_Disp_Force95Chk_Unchecked"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_Force116Chk" Content="Force DDM 116 Available" IsChecked="False" Checked="Adv_Opt_Disp_Force116Chk_Checked" Unchecked="Adv_Opt_Disp_Force116Chk_Unchecked"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_Force170Chk" Content="Force DDM 170 Available" IsChecked="False" Checked="Adv_Opt_Disp_Force170Chk_Checked" Unchecked="Adv_Opt_Disp_Force170Chk_Unchecked"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_Force170TChk" Content="Force DDM 170 Tall Available" IsChecked="False" Checked="Adv_Opt_Disp_Force170TChk_Checked" Unchecked="Adv_Opt_Disp_Force170TChk_Unchecked"/>
+                                        </StackPanel>
+                                    </GroupBox>
+
+                                </StackPanel>
+                                <!--</StackPanel>-->
+                                <!--<StackPanel Orientation="Vertical" Margin="6">
+                                    <Button x:Name="Adv_Res_OpenFolderBtn" Click="Adv_Res_OpenFolderBtn_Click" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Test Matlab script" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                </StackPanel>-->
+                            </TabItem>
+
+
+
                             <TabItem Header="Cell Control Panel">
 
                                 <Grid x:Name="robotBtnContainer">
@@ -818,7 +880,7 @@
                                                                     <Label  Grid.Row="7" Grid.Column="0" x:Name="Adv_Cell_MoveHallInLbl" Content="-"/>
                                                                     <Button Grid.Row="7" Grid.Column="1" x:Name="Adv_Cell_MoveHallBtn" Content="Move, hall" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveHallBtn_Click"/>
                                                                     <Label  Grid.Row="7" Grid.Column="2" x:Name="Adv_Cell_MoveHallOutLbl" Content="-"/>
-                                                                    
+
                                                                 </Grid>
                                                             </GroupBox>
 
@@ -1057,39 +1119,7 @@
 
 
                             </TabItem>
-                            <TabItem Header="Options">
-                                <StackPanel Orientation="Vertical" Margin="6">
-                                    <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
-                                        <StackPanel Orientation="Vertical">
-                                            <CheckBox x:Name="Adv_Opt_Con_ControllerChk" Content="Controller" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_IOLinkChk" Content="IO Link Devices" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_TopCamChk" Content="Top Camera" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_SideCamChk" Content="Side Camera" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_LaserChk" Content="Laser Sensor" IsChecked="True"/>
-                                            <CheckBox Visibility="Collapsed" x:Name="Adv_Opt_Con_DAQChk" Content="DAQ Device" IsChecked="True"/>
-                                        </StackPanel>
-                                    </GroupBox>
-                                    <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">
-                                        <StackPanel Orientation="Vertical">
-                                            <CheckBox x:Name="Adv_Opt_Disp_HealthChk" Content="Check Health" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk" Content="Photo Top" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk" Content="Photo Side" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_RunOCRChk" Content="Run OCR" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Measure Heights" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_DispChk" Content="Dispense" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Measure Polarity" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoAfterChk" Content="Photo Top After" IsChecked="True"/>
-                                        </StackPanel>
-                                    </GroupBox>
-                                </StackPanel>
-                                <!--</StackPanel>-->
-                                <!--<StackPanel Orientation="Vertical" Margin="6">
-                                    <Button x:Name="Adv_Res_OpenFolderBtn" Click="Adv_Res_OpenFolderBtn_Click" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Test Matlab script" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                </StackPanel>-->
-                            </TabItem>
+
                             <TabItem Header="TCS Connection">
 
                                 <Grid>
@@ -1265,7 +1295,7 @@
                                 <CustomWindows:LocalDataPanel />
 
                             </TabItem>
-                            <TabItem Header="DAQ">
+                            <TabItem Header="DAQ" Visibility="Collapsed">
                                 <StackPanel Orientation="Vertical" Margin="6">
                                     <TextBlock x:Name="Adv_DAQ_A0Txb" Text="-" />
                                     <Button x:Name="Adv_DAQ_GetA0Btn" Click="Adv_DAQ_GetA0Btn_Click" Content="Get A0 Voltage" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
@@ -1274,7 +1304,7 @@
 
                                 </StackPanel>
                             </TabItem>
-                            <TabItem Header="Misc">
+                            <TabItem Header="Misc" Visibility="Collapsed">
                                 <StackPanel Orientation="Vertical" Margin="6">
                                     <Button x:Name="Adv_Res_OpenFolderBtn" Click="Adv_Res_OpenFolderBtn_Click" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
                                     <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>

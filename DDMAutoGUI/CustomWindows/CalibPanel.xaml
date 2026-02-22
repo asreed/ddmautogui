@@ -15,9 +15,9 @@
             <TabItem Header="Position">
                 <CustomWindows:CalibPositionPanel x:Name="CalPosPanel"/>
             </TabItem>
-            <TabItem Header="Height Sensor">
+            <!--<TabItem Header="Height Sensor">
                 <CustomWindows:CalibHeightPanel x:Name="CalHeightPanel"/>
-            </TabItem>
+            </TabItem>-->
             <TabItem Header="Flow Rate">
                 <CustomWindows:CalibFlowPanel x:Name="CalFlowPanel"/>
             </TabItem>

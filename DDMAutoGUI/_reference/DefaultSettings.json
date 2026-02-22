@@ -1,11 +1,11 @@
 {
-  "last_saved": "2026-02-20T16:19:55.6477382-08:00",
-  "controller_ip": "192.168.0.1",
+  "last_saved": "2026-02-21T10:28:20.2681884-08:00",
   "camera_top_sn": "252902469",
   "camera_side_sn": "252902472",
   "laser_delay": 0.05,
-  "hall_spin_speed": 50,
+  "hall_spin_delay": 4,
   "hall_spin_time": 10,
+  "hall_spin_speed": 37.5,
   "clearance_check_min": -5000,
   "clearance_check_max": 3000,
   "dispense_system": {
@@ -26,24 +26,20 @@
     "calib_exp_hours": 2,
     "default_pressures": {
       "ddm_57": {
-        "sys_1_pressure": 5,
-        "sys_2_pressure": null
+        "sys_1_pressure": 5
       },
       "ddm_95": {
-        "sys_1_pressure": 5,
-        "sys_2_pressure": null
+        "sys_1_pressure": 5
       },
       "ddm_116": {
         "sys_1_pressure": 7.8,
         "sys_2_pressure": 25
       },
       "ddm_170": {
-        "sys_1_pressure": 15.6,
-        "sys_2_pressure": null
+        "sys_1_pressure": 15.6
       },
       "ddm_170_tall": {
-        "sys_1_pressure": 15.6,
-        "sys_2_pressure": null
+        "sys_1_pressure": 15.6
       }
     }
   },

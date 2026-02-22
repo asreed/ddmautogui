@@ -30,13 +30,9 @@ namespace DDMAutoGUI.CustomWindows
 
         public void SetupPanel()
         {
-            if (CalPosPanel == null || CalHeightPanel == null || CalFlowPanel == null)
-            {
-                Debug.WriteLine("One or more calibration sub-panels are not initialized.");
-                return;
-            }
+
             CalPosPanel.SetupPanel();
-            CalHeightPanel.SetupPanel();
+            //CalHeightPanel.SetupPanel();
             CalFlowPanel.SetupPanel();
         }
         
