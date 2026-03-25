@@ -343,8 +343,19 @@ namespace DDMAutoGUI.utilities
 
             if (App.GUI_SIM_MODE)
             {
+                //UpdateConnectionLog($"\nConnected successfully");
+                UpdateConnectionLog($"✓ Controller TCS");
+                UpdateConnectionLog($"✓ Controller Settings");
+                UpdateConnectionLog($"✓ I/O-Link Master");
+                UpdateConnectionLog($"✓ I/O-Link Port 1");
+                UpdateConnectionLog($"✓ I/O-Link Port 2");
+                UpdateConnectionLog($"✓ I/O-Link Port 3");
+                UpdateConnectionLog($"✓ I/O-Link Port 4");
+                UpdateConnectionLog($"✓ Laser Sensor");
+                UpdateConnectionLog($"✓ Top Camera");
+                UpdateConnectionLog($"✓ Side Camera");
                 UpdateConnectionLog($"\nConnected successfully");
-                UpdateConnectionLog($"(!) Simulation mode enabled (!)");
+                //UpdateConnectionLog($"(!) Simulation mode enabled (!)");
 
                 CONNECTION_STATE.isConnected = true;
                 CONNECTION_STATE.connectedIP = "Simulated";

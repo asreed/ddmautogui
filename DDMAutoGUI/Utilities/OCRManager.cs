@@ -57,7 +57,8 @@ namespace DDMAutoGUI.Utilities
                 string arguments =
                     $"\"{ocrScriptPath}\" " +
                     $"--input-folder \"{imageInputFolder}\" " +
-                    $"--output-file \"{ocrOutputFile}\"";
+                    $"--output-file \"{ocrOutputFile}\"" +
+                    $"--factor 4";
 
                 var startInfo = new ProcessStartInfo
                 {

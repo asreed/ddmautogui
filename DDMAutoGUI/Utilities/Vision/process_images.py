@@ -1,16 +1,73 @@
+#!/usr/bin/env python3
+"""
+Resize images, run PaddleOCR, save results and timing info to JSON,
+then delete temporary _compressed files.
+"""
 
+from pathlib import Path
+from PIL import Image
+import json
 import os
 import argparse
-from pathlib import Path
-import glob
-import json
-import warnings
+import time
+from datetime import datetime
 
-os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "1" # Must be set before paddleocr import
-#warnings.filterwarnings("ignore", message=".*ccache.*", category=UserWarning)
-
-
+# Must be set before importing PaddleOCR
+os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "1"
 from paddleocr import PaddleOCR
+
+IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".tif", ".tiff"}
+
+def find_images(folder: Path):
+    return sorted(p for p in folder.iterdir() if p.suffix.lower() in IMAGE_EXTS and p.is_file())
+
+
+def compressed_path(src: Path):
+    return src.with_name(f"{src.stem}_compressed{src.suffix}")
+
+
+def compress_image(src: Path, factor: int = 5):
+    """Resize image and return (dst_path, compress_seconds)."""
+    start = time.perf_counter()
+    dst = compressed_path(src)
+    if not dst.exists():
+        with Image.open(src) as img:
+            new_size = (max(1, img.width // factor), max(1, img.height // factor))
+            resized = img.resize(new_size, Image.Resampling.BILINEAR)
+            resized.save(dst)
+    elapsed = time.perf_counter() - start
+    return dst, round(elapsed, 3)
+
+
+def run_ocr_on_images(ocr, images_info, score_threshold: float = 0.4):
+    """
+    images_info is a list of dicts: {"path": Path, "compress_time": float}
+    Returns (results_list, per_image_timings)
+    """
+    results = []
+    timings = []
+    for info in images_info:
+        img_path = info["path"]
+        print(f"Processing: {img_path.name}")
+        start = time.perf_counter()
+        try:
+            raw = ocr.predict(str(img_path))
+        except Exception as exc:
+            print(f"  OCR failed for {img_path.name}: {exc}")
+            raw = None
+        ocr_time = round(time.perf_counter() - start, 3)
+
+        img_result = {"file": img_path.name, "strings": []}
+        if raw:
+            for page in raw:
+                if isinstance(page, dict) and "rec_texts" in page and "rec_scores" in page:
+                    for text, score in zip(page["rec_texts"], page["rec_scores"]):
+                        if score > score_threshold:
+                            img_result["strings"].append({"text": text, "score": float(f"{score:.3f}")})
+
+        results.append(img_result)
+        timings.append({"file": img_path.name, "compress_time_seconds": info["compress_time"], "ocr_time_seconds": ocr_time})
+    return results, timings
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -30,6 +87,12 @@ def parse_args():
         required=True,
         help="Output JSON file path"
     )
+    
+    parser.add_argument(
+        "--factor", 
+        type=int, 
+        default=4, 
+        help="Downscale factor (integer)")
 
     parser.add_argument(
         "--min-score",
@@ -44,16 +107,25 @@ def parse_args():
 def main():
     args = parse_args()
 
-    input_folder: Path = args.input_folder
-    output_file: Path = args.output_file
-    min_score: float = args.min_score
+    overall_start = time.perf_counter()
+    start_iso = datetime.now().isoformat()
 
-    # Validate input folder
+    input_folder = args.input_folder
     if not input_folder.exists() or not input_folder.is_dir():
-        raise NotADirectoryError(f"Input folder does not exist or is not a directory: {input_folder}")
+        raise SystemExit(f"Input folder does not exist or is not a directory: {input_folder}")
 
-    # Ensure output directory exists
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    images = find_images(input_folder)
+    print(f"Found {len(images)} images in {input_folder}. Resizing images...")
+
+    compressed_infos = []
+    for img in images:
+        try:
+            dst, compress_time = compress_image(img, factor=args.factor)
+            compressed_infos.append({"path": dst, "compress_time": compress_time})
+        except Exception as exc:
+            print(f"  Failed to compress {img.name}: {exc}")
+
+    print(f"Resized {len(compressed_infos)} images. Initializing OCR...")
 
     # Initialize OCR
     ocr = PaddleOCR(
@@ -64,44 +136,37 @@ def main():
         use_textline_orientation=True  # This replaces the need for cls=True
     )
 
-    # Find all images
-    image_extensions = ('*.jpg', '*.jpeg', '*.png', '*.bmp')
-    images = []
-    for ext in image_extensions:
-        # Use pathlib/glob for clean path joining
-        images.extend([str(p) for p in input_folder.glob(ext)])
+    try:
+        results, per_image_timings = run_ocr_on_images(ocr, compressed_infos, score_threshold=args.score)
+        overall_elapsed = round(time.perf_counter() - overall_start, 3)
 
-    print(f"Found {len(images)} images in {input_folder}. Starting OCR...")
+        out_data = {
+            "metadata": {
+                "start_time": start_iso,
+                "total_time_seconds": overall_elapsed,
+                "image_count": len(per_image_timings)
+            },
+            "timings": per_image_timings,
+            "results": results
+        }
 
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        with args.out.open("w", encoding="utf-8") as f:
+            json.dump(out_data, f, indent=2, ensure_ascii=False)
+        print(f"Finished. Results and timings saved to {args.out}")
 
-    # OCR and write results
-    data = {"results": []}
-    with output_file.open('w', encoding='utf-8') as json_file:
-        for img_path in images:
-            file_name = Path(img_path).name
-            print(f"Processing: {file_name}")
-
-            result = ocr.predict(img_path)
-            img_result = {
-                "file": file_name,
-                "strings": []
-            }
-
-            if result:
-                for page in result:
-                    if isinstance(page, dict) and 'rec_texts' in page:
-                        for text, score in zip(page['rec_texts'], page['rec_scores']):
-                            if score > min_score:
-                                img_result["strings"].append({
-                                    "text": text,
-                                    "score": float(f"{score:.3f}")  # ensure JSON-serializable
-                                })
-
-            data["results"].append(img_result)
-
-        json.dump(data, json_file, indent=2)
-
-    print(f"Finished. Results saved to {output_file}")
+    finally:
+        deleted = 0
+        for info in compressed_infos:
+            p = info["path"]
+            try:
+                p.unlink()
+                deleted += 1
+            except FileNotFoundError:
+                pass
+            except Exception as exc:
+                print(f"  Warning: failed to delete {p.name}: {exc}")
+        print(f"Cleaned up {deleted} temporary _compressed files.")
 
 
 if __name__ == "__main__":

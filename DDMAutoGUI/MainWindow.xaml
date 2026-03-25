@@ -327,12 +327,12 @@
                                                             <TextBlock Grid.Column="0" Grid.Row="0" Text="Ring SN"/>
                                                             <TextBlock Grid.Column="0" Grid.Row="1" Text="Dispense volume ID"/>
                                                             <TextBlock Grid.Column="0" Grid.Row="2" Text="Dispense volume OD"/>
-                                                            <TextBlock Grid.Column="0" Grid.Row="3" Text="Flow autocalibration"/>
+                                                            <TextBlock Grid.Column="0" Grid.Row="3" Text="Flow autocalibration" Visibility="Collapsed"/>
 
                                                             <TextBlock Grid.Column="1" Grid.Row="0" Text="-" x:Name="Disp_Res_SNTxb"/>
                                                             <TextBlock Grid.Column="1" Grid.Row="1" Text="-" x:Name="Disp_Res_VolIDTxb"/>
                                                             <TextBlock Grid.Column="1" Grid.Row="2" Text="-" x:Name="Disp_Res_VolODTxb"/>
-                                                            <TextBlock Grid.Column="1" Grid.Row="3" Text="-" x:Name="Disp_Res_FlowCalTxb"/>
+                                                            <TextBlock Grid.Column="1" Grid.Row="3" Text="-" x:Name="Disp_Res_FlowCalTxb" Visibility="Collapsed"/>
                                                         </Grid>
                                                     </GroupBox>
                                                     <StackPanel Grid.Row="3" Orientation="Vertical">
@@ -344,7 +344,7 @@
                                                         </Button>
                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                                                             <Button x:Name="Disp_Res_ViewResBtn"  Content="View Details" Click="Disp_Res_ViewResBtn_Click" Style="{StaticResource SmallButton}" Visibility="Collapsed"/>
-                                                            <Button x:Name="Disp_Res_OpenFileBtn"  Content="Open Folder" Click="Disp_Res_OpenFileBtn_Click"  Style="{StaticResource SmallButton}"/>
+                                                            <Button x:Name="Disp_Res_OpenFileBtn"  Content="Open Folder" Click="Disp_Res_OpenFileBtn_Click"  Style="{StaticResource SmallButton}" Visibility="Collapsed"/>
                                                         </StackPanel>
                                                     </StackPanel>
 

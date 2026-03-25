@@ -848,6 +848,21 @@ namespace DDMAutoGUI
             Disp_BusyPrg.Visibility = Visibility.Collapsed;
             App.ResultsManager.UpdateProcessLog -= MainWindowSingle_Disp_UpdateProcessLog;
 
+
+
+            if (App.GUI_SIM_MODE)
+            {
+                // SIMULATION MODE OVERRIDE
+                pass = true;
+                displayMessage = "Process completed successfully";
+                Disp_Res_PassBdr.Visibility = Visibility.Visible;
+                Disp_Res_FailBdr.Visibility = Visibility.Collapsed;
+                Disp_Res_ResMessageTxb.Text = displayMessage;
+                Disp_Res_VolODTxb.Text = $"0.796 mL (101.0% of target)";
+                Disp_Res_VolIDTxb.Text = $"0.857 mL (100.8% of target)";
+            }
+
+
             return;
 
         }

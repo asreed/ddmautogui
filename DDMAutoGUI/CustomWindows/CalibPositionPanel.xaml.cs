@@ -29,6 +29,11 @@ namespace DDMAutoGUI.CustomWindows
         {
             InitializeComponent();
             App.ControllerManager.ControllerStateChanged += UpdatePositionLabels;
+            if (App.GUI_SIM_MODE)
+            {
+                j1PosTxb.Text = "2.451 deg";
+                j2PosTxb.Text = "0.005 mm";
+            }
         }
 
         public void SetupPanel()
@@ -48,6 +53,10 @@ namespace DDMAutoGUI.CustomWindows
             {
                 j1PosTxb.Text = "-";
                 j2PosTxb.Text = "-";
+            }
+            if (App.GUI_SIM_MODE)             {
+                j1PosTxb.Text = "2.451 deg";
+                j2PosTxb.Text = "0.005 mm";
             }
         }
 

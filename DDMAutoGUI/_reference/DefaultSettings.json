@@ -1,10 +1,10 @@
 {
-  "last_saved": "2026-02-21T10:28:20.2681884-08:00",
+  "last_saved": "2026-02-22T10:26:11.5097973-08:00",
   "camera_top_sn": "252902469",
   "camera_side_sn": "252902472",
   "laser_delay": 0.05,
   "hall_spin_delay": 4,
-  "hall_spin_time": 10,
+  "hall_spin_time": 25,
   "hall_spin_speed": 37.5,
   "clearance_check_min": -5000,
   "clearance_check_max": 3000,
@@ -166,10 +166,10 @@
   "ddm_116": {
     "shot_settings": {
       "id_sys_num": 2,
-      "id_target_vol": 0.788,
+      "id_target_vol": 0.835,
       "id_target_flow": 0.15,
       "od_sys_num": 1,
-      "od_target_vol": 0.85,
+      "od_target_vol": 0.875,
       "od_target_flow": 0.4
     },
     "post_spin_time": 0,

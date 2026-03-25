@@ -1,6 +1,13 @@
 ﻿{
   "releases": [
     {
+      "version": "1.2.4",
+      "releaseDate": "(in progress)",
+      "releaseIntent": "(in progress)",
+      "releaseDisplayNotes": "(in progress)",
+      "releaseNotes": "(in progress)"
+    },
+    {
       "version": "1.2.3",
       "releaseDate": "2026-02-22",
       "releaseIntent": "ENGINEERING ONLY",
