@@ -77,7 +77,7 @@ namespace DDMAutoGUI
     public partial class App : Application
     {
 
-        public static bool GUI_SIM_MODE = true;
+        public static bool GUI_SIM_MODE = false;
 
         public static AdvancedOptions advancedOptions = new AdvancedOptions();
 

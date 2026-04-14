@@ -11,7 +11,23 @@ namespace DDMAutoGUI.Utilities
 
     public class OCRData
     {
+        public OCRMetadata metadata { get; set; }
+        public OCRTiming[] timings { get; set; }
         public List<OCRResult> results { get; set; }
+    }
+
+    public class OCRMetadata
+    {
+        public DateTime start_time { get; set; }
+        public float total_time_seconds { get; set; }
+        public int image_count { get; set; }
+    }
+    
+    public class OCRTiming
+    {
+        public string file { get; set; }
+        public float compress_time_seconds { get; set; }
+        public float ocr_time_seconds { get; set; }
     }
 
     public class OCRResult
@@ -57,8 +73,8 @@ namespace DDMAutoGUI.Utilities
                 string arguments =
                     $"\"{ocrScriptPath}\" " +
                     $"--input-folder \"{imageInputFolder}\" " +
-                    $"--output-file \"{ocrOutputFile}\"" +
-                    $"--factor 4";
+                    $"--output-file \"{ocrOutputFile}\" " +
+                    $"--min-score 0.1";
 
                 var startInfo = new ProcessStartInfo
                 {

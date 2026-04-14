@@ -387,7 +387,7 @@ namespace DDMAutoGUI
                     App.ResultsManager.AddToLog("Processing images...");
                     OCRData ocrData = await App.OCRManager.RunOCR(resultsPath);
 
-                    string toolType = OCRManagerExtensions.GetToolType(ocrData, "Top.jpg");
+                    string toolType = OCRManagerExtensions.GetToolType(ocrData, "Top_compressed.jpg");
                     if (toolType == null)
                     {
                         App.ResultsManager.AddToLog($"Unable to determine tool type from image");
@@ -402,13 +402,13 @@ namespace DDMAutoGUI
                         }
                         else
                         {
-                            string toolSN = OCRManagerExtensions.GetToolSN(ocrData, motorName, "Top.jpg");
+                            string toolSN = OCRManagerExtensions.GetToolSN(ocrData, motorName, "Top_compressed.jpg");
                             App.ResultsManager.currentResults.tool_sn = toolSN;
                             App.ResultsManager.AddToLog($"Tool SN found: {toolSN}");
                         }
                     }
 
-                    string ringSN = OCRManagerExtensions.GetRingSN(ocrData, motorName, "Side.jpg");
+                    string ringSN = OCRManagerExtensions.GetRingSN(ocrData, motorName, "Side_compressed.jpg");
                     if (ringSN == null)
                     {
                         App.ResultsManager.AddToLog($"Unable to determine ring SN from image");

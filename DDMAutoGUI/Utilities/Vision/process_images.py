@@ -137,7 +137,7 @@ def main():
     )
 
     try:
-        results, per_image_timings = run_ocr_on_images(ocr, compressed_infos, score_threshold=args.score)
+        results, per_image_timings = run_ocr_on_images(ocr, compressed_infos, score_threshold=args.min_score)
         overall_elapsed = round(time.perf_counter() - overall_start, 3)
 
         out_data = {
@@ -150,10 +150,10 @@ def main():
             "results": results
         }
 
-        args.out.parent.mkdir(parents=True, exist_ok=True)
-        with args.out.open("w", encoding="utf-8") as f:
+        args.output_file.parent.mkdir(parents=True, exist_ok=True)
+        with args.output_file.open("w", encoding="utf-8") as f:
             json.dump(out_data, f, indent=2, ensure_ascii=False)
-        print(f"Finished. Results and timings saved to {args.out}")
+        print(f"Finished. Results and timings saved to {args.output_file}")
 
     finally:
         deleted = 0

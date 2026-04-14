@@ -1,24 +1,49 @@
 {
+  "metadata": {
+    "start_time": "2026-04-14T10:21:29.511586",
+    "total_time_seconds": 8.206,
+    "image_count": 2
+  },
+  "timings": [
+    {
+      "file": "Side_compressed.jpg",
+      "compress_time_seconds": 0.18,
+      "ocr_time_seconds": 2.657
+    },
+    {
+      "file": "Top_compressed.jpg",
+      "compress_time_seconds": 0.167,
+      "ocr_time_seconds": 2.49
+    }
+  ],
   "results": [
     {
-      "file": "side.jpg",
+      "file": "Side_compressed.jpg",
       "strings": [
         {
-          "text": "0450TW240115",
-          "score": 0.994
+          "text": "0471TW260113",
+          "score": 0.997
         },
         {
-          "text": "600817B",
-          "score": 0.994
+          "text": "664825C",
+          "score": 0.978
         }
       ]
     },
     {
-      "file": "top.jpg",
+      "file": "Top_compressed.jpg",
       "strings": [
         {
-          "text": "116-0001",
-          "score": 0.996
+          "text": "116-0008",
+          "score": 0.998
+        },
+        {
+          "text": "116-0008",
+          "score": 0.997
+        },
+        {
+          "text": "O",
+          "score": 0.391
         }
       ]
     }
