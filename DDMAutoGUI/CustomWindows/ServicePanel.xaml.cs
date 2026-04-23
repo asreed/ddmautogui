@@ -31,143 +31,210 @@ namespace DDMAutoGUI.CustomWindows
 
         private void DisableButtons()
         {
-            S1_FillBtn.IsEnabled = false;
-            S1_FlushBtn.IsEnabled = false;
-            S1_DepresBtn.IsEnabled = false;
-            S2_FillBtn.IsEnabled = false;
-            S2_FlushBtn.IsEnabled = false;
-            S2_DepresBtn.IsEnabled = false;
+            //S1_FillBtn.IsEnabled = false;
+            //S1_FlushBtn.IsEnabled = false;
+            //S1_DepresBtn.IsEnabled = false;
+            //S2_FillBtn.IsEnabled = false;
+            //S2_FlushBtn.IsEnabled = false;
+            //S2_DepresBtn.IsEnabled = false;
         }
         private void EnableButtons()
         {
-            S1_FillBtn.IsEnabled = true;
-            S1_FlushBtn.IsEnabled = true;
-            S1_DepresBtn.IsEnabled = true;
-            S2_FillBtn.IsEnabled = true;
-            S2_FlushBtn.IsEnabled = true;
-            S2_DepresBtn.IsEnabled = true;
+            //S1_FillBtn.IsEnabled = true;
+            //S1_FlushBtn.IsEnabled = true;
+            //S1_DepresBtn.IsEnabled = true;
+            //S2_FillBtn.IsEnabled = true;
+            //S2_FlushBtn.IsEnabled = true;
+            //S2_DepresBtn.IsEnabled = true;
 
-            S1_DepresPrg.Visibility = Visibility.Collapsed;
-            S1_FlushPrg.Visibility = Visibility.Collapsed;
-            S2_FillPrg.Visibility = Visibility.Collapsed;
-            S2_DepresPrg.Visibility = Visibility.Collapsed;
-            S2_FlushPrg.Visibility = Visibility.Collapsed;
-            S2_FillPrg.Visibility = Visibility.Collapsed;
+            //Flush_DepresPrg.Visibility = Visibility.Collapsed;
+            //Flush_S1_LowPresPrg.Visibility = Visibility.Collapsed;
+            //Flush_S1_PurgePrg.Visibility = Visibility.Collapsed;
+            //Flush_S2_LowPresPrg.Visibility = Visibility.Collapsed;
+            //Flush_S2_PurgePrg.Visibility = Visibility.Collapsed;
         }
-        private async void S1_DepresBtn_Click(object sender, RoutedEventArgs e)
+
+        public async Task Depressurize(ProgressBar prg)
         {
             DisableButtons();
-            S1_DepresPrg.Visibility = Visibility.Visible;
-            await App.ControllerManager.SetBothRegPressureAndWait(0, 0, 20);
+            prg.Visibility = Visibility.Visible;
+            await App.ControllerManager.SetBothRegPressureAndWait(0, 0, 30);
+            prg.Visibility = Visibility.Collapsed;
             EnableButtons();
         }
 
-        private async void S1_FlushBtn_Click(object sender, RoutedEventArgs e)
-        {
-            DisableButtons();
-            S1_FlushPrg.Visibility = Visibility.Visible;
+        public async Task SetLowPressure(int sys, ProgressBar prg) {
 
-            int sys = 1;
+            DisableButtons();
+            prg.Visibility = Visibility.Visible;
+
             try
             {
                 CellSettings settings = App.SettingsManager.GetAllSettings();
-                float pressure = settings.dispense_system.sys_1_flush_pressure.Value;
-                float time = settings.dispense_system.sys_1_flush_time.Value;
-
+                float pressure = 0;
+                switch (sys)
+                {
+                    case 1:
+                        pressure = settings.dispense_system.sys_1_flush_pressure.Value;
+                        break;
+                    case 2:
+                        pressure = settings.dispense_system.sys_2_flush_pressure.Value;
+                        break;
+                }
                 await App.ControllerManager.SetRegPressureAndWait(sys, pressure, 20);
+
+            }
+            catch (Exception ex)
+            {
+                Debug.Print($"Error setting low pressure, system {sys}: {ex.Message}");
+            }
+
+            prg.Visibility = Visibility.Collapsed;
+            EnableButtons();
+
+        }
+
+        public async Task SetDefPressure(int sys, ProgressBar prg)
+        {
+
+            DisableButtons();
+            prg.Visibility = Visibility.Visible;
+
+            float pressure = 0;
+            try
+            {
+                CellSettings settings = App.SettingsManager.GetAllSettings();
+                switch (sys)
+                {
+                    case 1:
+                        pressure = settings.dispense_system.default_pressures.ddm_116.sys_1_pressure.Value;
+                        break;
+                    case 2:
+                        pressure = settings.dispense_system.default_pressures.ddm_116.sys_2_pressure.Value;
+                        break;
+                }
+                await App.ControllerManager.SetRegPressureAndWait(sys, pressure, 20);
+
+            }
+            catch (Exception ex)
+            {
+                Debug.Print($"Error setting default pressure {pressure}, system {sys}: {ex.Message}");
+            }
+
+            prg.Visibility = Visibility.Collapsed;
+            EnableButtons();
+
+        }
+
+        public async Task Purge(int sys, ProgressBar prg)
+        {
+            DisableButtons();
+            prg.Visibility = Visibility.Visible;
+
+            try
+            {
+                CellSettings settings = App.SettingsManager.GetAllSettings();
+                float time = 0;
+                switch (sys) {
+                    case 1:
+                        time = settings.dispense_system.sys_1_flush_time.Value;
+                        break;
+                    case 2:
+                        time = settings.dispense_system.sys_2_flush_time.Value;
+                        break;
+                }
                 await App.ControllerManager.OpenValveTimed(sys, time);
 
             }
             catch (Exception ex)
             {
-                Debug.Print($"Error flushing system {sys}: {ex.Message}");
+                Debug.Print($"Error during timed purge, system {sys}: {ex.Message}");
             }
 
+            prg.Visibility = Visibility.Collapsed;
             EnableButtons();
         }
-        private async void S1_FillBtn_Click(object sender, RoutedEventArgs e)
+
+
+        public async Task Fill(int sys, ProgressBar prg)
         {
             DisableButtons();
-            S1_FillPrg.Visibility = Visibility.Visible;
+            prg.Visibility = Visibility.Visible;
 
-            int sys = 1;
             try
             {
-                // Use default DDM 116 pressure for fill for now
-
                 CellSettings settings = App.SettingsManager.GetAllSettings();
-                float pressure = settings.dispense_system.default_pressures.ddm_116.sys_1_pressure.Value;
-                float time = settings.dispense_system.sys_1_fill_time.Value;
-
-                await App.ControllerManager.SetRegPressureAndWait(sys, pressure, 20);
+                float time = 0;
+                switch (sys)
+                {
+                    case 1:
+                        time = settings.dispense_system.sys_1_fill_time.Value;
+                        break;
+                    case 2:
+                        time = settings.dispense_system.sys_2_fill_time.Value;
+                        break;
+                }
                 await App.ControllerManager.OpenValveTimed(sys, time);
 
             }
             catch (Exception ex)
             {
-                Debug.Print($"Error filling system {sys}: {ex.Message}");
+                Debug.Print($"Error during timed fill, system {sys}: {ex.Message}");
             }
 
+            prg.Visibility = Visibility.Collapsed;
             EnableButtons();
         }
 
 
-        private async void S2_DepresBtn_Click(object sender, RoutedEventArgs e)
+
+
+
+        private async void Flush_DepresBtn_Click(object sender, RoutedEventArgs e)
         {
-            DisableButtons();
-            S2_DepresPrg.Visibility = Visibility.Visible;
-            await App.ControllerManager.SetBothRegPressureAndWait(0, 0, 20);
-            EnableButtons();
+            await Depressurize(Flush_DepresPrg);
         }
-
-        private async void S2_FlushBtn_Click(object sender, RoutedEventArgs e)
+        private async void Flush_S1_LowPresBtn_Click(object sender, RoutedEventArgs e)
         {
-            DisableButtons();
-            S2_FlushPrg.Visibility = Visibility.Visible;
-
-            int sys = 2;
-            try
-            {
-                CellSettings settings = App.SettingsManager.GetAllSettings();
-                float pressure = settings.dispense_system.sys_2_flush_pressure.Value;
-                float time = settings.dispense_system.sys_2_flush_time.Value;
-
-                await App.ControllerManager.SetRegPressureAndWait(sys, pressure, 20);
-                await App.ControllerManager.OpenValveTimed(sys, time);
-
-            }
-            catch (Exception ex)
-            {
-                Debug.Print($"Error flushing system {sys}: {ex.Message}");
-            }
-
-            EnableButtons();
+            await SetLowPressure(1, Flush_S1_LowPresPrg);
         }
-
-        private async void S2_FillBtn_Click(object sender, RoutedEventArgs e)
+        private async void Flush_S2_LowPresBtn_Click(object sender, RoutedEventArgs e)
         {
-            DisableButtons();
-            S2_FillPrg.Visibility = Visibility.Visible;
-            int sys = 2;
-
-            try
-            {
-                // Use default DDM 116 pressure for fill for now
-
-                CellSettings settings = App.SettingsManager.GetAllSettings();
-                float pressure = settings.dispense_system.default_pressures.ddm_116.sys_2_pressure.Value;
-                float time = settings.dispense_system.sys_2_fill_time.Value;
-
-                await App.ControllerManager.SetRegPressureAndWait(sys, pressure, 20);
-                await App.ControllerManager.OpenValveTimed(sys, time);
-
-            }
-            catch (Exception ex)
-            {
-                Debug.Print($"Error filling system {sys}: {ex.Message}");
-            }
-
-            EnableButtons();
+            await SetLowPressure(2, Flush_S2_LowPresPrg);
         }
+        private async void Flush_S1_PurgeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            await Purge(1, Flush_S1_PurgePrg);
+        }
+        private async void Flush_S2_PurgeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            await Purge(2, Flush_S2_PurgePrg);
+        }
+
+
+
+        private async void Fill_DepresBtn_Click(object sender, RoutedEventArgs e)
+        {
+            await Depressurize(Fill_DepresPrg);
+        }
+        private async void Fill_S1_DefPresBtn_Click(object sender, RoutedEventArgs e)
+        {
+            await SetDefPressure(1, Fill_S1_DefPresPrg);
+        }
+        private async void Fill_S2_DefPresBtn_Click(object sender, RoutedEventArgs e)
+        {
+            await SetDefPressure(2, Fill_S2_DefPresPrg);
+        }
+        private async void Fill_S1_FillBtn_Click(object sender, RoutedEventArgs e)
+        {
+            await Fill(1, Fill_S1_FillPrg);
+        }
+        private async void Fill_S2_FillBtn_Click(object sender, RoutedEventArgs e)
+        {
+            await Fill(2, Fill_S2_FillPrg);
+        }
+
+
+
     }
 }

@@ -13,7 +13,7 @@
         Width="1024"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
-        Background="#FFC2C9D6">
+        Background="#FF98A4C1">
 
     <Grid Margin="4">
 

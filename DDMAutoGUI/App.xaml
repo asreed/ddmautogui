@@ -1005,7 +1005,7 @@
                 </Style>
             </Style.Resources>
 
-            <Setter Property="Background" Value="#111"/>
+            <Setter Property="Background" Value="#222"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="Black"/>
@@ -1181,7 +1181,7 @@
             <!--<Setter Property="Background" Value="WhiteSmoke"/>-->
             <Style.Resources>
                 <Style TargetType="TextBlock">
-                    <Setter Property="Foreground" Value="#444"/>
+                    <Setter Property="Foreground" Value="#222"/>
                     <Setter Property="FontSize" Value="11"/>
                     <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
                     <Setter Property="VerticalAlignment" Value="Center"/>
