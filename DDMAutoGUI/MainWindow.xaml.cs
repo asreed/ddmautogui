@@ -462,6 +462,7 @@ namespace DDMAutoGUI
 
                     App.ResultsManager.currentResults.daq_matlab_results = result;
                     App.ResultsManager.CopyPolarityPlotToResultsFolder(result.results_directory + "plot.png", "PolarityPlot");
+                    App.ResultsManager.CopyPolarityDataToResultsFolder(result.results_directory + "PolarityResults.json", "PolarityData");
 
                     if (result.result == 1)
                     {

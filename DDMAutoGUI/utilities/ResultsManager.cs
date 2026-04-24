@@ -293,6 +293,12 @@ namespace DDMAutoGUI.utilities
             File.Copy(plotPath, destPath, true);
         }
 
+        public void CopyPolarityDataToResultsFolder(string dataPath, string fileName)
+        {
+            string destPath = currentResultsFolderPath + "\\" + fileName + ".json";
+            File.Copy(dataPath, destPath, true);
+        }
+
         public void OpenBrowserToDirectory()
         {
             string directory = saveMainDirectory;

@@ -27,8 +27,12 @@ namespace DDMAutoGUI.Utilities
         public int result { get; set; }
         public int error_code { get; set; }
         public string error_message { get; set; }
+        public int peaks_detected { get; set; }
+        public int num_short_wavelengths { get; set; }
+        public int num_long_wavelengths { get; set; }
         public string results_directory { get; set; }
         public string plot_filename { get; set; }
+        public double[][] hall_data { get; set; }
 
     }
 
@@ -99,15 +103,21 @@ namespace DDMAutoGUI.Utilities
                 Debug.Print($"Results:");
                 Debug.Print($"  Version: {result.version}");
                 Debug.Print($"  Result: {result.result}");
+                Debug.Print($"  Peaks Detected: {result.peaks_detected}");
+                Debug.Print($"  Short Wavelengths: {result.num_short_wavelengths}");
+                Debug.Print($"  Long Wavelengths: {result.num_long_wavelengths}");
                 Debug.Print($"  Error Code: {result.error_code}");
                 Debug.Print($"  Error Message: {result.error_message}");
                 Debug.Print($"  (added) Plot File Name: {result.plot_filename}");
                 Debug.Print($"  (added) Results Directory: {result.results_directory}");
-            } else
+            }
+            else
             {
                 Debug.Print("Results structure null");
             }
 
+            // suppress raw hall data from being copied into results
+            result.hall_data = null;
             return result;
 
         }
