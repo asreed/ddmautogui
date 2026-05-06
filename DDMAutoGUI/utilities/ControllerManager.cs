@@ -1155,6 +1155,12 @@ namespace DDMAutoGUI.utilities
             string input = $"DDM_MeasureHeights {xPos} {tStart} {nMeasurements} {delay}";
             return await SendRobotCommand(input);
         }
+
+        public async Task<string> MeasureHeightsContinuous(float xPos, float tPos, int nSamples, float spinSpeed)
+        {
+            string input = $"DDM_MeasureHeightsContinuous {xPos} {tPos} {nSamples} {spinSpeed}";
+            return await SendRobotCommand(input);
+        }
         public async Task<string> MeasureHeightSingle()
         {
             string input = $"DDM_MeasureHeightSingle";

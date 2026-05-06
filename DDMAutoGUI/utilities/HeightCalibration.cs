@@ -435,11 +435,11 @@ namespace DDMAutoGUI.utilities
             // https://math.stackexchange.com/questions/3926007/least-squares-regression-of-sine-wave
 
             // assuming period of 2pi to fit the relation:
-            // y(t) = A * sin(x(t) + phi)
+            // y(t) = A * sin(t + phi)
 
-            // y(t) = A * sin(x(t)) * cos(phi) + A * cos(x(t)) * sin(phi)
-            // w = sin(x(t))
-            // z = cos(x(t))
+            // y(t) = A * sin(t) * cos(phi) + A * cos(t) * sin(phi)
+            // w = sin(t)
+            // z = cos(t)
             // A1 = A * cos(phi)
             // A2 = A * sin(phi)
             // Y = [w, z] * [A1; A2]

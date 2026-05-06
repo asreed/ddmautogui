@@ -446,8 +446,10 @@ namespace DDMAutoGUI
                     float hallTime = settings.hall_spin_time.Value;
                     float hallSpeed = settings.hall_spin_speed.Value;
 
+                    
+
                     // start matlab exe running
-                    Task<DAQMatlabResults> matlabTask = App.DAQManager.CollectDataAndProcessML("ddm_116");
+                    Task<DAQMatlabResults> matlabTask = App.DAQManager.CollectDataAndProcessML(motorName);
 
                     // wait a few second for load
                     int delay = 5000;
@@ -1679,10 +1681,9 @@ namespace DDMAutoGUI
             float xPos = m.laser_ring.x.Value;
             float tPos = m.laser_ring.t.Value;
             int n = m.laser_ring_num.Value;
-            float d = s.laser_delay.Value;
 
             LockRobotButtons(true);
-            string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n, d);
+            string response = await App.ControllerManager.MeasureHeightsContinuous(xPos, tPos, n, 10);
             laserRingData = App.ControllerManager.ParseHeightData(response);
 
             if (laserRingData.Count > 0)
@@ -1704,10 +1705,9 @@ namespace DDMAutoGUI
             float xPos = m.laser_mag.x.Value;
             float tPos = m.laser_mag.t.Value;
             int n = m.laser_mag_num.Value;
-            float d = s.laser_delay.Value;
 
             LockRobotButtons(true);
-            string response = await App.ControllerManager.MeasureHeights(xPos, tPos, n, d);
+            string response = await App.ControllerManager.MeasureHeightsContinuous(xPos, tPos, n, 20);
             laserMagData = App.ControllerManager.ParseHeightData(response);
 
             if (laserMagData.Count > 0)
