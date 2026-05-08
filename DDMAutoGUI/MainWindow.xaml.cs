@@ -503,7 +503,7 @@ namespace DDMAutoGUI
 
                     n = motor.laser_ring_num.Value;
                     d = settings.laser_delay.Value;
-                    response = await App.ControllerManager.MeasureHeights(x, t, n, d);
+                    response = await App.ControllerManager.MeasureHeightsContinuous(x, t, n, 10);
 
 
                     App.ResultsManager.currentResults.ring_heights = App.ControllerManager.ParseHeightData(response);
@@ -517,7 +517,7 @@ namespace DDMAutoGUI
 
                     n = motor.laser_mag_num.Value;
                     d = settings.laser_delay.Value;
-                    response = await App.ControllerManager.MeasureHeights(x, t, n, d);
+                    response = await App.ControllerManager.MeasureHeightsContinuous(x, t, n, 20);
 
                     App.ResultsManager.currentResults.mag_heights = App.ControllerManager.ParseHeightData(response);
                     App.ResultsManager.AddToLog("Magnet/concentrator height data collected");

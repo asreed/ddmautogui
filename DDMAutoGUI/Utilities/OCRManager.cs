@@ -137,19 +137,19 @@ namespace DDMAutoGUI.Utilities
             var result = ocrData.results.FirstOrDefault(r => r.file == fileName);
             if (result != null && result.strings.Count > 0)
             {
-                if (result.strings.Any(s => s.text.Contains("57")))
+                if (result.strings.Any(s => s.text.StartsWith("57-")))
                 {
                     return "ddm_57";
                 }
-                else if (result.strings.Any(s => s.text.Contains("95")))
+                else if (result.strings.Any(s => s.text.StartsWith("95-")))
                 {
                     return "ddm_95";
                 }
-                else if (result.strings.Any(s => s.text.Contains("116")))
+                else if (result.strings.Any(s => s.text.StartsWith("116-")))
                 {
                     return "ddm_116";
                 }
-                else if (result.strings.Any(s => s.text.Contains("170")))
+                else if (result.strings.Any(s => s.text.StartsWith("170-")))
                 {
                     return "ddm_170";
                 }
