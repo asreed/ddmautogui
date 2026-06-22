@@ -137,12 +137,11 @@ namespace DDMAutoGUI.Services
 
     public class SettingsManager : ISettingsManager
     {
-        //private string settingsFilePath = AppDomain.CurrentDomain.BaseDirectory + "settings\\settings.json";
         private string settingsFTPPath = "/flash/ddm_cell/Settings.json";
         private string settingsLocalName = "Settings.json";
         private string defaultSettingsPath = AppDomain.CurrentDomain.BaseDirectory + "_reference\\DefaultSettings.json";
 
-        private IControllerManager _controllerManager;
+        private readonly IConnectionEventService _connectionEventService;
         private readonly IApplicationConfiguration _applicationConfiguration;
 
         public enum DDMSize
@@ -165,22 +164,17 @@ namespace DDMAutoGUI.Services
 
         private CellSettings currentSettings = new CellSettings();
 
-        public SettingsManager(IApplicationConfiguration applicationConfiguration)
+        public SettingsManager(
+            IApplicationConfiguration applicationConfiguration,
+            IConnectionEventService connectionEventService)
         {
             _applicationConfiguration = applicationConfiguration ?? throw new ArgumentNullException(nameof(applicationConfiguration));
-            Debug.Print("Settings manager initialized");
-        }
+            _connectionEventService = connectionEventService ?? throw new ArgumentNullException(nameof(connectionEventService));
 
-        /// <summary>
-        /// Called by App during startup orchestration to wire up the circular dependency.
-        /// Must be called after ControllerManager is initialized.
-        /// </summary>
-        public void SetControllerManager(IControllerManager controllerManager)
-        {
-            _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
-            _controllerManager.ControllerConnected += SettingsManager_OnConnected;
-            _controllerManager.ControllerDisconnected += SettingsManager_OnDisconnected;
-            Debug.Print("Settings manager wired to controller manager");
+            _connectionEventService.ControllerConnected += SettingsManager_OnConnected;
+            _connectionEventService.ControllerDisconnected += SettingsManager_OnDisconnected;
+
+            Debug.Print("Settings manager initialized");
         }
 
         public async void SettingsManager_OnConnected(object sender, EventArgs e)
@@ -304,7 +298,7 @@ namespace DDMAutoGUI.Services
         private CellSettings ReadSettingsFromController()
         {
             string rawJson = "";
-            if (_controllerManager == null || _controllerManager.CONNECTION_STATE.isConnected == false)
+            if (!_connectionEventService.IsConnected)
             {
                 Debug.Print("Settings file could not be read because no controller is connected");
                 return null;
@@ -322,7 +316,7 @@ namespace DDMAutoGUI.Services
 
             try
             {
-                string ip = _controllerManager.CONNECTION_STATE.connectedIP;
+                string ip = _connectionEventService.ConnectedIP;
                 FtpWebRequest request = WebRequest.Create("ftp://" + ip + "/" + settingsFTPPath) as FtpWebRequest;
                 request.Method = WebRequestMethods.Ftp.DownloadFile;
 
@@ -363,7 +357,7 @@ namespace DDMAutoGUI.Services
 
         public void SaveSettingsToController(CellSettings settings)
         {
-            if (_controllerManager == null || _controllerManager.CONNECTION_STATE.isConnected == false)
+            if (!_connectionEventService.IsConnected)
             {
                 Debug.Print("Settings file could not be saved because no controller is connected");
                 return;
@@ -374,7 +368,7 @@ namespace DDMAutoGUI.Services
 
             try
             {
-                string ip = _controllerManager.CONNECTION_STATE.connectedIP;
+                string ip = _connectionEventService.ConnectedIP;
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + ip + "/" + settingsFTPPath);
                 request.Method = WebRequestMethods.Ftp.UploadFile;
 
@@ -396,62 +390,5 @@ namespace DDMAutoGUI.Services
                 Debug.Print($"Error: {ex.Message}");
             }
         }
-
-
-
-        //private void CopySettingsFromController()
-        //{
-        //    string ftpUrl = "ftp://10.33.240.47/flash/ddm_cell/test.txt"; // Replace with your FTP URL
-        //    string localFilePath = @"C:\Users\areed\Desktop\copy.txt"; // Replace with your local file path
-
-        //    try
-        //    {
-        //        // Create an FTP request
-        //        FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpUrl);
-        //        request.Method = WebRequestMethods.Ftp.DownloadFile;
-
-        //        // Get the response from the server
-        //        using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
-        //        using (Stream responseStream = response.GetResponseStream())
-        //        using (FileStream fileStream = new FileStream(localFilePath, FileMode.Create))
-        //        {
-        //            // Copy the response stream to the local file
-        //            responseStream.CopyTo(fileStream);
-        //        }
-
-        //        Console.WriteLine("Download Complete.");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Error: {ex.Message}");
-        //    }
-        //}
-
-
-        //private CellSettings ReadSettingsFromLocal()
-        //{
-        //    CellSettings settings = new CellSettings();
-        //    string tb = "  ";
-        //    Debug.Print($"{tb}Reading settings file from {settingsFilePath}");
-        //    try
-        //    {
-        //        if (File.Exists(settingsFilePath))
-        //        {
-        //            string rawJson = File.ReadAllText(settingsFilePath);
-        //            settings = JsonSerializer.Deserialize<CellSettings>(rawJson);
-        //            Debug.Print($"{tb}Settings file read successfully");
-        //            return settings;
-        //        }
-        //        else
-        //        {
-        //            Debug.Print($"{tb}Settings file does not exist!");
-        //        }
-        //    }
-        //    catch (JsonException ex)
-        //    {
-        //        Debug.Print($"{tb}Error deserializing settings file: {ex.Message}");
-        //    }
-        //    return new CellSettings();
-        //}
     }
 }

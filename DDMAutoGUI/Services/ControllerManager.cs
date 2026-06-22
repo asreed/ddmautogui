@@ -12,6 +12,7 @@ using System.Windows.Interop;
 using System.Windows.Threading;
 using System.Windows.Documents;
 using System.Web;
+using Microsoft.Extensions.DependencyInjection;
 
 
 
@@ -109,8 +110,11 @@ namespace DDMAutoGUI.Services
         }
     }
 
-    public class ControllerManager : IControllerManager
+    public class ControllerManager : IControllerManager, ILightController
     {
+        private readonly IApplicationConfiguration _applicationConfiguration;
+        private readonly IConnectionEventService _connectionEventService;
+        private readonly Func<ICameraManager> _getCameraManager; // Lazy accessor
 
         public string CORRECT_TCS_VERSION = "Tcs_ddm_cell_1_1_4"; // ???? ????????????
 
@@ -128,10 +132,6 @@ namespace DDMAutoGUI.Services
         private Socket statusClient;
         private Socket robotClient;
 
-        private readonly IApplicationConfiguration _applicationConfiguration;
-        //private readonly ISettingsManager _settingsManager;
-        private readonly ICameraManager _cameraManager;
-
         public event EventHandler ControllerConnected;
         public event EventHandler ControllerDisconnected;
         public event EventHandler ControllerStateChanged;
@@ -145,12 +145,12 @@ namespace DDMAutoGUI.Services
 
         public ControllerManager(
             IApplicationConfiguration applicationConfiguration,
-            //ISettingsManager settingsManager,
-            ICameraManager cameraManager)
+            IConnectionEventService connectionEventService,
+            IServiceProvider serviceProvider) // Take service provider for lazy resolution
         {
             _applicationConfiguration = applicationConfiguration;
-            //_settingsManager = settingsManager;
-            _cameraManager = cameraManager;
+            _connectionEventService = connectionEventService;
+            _getCameraManager = () => serviceProvider.GetRequiredService<ICameraManager>(); // Resolve only when needed
 
             CONTROLLER_STATE.Initialize();
             CONNECTION_STATE.Initialize();
@@ -442,9 +442,8 @@ namespace DDMAutoGUI.Services
 
                 if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.TopCamera == true)
                 {
-                    bool topCameraConnected = _cameraManager != null
-                        ? await _cameraManager.TestCameraConnection(CameraManager.CellCamera.top)
-                        : false;
+                    var cameraManager = _getCameraManager(); // Get camera manager only when actually needed
+                    bool topCameraConnected = await cameraManager.TestCameraConnection(CameraManager.CellCamera.top);
                     if (!topCameraConnected)
                     {
                         throw new Exception($"{ErrorCodes.conCamTop.code}: {ErrorCodes.conCamTop.msg}");
@@ -455,9 +454,8 @@ namespace DDMAutoGUI.Services
 
                 if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.SideCamera == true)
                 {
-                    bool sideCameraConnected = _cameraManager != null
-                        ? await _cameraManager.TestCameraConnection(CameraManager.CellCamera.side)
-                        : false;
+                    var cameraManager = _getCameraManager(); // Get camera manager only when actually needed
+                    bool sideCameraConnected = await cameraManager.TestCameraConnection(CameraManager.CellCamera.side);
                     if (!sideCameraConnected)
                     {
                         throw new Exception($"{ErrorCodes.conCamSide.code}: {ErrorCodes.conCamSide.msg}");
@@ -472,7 +470,7 @@ namespace DDMAutoGUI.Services
                 CONNECTION_STATE.connectedIP = ip;
                 CONNECTION_STATE.connectedTCS = await GetTCSVersion();
                 CONNECTION_STATE.connectedPAC = await GetPACVersion();
-                ControllerConnected?.Invoke(this, EventArgs.Empty);
+                // Remove: ControllerConnected?.Invoke(this, EventArgs.Empty);
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
                 StartAutoControllerState();
@@ -495,7 +493,7 @@ namespace DDMAutoGUI.Services
                 CONNECTION_STATE.connectedIP = string.Empty;
                 CONNECTION_STATE.connectedTCS = string.Empty;
                 CONNECTION_STATE.connectedPAC = string.Empty;
-                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
+                // Remove: ControllerDisconnected?.Invoke(this, EventArgs.Empty);
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
                 return false;
             }
@@ -515,7 +513,7 @@ namespace DDMAutoGUI.Services
                 CONNECTION_STATE.connectedIP = string.Empty;
                 CONNECTION_STATE.connectedTCS = string.Empty;
                 CONNECTION_STATE.connectedPAC = string.Empty;
-                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
+                // Remove: ControllerDisconnected?.Invoke(this, EventArgs.Empty);
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
                 return false;
             }
@@ -555,7 +553,7 @@ namespace DDMAutoGUI.Services
             CONNECTION_STATE.connectedIP = string.Empty;
             CONNECTION_STATE.connectedTCS = string.Empty;
             CONNECTION_STATE.connectedPAC = string.Empty;
-            ControllerDisconnected?.Invoke(this, EventArgs.Empty);
+            // Remove: ControllerDisconnected?.Invoke(this, EventArgs.Empty);
             ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
             StopAutoControllerState();
@@ -616,7 +614,7 @@ namespace DDMAutoGUI.Services
 
                 CONNECTION_STATE.isConnected = false;
                 CONNECTION_STATE.connectedIP = string.Empty;
-                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
+                // Remove: ControllerDisconnected?.Invoke(this, EventArgs.Empty);
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
             }
@@ -665,7 +663,7 @@ namespace DDMAutoGUI.Services
 
                 CONNECTION_STATE.isConnected = false;
                 CONNECTION_STATE.connectedIP = string.Empty;
-                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
+                // Remove: ControllerDisconnected?.Invoke(this, EventArgs.Empty);
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
             }
             return response;

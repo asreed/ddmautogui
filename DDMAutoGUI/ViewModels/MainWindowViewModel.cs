@@ -1,4 +1,5 @@
 using DDMAutoGUI.Services;
+using DDMAutoGUI.Utilities;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -17,7 +18,6 @@ namespace DDMAutoGUI.ViewModels
         private readonly ISettingsManager _settingsManager;
         private readonly IResultsManager _resultsManager;
         private readonly ICameraManager _cameraManager;
-        private readonly IReleaseInfoManager _releaseInfoManager;
         private readonly ILocalDataManager _localDataManager;
         private readonly IApplicationConfiguration _appConfig;
         private readonly DispenseProcessService _dispenseProcessService;
@@ -43,7 +43,6 @@ namespace DDMAutoGUI.ViewModels
             ISettingsManager settingsManager,
             IResultsManager resultsManager,
             ICameraManager cameraManager,
-            IReleaseInfoManager releaseInfoManager,
             ILocalDataManager localDataManager,
             IApplicationConfiguration appConfig,
             DispenseProcessService dispenseProcessService)
@@ -52,7 +51,6 @@ namespace DDMAutoGUI.ViewModels
             _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
             _resultsManager = resultsManager ?? throw new ArgumentNullException(nameof(resultsManager));
             _cameraManager = cameraManager ?? throw new ArgumentNullException(nameof(cameraManager));
-            _releaseInfoManager = releaseInfoManager ?? throw new ArgumentNullException(nameof(releaseInfoManager));
             _localDataManager = localDataManager ?? throw new ArgumentNullException(nameof(localDataManager));
             _appConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
             _dispenseProcessService = dispenseProcessService ?? throw new ArgumentNullException(nameof(dispenseProcessService));
@@ -430,7 +428,7 @@ namespace DDMAutoGUI.ViewModels
 
         private void InitializeAppTitle()
         {
-            string version = _releaseInfoManager.GetCurrentVersion();
+            string version = ReleaseInfo.GetCurrentVersion();
             AppTitle = $"DDM Auto GUI - {version}";
         }
 

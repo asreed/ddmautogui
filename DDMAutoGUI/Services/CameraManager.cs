@@ -31,11 +31,10 @@ namespace DDMAutoGUI.Services
         private string acqFileSuffixPNG = ".png";
         private string acqFileSuffixJPG = ".jpg";
         private string acqFileDirectory = AppDomain.CurrentDomain.BaseDirectory + "acquisitions\\";
-        private string cameraTopSN, cameraSideSN = "";
         private CellImageFormat defaultImageFormat = CellImageFormat.JPG;
 
-        private readonly IControllerManager _controllerManager;
-        private readonly ISettingsManager _settingsManager;
+        private readonly ILightController _lightController;
+        private readonly Func<CellSettings> _getSettings;
 
         public enum CellCamera
         {
@@ -49,40 +48,18 @@ namespace DDMAutoGUI.Services
             JPG
         }
 
-        public CameraManager(IControllerManager controllerManager, ISettingsManager settingsManager)
+        public CameraManager(
+            ILightController lightController,
+            ISettingsManager settingsManager)
         {
-            _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
-            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
+            _lightController = lightController ?? throw new ArgumentNullException(nameof(lightController));
+            _getSettings = () => settingsManager.GetAllSettings();
 
-            _controllerManager.ControllerConnected += CameraManager_OnConnected;
-            _controllerManager.ControllerDisconnected += CameraManager_OnDisconnected;
             Debug.Print("Camera manager initialized");
-        }
-
-        public async void CameraManager_OnConnected(object sender, EventArgs e)
-        {
-            CellSettings settings = _settingsManager.GetAllSettings();
-            if (settings != null)
-            {
-                cameraTopSN = settings.camera_top_sn;
-                cameraSideSN = settings.camera_side_sn;
-            }
-        }
-
-        public void CameraManager_OnDisconnected(object sender, EventArgs e)
-        {
-            cameraTopSN = null;
-            cameraSideSN = null;
         }
 
         public async Task<bool> TestCameraConnection(CellCamera cellCamera)
         {
-            CellSettings settings = _settingsManager.GetAllSettings();
-            if (settings != null)
-            {
-                cameraTopSN = settings.camera_top_sn;
-                cameraSideSN = settings.camera_side_sn;
-            }
             CameraAcquisitionResult result = await AcquireAndSave(cellCamera, null, true);
             return result.success;
         }
@@ -125,6 +102,11 @@ namespace DDMAutoGUI.Services
 
             try
             {
+                // Get camera serial numbers from settings on-demand
+                CellSettings settings = _getSettings();
+                string cameraTopSN = settings?.camera_top_sn;
+                string cameraSideSN = settings?.camera_side_sn;
+
                 // prepare
                 system = ArenaNET.Arena.OpenSystem();
                 system.UpdateDevices(100);
@@ -183,7 +165,7 @@ namespace DDMAutoGUI.Services
                 // turn lights on
                 if (skipSave == false)
                 {
-                    await _controllerManager.LightsOn();
+                    await _lightController.LightsOn();
                 }
 
                 // get image
@@ -193,7 +175,7 @@ namespace DDMAutoGUI.Services
                 // turn lights off
                 if (skipSave == false)
                 {
-                    await _controllerManager.LightsOff();
+                    await _lightController.LightsOff();
                 }
 
                 // save image
@@ -222,7 +204,7 @@ namespace DDMAutoGUI.Services
             }
             catch (Exception ex)
             {
-                await _controllerManager.LightsOff();
+                await _lightController.LightsOff();
                 Debug.Print("\nException thrown: {0}", ex.Message);
                 result.errorMsg = ex.Message;
                 result.success = false;
