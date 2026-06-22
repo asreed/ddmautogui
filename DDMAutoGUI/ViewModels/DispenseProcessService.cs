@@ -1,4 +1,5 @@
 using DDMAutoGUI.Services;
+using DDMAutoGUI.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -360,9 +361,9 @@ namespace DDMAutoGUI.ViewModels
         private async Task ExecuteOCRProcessingAsync(string resultsPath, string motorName)
         {
             _resultsManager.AddToLog("Processing images...");
-            OCRData ocrData = await OCRUtilities.RunOCR(resultsPath);
+            OCRData ocrData = await OCRManager.RunOCRAsync(resultsPath);
 
-            string toolType = OCRManagerExtensions.GetToolType(ocrData, "Top_compressed.jpg");
+            string toolType = ocrData.GetToolType("Top_compressed.jpg");
             if (toolType == null)
             {
                 _resultsManager.AddToLog("Unable to determine tool type from image");
@@ -375,12 +376,12 @@ namespace DDMAutoGUI.ViewModels
                     throw new DispenseException("Tool type mismatch");
                 }
 
-                string toolSN = OCRManagerExtensions.GetToolSN(ocrData, motorName, "Top_compressed.jpg");
+                string toolSN = ocrData.GetToolSN(motorName, "Top_compressed.jpg");
                 _resultsManager.currentResults.tool_sn = toolSN;
                 _resultsManager.AddToLog($"Tool SN found: {toolSN}");
             }
 
-            string ringSN = OCRManagerExtensions.GetRingSN(ocrData, motorName, "Side_compressed.jpg");
+            string ringSN = ocrData.GetRingSN(motorName, "Side_compressed.jpg");
             if (ringSN == null)
             {
                 _resultsManager.AddToLog("Unable to determine ring SN from image");

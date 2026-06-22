@@ -1,5 +1,6 @@
 ﻿using DDMAutoGUI.CustomWindows;
 using DDMAutoGUI.Services;
+using DDMAutoGUI.Utilities;
 using DDMAutoGUI.ViewModels;
 using DDMAutoGUI.windows;
 using Microsoft.Extensions.DependencyInjection;
@@ -978,13 +979,13 @@ namespace DDMAutoGUI
         }
 
         /// <summary>
-        /// FIXED: Use static OCRUtilities class instead of deprecated IOCRManager interface.
+        /// FIXED: Use static OCRManager class with RunOCRAsync method instead of deprecated OCRUtilities.
         /// </summary>
         private async void Adv_Cam_RunOCR_Click(object sender, RoutedEventArgs e)
         {
             Adv_Cam_OCRPrg.Visibility = Visibility.Visible;
 
-            OCRData data = await OCRUtilities.RunOCR(Adv_Cam_OCRPathTxb.Text);
+            OCRData data = await OCRManager.RunOCRAsync(Adv_Cam_OCRPathTxb.Text);
             Adv_Cam_OCRResTxb.Text = data != null
                 ? JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true })
                 : "Error reading OCR results";
