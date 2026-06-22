@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
-namespace DDMAutoGUI.utilities
+namespace DDMAutoGUI.Services
 {
 
     public class CameraAcquisitionResult
@@ -23,9 +23,9 @@ namespace DDMAutoGUI.utilities
 
 
 
-    public class CameraManager
+    public class CameraManager : ICameraManager
     {
-        private const ArenaNET.EPfncFormat PIXEL_FORMAT = ArenaNET.EPfncFormat.BGR8;
+        private const EPfncFormat PIXEL_FORMAT = EPfncFormat.BGR8;
         private string acqFilePath = string.Empty;
         private string acqFilePrefix = "acq_img";
         private string acqFileSuffixPNG = ".png";
@@ -34,6 +34,8 @@ namespace DDMAutoGUI.utilities
         private string cameraTopSN, cameraSideSN = "";
         private CellImageFormat defaultImageFormat = CellImageFormat.JPG;
 
+        private readonly IControllerManager _controllerManager;
+        private readonly ISettingsManager _settingsManager;
 
         public enum CellCamera
         {
@@ -47,17 +49,19 @@ namespace DDMAutoGUI.utilities
             JPG
         }
 
-
-        public CameraManager()
+        public CameraManager(IControllerManager controllerManager, ISettingsManager settingsManager)
         {
-            App.ControllerManager.ControllerConnected += CameraManager_OnConnected;
-            App.ControllerManager.ControllerDisconnected += CameraManager_OnDisconnected;
+            _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
+            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
+
+            _controllerManager.ControllerConnected += CameraManager_OnConnected;
+            _controllerManager.ControllerDisconnected += CameraManager_OnDisconnected;
             Debug.Print("Camera manager initialized");
         }
 
         public async void CameraManager_OnConnected(object sender, EventArgs e)
         {
-            CellSettings settings = App.SettingsManager.GetAllSettings();
+            CellSettings settings = _settingsManager.GetAllSettings();
             if (settings != null)
             {
                 cameraTopSN = settings.camera_top_sn;
@@ -73,7 +77,7 @@ namespace DDMAutoGUI.utilities
 
         public async Task<bool> TestCameraConnection(CellCamera cellCamera)
         {
-            CellSettings settings = App.SettingsManager.GetAllSettings();
+            CellSettings settings = _settingsManager.GetAllSettings();
             if (settings != null)
             {
                 cameraTopSN = settings.camera_top_sn;
@@ -83,16 +87,10 @@ namespace DDMAutoGUI.utilities
             return result.success;
         }
 
-
-
-
-
-
         public void OpenExplorerToImages()
         {
             Process.Start("explorer.exe", acqFileDirectory);
         }
-
 
         public async Task<CameraAcquisitionResult> AcquireAndSave(CellCamera cellCamera, Image displayElement)
         {
@@ -123,7 +121,7 @@ namespace DDMAutoGUI.utilities
             result.filePath = acqFilePath;
             result.fileName = acqFilePrefix + GetTimestamp() + acqFileSuffixJPG;
 
-            ArenaNET.ISystem system = null;
+            ISystem system = null;
 
             try
             {
@@ -145,7 +143,7 @@ namespace DDMAutoGUI.utilities
                     Debug.Print($"Device {i} SN: {system.Devices[i].SerialNumber}");
                 }
 
-                ArenaNET.IDeviceInfo selectedDeviceInfo = null;
+                IDeviceInfo selectedDeviceInfo = null;
 
                 for (int i = 0; i < system.Devices.Count; i++)
                 {
@@ -172,31 +170,30 @@ namespace DDMAutoGUI.utilities
                     return result;
                 }
 
-                ArenaNET.IDevice device = system.CreateDevice(selectedDeviceInfo);
+                IDevice device = system.CreateDevice(selectedDeviceInfo);
 
                 // enable stream auto negotiate packet size
-                var streamAutoNegotiatePacketSizeNode = (ArenaNET.IBoolean)device.TLStreamNodeMap.GetNode("StreamAutoNegotiatePacketSize");
+                var streamAutoNegotiatePacketSizeNode = (IBoolean)device.TLStreamNodeMap.GetNode("StreamAutoNegotiatePacketSize");
                 streamAutoNegotiatePacketSizeNode.Value = true;
 
                 // enable stream packet resend
-                var streamPacketResendEnableNode = (ArenaNET.IBoolean)device.TLStreamNodeMap.GetNode("StreamPacketResendEnable");
+                var streamPacketResendEnableNode = (IBoolean)device.TLStreamNodeMap.GetNode("StreamPacketResendEnable");
                 streamPacketResendEnableNode.Value = true;
-
 
                 // turn lights on
                 if (skipSave == false)
                 {
-                    await App.ControllerManager.LightsOn();
+                    await _controllerManager.LightsOn();
                 }
 
                 // get image
                 device.StartStream();
-                ArenaNET.IImage image = device.GetImage(2000);
+                IImage image = device.GetImage(2000);
 
                 // turn lights off
                 if (skipSave == false)
                 {
-                    await App.ControllerManager.LightsOff();
+                    await _controllerManager.LightsOff();
                 }
 
                 // save image
@@ -225,11 +222,12 @@ namespace DDMAutoGUI.utilities
             }
             catch (Exception ex)
             {
-                await App.ControllerManager.LightsOff();
+                await _controllerManager.LightsOff();
                 Debug.Print("\nException thrown: {0}", ex.Message);
                 result.errorMsg = ex.Message;
                 result.success = false;
-                if (system != null) { 
+                if (system != null)
+                {
                     ArenaNET.Arena.CloseSystem(system);
                 }
                 return result;
@@ -237,12 +235,12 @@ namespace DDMAutoGUI.utilities
 
         }
 
-        static void SaveImagePNG(ArenaNET.IImage image, String filePath)
+        static void SaveImagePNG(IImage image, string filePath)
         {
             // convert image
             Debug.Print($"...Convert image to {PIXEL_FORMAT}");
 
-            ArenaNET.IImage converted = ArenaNET.ImageFactory.Convert(image, PIXEL_FORMAT);
+            IImage converted = ImageFactory.Convert(image, PIXEL_FORMAT);
 
             // prepare image parameters
             Debug.Print("...Prepare image parameters");
@@ -275,18 +273,15 @@ namespace DDMAutoGUI.utilities
             writer.Save(converted.DataArray, true);
 
             // destroy converted image
-            ArenaNET.ImageFactory.Destroy(converted);
+            ImageFactory.Destroy(converted);
         }
 
-
-
-
-        static void SaveImageJPG(ArenaNET.IImage image, String filePath)
+        static void SaveImageJPG(IImage image, string filePath)
         {
             // convert image
             Debug.Print($"...Convert image to {PIXEL_FORMAT}");
 
-            ArenaNET.IImage converted = ArenaNET.ImageFactory.Convert(image, PIXEL_FORMAT);
+            IImage converted = ImageFactory.Convert(image, PIXEL_FORMAT);
 
             // prepare image parameters
             Debug.Print("...Prepare image parameters");
@@ -317,10 +312,10 @@ namespace DDMAutoGUI.utilities
             writer.Save(converted.DataArray, true);
 
             // destroy converted image
-            ArenaNET.ImageFactory.Destroy(converted);
+            ImageFactory.Destroy(converted);
         }
 
-        public void DisplayImage(Image displayElement, String filePath)
+        public void DisplayImage(Image displayElement, string filePath)
         {
             // for convenience
             BitmapImage bitmap = new BitmapImage();
@@ -337,6 +332,4 @@ namespace DDMAutoGUI.utilities
             return DateTime.Now.ToString("_yyMMdd_HHmmss");
         }
     }
-
-
 }

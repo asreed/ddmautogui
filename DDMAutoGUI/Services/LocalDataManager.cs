@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace DDMAutoGUI.utilities
+namespace DDMAutoGUI.Services
 {
     public class LDMotorCalib
     {
@@ -18,8 +18,8 @@ namespace DDMAutoGUI.utilities
         {
             return new LDMotorCalib
             {
-                sys_1_pressure = this.sys_1_pressure,
-                sys_2_pressure = this.sys_2_pressure,
+                sys_1_pressure = sys_1_pressure,
+                sys_2_pressure = sys_2_pressure,
             };
         }
 
@@ -45,13 +45,13 @@ namespace DDMAutoGUI.utilities
         {
             return new LocalData
             {
-                calib_data = this.calib_data,
+                calib_data = calib_data,
             };
         }
 
     }
 
-    public class LocalDataManager
+    public class LocalDataManager : ILocalDataManager
     {
         private string localDataFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\LocalData.json";
         private LocalData localData;
@@ -68,6 +68,16 @@ namespace DDMAutoGUI.utilities
             {
                 Debug.Print("Local data manager initialized");
             }
+        }
+
+        public void LoadLocalData()
+        {
+            localData = GetLocalDataFromFile(localDataFilePath);
+        }
+
+        public void SaveLocalData()
+        {
+            SaveLocalDataToFile();
         }
 
         public LocalData GetLocalData()
@@ -104,24 +114,6 @@ namespace DDMAutoGUI.utilities
             return calib;
         }
 
-        public float? GetPressureFromMotorName(string name, int systemNum)
-        {
-            LDMotorCalib calib = GetCalibFromMotorName(name);
-            if (calib == null)
-            {
-                return null;
-            }
-            switch (systemNum)
-            {
-                case 1:
-                    return calib.sys_1_pressure;
-                case 2:
-                    return calib.sys_2_pressure;
-                default:
-                    return null;
-            }
-        }
-
         public LDMotorCalib GetCalibFromMotorName(LocalData data, string name)
         {
             LDMotorCalib calib = null;
@@ -146,19 +138,23 @@ namespace DDMAutoGUI.utilities
             return calib;
         }
 
-        //public int GetCalibIdxFromMotorName(string name)
-        //{
-        //    int idx = -1;
-        //    for (int i = 0; i < localData.calib_data.Length; i++)
-        //    {
-        //        if (localData.calib_data[i].type == name)
-        //        {
-        //            idx = i;
-        //            return idx;
-        //        }
-        //    }
-        //    return idx;
-        //}
+        public float? GetPressureFromMotorName(string name, int systemNum)
+        {
+            LDMotorCalib calib = GetCalibFromMotorName(name);
+            if (calib == null)
+            {
+                return null;
+            }
+            switch (systemNum)
+            {
+                case 1:
+                    return calib.sys_1_pressure;
+                case 2:
+                    return calib.sys_2_pressure;
+                default:
+                    return null;
+            }
+        }
 
         private LocalData GetLocalDataFromFile(string historyFilePath)
         {

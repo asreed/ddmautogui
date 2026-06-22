@@ -1,14 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Diagnostics;
 
 namespace DDMAutoGUI.Utilities
 {
-
     public class OCRData
     {
         public OCRMetadata metadata { get; set; }
@@ -22,7 +20,7 @@ namespace DDMAutoGUI.Utilities
         public float total_time_seconds { get; set; }
         public int image_count { get; set; }
     }
-    
+
     public class OCRTiming
     {
         public string file { get; set; }
@@ -40,82 +38,6 @@ namespace DDMAutoGUI.Utilities
     {
         public string text { get; set; }
         public float score { get; set; }
-    }
-
-
-
-    public class OCRManager
-    {
-
-        public static string ocrScriptName = "process_images.py";
-        public static string ocrOutputFileName = "OCRResults.json";
-
-        public string ocrScriptPath;
-        //public string ocrInputFolder;
-        //public string ocrOutputFile;
-
-        public OCRManager()
-        {
-            string appDir = AppContext.BaseDirectory;
-            ocrScriptPath = System.IO.Path.Combine(appDir, "Utilities", "Vision", ocrScriptName);
-            //ocrInputFolder = System.IO.Path.Combine(appDir, "acquisitions");
-            //ocrOutputFile = System.IO.Path.Combine(appDir, "acquisitions", ocrOutputFileName);
-        }
-
-
-
-        public async Task<OCRData> RunOCR(string imageInputFolder)
-        {
-            string ocrOutputFile = System.IO.Path.Combine(imageInputFolder, ocrOutputFileName);
-
-            await Task.Run(() =>
-            {
-                string arguments =
-                    $"\"{ocrScriptPath}\" " +
-                    $"--input-folder \"{imageInputFolder}\" " +
-                    $"--output-file \"{ocrOutputFile}\" " +
-                    $"--min-score 0.1";
-
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = "python",
-                    Arguments = arguments,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                };
-
-                using (var process = new Process())
-                {
-                    process.StartInfo = startInfo;
-                    process.OutputDataReceived += (s, e) =>
-                    {
-                        if (!string.IsNullOrWhiteSpace(e.Data))
-                            Debug.WriteLine(e.Data);
-                    };
-
-                    process.ErrorDataReceived += (s, e) =>
-                    {
-                        if (!string.IsNullOrWhiteSpace(e.Data))
-                            Debug.WriteLine("ERR: " + e.Data);
-                    };
-
-                    process.Start();
-                    process.BeginOutputReadLine();
-                    process.BeginErrorReadLine();
-                    process.WaitForExit();
-
-                    int exitCode = process.ExitCode;
-                    Debug.WriteLine($"Python process exited with code {exitCode}");
-                }
-            });
-
-            string fileContent = File.ReadAllText(ocrOutputFile);
-
-            OCRData ocrData = System.Text.Json.JsonSerializer.Deserialize<OCRData>(fileContent);
-            return ocrData;
-        }
     }
 
     public static class OCRManagerExtensions
@@ -153,6 +75,8 @@ namespace DDMAutoGUI.Utilities
                 {
                     return "ddm_170";
                 }
+
+                // 170 tall ?
             }
             return null;
         }
@@ -165,15 +89,21 @@ namespace DDMAutoGUI.Utilities
             switch (motorName)
             {
                 case "ddm_57":
+                    toolPrefix = "57-";
                     break;
                 case "ddm_95":
+                    toolPrefix = "95-";
                     break;
                 case "ddm_116":
-                    toolPrefix = "116";
+                    toolPrefix = "116-";
                     break;
                 case "ddm_170":
+                    toolPrefix = "170-";
                     break;
                 case "ddm_170_tall":
+
+                    // ?
+
                     break;
             }
 
@@ -237,5 +167,6 @@ namespace DDMAutoGUI.Utilities
         }
     }
 
-}
 
+
+}

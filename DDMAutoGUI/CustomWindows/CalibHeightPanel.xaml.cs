@@ -1,4 +1,5 @@
-﻿using DDMAutoGUI.utilities;
+﻿using DDMAutoGUI.Services;
+using DDMAutoGUI.utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,15 +23,23 @@ namespace DDMAutoGUI.CustomWindows
     /// </summary>
     public partial class CalibHeightPanel : UserControl
     {
+        private readonly ISettingsManager _settingsManager;
+        private readonly IControllerManager _controllerManager;
+
         public CalibHeightPanel()
         {
             InitializeComponent();
+        }
 
+        public CalibHeightPanel(ISettingsManager settingsManager, IControllerManager controllerManager) : this()
+        {
+            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
+            _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
         }
 
         public void SetupPanel()
         {
-            CellSettings settings = App.SettingsManager.GetAllSettings();
+            CellSettings settings = _settingsManager.GetAllSettings();
 
             ddm57_a.Text = settings.laser_calib.ddm_57_coeff.A.ToString();
             ddm95_a.Text = settings.laser_calib.ddm_95_coeff.A.ToString();
@@ -64,16 +73,16 @@ namespace DDMAutoGUI.CustomWindows
             try
             {
 
-                CSMotor motor = App.SettingsManager.GetMotorSettingsFromName("ddm_57");
+                CSMotor motor = _settingsManager.GetMotorSettingsFromName("ddm_57");
 
                 x = motor.laser_mag.x.Value;
                 t = motor.laser_mag.t.Value;
-                //response = await App.ControllerManager.MoveJ(x, t);
-                //response = await App.ControllerManager.MeasureHeights(x, t, n, delay);
-                //heights = App.ControllerManager.ParseHeightData(response);
+                //response = await _controllerManager.MoveJ(x, t);
+                //response = await _controllerManager.MeasureHeights(x, t, n, delay);
+                //heights = _controllerManager.ParseHeightData(response);
 
-                heights = HeightCalibration.GetSampleData("ddm_57");
-                HeightCalibration.FitDataToSin(heights, out a, out phi, out r2);
+                heights = HeightVerification.GetSampleData("ddm_57");
+                HeightVerification.FitSinToData(heights, out a, out phi, out r2);
                 Debug.Print($"57 fit generated:\tA = {a:f2}, phi = {phi:f4}, R^2 = {r2:f3}");
 
 

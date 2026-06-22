@@ -1,4 +1,4 @@
-﻿using DDMAutoGUI.utilities;
+﻿using DDMAutoGUI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,10 +22,17 @@ namespace DDMAutoGUI.CustomWindows
     /// </summary>
     public partial class SettingsPanel : UserControl
     {
+        private readonly ISettingsManager _settingsManager;
+
         public SettingsPanel()
         {
             InitializeComponent();
-            CellSettings settings = App.SettingsManager.GetAllSettings();
+        }
+
+        public SettingsPanel(ISettingsManager settingsManager) : this()
+        {
+            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
+            CellSettings settings = _settingsManager.GetAllSettings();
             PopulateSettingsTree(settings);
             PopulateSettingsString(settings);
         }
@@ -36,7 +43,7 @@ namespace DDMAutoGUI.CustomWindows
             settingsTxb.Text = "No settings loaded";
             if (settings != null)
             {
-                string settingsString = App.SettingsManager.SerializeSettingsToJson(settings);
+                string settingsString = _settingsManager.SerializeSettingsToJson(settings);
                 settingsTxb.Text = settingsString;
             }
         }
@@ -115,15 +122,15 @@ namespace DDMAutoGUI.CustomWindows
         }
         private void LoadBtn_Click(object sender, RoutedEventArgs e)
         {
-            App.SettingsManager.ReloadSettings();
-            PopulateSettingsTree(App.SettingsManager.GetAllSettings());
-            PopulateSettingsString(App.SettingsManager.GetAllSettings());
+            _settingsManager.ReloadSettings();
+            PopulateSettingsTree(_settingsManager.GetAllSettings());
+            PopulateSettingsString(_settingsManager.GetAllSettings());
         }
 
         private void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
-            CellSettings newSettings = App.SettingsManager.DeserializeSettingsFromJson(settingsTxb.Text);
-            App.SettingsManager.SaveSettingsToController(newSettings);
+            CellSettings newSettings = _settingsManager.DeserializeSettingsFromJson(settingsTxb.Text);
+            _settingsManager.SaveSettingsToController(newSettings);
         }
 
 

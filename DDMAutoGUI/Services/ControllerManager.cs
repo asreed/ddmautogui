@@ -15,7 +15,7 @@ using System.Web;
 
 
 
-namespace DDMAutoGUI.utilities
+namespace DDMAutoGUI.Services
 {
 
     public class ControllerState
@@ -109,10 +109,10 @@ namespace DDMAutoGUI.utilities
         }
     }
 
-    public class ControllerManager
+    public class ControllerManager : IControllerManager
     {
 
-        public string CORRECT_TCS_VERSION = "Tcs_ddm_cell_1_1_4"; // ???? ?????????????
+        public string CORRECT_TCS_VERSION = "Tcs_ddm_cell_1_1_4"; // ???? ????????????
 
         private string connectionLog = string.Empty;
         private string statusLog = string.Empty;
@@ -128,6 +128,10 @@ namespace DDMAutoGUI.utilities
         private Socket statusClient;
         private Socket robotClient;
 
+        private readonly IApplicationConfiguration _applicationConfiguration;
+        //private readonly ISettingsManager _settingsManager;
+        private readonly ICameraManager _cameraManager;
+
         public event EventHandler ControllerConnected;
         public event EventHandler ControllerDisconnected;
         public event EventHandler ControllerStateChanged;
@@ -139,21 +143,19 @@ namespace DDMAutoGUI.utilities
         public ControllerState CONTROLLER_STATE { get; private set; } = new ControllerState();
         public ControllerConnState CONNECTION_STATE { get; private set; } = new ControllerConnState();
 
-        public ControllerManager()
+        public ControllerManager(
+            IApplicationConfiguration applicationConfiguration,
+            //ISettingsManager settingsManager,
+            ICameraManager cameraManager)
         {
+            _applicationConfiguration = applicationConfiguration;
+            //_settingsManager = settingsManager;
+            _cameraManager = cameraManager;
+
             CONTROLLER_STATE.Initialize();
             CONNECTION_STATE.Initialize();
             Debug.Print("Controller manager initialized");
-
         }
-
-
-
-
-
-
-
-
 
         // ==================================================================
         // Autoload TCS (port 23)
@@ -309,7 +311,7 @@ namespace DDMAutoGUI.utilities
             }
             catch (SocketException e)
             {
-                Debug.Print(($"{e.ErrorCode}: {e.Message}"));
+                Debug.Print($"{e.ErrorCode}: {e.Message}");
                 controllerClient.Close();
                 reply = "Connection failure";
             }
@@ -341,7 +343,7 @@ namespace DDMAutoGUI.utilities
             UpdateBothLogs($"Connecting to {ip}...");
             UpdateConnectionLog($"Connecting to workcell...\n");
 
-            if (App.GUI_SIM_MODE)
+            if (_applicationConfiguration?.IsSimulationMode == true)
             {
                 //UpdateConnectionLog($"\nConnected successfully");
                 UpdateConnectionLog($"✓ Controller TCS");
@@ -370,7 +372,7 @@ namespace DDMAutoGUI.utilities
 
             try
             {
-                if (App.advancedOptions.connectionOptions.controller)
+                if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.Controller == true)
                 {
                     await statusClient.ConnectAsync(statusEP);
                     await robotClient.ConnectAsync(robotEP);
@@ -385,16 +387,16 @@ namespace DDMAutoGUI.utilities
 
                     UpdateConnectionLog($"✓ Controller TCS");
 
-                    bool settingsExist = App.SettingsManager.VerifySettingsExistOnController(ip);
-                    if (!settingsExist)
-                    {
-                        throw new Exception($"{ErrorCodes.conSettings.code}: {ErrorCodes.conSettings.msg}");
-                    }
+                    //bool settingsExist = _settingsManager?.VerifySettingsExistOnController(ip) ?? false;
+                    //if (!settingsExist)
+                    //{
+                    //    throw new Exception($"{ErrorCodes.conSettings.code}: {ErrorCodes.conSettings.msg}");
+                    //}
                     UpdateConnectionLog($"✓ Controller Settings");
 
                 }
 
-                if (App.advancedOptions.connectionOptions.ioLinkDevices)
+                if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.IoLinkDevices == true)
                 {
                     string ioLinkString = await GetIOLinkStatusRemote();
                     IOLinkStatus ioLinkStatus = ParseIOLinkStatus(ioLinkString);
@@ -427,7 +429,7 @@ namespace DDMAutoGUI.utilities
                     }
                 }
 
-                if (App.advancedOptions.connectionOptions.laserSensor)
+                if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.LaserSensor == true)
                 {
                     string laserResponse = await TestLaserConnection();
                     if (laserResponse != "-1")
@@ -438,9 +440,11 @@ namespace DDMAutoGUI.utilities
                 }
 
 
-                if (App.advancedOptions.connectionOptions.topCamera)
+                if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.TopCamera == true)
                 {
-                    bool topCameraConnected = await Task.Run(() => App.CameraManager.TestCameraConnection(CameraManager.CellCamera.top));
+                    bool topCameraConnected = _cameraManager != null
+                        ? await _cameraManager.TestCameraConnection(CameraManager.CellCamera.top)
+                        : false;
                     if (!topCameraConnected)
                     {
                         throw new Exception($"{ErrorCodes.conCamTop.code}: {ErrorCodes.conCamTop.msg}");
@@ -449,9 +453,11 @@ namespace DDMAutoGUI.utilities
                 }
 
 
-                if (App.advancedOptions.connectionOptions.sideCamera)
+                if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.SideCamera == true)
                 {
-                    bool sideCameraConnected = await Task.Run(() => App.CameraManager.TestCameraConnection(CameraManager.CellCamera.side));
+                    bool sideCameraConnected = _cameraManager != null
+                        ? await _cameraManager.TestCameraConnection(CameraManager.CellCamera.side)
+                        : false;
                     if (!sideCameraConnected)
                     {
                         throw new Exception($"{ErrorCodes.conCamSide.code}: {ErrorCodes.conCamSide.msg}");
@@ -518,7 +524,7 @@ namespace DDMAutoGUI.utilities
         public async Task Disconnect()
         {
             UpdateBothLogs("Disconnecting...");
-            if (App.GUI_SIM_MODE)
+            if (_applicationConfiguration?.IsSimulationMode == true)
             {
                 ClearConnectionLog();
                 UpdateConnectionLog("Disconnected from simulation");
@@ -562,7 +568,7 @@ namespace DDMAutoGUI.utilities
             byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
             StringBuilder response = new StringBuilder();
 
-            if (App.GUI_SIM_MODE)
+            if (_applicationConfiguration?.IsSimulationMode == true)
             {
                 UpdateRobotLog($"<< 0 (!) Generic simulated response (!)");
                 return "0";
@@ -617,7 +623,7 @@ namespace DDMAutoGUI.utilities
             return response.ToString().Trim();
         }
 
-        public async Task<String> SendStatusCommand(string command)
+        public async Task<string> SendStatusCommand(string command)
         {
             return await SendStatusCommand(command, false);
         }
@@ -629,7 +635,7 @@ namespace DDMAutoGUI.utilities
             byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
             string response = string.Empty;
 
-            if (App.GUI_SIM_MODE)
+            if (_applicationConfiguration?.IsSimulationMode == true)
             {
                 UpdateStatusLog($"<< 0 (!) Generic simulated response (!)");
                 return "0";
@@ -664,17 +670,6 @@ namespace DDMAutoGUI.utilities
             }
             return response;
         }
-
-
-
-
-
-
-
-
-
-
-
 
         // ==================================================================
         // Public helpers
@@ -773,7 +768,7 @@ namespace DDMAutoGUI.utilities
             IOLinkStatus status = new IOLinkStatus();
             int ports = status.isPortConnected.Length;
 
-            String[] ioLinkStringArray = ioLinkString.Split(" ");
+            string[] ioLinkStringArray = ioLinkString.Split(" ");
             if (ioLinkStringArray.Length == ports + 1)
             {
                 status.isMasterConnected = ioLinkStringArray[0] != "0";
@@ -1034,7 +1029,7 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> EnablePower()
         {
-            if (App.GUI_SIM_MODE) return "1"; // success is 1 for enabling power
+            if (_applicationConfiguration?.IsSimulationMode == true) return "1"; // success is 1 for enabling power
 
             string response;
             int timeout = 0;
@@ -1061,7 +1056,7 @@ namespace DDMAutoGUI.utilities
 
         public async Task<string> Home()
         {
-            if (App.GUI_SIM_MODE) return "0";  // success is 0 for homing
+            if (_applicationConfiguration?.IsSimulationMode == true) return "0";  // success is 0 for homing
 
             string response = "";
             response = await SendRobotCommand("attach 1");
@@ -1220,8 +1215,8 @@ namespace DDMAutoGUI.utilities
             {
                 ResultsHeightMeasurement measurement = new ResultsHeightMeasurement
                 {
-                    t = (360f / nMeasurements) * i,
-                    z = 0.5f + (float)(rand.NextDouble()) // around 10mm with some noise
+                    t = 360f / nMeasurements * i,
+                    z = 0.5f + (float)rand.NextDouble() // around 10mm with some noise
                 };
                 measurementList.Add(measurement);
             }

@@ -1,5 +1,4 @@
-﻿using DDMAutoGUI.Utilities;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -9,10 +8,7 @@ using System.Text.Json;
 /// Manages the results of the DDM process, including options selected, shots taken, heights measured, and process logs. Provides functionality to save results to a file and open the results directory.
 /// </summary>
 
-
-
-
-namespace DDMAutoGUI.utilities
+namespace DDMAutoGUI.Services
 {
     public class ResultsShotData
     {
@@ -46,7 +42,6 @@ namespace DDMAutoGUI.utilities
 
         public float? sys_1_autocal_sf { get; set; }
         public float? sys_2_autocal_sf { get; set; }
-
     }
 
     public class ResultsHeightMeasurement
@@ -74,35 +69,30 @@ namespace DDMAutoGUI.utilities
         public List<ResultsHeightMeasurement>? ring_heights { get; set; }
         public List<ResultsHeightMeasurement>? mag_heights { get; set; }
         public List<ResultsLogLine>? process_log { get; set; }
-
     }
 
-    public class ResultsManager
+    public class ResultsManager : IResultsManager
     {
-
         public string saveMainDirectory = AppDomain.CurrentDomain.BaseDirectory + "Results\\";
         public string saveFolderPrefix = "Ring_";
         public string saveFolderNoSNPrefix = "Ring_No_SN_";
 
         public string fileNameResults = "ProcessResults";
 
-        public string dateFormatLong = "MM-dd-yyy HH:mm:ss.fff";
-        public string dateFormatShort = "HH:mm:ss.ff";
-        public string dateFormatFolder = "yyMMdd_HHmmss";
+        public string DateFormatLong { get; } = "MM-dd-yyyy HH:mm:ss.fff";
+        public string DateFormatShort { get; } = "HH:mm:ss.ff";
+        public string DateFormatFolder { get; } = "yyMMdd_HHmmss";
 
         public event EventHandler UpdateProcessLog;
 
-        public Results currentResults;
+        public Results currentResults { get; set; }
         public string currentResultsFolderPath;
-
 
         public ResultsManager()
         {
             currentResults = null;
             Debug.Print("Process results manager initialized");
         }
-
-
 
         // ==================================================================
         // Pass/fail determination
@@ -169,20 +159,6 @@ namespace DDMAutoGUI.utilities
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ==================================================================
         // Result object handling
 
@@ -240,12 +216,12 @@ namespace DDMAutoGUI.utilities
 
             if (currentResults.ring_sn == null || currentResults.ring_sn == "")
             {
-                resultsFolderPath = saveMainDirectory + saveFolderNoSNPrefix + DateTime.Now.ToString(dateFormatFolder);
+                resultsFolderPath = saveMainDirectory + saveFolderNoSNPrefix + DateTime.Now.ToString(DateFormatFolder);
                 zipFolderPath = resultsFolderPath;
             }
             else
             {
-                resultsFolderPath = saveMainDirectory + saveFolderPrefix + currentResults.ring_sn + "_" + DateTime.Now.ToString(dateFormatFolder);
+                resultsFolderPath = saveMainDirectory + saveFolderPrefix + currentResults.ring_sn + "_" + DateTime.Now.ToString(DateFormatFolder);
                 zipFolderPath = resultsFolderPath;
             }
 
@@ -258,7 +234,7 @@ namespace DDMAutoGUI.utilities
         {
             currentResults.date_saved = DateTime.Now;
             var options = new JsonSerializerOptions { WriteIndented = true };
-            string resultsString = JsonSerializer.Serialize<Results>(currentResults, options);
+            string resultsString = JsonSerializer.Serialize(currentResults, options);
             string resultsFilePath = currentResultsFolderPath + "\\" + fileNameResults + ".json";
 
             File.WriteAllText(resultsFilePath, resultsString);
@@ -276,7 +252,7 @@ namespace DDMAutoGUI.utilities
                 Debug.Print("New ring SN is null or empty. Cannot rename folder.");
                 return;
             }
-            string newFolderPath = saveMainDirectory + saveFolderPrefix + ringSN + "_" + DateTime.Now.ToString(dateFormatFolder);
+            string newFolderPath = saveMainDirectory + saveFolderPrefix + ringSN + "_" + DateTime.Now.ToString(DateFormatFolder);
             Directory.Move(currentResultsFolderPath, newFolderPath);
             currentResultsFolderPath = newFolderPath;
         }
@@ -315,7 +291,7 @@ namespace DDMAutoGUI.utilities
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < currentResults.process_log?.Count; i++)
             {
-                sb.Append(currentResults.process_log[i].timestamp?.ToString(dateFormatLong));
+                sb.Append(currentResults.process_log[i].timestamp?.ToString(DateFormatLong));
                 sb.Append(": ");
                 sb.Append(currentResults.process_log[i].message?.ToString());
                 sb.Append('\n');
@@ -326,9 +302,7 @@ namespace DDMAutoGUI.utilities
         public string GetCurrentResultsAsString()
         {
             var options = new JsonSerializerOptions { WriteIndented = true };
-            return JsonSerializer.Serialize<Results>(currentResults, options);
+            return JsonSerializer.Serialize(currentResults, options);
         }
-
-
     }
 }

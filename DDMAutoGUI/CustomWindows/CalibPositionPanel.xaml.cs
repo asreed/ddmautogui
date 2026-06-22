@@ -1,4 +1,4 @@
-﻿using DDMAutoGUI.utilities;
+﻿using DDMAutoGUI.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,15 +21,23 @@ namespace DDMAutoGUI.CustomWindows
     /// Interaction logic for CalibPositionPanel.xaml
     /// </summary>
 
-
-
     public partial class CalibPositionPanel : UserControl
     {
+        private readonly IControllerManager _controllerManager;
+        private readonly IApplicationConfiguration _applicationConfiguration;
+
         public CalibPositionPanel()
         {
             InitializeComponent();
-            App.ControllerManager.ControllerStateChanged += UpdatePositionLabels;
-            if (App.GUI_SIM_MODE)
+        }
+
+        public CalibPositionPanel(IControllerManager controllerManager, IApplicationConfiguration applicationConfiguration) : this()
+        {
+            _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
+            _applicationConfiguration = applicationConfiguration ?? throw new ArgumentNullException(nameof(applicationConfiguration));
+
+            _controllerManager.ControllerStateChanged += UpdatePositionLabels;
+            if (_applicationConfiguration.IsSimulationMode)
             {
                 j1PosTxb.Text = "2.451 deg";
                 j2PosTxb.Text = "0.005 mm";
@@ -43,7 +51,7 @@ namespace DDMAutoGUI.CustomWindows
 
         public void UpdatePositionLabels(object sender, EventArgs e)
         {
-            ControllerState contState = App.ControllerManager.CONTROLLER_STATE;
+            ControllerState contState = _controllerManager.CONTROLLER_STATE;
             if (!contState.parseError)
             {
                 j1PosTxb.Text = contState.posRotary.ToString("F2") + " deg";
@@ -54,7 +62,8 @@ namespace DDMAutoGUI.CustomWindows
                 j1PosTxb.Text = "-";
                 j2PosTxb.Text = "-";
             }
-            if (App.GUI_SIM_MODE)             {
+            if (_applicationConfiguration.IsSimulationMode)
+            {
                 j1PosTxb.Text = "2.451 deg";
                 j2PosTxb.Text = "0.005 mm";
             }
@@ -68,7 +77,7 @@ namespace DDMAutoGUI.CustomWindows
             string message = String.Empty;
             try
             {
-                await App.ControllerManager.CalibratePosition();
+                await _controllerManager.CalibratePosition();
                 message = "Position calibration successful";
                 MessageBox.Show(message, caption, MessageBoxButton.OK, MessageBoxImage.Information);
             }

@@ -1,4 +1,4 @@
-﻿using DDMAutoGUI.utilities;
+﻿using DDMAutoGUI.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,38 +23,35 @@ namespace DDMAutoGUI.CustomWindows
     /// </summary>
     public partial class LocalDataPanel : UserControl
     {
+        private readonly ILocalDataManager _localDataManager;
+
         public LocalDataPanel()
         {
             InitializeComponent();
-            LocalData data = App.LocalDataManager.GetLocalData();
-            PopulateLocalDataTree(data);
-            PopulateRawLocalData(data);
-
         }
 
-
-
-
-
-
+        public LocalDataPanel(ILocalDataManager localDataManager) : this()
+        {
+            _localDataManager = localDataManager ?? throw new ArgumentNullException(nameof(localDataManager));
+            LocalData data = _localDataManager.GetLocalData();
+            PopulateLocalDataTree(data);
+            PopulateRawLocalData(data);
+        }
 
         private void PopulateRawLocalData(LocalData data)
         {
             LocalDataTxt.Clear();
-            string dataString = App.LocalDataManager.SerializeDataFromJson(data);
+            string dataString = _localDataManager.SerializeDataFromJson(data);
             LocalDataTxt.Text = dataString;
         }
-
-
-
 
         private void PopulateLocalDataTree(LocalData data)
         {
             LocalDataTreeViewRoot.Items.Clear();
             LocalDataTreeViewRoot.Header = "Local Data";
             GenerateTree(data, LocalDataTreeViewRoot);
-
         }
+
         private void GenerateTree(object obj, TreeViewItem parent)
         {
             if (obj == null) return;
@@ -120,17 +117,17 @@ namespace DDMAutoGUI.CustomWindows
 
         private void LoadBtn_Click(object sender, RoutedEventArgs e)
         {
-            PopulateLocalDataTree(App.LocalDataManager.GetLocalData());
-            PopulateRawLocalData(App.LocalDataManager.GetLocalData());
+            PopulateLocalDataTree(_localDataManager.GetLocalData());
+            PopulateRawLocalData(_localDataManager.GetLocalData());
         }
 
         private void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
-            LocalData newData = App.LocalDataManager.DeserializeLocalDataFromString(LocalDataTxt.Text);
-            App.LocalDataManager.SetLocalData(newData.Clone());
-            App.LocalDataManager.SaveLocalDataToFile(newData);
-            PopulateLocalDataTree(App.LocalDataManager.GetLocalData());
-            PopulateRawLocalData(App.LocalDataManager.GetLocalData());
+            LocalData newData = _localDataManager.DeserializeLocalDataFromString(LocalDataTxt.Text);
+            _localDataManager.SetLocalData(newData.Clone());
+            _localDataManager.SaveLocalDataToFile(newData);
+            PopulateLocalDataTree(_localDataManager.GetLocalData());
+            PopulateRawLocalData(_localDataManager.GetLocalData());
         }
     }
 }

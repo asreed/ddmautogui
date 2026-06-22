@@ -8,9 +8,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DDMAutoGUI.utilities
+namespace DDMAutoGUI.Services
 {
-
     public class RunCalibResult
     {
         public bool success { get; set; }
@@ -21,27 +20,39 @@ namespace DDMAutoGUI.utilities
         public float sf2 { get; set; }
     }
 
-
-    public class FlowCalibrationManager
+    public class FlowCalibrationManager : IFlowCalibrationManager
     {
+        private readonly IApplicationConfiguration _applicationConfiguration;
+        private readonly ISettingsManager _settingsManager;
+        private readonly IControllerManager _controllerManager;
+        private readonly ILocalDataManager _localDataManager;
 
-        public FlowCalibrationManager() { }
+        public FlowCalibrationManager(
+            IApplicationConfiguration applicationConfiguration,
+            ISettingsManager settingsManager,
+            IControllerManager controllerManager,
+            ILocalDataManager localDataManager)
+        {
+            _applicationConfiguration = applicationConfiguration;
+            _settingsManager = settingsManager;
+            _controllerManager = controllerManager;
+            _localDataManager = localDataManager;
+        }
 
         public async Task<RunCalibResult> RunDispenseForManualCalibration(
             CellSettings settings,
             LocalData localData,
             string motorName)
         {
-
             /// <summary>
             /// Runs dispense routine for given motor size ONCE. Returns results object.
             /// If successful, returns new pressure settings. Does basic validation, does not save.
             /// Iteration handled in calling function if unsuccessful or if visual inspection fails.
-            /// 
+            ///
             /// RUNS THE ROBOT AROUND AND DISPENSES CA.
-            /// 
+            ///
             /// DOES NOT SAVE TO FILE.
-            /// 
+            ///
             /// </summary>
 
             RunCalibResult result = new RunCalibResult();
@@ -49,7 +60,7 @@ namespace DDMAutoGUI.utilities
             result.success = false;
             result.message = "";
 
-            if (App.GUI_SIM_MODE)
+            if (_applicationConfiguration.IsSimulationMode)
             {
                 await Task.Delay(1000); // simulate time delay
                 result.success = true;
@@ -65,24 +76,24 @@ namespace DDMAutoGUI.utilities
             {
                 string response;
                 float x, t;
-                CSMotor motorSettings = App.SettingsManager.GetMotorSettingsFromName(motorName);
+                CSMotor motorSettings = _settingsManager.GetMotorSettingsFromName(motorName);
 
                 // Enable power and home
-                await App.ControllerManager.EnablePower();
-                await App.ControllerManager.Home();
+                await _controllerManager.EnablePower();
+                await _controllerManager.Home();
 
                 // Move to load
                 x = settings.ddm_common.load.x.Value;
                 t = settings.ddm_common.load.t.Value;
-                await App.ControllerManager.MoveJ(x, t);
+                await _controllerManager.MoveJ(x, t);
 
                 // Move to detect if correct CA catch tool is loaded
                 //x = motorSettings.calib_tool_test.x.Value;
                 //t = motorSettings.calib_tool_test.t.Value;
-                //await App.ControllerManager.MoveJ(x, t);
+                //await _controllerManager.MoveJ(x, t);
 
                 //// Get height to verify correct tool is loaded
-                //response = await App.ControllerManager.MeasureHeightSingle();
+                //response = await _controllerManager.MeasureHeightSingle();
                 //string[] responseArray = response.Split(" ");
                 //if (responseArray.Length < 2 || !float.TryParse(responseArray[1], out _))
                 //{
@@ -111,13 +122,13 @@ namespace DDMAutoGUI.utilities
                 //}
 
                 // Set pressures based on current calib
-                LDMotorCalib oldCalib = App.LocalDataManager.GetCalibFromMotorName(localData, motorName);
+                LDMotorCalib oldCalib = _localDataManager.GetCalibFromMotorName(localData, motorName);
                 float? oldPressure1 = oldCalib.sys_1_pressure;
                 float? oldPressure2 = oldCalib.sys_2_pressure;
                 if (oldPressure1 != null)
                 {
                     Debug.Print($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {oldPressure1.Value:F3} psi");
-                    response = await App.ControllerManager.SetRegPressure(1, oldPressure1.Value);
+                    response = await _controllerManager.SetRegPressure(1, oldPressure1.Value);
                 }
                 else
                 {
@@ -126,18 +137,18 @@ namespace DDMAutoGUI.utilities
                 if (oldPressure2 != null)
                 {
                     Debug.Print($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {oldPressure2.Value:F3} psi");
-                    response = await App.ControllerManager.SetRegPressure(2, oldPressure2.Value);
+                    response = await _controllerManager.SetRegPressure(2, oldPressure2.Value);
                 }
                 else
                 {
                     Debug.Print($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
                 }
                 Debug.Print("Waiting for pressures to settle...");
-                response = await App.ControllerManager.WaitBothRegPressures(10);
+                response = await _controllerManager.WaitBothRegPressures(10);
                 await Task.Delay(1000);
                 Debug.Print("Pressures settled");
                 Debug.Print("Zeroing flow sensors...");
-                response = await App.ControllerManager.SetZeroShift(3);
+                response = await _controllerManager.SetZeroShift(3);
                 Debug.Print("Flow sensors zeroed");
                 Debug.Print("Pressures set");
 
@@ -151,11 +162,11 @@ namespace DDMAutoGUI.utilities
                 float targetTimeID = motorSettings.shot_settings.id_target_vol.Value / motorSettings.shot_settings.id_target_flow.Value;
                 float targetTimeOD = motorSettings.shot_settings.od_target_vol.Value / motorSettings.shot_settings.od_target_flow.Value;
 
-                float pressureID = float.Parse(await App.ControllerManager.GetRegPressureSetpoint(sysID));
-                float pressureOD = float.Parse(await App.ControllerManager.GetRegPressureSetpoint(sysOD));
+                float pressureID = float.Parse(await _controllerManager.GetRegPressureSetpoint(sysID));
+                float pressureOD = float.Parse(await _controllerManager.GetRegPressureSetpoint(sysOD));
 
-                response = await App.ControllerManager.WaitBothRegPressures(10);
-                response = await App.ControllerManager.DispenseToRing(
+                response = await _controllerManager.WaitBothRegPressures(10);
+                response = await _controllerManager.DispenseToRing(
                     sysID,
                     targetTimeID,
                     xID,
@@ -167,7 +178,7 @@ namespace DDMAutoGUI.utilities
 
                 Debug.Print(response);
 
-                ResultsShotData shotData = App.ControllerManager.ParseDispenseResponse(response); // sets volumes, times, result pass/fail, message.
+                ResultsShotData shotData = _controllerManager.ParseDispenseResponse(response); // sets volumes, times, result pass/fail, message.
                 // fill in the rest of the data:
                 shotData.motor_type = motorName;
                 shotData.id_valve_num = sysID;
@@ -203,7 +214,7 @@ namespace DDMAutoGUI.utilities
                 // Move back to load for user inspection
                 x = settings.ddm_common.load.x.Value;
                 t = settings.ddm_common.load.t.Value;
-                await App.ControllerManager.MoveJ(x, t);
+                await _controllerManager.MoveJ(x, t);
 
                 // Run calibration calculations
                 float _sf1, _sf2;
@@ -223,7 +234,6 @@ namespace DDMAutoGUI.utilities
                 result.sf2 = _sf2;
                 result.message = "Success";
                 result.success = true;
-
             }
             catch (Exception ex)
             {
@@ -239,16 +249,15 @@ namespace DDMAutoGUI.utilities
             LocalData localData,
             string motorName)
         {
-
             // Set pressures based on current calib
-            string response = String.Empty;
-            LDMotorCalib calib = App.LocalDataManager.GetCalibFromMotorName(localData, motorName);
+            string response = string.Empty;
+            LDMotorCalib calib = _localDataManager.GetCalibFromMotorName(localData, motorName);
             float? oldPressure1 = calib.sys_1_pressure;
             float? oldPressure2 = calib.sys_2_pressure;
             if (oldPressure1 != null)
             {
                 Debug.Print($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {oldPressure1.Value:F3} psi");
-                response = await App.ControllerManager.SetRegPressure(1, oldPressure1.Value);
+                response = await _controllerManager.SetRegPressure(1, oldPressure1.Value);
             }
             else
             {
@@ -257,44 +266,41 @@ namespace DDMAutoGUI.utilities
             if (oldPressure2 != null)
             {
                 Debug.Print($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {oldPressure2.Value:F3} psi");
-                response = await App.ControllerManager.SetRegPressure(2, oldPressure2.Value);
+                response = await _controllerManager.SetRegPressure(2, oldPressure2.Value);
             }
             else
             {
                 Debug.Print($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
             }
             Debug.Print("Waiting for pressures to settle...");
-            response = await App.ControllerManager.WaitBothRegPressures(10);
+            response = await _controllerManager.WaitBothRegPressures(10);
             await Task.Delay(1000);
             Debug.Print("Pressures settled");
             Debug.Print("Pressures set");
         }
 
-        public static void CalculateNewScaleFactors(
+        public void CalculateNewScaleFactors(
             ResultsShotData prevShotData,
             CellSettings cellSettings,
             LocalData localData,
-
             out bool success,
             out string message,
             out float sf1,
             out float sf2)
         {
-
-
             /// <summary>
             /// Takes cell settings data, compares to the latest shot data, and
             /// estimates pressure adjustments required to improve shot volume accuracy for the next
             /// run. Neither saves nor validates calibration.
-            /// 
+            ///
             /// DOES NOT RUN THE ROBOT AROUND.
-            /// 
+            ///
             /// DOES NOT SAVE TO FILE.
-            /// 
+            ///
             /// </summary>
 
             success = false;
-            message = String.Empty;
+            message = string.Empty;
             sf1 = 1.00f;
             sf2 = 1.00f;
             CSShot targetShotData = null;
@@ -375,7 +381,6 @@ namespace DDMAutoGUI.utilities
             //Debug.Print($"  Sys 1: ({calibNew.sys_1_flow:0.00}, {calibNew.sys_1_pressure,5:0.000})");
             //Debug.Print($"  Sys 1: ({calibNew.sys_2_flow:0.00}, {calibNew.sys_2_pressure,5:0.000})");
 
-
             // Basic validation
 
             // Check pressures against absolute limits
@@ -428,7 +433,7 @@ namespace DDMAutoGUI.utilities
 
         public void GenerateAndSaveCalibration(RunCalibResult result)
         {
-            LocalData newLocalData = App.LocalDataManager.GetLocalData();
+            LocalData newLocalData = _localDataManager.GetLocalData();
 
             newLocalData.calib_data.last_size = result.motorName;
             newLocalData.calib_data.last_calib = result.time;
@@ -457,9 +462,8 @@ namespace DDMAutoGUI.utilities
                     break;
             }
 
-            App.LocalDataManager.SetLocalData(newLocalData);
-            App.LocalDataManager.SaveLocalDataToFile();
+            _localDataManager.SetLocalData(newLocalData);
+            _localDataManager.SaveLocalDataToFile();
         }
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,8 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.Diagnostics;
-using DDMAutoGUI.utilities;
+using DDMAutoGUI.Services;
 
 namespace DDMAutoGUI.CustomWindows
 {
@@ -21,12 +21,20 @@ namespace DDMAutoGUI.CustomWindows
     /// Interaction logic for ServicePanel.xaml
     /// </summary>
 
-
     public partial class ServicePanel : UserControl
     {
+        private readonly IControllerManager _controllerManager;
+        private readonly ISettingsManager _settingsManager;
+
         public ServicePanel()
         {
             InitializeComponent();
+        }
+
+        public ServicePanel(IControllerManager controllerManager, ISettingsManager settingsManager) : this()
+        {
+            _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
+            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
         }
 
         private void DisableButtons()
@@ -58,19 +66,19 @@ namespace DDMAutoGUI.CustomWindows
         {
             DisableButtons();
             prg.Visibility = Visibility.Visible;
-            await App.ControllerManager.SetBothRegPressureAndWait(0, 0, 30);
+            await _controllerManager.SetBothRegPressureAndWait(0, 0, 30);
             prg.Visibility = Visibility.Collapsed;
             EnableButtons();
         }
 
-        public async Task SetLowPressure(int sys, ProgressBar prg) {
-
+        public async Task SetLowPressure(int sys, ProgressBar prg)
+        {
             DisableButtons();
             prg.Visibility = Visibility.Visible;
 
             try
             {
-                CellSettings settings = App.SettingsManager.GetAllSettings();
+                CellSettings settings = _settingsManager.GetAllSettings();
                 float pressure = 0;
                 switch (sys)
                 {
@@ -81,7 +89,7 @@ namespace DDMAutoGUI.CustomWindows
                         pressure = settings.dispense_system.sys_2_flush_pressure.Value;
                         break;
                 }
-                await App.ControllerManager.SetRegPressureAndWait(sys, pressure, 20);
+                await _controllerManager.SetRegPressureAndWait(sys, pressure, 20);
 
             }
             catch (Exception ex)
@@ -96,14 +104,13 @@ namespace DDMAutoGUI.CustomWindows
 
         public async Task SetDefPressure(int sys, ProgressBar prg)
         {
-
             DisableButtons();
             prg.Visibility = Visibility.Visible;
 
             float pressure = 0;
             try
             {
-                CellSettings settings = App.SettingsManager.GetAllSettings();
+                CellSettings settings = _settingsManager.GetAllSettings();
                 switch (sys)
                 {
                     case 1:
@@ -113,7 +120,7 @@ namespace DDMAutoGUI.CustomWindows
                         pressure = settings.dispense_system.default_pressures.ddm_116.sys_2_pressure.Value;
                         break;
                 }
-                await App.ControllerManager.SetRegPressureAndWait(sys, pressure, 20);
+                await _controllerManager.SetRegPressureAndWait(sys, pressure, 20);
 
             }
             catch (Exception ex)
@@ -133,9 +140,10 @@ namespace DDMAutoGUI.CustomWindows
 
             try
             {
-                CellSettings settings = App.SettingsManager.GetAllSettings();
+                CellSettings settings = _settingsManager.GetAllSettings();
                 float time = 0;
-                switch (sys) {
+                switch (sys)
+                {
                     case 1:
                         time = settings.dispense_system.sys_1_flush_time.Value;
                         break;
@@ -143,7 +151,7 @@ namespace DDMAutoGUI.CustomWindows
                         time = settings.dispense_system.sys_2_flush_time.Value;
                         break;
                 }
-                await App.ControllerManager.OpenValveTimed(sys, time);
+                await _controllerManager.OpenValveTimed(sys, time);
 
             }
             catch (Exception ex)
@@ -163,7 +171,7 @@ namespace DDMAutoGUI.CustomWindows
 
             try
             {
-                CellSettings settings = App.SettingsManager.GetAllSettings();
+                CellSettings settings = _settingsManager.GetAllSettings();
                 float time = 0;
                 switch (sys)
                 {
@@ -174,7 +182,7 @@ namespace DDMAutoGUI.CustomWindows
                         time = settings.dispense_system.sys_2_fill_time.Value;
                         break;
                 }
-                await App.ControllerManager.OpenValveTimed(sys, time);
+                await _controllerManager.OpenValveTimed(sys, time);
 
             }
             catch (Exception ex)
@@ -185,7 +193,6 @@ namespace DDMAutoGUI.CustomWindows
             prg.Visibility = Visibility.Collapsed;
             EnableButtons();
         }
-
 
 
 

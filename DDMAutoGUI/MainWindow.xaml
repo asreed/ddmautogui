@@ -82,12 +82,13 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBox Grid.Column="0" 
                                                  x:Name="Con_IPTxt" 
-                                                 Text="192.168.0.1"/>
+                                                 Text="{Binding ControllerIpAddress, UpdateSourceTrigger=PropertyChanged}"/>
                                         <Button Grid.Column="1" 
                                                 x:Name="Con_ConnectBtn" 
                                                 Content="Connect" 
                                                 Width="110"
-                                                Click="Con_ConnectBtn_Click"
+                                                Command="{Binding ConnectCommand}"
+                                                CommandParameter="{Binding Text, ElementName=Con_IPTxt}"
                                                 Style="{StaticResource BlueButton}"/>
                                         <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="Con_ConnectPrg" Visibility="Collapsed"/>
                                     </Grid>
@@ -95,64 +96,18 @@
                                 <GroupBox Header="Connection Log">
 
                                     <TextBox x:Name="Con_LogTxt" 
-                                            Text=""
+                                            Text="{Binding ConnectionLog, Mode=OneWay}"
                                              Height="250"
                                              IsReadOnly="True"
                                              VerticalScrollBarVisibility="Disabled"
                                             Style="{StaticResource MonoTextBox}"/>
-                                    <!--<Label x:Name="Con_StatusLbl" Content="Not connected"/>-->
-                                    <!--<Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="20"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.Resources>
-                                            <Style TargetType="Label">
-                                                <Setter Property="Margin" Value="0"/>
-                                                <Setter Property="Padding" Value="2"/>
-                                                <Setter Property="VerticalContentAlignment" Value="Center"/>
-                                                <Setter Property="Foreground" Value="#FFB7B7B7"/>
-                                            </Style>
-                                        </Grid.Resources>
-                                        <Label Grid.Row="0" Grid.Column="0" Content="x"/>
-                                        <Label Grid.Row="0" Grid.Column="1" Content="Controller TCS"/>
-                                        <Label Grid.Row="1" Grid.Column="0" Content="x"/>
-                                        <Label Grid.Row="1" Grid.Column="1" Content="Controller Settings"/>
-                                        <Label Grid.Row="2" Grid.Column="0" Content="x"/>
-                                        <Label Grid.Row="2" Grid.Column="1" Content="IO Link Devices"/>
-                                        <Label Grid.Row="3" Grid.Column="0" Content="x"/>
-                                        <Label Grid.Row="3" Grid.Column="1" Content="Top Camera"/>
-                                        <Label Grid.Row="4" Grid.Column="0" Content="x"/>
-                                        <Label Grid.Row="4" Grid.Column="1" Content="Side Camera"/>
-                                        <Label Grid.Row="5" Grid.Column="0" Content="x"/>
-                                        <Label Grid.Row="5" Grid.Column="1" Content="Laser Sensor"/>
-                                        <Label Grid.Row="6" Grid.Column="0" Content="x"/>
-                                        <Label Grid.Row="6" Grid.Column="1" Content="DAQ"/>
-                                    </Grid>-->
                                 </GroupBox>
-                                <!--<GroupBox Header="Message">
-                                    <TextBlock x:Name="Con_ErrorMsgTxb"
-                                                   Visibility="Visible"
-                                                   TextWrapping="Wrap"
-                                                   Margin="3"
-                                                   Text="Connection error message"/>
-                                </GroupBox>-->
                             </StackPanel>
                         </Grid>
                     </Grid>
 
                 </TabItem>
-                <TabItem x:Name="DispTab" Header="Dispense" Tag="Resources/icons/fluid.ico" Style="{StaticResource MainTab}" IsEnabled="False">
+                <TabItem x:Name="DispTab" Header="Operate" Tag="Resources/icons/fluid.ico" Style="{StaticResource MainTab}" IsEnabled="False">
 
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <Grid Margin="6">
@@ -170,7 +125,7 @@
 
 
                             <Grid Grid.Row="1" Grid.Column="1">
-                                <TabControl x:Name="dispTabControl" Grid.Row="1" SelectionChanged="MainWindowSingle_Disp_TabSelectionChanged">
+                                <TabControl x:Name="dispTabControl" Grid.Row="1">
 
                                     <TabItem Header="1: Select Motor">
                                         <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -190,7 +145,10 @@
 
                                                     <GroupBox Header="Motor SN" Grid.Row="0" Grid.Column="0">
                                                         <StackPanel Orientation="Vertical">
-                                                            <TextBox x:Name="Disp_MotorSNTxt" Height="42" TextChanged="Disp_MotorSNTxt_TextChanged"/>
+                                                            <TextBox x:Name="Disp_MotorSNTxt" 
+                                                                     Height="42" 
+                                                                     Text="{Binding MotorSerialNumber, UpdateSourceTrigger=PropertyChanged}"
+                                                                     TextChanged="Disp_MotorSNTxt_TextChanged"/>
                                                         </StackPanel>
                                                     </GroupBox>
 
@@ -223,9 +181,9 @@
                                                         x:Name="Disp_BeginBtn"
                                                         IsEnabled="False"
                                                         Content="Begin Dispense" 
+                                                        Command="{Binding StartDispenseCommand}"
                                                         Style="{DynamicResource BlueButton}" 
-                                                        Height="70"
-                                                        Click="Disp_BeginBtn_Click"/>
+                                                        Height="70"/>
 
                                                 </Grid>
 
@@ -248,7 +206,7 @@
                                                 <GroupBox Header="Process Log" Grid.Row="0">
 
                                                     <TextBox x:Name="Disp_LogTxt" 
-                                                             Text="(no data)"
+                                                             Text="{Binding ProcessLog, Mode=OneWay}"
                                                              IsReadOnly="True"
                                                              Style="{StaticResource MonoTextBox}"/>
                                                 </GroupBox>
@@ -256,7 +214,7 @@
                                                     <StackPanel Orientation="Vertical">
                                                         <ProgressBar
                                                             x:Name="Disp_ProcessPrg"
-                                                            Value="20"
+                                                            Value="{Binding ProcessProgress, Mode=OneWay}"
                                                             Style="{StaticResource ProgressMain}"/>
                                                         <ProgressBar 
                                                             x:Name="Disp_BusyPrg"
@@ -336,15 +294,21 @@
                                                         </Grid>
                                                     </GroupBox>
                                                     <StackPanel Grid.Row="3" Orientation="Vertical">
-                                                        <Button x:Name="Disp_Res_FinishBtn" Click="Disp_Res_FinishBtn_Click" Content="Finish" Style="{DynamicResource BlueButton}">
-                                                            <!--<StackPanel Orientation="Horizontal">
-                                                                <Image Source="/Resources/icons/tools.ico"/>
-                                                                <Label Content="Configure Next Process"/>
-                                                            </StackPanel>-->
-                                                        </Button>
+                                                        <Button x:Name="Disp_Res_FinishBtn" 
+                                                                Content="Finish" 
+                                                                Click="Disp_Res_FinishBtn_Click" 
+                                                                Style="{DynamicResource BlueButton}"/>
                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                                            <Button x:Name="Disp_Res_ViewResBtn"  Content="View Details" Click="Disp_Res_ViewResBtn_Click" Style="{StaticResource SmallButton}" Visibility="Collapsed"/>
-                                                            <Button x:Name="Disp_Res_OpenFileBtn"  Content="Open Folder" Click="Disp_Res_OpenFileBtn_Click"  Style="{StaticResource SmallButton}" Visibility="Collapsed"/>
+                                                            <Button x:Name="Disp_Res_ViewResBtn"  
+                                                                    Content="View Details" 
+                                                                    Click="Disp_Res_ViewResBtn_Click" 
+                                                                    Style="{StaticResource SmallButton}" 
+                                                                    Visibility="Collapsed"/>
+                                                            <Button x:Name="Disp_Res_OpenFileBtn"  
+                                                                    Content="Open Folder" 
+                                                                    Click="Disp_Res_OpenFileBtn_Click"  
+                                                                    Style="{StaticResource SmallButton}" 
+                                                                    Visibility="Collapsed"/>
                                                         </StackPanel>
                                                     </StackPanel>
 
@@ -360,9 +324,6 @@
                         </Grid>
                     </ScrollViewer>
                 </TabItem>
-
-                <!-- blank tab for visual spacing only -->
-                <!--<TabItem Style="{StaticResource MainTab}" Height="500" Background="Transparent" BorderBrush="Transparent" IsEnabled="False"></TabItem>-->
 
                 <TabItem x:Name="CalibTab" Header="Calibrate" Tag="Resources/icons/centerpoint.ico" Style="{StaticResource MainTab}" IsEnabled="False">
 
@@ -380,49 +341,9 @@
 
                         <CustomWindows:CalibPanel Grid.Row="1" Grid.Column="1" x:Name="CalPanel"/>
 
-                        <!--<Border x:Name="Cal_PWEntryBdr" Background="White" Visibility="Collapsed">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="300"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <GroupBox Header="Password" Grid.Row="1" Grid.Column="1">
-                                    <StackPanel Orientation="Vertical">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <PasswordBox x:Name="Cal_PWBox" 
-                                                         Grid.Column="0"
-                                                         Padding="6"
-                                                         KeyDown="Cal_PWBox_KeyDown"/>
-                                            <Button x:Name="Cal_PWSubmitBtn"
-                                                    Grid.Column="1"
-                                                    Padding="12,0"
-                                                    Content="Submit" 
-                                                    Style="{StaticResource SmallButton}" 
-                                                    Click="Cal_PWSubmitBtn_Click"/>
-                                        </Grid>
-                                        <TextBlock x:Name="Cal_PWMessageTxb" Text="Incorrect password" Margin="3" Visibility="Collapsed"/>
-                                    </StackPanel>
-                                </GroupBox>
-                            </Grid>
-                        </Border>-->
-
-
                     </Grid>
 
                 </TabItem>
-
-
-
 
                 <TabItem x:Name="ServTab" Header="Service" Tag="Resources/icons/wrench.ico" Style="{StaticResource MainTab}" IsEnabled="False">
                     <Grid Margin="6" Background="WhiteSmoke">
@@ -470,7 +391,7 @@
 
                                 <TextBlock Grid.Row="1"
                                            Name="Adv_Abt_InfoTxb" 
-                                           Text="(application info)" 
+                                           Text="{Binding AppTitle, Mode=OneWay}"
                                            Padding="0" 
                                            TextWrapping="Wrap" 
                                            Foreground="{StaticResource BrooksBlue}" 
@@ -563,15 +484,7 @@
                                     </GroupBox>
 
                                 </StackPanel>
-                                <!--</StackPanel>-->
-                                <!--<StackPanel Orientation="Vertical" Margin="6">
-                                    <Button x:Name="Adv_Res_OpenFolderBtn" Click="Adv_Res_OpenFolderBtn_Click" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Test Matlab script" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                </StackPanel>-->
                             </TabItem>
-
-
 
                             <TabItem Header="Cell Control Panel">
 
@@ -787,12 +700,11 @@
 
                                         <GroupBox Grid.Row="0" Header="Motor Settings" >
                                             <StackPanel Orientation="Horizontal">
-                                                <ComboBox x:Name="Adv_Cell_MotorSizeCmb" VerticalAlignment="Center" SelectionChanged="Adv_Cell_MotorSizeCmb_OnSelectionChanged">
-                                                    <ComboBoxItem Content="DDM 57" />
-                                                    <ComboBoxItem Content="DDM 95" />
-                                                    <ComboBoxItem Content="DDM 116" IsSelected="True"/>
-                                                    <ComboBoxItem Content="DDM 170" />
-                                                    <ComboBoxItem Content="DDM 170 Tall" />
+                                                <ComboBox x:Name="Adv_Cell_MotorSizeCmb" 
+                                                          VerticalAlignment="Center" 
+                                                          ItemsSource="{Binding MotorSizes}"
+                                                          SelectedIndex="{Binding SelectedMotorSizeIndex, Mode=TwoWay}"
+                                                          SelectionChanged="Adv_Cell_MotorSizeCmb_OnSelectionChanged">
                                                 </ComboBox>
                                                 <Button x:Name="Adv_Cell_ReloadSettingsBtn" Content="Reload" Click="Adv_Cell_ReloadSettingsBtn_Click" Style="{StaticResource SmallButton}" VerticalAlignment="Top" Height="26" Margin="12,0,0,0" Padding="8,0"/>
                                             </StackPanel>
@@ -1114,11 +1026,6 @@
 
                                 </Grid>
 
-
-
-
-
-
                             </TabItem>
 
                             <TabItem Header="TCS Connection">
@@ -1152,13 +1059,6 @@
                                         </Grid>
                                     </GroupBox>
 
-                                    <!--<GroupBox Grid.Row="1" Height="Auto" Header="Troubleshoot Connection" Foreground="#CCC" Visibility="Collapsed">
-                                        <StackPanel Orientation="Vertical">
-                                            <Button x:Name="loadTCSBtn" Content="Attempt to load " HorizontalAlignment="Left"/>
-                                            <Label x:Name="loadTCSLbl" Content="(result)" Padding="2" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </GroupBox>-->
-
                                     <Grid Grid.Row="2">
 
                                         <Grid.ColumnDefinitions>
@@ -1174,13 +1074,10 @@
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
 
-                                                <!--
-                                                <StackPanel Grid.Row="0" Orientation="Horizontal">
-                                                    <Button x:Name="startAutoBtn" Content="Start Auto" Click="startAutoBtn_Click" IsEnabled="False"/>
-                                                    <Button x:Name="stopAutoBtn" Content="Stop Auto" Click="stopAutoBtn_Click" IsEnabled="False"/>
-                                                </StackPanel>
-                                                -->
-                                                <TextBox Grid.Row="1" x:Name="Adv_Con_StatusLogTxt" Margin="4" Style="{StaticResource MonoTextBox}"/>
+                                                <TextBox Grid.Row="1" x:Name="Adv_Con_StatusLogTxt" 
+                                                         Text="{Binding StatusLog, Mode=OneWay}"
+                                                         Margin="4" 
+                                                         Style="{StaticResource MonoTextBox}"/>
                                                 <Grid Grid.Row="2">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition/>
@@ -1199,7 +1096,10 @@
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
 
-                                                <TextBox Grid.Row="0" x:Name="Adv_Con_RobotLogTxt" Margin="4" Style="{StaticResource MonoTextBox}"/>
+                                                <TextBox Grid.Row="0" x:Name="Adv_Con_RobotLogTxt" 
+                                                         Text="{Binding RobotLog, Mode=OneWay}"
+                                                         Margin="4" 
+                                                         Style="{StaticResource MonoTextBox}"/>
                                                 <Grid Grid.Row="1">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition/>
@@ -1213,11 +1113,7 @@
                                         </GroupBox>
                                     </Grid>
 
-
-
                                 </Grid>
-
-
 
                             </TabItem>
                             <TabItem Header="Vision">
@@ -1269,8 +1165,8 @@
 
                                         <GroupBox Header="Acquisition" Grid.Column="0">
                                             <StackPanel Orientation="Horizontal">
-                                                <Button x:Name="Adv_Cam_AcqurieTopBtn" Content="Acquire Top" Style="{DynamicResource SmallBlackButton}" Click="Adv_Cam_AcqurieTopBtn_Click"/>
-                                                <Button x:Name="Adv_Cam_AcqurieSideBtn" Content="Acquire Side" Style="{DynamicResource SmallBlackButton}" Click="Adv_Cam_AcqurieSideBtn_Click"/>
+                                                <Button x:Name="Adv_Cam_AcqurieTopBtn" Content="Acquire Top" Style="{DynamicResource SmallBlackButton}" Command="{Binding AcquireTopCommand}"/>
+                                                <Button x:Name="Adv_Cam_AcqurieSideBtn" Content="Acquire Side" Style="{DynamicResource SmallBlackButton}" Command="{Binding AcquireSideCommand}"/>
                                             </StackPanel>
                                         </GroupBox>
                                         <GroupBox Header="Other" Grid.Column="1">
@@ -1279,10 +1175,6 @@
                                             </StackPanel>
                                         </GroupBox>
                                     </Grid>
-
-                                    <!--<StackPanel Grid.Row="2">
-                                        <Label x:Name="label1" Content="Ready" Margin="8,0,0,0"/>
-                                    </StackPanel>-->
 
                                 </Grid>
                             </TabItem>
@@ -1307,8 +1199,8 @@
                             </TabItem>
                             <TabItem Header="Misc" Visibility="Collapsed">
                                 <StackPanel Orientation="Vertical" Margin="6">
-                                    <Button x:Name="Adv_Res_OpenFolderBtn" Click="Adv_Res_OpenFolderBtn_Click" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Res_OpenFolderBtn" Command="{Binding OpenResultsFolderCommand}" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Misc_LockAdvBtn" Command="{Binding LockAdvancedTabCommand}" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
                                 </StackPanel>
                             </TabItem>
                         </TabControl>
@@ -1343,7 +1235,7 @@
                     <Grid Margin="0,0,12,0">
                         <StackPanel Grid.Column="0" Orientation="Horizontal">
                             <TextBlock Text="Status: "/>
-                            <TextBlock x:Name="Status_StatusTxt" Text="Not connected"/>
+                            <TextBlock x:Name="Status_StatusTxt" Text="{Binding ConnectionStatus, Mode=OneWay}"/>
                         </StackPanel>
                     </Grid>
                     <Grid Margin="0,0,12,0" x:Name="Status_TCSGrd" Visibility="Collapsed">

@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using DDMAutoGUI.Services;
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;
@@ -11,12 +12,194 @@ using System.Threading.Tasks;
 
 namespace DDMAutoGUI.utilities
 {
-    public class HeightCalibration
+
+    public class HeightVerificationResult
     {
-        public HeightCalibration() { }
+        public bool passed { get; set; } = false;
+        public double normMaxHeight { get; set; }
+        public double normMinHeight { get; set; }
+        public double ringA { get; set; }
+        public double ringPhi { get; set; }
+        public double ringRSquared { get; set; }
+        public List<ResultsHeightMeasurement> ringData { get; set; }
+        public List<ResultsHeightMeasurement> rawMagConcData { get; set; }
+        public List<ResultsHeightMeasurement> normMagConcData { get; set; }
+
+    }
 
 
-        // todo: find a way to use the calibration data to normalize heights for results
+    public class HeightVerification
+    {
+        public HeightVerification() { }
+
+
+
+
+
+        public static HeightVerificationResult VerifyHeightData(List<ResultsHeightMeasurement> ringData, List<ResultsHeightMeasurement> magConcData)
+        {
+            // Fit sine to ring data
+            double A, phi, rSquared;
+            FitSinToData(ringData, out A, out phi, out rSquared);
+
+            // Normalize mag conc data based on fit
+            List<ResultsHeightMeasurement> normRingData = NormalizeData(A, phi, ringData);
+
+            // Verify (TBD)
+
+            float maxHeight = normRingData.Max(m => m.z) ?? float.NaN;
+            float minHeight = normRingData.Min(m => m.z) ?? float.NaN;
+
+
+            HeightVerificationResult result = new HeightVerificationResult();
+            result.ringA = A;
+            result.ringPhi = phi;
+            result.ringRSquared = rSquared;
+            result.ringData = ringData;
+            result.rawMagConcData = magConcData;
+            result.normMagConcData = normRingData;
+
+            return result;
+
+        }
+
+
+
+
+
+
+
+        public static List<ResultsHeightMeasurement> NormalizeData(double A, double phi, List<ResultsHeightMeasurement> rawData)
+        {
+            List<ResultsHeightMeasurement> normData = new List<ResultsHeightMeasurement>();
+            for (int i = 0; i < rawData.Count; i++)
+            {
+                double t = rawData[i].t.Value;
+                double z = rawData[i].z.Value;
+                double zFit = A * Math.Sin(t * (Math.PI / 180.0) + phi);
+                double zNorm = z - zFit;
+                normData.Add(new ResultsHeightMeasurement { t = (float)t, z = (float)zNorm });
+            }
+            return normData;
+        }
+
+        public static void FitSinToData(List<ResultsHeightMeasurement> rawDataList, out double A, out double phi, out double rSquared)
+        {
+            // https://math.stackexchange.com/questions/902166/fit-sine-wave-to-data
+            // https://math.stackexchange.com/questions/3926007/least-squares-regression-of-sine-wave
+
+            // assuming period of 2pi to fit the relation:
+            // y(t) = A * sin(t + phi)
+
+            // y(t) = A * sin(t) * cos(phi) + A * cos(t) * sin(phi)
+            // w = sin(t)
+            // z = cos(t)
+            // A1 = A * cos(phi)
+            // A2 = A * sin(phi)
+            // Y = [w, z] * [A1; A2]
+            // Y = X * B
+            // ... 
+            // B = inv(X' * X) * X' * Y
+            // ... 
+            // A^2 = A1^2 + A2^2
+            // phi = atan(A2 / A1)
+
+            // convert list to array for mathnet
+            double[,] rawDataArray = new double[rawDataList.Count, 2];
+            for (int i = 0; i < rawDataList.Count; i++)
+            {
+                rawDataArray[i, 0] = (double)rawDataList[i].t; // angle
+                rawDataArray[i, 1] = (double)rawDataList[i].z; // height
+            }
+
+            var M = Matrix<double>.Build;
+            var V = Vector<double>.Build;
+
+            var data = M.DenseOfArray(rawDataArray);
+            var ones = V.Dense(data.RowCount, 1);
+
+            // vector of angle in radians
+            var angRad = data.Column(0) * (Math.PI / 180.0);
+
+            // vector of heights, shifted for zero mean
+            var height = data.Column(1);
+            var offset = data.Column(1).Mean();
+            var heightShifted = height - offset;
+
+            var dataShifted = M.DenseOfColumnVectors(data.Column(0), heightShifted);
+
+            var w = angRad.PointwiseSin();
+            var z = angRad.PointwiseCos();
+            var X = M.DenseOfColumnVectors(w, z);
+
+            var B = (X.Transpose() * X).Inverse() * X.Transpose() * heightShifted;
+
+            A = Math.Sqrt(B[0] * B[0] + B[1] * B[1]);
+            phi = Math.Atan(B[1] / B[0]);
+
+            // Two possible solutions for A
+            // Verify with R^2
+
+            double[,] fitData = GenerateSinCurve(rawDataArray, A, phi);
+            rSquared = GetRSquared(dataShifted.ToArray(), fitData);
+            if (Math.Abs(rSquared) > 1.0)
+            {
+                // try other A
+                A *= -1;
+                fitData = GenerateSinCurve(rawDataArray, A, phi);
+                rSquared = GetRSquared(dataShifted.ToArray(), fitData);
+                if (rSquared < 0 || rSquared > 1)
+                {
+                    // something else is wrong
+                    Debug.Print("Sine fit failed. R^2 out of range.");
+                    A = double.NaN;
+                    phi = double.NaN;
+                    rSquared = double.NaN;
+                    return;
+                }
+            }
+        }
+
+        private static double[,] GenerateSinCurve(double[,] rawData, double A, double phi)
+        {
+            // y(t) = A * sin(x(t) + phi)
+
+            double[,] fitData = new double[rawData.GetLength(0), 2];
+            for (int i = 0; i < rawData.GetLength(0); i++)
+            {
+                double x = rawData[i, 0];
+                double yFit = A * Math.Sin(x * (Math.PI / 180.0) + phi);
+                fitData[i, 0] = x;
+                fitData[i, 1] = yFit;
+            }
+            return fitData;
+        }
+
+        private static double GetRSquared(double[,] rawData, double[,] fitData)
+        {
+            var M = Matrix<double>.Build;
+            var data = M.DenseOfArray(rawData);
+            var fit = M.DenseOfArray(fitData);
+            var ssRes = (data.Column(1) - fit.Column(1)).PointwisePower(2).Sum();
+            var ssTot = (data.Column(1) - data.Column(1).Mean()).PointwisePower(2).Sum();
+            var rSquared = 1 - (ssRes / ssTot);
+            return rSquared;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -409,128 +592,26 @@ namespace DDMAutoGUI.utilities
             List<ResultsHeightMeasurement> data;
 
             data = GetSampleData("ddm_57");
-            FitDataToSin(data, out A, out phi, out rSquared);
+            FitSinToData(data, out A, out phi, out rSquared);
             Debug.Print($"57 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
 
             data = GetSampleData("ddm_95");
-            FitDataToSin(data, out A, out phi, out rSquared);
+            FitSinToData(data, out A, out phi, out rSquared);
             Debug.Print($"95 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
 
             data = GetSampleData("ddm_116");
-            FitDataToSin(data, out A, out phi, out rSquared);
+            FitSinToData(data, out A, out phi, out rSquared);
             Debug.Print($"116 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
 
             data = GetSampleData("ddm_170");
-            FitDataToSin(data, out A, out phi, out rSquared);
+            FitSinToData(data, out A, out phi, out rSquared);
             Debug.Print($"170 fit generated:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
 
             data = GenerateSimulatedHeights(-10, 0.3, 0.00, 60);
-            FitDataToSin(data, out A, out phi, out rSquared);
+            FitSinToData(data, out A, out phi, out rSquared);
             Debug.Print($"Random simulated data:\tA = {A}, phi = {phi}, R^2 = {rSquared}");
         }
 
-        public static void FitDataToSin(List<ResultsHeightMeasurement> rawDataList, out double A, out double phi, out double rSquared)
-        {
-            // https://math.stackexchange.com/questions/902166/fit-sine-wave-to-data
-            // https://math.stackexchange.com/questions/3926007/least-squares-regression-of-sine-wave
-
-            // assuming period of 2pi to fit the relation:
-            // y(t) = A * sin(t + phi)
-
-            // y(t) = A * sin(t) * cos(phi) + A * cos(t) * sin(phi)
-            // w = sin(t)
-            // z = cos(t)
-            // A1 = A * cos(phi)
-            // A2 = A * sin(phi)
-            // Y = [w, z] * [A1; A2]
-            // Y = X * B
-            // ... 
-            // B = inv(X' * X) * X' * Y
-            // ... 
-            // A^2 = A1^2 + A2^2
-            // phi = atan(A2 / A1)
-
-            // convert list to array for mathnet
-            double[,] rawDataArray = new double[rawDataList.Count, 2];
-            for (int i = 0; i < rawDataList.Count; i++)
-            {
-                rawDataArray[i, 0] = (double)rawDataList[i].t; // angle
-                rawDataArray[i, 1] = (double)rawDataList[i].z; // height
-            }
-
-            var M = Matrix<double>.Build;
-            var V = Vector<double>.Build;
-
-            var data = M.DenseOfArray(rawDataArray);
-            var ones = V.Dense(data.RowCount, 1);
-
-            // vector of angle in radians
-            var angRad = data.Column(0) * (Math.PI / 180.0);
-
-            // vector of heights, shifted for zero mean
-            var height = data.Column(1);
-            var offset = data.Column(1).Mean();
-            var heightShifted = height - offset;
-
-            var dataShifted = M.DenseOfColumnVectors(data.Column(0), heightShifted);
-
-            var w = angRad.PointwiseSin();
-            var z = angRad.PointwiseCos();
-            var X = M.DenseOfColumnVectors(w, z);
-
-            var B = (X.Transpose() * X).Inverse() * X.Transpose() * heightShifted;
-
-            A = Math.Sqrt(B[0] * B[0] + B[1] * B[1]);
-            phi = Math.Atan(B[1] / B[0]);
-
-            // Two possible solutions for A
-            // Verify with R^2
-
-            double[,] fitData = GenerateSinCurve(rawDataArray, A, phi);
-            rSquared = GetRSquared(dataShifted.ToArray(), fitData);
-            if (Math.Abs(rSquared) > 1.0)
-            {
-                // try other A
-                A *= -1;
-                fitData = GenerateSinCurve(rawDataArray, A, phi);
-                rSquared = GetRSquared(dataShifted.ToArray(), fitData);
-                if (rSquared < 0 || rSquared > 1)
-                {
-                    // something else is wrong
-                    Debug.Print("Sine fit failed. R^2 out of range.");
-                    A = double.NaN;
-                    phi = double.NaN;
-                    rSquared = double.NaN;
-                    return;
-                }
-            }
-        }
-
-        private static double[,] GenerateSinCurve(double[,] rawData, double A, double phi)
-        {
-            // y(t) = A * sin(x(t) + phi)
-
-            double[,] fitData = new double[rawData.GetLength(0), 2];
-            for (int i = 0; i < rawData.GetLength(0); i++)
-            {
-                double x = rawData[i, 0];
-                double yFit = A * Math.Sin(x * (Math.PI / 180.0) + phi);
-                fitData[i, 0] = x;
-                fitData[i, 1] = yFit;
-            }
-            return fitData;
-        }
-
-        private static double GetRSquared(double[,] rawData, double[,] fitData)
-        {
-            var M = Matrix<double>.Build;
-            var data = M.DenseOfArray(rawData);
-            var fit = M.DenseOfArray(fitData);
-            var ssRes = (data.Column(1) - fit.Column(1)).PointwisePower(2).Sum();
-            var ssTot = (data.Column(1) - data.Column(1).Mean()).PointwisePower(2).Sum();
-            var rSquared = 1 - (ssRes / ssTot);
-            return rSquared;
-        }
-
     }
+
 }

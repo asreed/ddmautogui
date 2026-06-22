@@ -1,4 +1,4 @@
-﻿using DDMAutoGUI.utilities;
+﻿using DDMAutoGUI.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,24 +22,34 @@ namespace DDMAutoGUI.CustomWindows
     /// </summary>
     public partial class CalibFlowPanel : UserControl
     {
+        private readonly ISettingsManager _settingsManager;
+        private readonly ILocalDataManager _localDataManager;
+        private readonly IFlowCalibrationManager _flowCalibrationManager;
 
-        RunCalibResult runCalibResult = new RunCalibResult();
-
-
+        private RunCalibResult runCalibResult = new RunCalibResult();
 
         public CalibFlowPanel()
         {
             InitializeComponent();
-
             Calib_116_RunPrg.Visibility = Visibility.Collapsed;
+        }
+
+        public CalibFlowPanel(
+            ISettingsManager settingsManager,
+            ILocalDataManager localDataManager,
+            IFlowCalibrationManager flowCalibrationManager) : this()
+        {
+            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
+            _localDataManager = localDataManager ?? throw new ArgumentNullException(nameof(localDataManager));
+            _flowCalibrationManager = flowCalibrationManager ?? throw new ArgumentNullException(nameof(flowCalibrationManager));
         }
 
         public void SetupPanel()
         {
             try
             {
-                CellSettings settings = App.SettingsManager.GetAllSettings();
-                LocalData localData = App.LocalDataManager.GetLocalData();
+                CellSettings settings = _settingsManager.GetAllSettings();
+                LocalData localData = _localDataManager.GetLocalData();
 
                 Calib_LastCalTxb.Text = localData.calib_data.last_calib.Value.ToString();
                 Calib_LastMotorTxb.Text = localData.calib_data.last_size;
@@ -82,15 +92,15 @@ namespace DDMAutoGUI.CustomWindows
                 Calib_116_RunBtn.IsEnabled = false;
                 Calib_116_RunPrg.Visibility = Visibility.Visible;
 
-                CellSettings settings = App.SettingsManager.GetAllSettings();
-                LocalData localData = App.LocalDataManager.GetLocalData();
+                CellSettings settings = _settingsManager.GetAllSettings();
+                LocalData localData = _localDataManager.GetLocalData();
 
                 // do the dispense, get a preliminary calibration result back
                 // display calibration result for user confirmation
                 // if user accepts, saves and completes
                 // otherwise, recursively re-runs until user accepts or cancels
 
-                RunCalibResult result = await App.FlowCalibrationManager.RunDispenseForManualCalibration(settings, localData, "ddm_116");
+                RunCalibResult result = await _flowCalibrationManager.RunDispenseForManualCalibration(settings, localData, "ddm_116");
 
                 float newSys1Pres = localData.calib_data.ddm_116.sys_1_pressure.Value * result.sf1;
                 float newSys2Pres = localData.calib_data.ddm_116.sys_2_pressure.Value * result.sf2;
@@ -111,8 +121,8 @@ namespace DDMAutoGUI.CustomWindows
                 {
                     // if OK, save, set new pressures, and reset UI
 
-                    App.FlowCalibrationManager.GenerateAndSaveCalibration(result);
-                    App.FlowCalibrationManager.SetPressuresFromCalibration(settings, localData, "ddm_116");
+                    _flowCalibrationManager.GenerateAndSaveCalibration(result);
+                    _flowCalibrationManager.SetPressuresFromCalibration(settings, localData, "ddm_116");
                     Calib_116_RunBtn.IsEnabled = true;
                     Calib_116_RunPrg.Visibility = Visibility.Collapsed;
                 }
