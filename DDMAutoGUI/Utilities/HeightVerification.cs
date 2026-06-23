@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 
 
-namespace DDMAutoGUI.utilities
+namespace DDMAutoGUI.Utilities
 {
 
     public class HeightVerificationResult

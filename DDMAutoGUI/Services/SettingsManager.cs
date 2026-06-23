@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -141,7 +141,7 @@ namespace DDMAutoGUI.Services
         private string settingsLocalName = "Settings.json";
         private string defaultSettingsPath = AppDomain.CurrentDomain.BaseDirectory + "_reference\\DefaultSettings.json";
 
-        private readonly IConnectionEventService _connectionEventService;
+        private readonly IControllerManager _controllerManager;
         private readonly IApplicationConfiguration _applicationConfiguration;
 
         public enum DDMSize
@@ -166,13 +166,13 @@ namespace DDMAutoGUI.Services
 
         public SettingsManager(
             IApplicationConfiguration applicationConfiguration,
-            IConnectionEventService connectionEventService)
+            IControllerManager controllerManager)
         {
             _applicationConfiguration = applicationConfiguration ?? throw new ArgumentNullException(nameof(applicationConfiguration));
-            _connectionEventService = connectionEventService ?? throw new ArgumentNullException(nameof(connectionEventService));
+            _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
 
-            _connectionEventService.ControllerConnected += SettingsManager_OnConnected;
-            _connectionEventService.ControllerDisconnected += SettingsManager_OnDisconnected;
+            _controllerManager.ControllerConnected += SettingsManager_OnConnected;
+            _controllerManager.ControllerDisconnected += SettingsManager_OnDisconnected;
 
             Debug.Print("Settings manager initialized");
         }
@@ -298,7 +298,7 @@ namespace DDMAutoGUI.Services
         private CellSettings ReadSettingsFromController()
         {
             string rawJson = "";
-            if (!_connectionEventService.IsConnected)
+            if (!_controllerManager.CONNECTION_STATE.isConnected)
             {
                 Debug.Print("Settings file could not be read because no controller is connected");
                 return null;
@@ -316,7 +316,7 @@ namespace DDMAutoGUI.Services
 
             try
             {
-                string ip = _connectionEventService.ConnectedIP;
+                string ip = _controllerManager.CONNECTION_STATE.connectedIP;
                 FtpWebRequest request = WebRequest.Create("ftp://" + ip + "/" + settingsFTPPath) as FtpWebRequest;
                 request.Method = WebRequestMethods.Ftp.DownloadFile;
 
@@ -357,7 +357,7 @@ namespace DDMAutoGUI.Services
 
         public void SaveSettingsToController(CellSettings settings)
         {
-            if (!_connectionEventService.IsConnected)
+            if (!_controllerManager.CONNECTION_STATE.isConnected)
             {
                 Debug.Print("Settings file could not be saved because no controller is connected");
                 return;
@@ -368,7 +368,7 @@ namespace DDMAutoGUI.Services
 
             try
             {
-                string ip = _connectionEventService.ConnectedIP;
+                string ip = _controllerManager.CONNECTION_STATE.connectedIP;
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + ip + "/" + settingsFTPPath);
                 request.Method = WebRequestMethods.Ftp.UploadFile;
 

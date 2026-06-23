@@ -1,4 +1,4 @@
-﻿using DDMAutoGUI.Services;
+using DDMAutoGUI.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

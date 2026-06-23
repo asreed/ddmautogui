@@ -29,12 +29,13 @@ namespace DDMAutoGUI
                     advancedSettingsPassword: "ddm");
 
                 serviceCollection.AddSingleton<IApplicationConfiguration>(appConfig);
-                serviceCollection.AddSingleton<IConnectionEventService, ConnectionEventService>();
 
                 // Core Services (simple, no circular dependencies)
                 serviceCollection.AddSingleton<ISettingsManager, SettingsManager>();
                 serviceCollection.AddSingleton<ICameraManager, CameraManager>();
                 
+                // ControllerManager implements both IControllerManager and ILightController
+                // This allows CameraManager to depend only on ILightController, breaking circular dependency
                 serviceCollection.AddSingleton<ControllerManager>();
                 serviceCollection.AddSingleton<IControllerManager>(sp => sp.GetRequiredService<ControllerManager>());
                 serviceCollection.AddSingleton<ILightController>(sp => sp.GetRequiredService<ControllerManager>());
@@ -62,35 +63,13 @@ namespace DDMAutoGUI
                 Debug.Print("Testing individual service resolution...");
                 try
                 {
-                    Debug.Print("Testing IControllerManager...");
                     var cm = Services.GetRequiredService<IControllerManager>();
-                    Debug.Print("✓ IControllerManager resolved");
-
-                    Debug.Print("Testing ISettingsManager...");
                     var sm = Services.GetRequiredService<ISettingsManager>();
-                    Debug.Print("✓ ISettingsManager resolved");
-
-                    Debug.Print("Testing ICameraManager...");
                     var cam = Services.GetRequiredService<ICameraManager>();
-                    Debug.Print("✓ ICameraManager resolved");
-
-                    Debug.Print("Testing IResultsManager...");
                     var rm = Services.GetRequiredService<IResultsManager>();
-                    Debug.Print("✓ IResultsManager resolved");
-
-                    Debug.Print("Testing ILocalDataManager...");
                     var ldm = Services.GetRequiredService<ILocalDataManager>();
-                    Debug.Print("✓ ILocalDataManager resolved");
-
-                    Debug.Print("Testing IFlowCalibrationManager...");
                     var fcm = Services.GetRequiredService<IFlowCalibrationManager>();
-                    Debug.Print("✓ IFlowCalibrationManager resolved");
-
-                    Debug.Print("Testing MainWindowViewModel...");
                     var vm = Services.GetRequiredService<MainWindowViewModel>();
-                    Debug.Print("✓ MainWindowViewModel resolved");
-
-                    Debug.Print("All individual services resolved successfully!");
                 }
                 catch (Exception testEx)
                 {
@@ -101,13 +80,8 @@ namespace DDMAutoGUI
                     }
                 }
 
-                Debug.Print("Creating main window...");
                 var mainWindow = Services.GetRequiredService<MainWindow>();
-                Debug.Print("Main window created successfully");
-
-                Debug.Print("Showing main window...");
                 mainWindow.Show();
-                Debug.Print("Main window shown successfully");
             }
             catch (Exception ex)
             {
@@ -129,7 +103,20 @@ namespace DDMAutoGUI
 
         protected override void OnExit(ExitEventArgs e)
         {
-            Services?.GetService<IControllerManager>()?.Disconnect().Wait();
+            // Clean up: Disconnect from controller on application exit
+            var controllerManager = Services?.GetService<IControllerManager>();
+            if (controllerManager != null)
+            {
+                try
+                {
+                    controllerManager.Disconnect().Wait();
+                }
+                catch (Exception ex)
+                {
+                    Debug.Print($"Error during shutdown disconnect: {ex.Message}");
+                }
+            }
+            
             base.OnExit(e);
         }
     }

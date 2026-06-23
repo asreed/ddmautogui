@@ -55,7 +55,7 @@ namespace DDMAutoGUI.ViewModels
             _appConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
             _dispenseProcessService = dispenseProcessService ?? throw new ArgumentNullException(nameof(dispenseProcessService));
 
-            _controllerIpAddress = "192.168.1.1";
+            _controllerIpAddress = "192.168.0.1";
 
             InitializeCommands();
             InitializeEventHandlers();
