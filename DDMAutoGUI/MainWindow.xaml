@@ -326,39 +326,119 @@
 
                 <TabItem x:Name="CalibTab" Header="Calibrate" Tag="Resources/icons/centerpoint.ico" Style="{StaticResource MainTab}" IsEnabled="False">
 
-                    <Grid Margin="6" Background="WhiteSmoke">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="40"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="400"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                    <Grid>
 
-                        <CustomWindows:CalibPanel Grid.Row="1" Grid.Column="1" x:Name="CalPanel"/>
+                        <Border x:Name="Calib_PWEntryBdr" Background="WhiteSmoke" Margin="6" Visibility="Visible">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="300"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <GroupBox Header="Password" Grid.Row="1" Grid.Column="1">
+                                    <StackPanel Orientation="Vertical">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <PasswordBox x:Name="Calib_PWBox" 
+                                                         Grid.Column="0"
+                                                         Padding="6"
+                                                         KeyDown="Calib_PWBox_KeyDown"/>
+                                            <Button x:Name="Calib_PWSubmitBtn"
+                                                    Grid.Column="1"
+                                                    Padding="12,0"
+                                                    Content="Submit" 
+                                                    Style="{StaticResource SmallButton}" 
+                                                    Click="Calib_PWSubmitBtn_Click"/>
+                                        </Grid>
+                                        <TextBlock x:Name="Calib_PWMessageTxb" Text="Incorrect password" Margin="3" Visibility="Collapsed"/>
+                                    </StackPanel>
+                                </GroupBox>
+                            </Grid>
+                        </Border>
 
+                        <Grid Margin="6" Background="WhiteSmoke" x:Name="Calib_Grid" Visibility="Hidden">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <CustomWindows:CalibPanel Grid.Row="1" Grid.Column="1" x:Name="CalPanel"/>
+
+                        </Grid>
                     </Grid>
 
                 </TabItem>
 
                 <TabItem x:Name="ServTab" Header="Service" Tag="Resources/icons/wrench.ico" Style="{StaticResource MainTab}" IsEnabled="False">
-                    <Grid Margin="6" Background="WhiteSmoke">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="40"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="400"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
 
-                        <CustomWindows:ServicePanel Grid.Row="1" Grid.Column="1"/>
 
+                    <Grid>
+
+                        <Border x:Name="Serv_PWEntryBdr" Background="WhiteSmoke" Margin="6" Visibility="Visible">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="300"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <GroupBox Header="Password" Grid.Row="1" Grid.Column="1">
+                                    <StackPanel Orientation="Vertical">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <PasswordBox x:Name="Serv_PWBox" 
+                                                         Grid.Column="0"
+                                                         Padding="6"
+                                                         KeyDown="Serv_PWBox_KeyDown"/>
+                                            <Button x:Name="Serv_PWSubmitBtn"
+                                                    Grid.Column="1"
+                                                    Padding="12,0"
+                                                    Content="Submit" 
+                                                    Style="{StaticResource SmallButton}" 
+                                                    Click="Serv_PWSubmitBtn_Click"/>
+                                        </Grid>
+                                        <TextBlock x:Name="Serv_PWMessageTxb" Text="Incorrect password" Margin="3" Visibility="Collapsed"/>
+                                    </StackPanel>
+                                </GroupBox>
+                            </Grid>
+                        </Border>
+
+                        <Grid Margin="6" Background="WhiteSmoke" x:Name="Serv_Grid" Visibility="Hidden">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <CustomWindows:ServicePanel Grid.Row="1" Grid.Column="1"/>
+
+                        </Grid>
                     </Grid>
                 </TabItem>
 
@@ -405,7 +485,7 @@
 
                 <TabItem x:Name="AdvTab" Header="Dev" Tag="Resources/icons/settings.ico" Style="{StaticResource MainTab}" Visibility="Visible">
 
-                    <Grid Margin="-2">
+                    <Grid Margin="-2" Background="#FF98A4C1">
 
                         <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Margin="6" Visibility="Hidden">
                             <Grid>

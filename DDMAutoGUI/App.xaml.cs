@@ -26,7 +26,8 @@ namespace DDMAutoGUI
                 var appConfig = new ApplicationConfiguration(
                     isSimulationMode: false,
                     calibrationPassword: "ddm",
-                    advancedSettingsPassword: "ddm");
+                    servicePassword: "ddm",
+                    advancedSettingsPassword: "DDM");
 
                 serviceCollection.AddSingleton<IApplicationConfiguration>(appConfig);
 
@@ -79,7 +80,7 @@ namespace DDMAutoGUI
                 }
 
                 var mainWindow = Services.GetRequiredService<MainWindow>();
-                mainWindow.Closed += (s, args) => Shutdown(); // <-- add this one line
+                mainWindow.Closed += (s, args) => Shutdown();
                 this.MainWindow = mainWindow;
                 mainWindow.Show();
 

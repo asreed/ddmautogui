@@ -1032,6 +1032,67 @@ namespace DDMAutoGUI
 
         #endregion
 
+
+
+
+        private void Serv_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_applicationConfiguration == null) return;
+
+            if (Serv_PWBox.Password == _applicationConfiguration.ServicePassword)
+            {
+                Serv_PWEntryBdr.Visibility = Visibility.Collapsed;
+                Serv_PWMessageTxb.Visibility = Visibility.Collapsed;
+                Serv_Grid.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Serv_PWMessageTxb.Visibility = Visibility.Visible;
+                Serv_PWMessageTxb.Text = "Incorrect password";
+            }
+        }
+
+        private void Serv_PWBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Serv_PWSubmitBtn_Click(sender, e);
+            }
+        }
+
+
+
+
+
+        private void Calib_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_applicationConfiguration == null) return;
+
+            if (Calib_PWBox.Password == _applicationConfiguration.CalibrationPassword)
+            {
+                Calib_PWEntryBdr.Visibility = Visibility.Collapsed;
+                Calib_PWMessageTxb.Visibility = Visibility.Collapsed;
+                Calib_Grid.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Calib_PWMessageTxb.Visibility = Visibility.Visible;
+                Calib_PWMessageTxb.Text = "Incorrect password";
+            }
+        }
+
+        private void Calib_PWBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Calib_PWSubmitBtn_Click(sender, e);
+            }
+        }
+
+
+
+
+
         #region Advanced Settings
 
         private void Adv_PWSubmitBtn_Click(object sender, RoutedEventArgs e)

@@ -1,5 +1,5 @@
 {
-  "last_saved": "2026-05-07T16:14:14.9310318-07:00",
+  "last_saved": "2026-06-24T15:05:47.9308753-07:00",
   "camera_top_sn": "252902469",
   "camera_side_sn": "252902472",
   "laser_delay": 0.05,
@@ -8,6 +8,9 @@
   "hall_spin_speed": 37.5,
   "clearance_check_min": -5100,
   "clearance_check_max": 5000,
+  "height_verification": {
+    "max_height": 75
+  },
   "dispense_system": {
     "sys_1_contents": "Permabond 801",
     "sys_2_contents": "Permabond 825",
@@ -41,28 +44,6 @@
       "ddm_170_tall": {
         "sys_1_pressure": 15.6
       }
-    }
-  },
-  "laser_calib": {
-    "ddm_57_coeff": {
-      "A": -1,
-      "phi": -1,
-      "R2": -1
-    },
-    "ddm_95_coeff": {
-      "A": -1,
-      "phi": -1,
-      "R2": -1
-    },
-    "ddm_116_coeff": {
-      "A": -1,
-      "phi": -1,
-      "R2": -1
-    },
-    "ddm_170_coeff": {
-      "A": -1,
-      "phi": -1,
-      "R2": -1
     }
   },
   "ddm_common": {
@@ -193,7 +174,7 @@
       "t": 93.604
     },
     "laser_ring": {
-      "x": 382.924,
+      "x": 385.995,
       "t": 93.604
     },
     "hall_sensor": {

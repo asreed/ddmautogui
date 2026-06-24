@@ -56,19 +56,21 @@ namespace DDMAutoGUI.Services
             AdvancedOptions advancedOptions)
         {
             var result = new DispenseProcessResult();
+            string resultsPath = string.Empty;
+            CellSettings settings = null;
 
             try
             {
                 // Initialize process
                 _resultsManager.ClearCurrentResults();
                 _resultsManager.CreateNewResults();
-                string resultsPath = _resultsManager.CreateResultsFolder();
+                resultsPath = _resultsManager.CreateResultsFolder();
 
                 ReportProgress(0, "Initializing");
                 _resultsManager.AddToLog($"Dispense process started for motor {motorName}");
 
                 // Get settings and motor configuration
-                CellSettings settings = _settingsManager.GetAllSettings();
+                settings = _settingsManager.GetAllSettings();
                 CSMotor motor = GetMotorSettingsByName(settings, motorName);
 
                 if (motor == null)
@@ -157,6 +159,10 @@ namespace DDMAutoGUI.Services
                 if (advancedOptions.DispenseOptions.PhotoTopAfter)
                 {
                     topAfterImagePath = await ExecuteTopPhotoAcquisitionAsync(settings);
+                    if (!string.IsNullOrEmpty(topAfterImagePath))
+                    {
+                        _resultsManager.CopyPhotoToResultsFolder(topAfterImagePath, "TopPost");
+                    }
                     ReportProgress(90);
                 }
 
@@ -177,9 +183,6 @@ namespace DDMAutoGUI.Services
                 _resultsManager.AddToLog("Process complete");
                 ReportProgress(100);
 
-                // Save Results
-                await ExecuteSaveResultsAsync(settings, resultsPath, topAfterImagePath);
-
                 result.Success = true;
                 result.Pass = pass;
                 result.Message = message;
@@ -199,6 +202,9 @@ namespace DDMAutoGUI.Services
                 {
                     _resultsManager.AddToLog($"Failed to move to unload position: {unloadEx.Message}");
                 }
+
+
+
             }
             catch (Exception ex)
             {
@@ -208,6 +214,9 @@ namespace DDMAutoGUI.Services
                 Debug.Print($"Dispense error: {ex}");
             }
 
+
+            // Save Results
+            await ExecuteSaveResultsAsync(settings, resultsPath);
             ReportProgress(100);
             return result;
         }
@@ -463,6 +472,11 @@ namespace DDMAutoGUI.Services
             _resultsManager.currentResults.mag_heights = _controllerManager.ParseHeightData(response);
             _resultsManager.AddToLog("Magnet/concentrator height data collected");
             _resultsManager.AddToLog("Processing height data...");
+
+            HeightVerificationResult heightResult = HeightVerification.VerifyHeightData(
+                _resultsManager.currentResults.ring_heights,
+                _resultsManager.currentResults.mag_heights,
+                settings);
         }
 
         private async Task ExecuteDispenseAsync(CellSettings settings, CSMotor motor, string motorName)
@@ -657,12 +671,8 @@ namespace DDMAutoGUI.Services
             }
         }
 
-        private async Task ExecuteSaveResultsAsync(CellSettings settings, string resultsPath, string topAfterImagePath)
+        private async Task ExecuteSaveResultsAsync(CellSettings settings, string resultsPath)
         {
-            if (!string.IsNullOrEmpty(topAfterImagePath))
-            {
-                _resultsManager.CopyPhotoToResultsFolder(topAfterImagePath, "TopPost");
-            }
 
             _resultsManager.AddToLog("Saving settings to results folder");
             _settingsManager.SaveSettingsCopyToLocal(settings, resultsPath);

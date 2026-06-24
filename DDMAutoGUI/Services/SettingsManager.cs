@@ -24,7 +24,7 @@ namespace DDMAutoGUI.Services
         public float? calib_tool_height { get; set; }
         public float? calib_tool_max_diff { get; set; }
         public CSDispense? dispense_system { get; set; }
-        public CSLaser? laser_calib { get; set; }
+        public CSHeightVerif? height_verification { get; set; }
         public CSMotorCommon? ddm_common { get; set; }
         public CSMotor? ddm_57 { get; set; }
         public CSMotor? ddm_95 { get; set; }
@@ -83,19 +83,16 @@ namespace DDMAutoGUI.Services
         }
     }
 
-    public class CSLaserCoeff
-    {
-        public float? A { get; set; }
-        public float? phi { get; set; }
-        public float? R2 { get; set; }
-    }
+    //public class CSLaserCoeff
+    //{
+    //    public float? A { get; set; }
+    //    public float? phi { get; set; }
+    //    public float? R2 { get; set; }
+    //}
 
-    public class CSLaser
+    public class CSHeightVerif
     {
-        public CSLaserCoeff? ddm_57_coeff { get; set; }
-        public CSLaserCoeff? ddm_95_coeff { get; set; }
-        public CSLaserCoeff? ddm_116_coeff { get; set; }
-        public CSLaserCoeff? ddm_170_coeff { get; set; }
+        public float? max_height { get; set; }
     }
 
     public class CSDispense
