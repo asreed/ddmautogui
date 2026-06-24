@@ -16,7 +16,7 @@ namespace DDMAutoGUI.Utilities
     {
         private static readonly string OcrScriptName = "process_images.py";
         private static readonly string OcrOutputFileName = "OCRResults.json";
-        private static readonly string OcrScriptPath = Path.Combine(AppContext.BaseDirectory, "Utilities", "Vision", OcrScriptName);
+        private static readonly string OcrScriptPath = Path.Combine(AppContext.BaseDirectory, "Services", "Vision", OcrScriptName);
 
         /// <summary>
         /// Runs OCR on images in the specified folder using a Python script.
@@ -94,7 +94,7 @@ namespace DDMAutoGUI.Utilities
     }
 
     /// <summary>
-    /// Represents OCR (Optical Character Recognition) data extracted from images.
+    /// Represents OCR data extracted from images.
     /// </summary>
     public class OCRData
     {

@@ -4,7 +4,9 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace DDMAutoGUI.ViewModels
 {
@@ -20,7 +22,7 @@ namespace DDMAutoGUI.ViewModels
         private readonly ICameraManager _cameraManager;
         private readonly ILocalDataManager _localDataManager;
         private readonly IApplicationConfiguration _appConfig;
-        private readonly DispenseProcessService _dispenseProcessService;
+        private readonly IDispenseProcessService _dispenseProcessService;
 
         private string _appTitle;
         private bool _isConnected;
@@ -38,6 +40,29 @@ namespace DDMAutoGUI.ViewModels
         private int _selectedMotorSizeIndex;
         private ObservableCollection<string> _motorSizes;
 
+        private bool _isPowerEnabled;
+        private bool _isRobotHomed;
+        private float _linearPosition;
+        private float _rotaryPosition;
+        private bool _linearFlag1;
+        private bool _linearFlag2;
+        private bool _linearFlag3;
+        private float _pressureCommand1;
+        private float _pressureMeasurement1;
+        private float _pressureCommand2;
+        private float _pressureMeasurement2;
+        private float _flowVolume1;
+        private int _flowError1;
+        private float _flowVolume2;
+        private int _flowError2;
+        private float _sysPressure;
+        private int _safetyControllerState;
+        private int _safetyErrorState;
+        private bool _isSimulated;
+
+        private BitmapSource _acquiredImageSource;
+        private string _cameraStatus;
+
         public MainWindowViewModel(
             IControllerManager controllerManager,
             ISettingsManager settingsManager,
@@ -45,7 +70,7 @@ namespace DDMAutoGUI.ViewModels
             ICameraManager cameraManager,
             ILocalDataManager localDataManager,
             IApplicationConfiguration appConfig,
-            DispenseProcessService dispenseProcessService)
+            IDispenseProcessService dispenseProcessService)
         {
             _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
             _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
@@ -61,6 +86,8 @@ namespace DDMAutoGUI.ViewModels
             InitializeEventHandlers();
             InitializeAppTitle();
             InitializeMotorSizes();
+
+            _selectedMotorType = "ddm_116";
         }
 
         #region Properties
@@ -122,7 +149,14 @@ namespace DDMAutoGUI.ViewModels
         public string MotorSerialNumber
         {
             get => _motorSerialNumber;
-            set => SetProperty(ref _motorSerialNumber, value);
+            set
+            {
+                if (SetProperty(ref _motorSerialNumber, value))
+                {
+                    Application.Current?.Dispatcher.BeginInvoke(
+                        CommandManager.InvalidateRequerySuggested);
+                }
+            }
         }
 
         public string ControllerIpAddress
@@ -134,7 +168,14 @@ namespace DDMAutoGUI.ViewModels
         public string SelectedMotorType
         {
             get => _selectedMotorType;
-            set => SetProperty(ref _selectedMotorType, value);
+            set
+            {
+                if (SetProperty(ref _selectedMotorType, value))
+                {
+                    Application.Current?.Dispatcher.BeginInvoke(
+                        CommandManager.InvalidateRequerySuggested);
+                }
+            }
         }
 
         public bool IsDispenseProcessRunning
@@ -146,7 +187,15 @@ namespace DDMAutoGUI.ViewModels
         public int SelectedMotorSizeIndex
         {
             get => _selectedMotorSizeIndex;
-            set => SetProperty(ref _selectedMotorSizeIndex, value);
+            set
+            {
+                if (SetProperty(ref _selectedMotorSizeIndex, value))
+                {
+                    SelectedMotorType = (MotorSizes != null && value >= 0 && value < MotorSizes.Count)
+                        ? MotorSizes[value]
+                        : null;
+                }
+            }
         }
 
         public ObservableCollection<string> MotorSizes
@@ -168,22 +217,257 @@ namespace DDMAutoGUI.ViewModels
         public string ProcessLogText { get; set; }
 
         // For controller state display
-        public bool IsPowerEnabled { get; set; }
-        public bool IsRobotHomed { get; set; }
-        public float LinearPosition { get; set; }
-        public float RotaryPosition { get; set; }
-        // ... etc for all readouts
+        public bool IsPowerEnabled { get => _isPowerEnabled; set => SetProperty(ref _isPowerEnabled, value); }
+        public bool IsRobotHomed { get => _isRobotHomed; set => SetProperty(ref _isRobotHomed, value); }
+        public float LinearPosition { get => _linearPosition; set => SetProperty(ref _linearPosition, value); }
+        public float RotaryPosition { get => _rotaryPosition; set => SetProperty(ref _rotaryPosition, value); }
+        public bool LinearFlag1 { get => _linearFlag1; set => SetProperty(ref _linearFlag1, value); }
+        public bool LinearFlag2 { get => _linearFlag2; set => SetProperty(ref _linearFlag2, value); }
+        public bool LinearFlag3 { get => _linearFlag3; set => SetProperty(ref _linearFlag3, value); }
+        public float PressureCommand1 { get => _pressureCommand1; set => SetProperty(ref _pressureCommand1, value); }
+        public float PressureMeasurement1 { get => _pressureMeasurement1; set => SetProperty(ref _pressureMeasurement1, value); }
+        public float PressureCommand2 { get => _pressureCommand2; set => SetProperty(ref _pressureCommand2, value); }
+        public float PressureMeasurement2 { get => _pressureMeasurement2; set => SetProperty(ref _pressureMeasurement2, value); }
+        public float FlowVolume1 { get => _flowVolume1; set => SetProperty(ref _flowVolume1, value); }
+        public int FlowError1 { get => _flowError1; set => SetProperty(ref _flowError1, value); }
+        public float FlowVolume2 { get => _flowVolume2; set => SetProperty(ref _flowVolume2, value); }
+        public int FlowError2 { get => _flowError2; set => SetProperty(ref _flowError2, value); }
+        public float SysPressure { get => _sysPressure; set => SetProperty(ref _sysPressure, value); }
+        public int SafetyControllerState { get => _safetyControllerState; set => SetProperty(ref _safetyControllerState, value); }
+        public int SafetyErrorState { get => _safetyErrorState; set => SetProperty(ref _safetyErrorState, value); }
+        public bool IsSimulated { get => _isSimulated; set => SetProperty(ref _isSimulated, value); }
 
         // For motor settings display
         public string MotorSettingsDisplay { get; set; }
 
         // For advanced options
         public bool AdvancedOptionsConnectController { get; set; }
-        // ... for each checkbox
+        // Connection Options - write-through to _appConfig.AdvancedOptions.ConnectionOptions
+        public bool ConnectController
+        {
+            get => _appConfig.AdvancedOptions.ConnectionOptions.Controller;
+            set
+            {
+                if (_appConfig.AdvancedOptions.ConnectionOptions.Controller != value)
+                {
+                    _appConfig.AdvancedOptions.ConnectionOptions.Controller = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool ConnectIoLinkDevices
+        {
+            get => _appConfig.AdvancedOptions.ConnectionOptions.IoLinkDevices;
+            set
+            {
+                if (_appConfig.AdvancedOptions.ConnectionOptions.IoLinkDevices != value)
+                {
+                    _appConfig.AdvancedOptions.ConnectionOptions.IoLinkDevices = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool ConnectTopCamera
+        {
+            get => _appConfig.AdvancedOptions.ConnectionOptions.TopCamera;
+            set
+            {
+                if (_appConfig.AdvancedOptions.ConnectionOptions.TopCamera != value)
+                {
+                    _appConfig.AdvancedOptions.ConnectionOptions.TopCamera = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool ConnectSideCamera
+        {
+            get => _appConfig.AdvancedOptions.ConnectionOptions.SideCamera;
+            set
+            {
+                if (_appConfig.AdvancedOptions.ConnectionOptions.SideCamera != value)
+                {
+                    _appConfig.AdvancedOptions.ConnectionOptions.SideCamera = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool ConnectLaserSensor
+        {
+            get => _appConfig.AdvancedOptions.ConnectionOptions.LaserSensor;
+            set
+            {
+                if (_appConfig.AdvancedOptions.ConnectionOptions.LaserSensor != value)
+                {
+                    _appConfig.AdvancedOptions.ConnectionOptions.LaserSensor = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool ConnectDaqDevice
+        {
+            get => _appConfig.AdvancedOptions.ConnectionOptions.DaqDevice;
+            set
+            {
+                if (_appConfig.AdvancedOptions.ConnectionOptions.DaqDevice != value)
+                {
+                    _appConfig.AdvancedOptions.ConnectionOptions.DaqDevice = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        // Dispense Options - write-through to _appConfig.AdvancedOptions.DispenseOptions
+        public bool DispCheckHealth
+        {
+            get => _appConfig.AdvancedOptions.DispenseOptions.CheckHealth;
+            set
+            {
+                if (_appConfig.AdvancedOptions.DispenseOptions.CheckHealth != value)
+                {
+                    _appConfig.AdvancedOptions.DispenseOptions.CheckHealth = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool DispPhotoTop
+        {
+            get => _appConfig.AdvancedOptions.DispenseOptions.PhotoTop;
+            set
+            {
+                if (_appConfig.AdvancedOptions.DispenseOptions.PhotoTop != value)
+                {
+                    _appConfig.AdvancedOptions.DispenseOptions.PhotoTop = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool DispPhotoSide
+        {
+            get => _appConfig.AdvancedOptions.DispenseOptions.PhotoSide;
+            set
+            {
+                if (_appConfig.AdvancedOptions.DispenseOptions.PhotoSide != value)
+                {
+                    _appConfig.AdvancedOptions.DispenseOptions.PhotoSide = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool DispRunOCR
+        {
+            get => _appConfig.AdvancedOptions.DispenseOptions.RunOCR;
+            set
+            {
+                if (_appConfig.AdvancedOptions.DispenseOptions.RunOCR != value)
+                {
+                    _appConfig.AdvancedOptions.DispenseOptions.RunOCR = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool DispCheckPolarity
+        {
+            get => _appConfig.AdvancedOptions.DispenseOptions.CheckPolarity;
+            set
+            {
+                if (_appConfig.AdvancedOptions.DispenseOptions.CheckPolarity != value)
+                {
+                    _appConfig.AdvancedOptions.DispenseOptions.CheckPolarity = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool DispMeasureHeights
+        {
+            get => _appConfig.AdvancedOptions.DispenseOptions.MeasureHeights;
+            set
+            {
+                if (_appConfig.AdvancedOptions.DispenseOptions.MeasureHeights != value)
+                {
+                    _appConfig.AdvancedOptions.DispenseOptions.MeasureHeights = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool DispDispense
+        {
+            get => _appConfig.AdvancedOptions.DispenseOptions.Dispense;
+            set
+            {
+                if (_appConfig.AdvancedOptions.DispenseOptions.Dispense != value)
+                {
+                    _appConfig.AdvancedOptions.DispenseOptions.Dispense = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool DispAutocalibrate
+        {
+            get => _appConfig.AdvancedOptions.DispenseOptions.Autocalibrate;
+            set
+            {
+                if (_appConfig.AdvancedOptions.DispenseOptions.Autocalibrate != value)
+                {
+                    _appConfig.AdvancedOptions.DispenseOptions.Autocalibrate = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool DispPhotoTopAfter
+        {
+            get => _appConfig.AdvancedOptions.DispenseOptions.PhotoTopAfter;
+            set
+            {
+                if (_appConfig.AdvancedOptions.DispenseOptions.PhotoTopAfter != value)
+                {
+                    _appConfig.AdvancedOptions.DispenseOptions.PhotoTopAfter = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool DispOverrideWarnings
+        {
+            get => _appConfig.AdvancedOptions.DispenseOptions.OverrideWarnings;
+            set
+            {
+                if (_appConfig.AdvancedOptions.DispenseOptions.OverrideWarnings != value)
+                {
+                    _appConfig.AdvancedOptions.DispenseOptions.OverrideWarnings = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         // For robot measurement data
         public List<ResultsHeightMeasurement> LaserRingData { get; set; }
         public List<ResultsHeightMeasurement> LaserMagData { get; set; }
+
+        // Image acquisition properties
+        public BitmapSource AcquiredImageSource
+        {
+            get => _acquiredImageSource;
+            set => SetProperty(ref _acquiredImageSource, value);
+        }
+
+        public string CameraStatus
+        {
+            get => _cameraStatus;
+            set => SetProperty(ref _cameraStatus, value);
+        }
 
         #endregion
 
@@ -351,12 +635,51 @@ namespace DDMAutoGUI.ViewModels
 
         private async Task ExecuteAcquireTop(object parameter)
         {
-            // Delegate to camera manager
+            await ExecuteAcquireCamera(CameraManager.CellCamera.top, "Top image acquired");
         }
 
         private async Task ExecuteAcquireSide(object parameter)
         {
-            // Delegate to camera manager
+            await ExecuteAcquireCamera(CameraManager.CellCamera.side, "Side image acquired");
+        }
+
+        private async Task ExecuteAcquireCamera(CameraManager.CellCamera camera, string successMessage)
+        {
+            try
+            {
+                IsProcessing = true;
+                CameraStatus = "Acquiring image...";
+                AcquiredImageSource = null;
+
+                CameraAcquisitionResult result = await _cameraManager.AcquireAndSave(camera, null);
+
+                if (result.success)
+                {
+                    CameraStatus = successMessage;
+                    if (!string.IsNullOrEmpty(result.filePath))
+                    {
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(result.filePath);
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.EndInit();
+                        bitmap.Freeze(); // Safe to use across threads
+                        AcquiredImageSource = bitmap;
+                    }
+                }
+                else
+                {
+                    CameraStatus = $"Error: {result.errorMsg}";
+                }
+            }
+            catch (Exception ex)
+            {
+                CameraStatus = $"Error: {ex.Message}";
+            }
+            finally
+            {
+                IsProcessing = false;
+            }
         }
 
         private void ExecuteOpenResultsFolder()
@@ -383,33 +706,45 @@ namespace DDMAutoGUI.ViewModels
             _controllerManager.StatusLogUpdated += ControllerManager_StatusLogUpdated;
             _controllerManager.RobotLogUpdated += ControllerManager_RobotLogUpdated;
             _resultsManager.UpdateProcessLog += ResultsManager_UpdateProcessLog;
+            _controllerManager.ControllerStateChanged += ControllerManager_StateChanged;
         }
 
         private void ControllerManager_Connected(object sender, EventArgs e)
         {
-            IsConnected = true;
-            ConnectionStatus = "Connected";
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                IsConnected = true;
+                ConnectionStatus = $"Connected ({_controllerManager.CONNECTION_STATE?.connectedIP})";
+                CommandManager.InvalidateRequerySuggested();
+            });
         }
 
         private void ControllerManager_Disconnected(object sender, EventArgs e)
         {
-            IsConnected = false;
-            ConnectionStatus = "Disconnected";
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                IsConnected = false;
+                ConnectionStatus = "Not connected";
+                CommandManager.InvalidateRequerySuggested();
+            });
         }
 
         private void ControllerManager_ConnectionLogUpdated(object sender, EventArgs e)
         {
-            ConnectionLog = _controllerManager.GetConnectionLog();
+            Application.Current.Dispatcher.Invoke(() =>
+                ConnectionLog = _controllerManager.GetConnectionLog());
         }
 
         private void ControllerManager_StatusLogUpdated(object sender, EventArgs e)
         {
-            StatusLog = _controllerManager.GetStatusLog();
+            Application.Current.Dispatcher.Invoke(() =>
+                StatusLog = _controllerManager.GetStatusLog());
         }
 
         private void ControllerManager_RobotLogUpdated(object sender, EventArgs e)
         {
-            RobotLog = _controllerManager.GetRobotLog();
+            Application.Current.Dispatcher.Invoke(() =>
+                RobotLog = _controllerManager.GetRobotLog());
         }
 
         private void ResultsManager_UpdateProcessLog(object sender, EventArgs e)
@@ -422,6 +757,36 @@ namespace DDMAutoGUI.ViewModels
             ProcessProgress = e.Percentage;
         }
 
+        private void ControllerManager_StateChanged(object sender, EventArgs e)
+        {
+            ControllerState state = _controllerManager.CONTROLLER_STATE;
+            if (state == null)
+                return;
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                IsPowerEnabled = state.isPowerEnabled;
+                IsRobotHomed = state.isRobotHomed;
+                LinearPosition = state.posLinear;
+                RotaryPosition = state.posRotary;
+                LinearFlag1 = !state.isLinearIn1;
+                LinearFlag2 = !state.isLinearIn2;
+                LinearFlag3 = !state.isLinearIn3;
+                PressureCommand1 = state.pressureCommand1;
+                PressureMeasurement1 = state.pressureMeasurement1;
+                PressureCommand2 = state.pressureCommand2;
+                PressureMeasurement2 = state.pressureMeasurement2;
+                FlowVolume1 = state.flowVolume1;
+                FlowError1 = state.flowError1;
+                FlowVolume2 = state.flowVolume2;
+                FlowError2 = state.flowError2;
+                SysPressure = state.systemPressure;
+                SafetyControllerState = state.safetyControllerState;
+                SafetyErrorState = state.safetyErrorState;
+                IsSimulated = state.isSimulated;
+            });
+        }
+
         #endregion
 
         #region Helper Methods
@@ -429,7 +794,7 @@ namespace DDMAutoGUI.ViewModels
         private void InitializeAppTitle()
         {
             string version = ReleaseInfo.GetCurrentVersion();
-            AppTitle = $"DDM Auto GUI - {version}";
+            AppTitle = $"{version}";
         }
 
         private void InitializeMotorSizes()

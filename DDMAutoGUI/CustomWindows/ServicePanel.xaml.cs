@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -29,6 +30,10 @@ namespace DDMAutoGUI.CustomWindows
         public ServicePanel()
         {
             InitializeComponent();
+
+            // Resolve dependencies from DI container, same pattern as MainWindow
+            _controllerManager = App.Services?.GetService<IControllerManager>();
+            _settingsManager = App.Services?.GetService<ISettingsManager>();
         }
 
         public ServicePanel(IControllerManager controllerManager, ISettingsManager settingsManager) : this()

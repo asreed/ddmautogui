@@ -1,4 +1,5 @@
 using DDMAutoGUI.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -32,6 +33,11 @@ namespace DDMAutoGUI.CustomWindows
         {
             InitializeComponent();
             Calib_116_RunPrg.Visibility = Visibility.Collapsed;
+
+            // Resolve services from DI container when instantiated via XAML
+            _settingsManager = App.Services?.GetService<ISettingsManager>();
+            _localDataManager = App.Services?.GetService<ILocalDataManager>();
+            _flowCalibrationManager = App.Services?.GetService<IFlowCalibrationManager>();
         }
 
         public CalibFlowPanel(

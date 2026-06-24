@@ -1,4 +1,4 @@
-﻿using DDMAutoGUI.CustomWindows;
+using DDMAutoGUI.CustomWindows;
 using DDMAutoGUI.Services;
 using DDMAutoGUI.Utilities;
 using DDMAutoGUI.ViewModels;
@@ -212,7 +212,6 @@ namespace DDMAutoGUI
             };
 
             UpdateButtonLocks();
-            Disp_BeginBtn.IsEnabled = false;
 
             Status_SimBdr.Visibility = Visibility.Collapsed;
             Adv_PWEntryBdr.Visibility = Visibility.Visible;
@@ -461,7 +460,6 @@ namespace DDMAutoGUI
         {
             if (_controllerManager == null) return;
 
-            LoadAdvancedOptions();
             Con_ConnectBtn.IsEnabled = false;
             Con_ConnectBtn.Content = "Connecting...";
             Con_ConnectPrg.Visibility = Visibility.Visible;
@@ -476,7 +474,6 @@ namespace DDMAutoGUI
         {
             if (_controllerManager == null) return;
 
-            LoadAdvancedOptions();
             Adv_Con_ConnectBtn.IsEnabled = false;
             await _controllerManager.Connect(Adv_Con_IPTxt.Text);
 
@@ -605,12 +602,11 @@ namespace DDMAutoGUI
 
         private void Disp_MotorSNTxt_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TextBox tb = sender as TextBox;
-            if (tb != null)
+            if (sender is TextBox tb && DataContext is MainWindowViewModel vm)
             {
-                bool state = tb.Text.Length > 0;
-                Disp_BeginBtn.IsEnabled = state;
-                Disp_Warning_SNBox.Visibility = !state ? Visibility.Visible : Visibility.Collapsed;
+                vm.MotorSerialNumber = tb.Text;
+                Disp_Warning_SNBox.Visibility = tb.Text.Length > 0 ? Visibility.Collapsed : Visibility.Visible;
+                // Removed: Disp_BeginBtn.IsEnabled = state — let StartDispenseCommand.CanExecute handle it
             }
         }
 
@@ -936,7 +932,7 @@ namespace DDMAutoGUI
 
         #region Camera Button Handlers
 
-        private async void Adv_Cam_AcquireTopBtn_Click(object sender, RoutedEventArgs e)
+        private async void AcquireTopCommand(object sender, RoutedEventArgs e)
         {
             var cameraManager = App.Services?.GetService<ICameraManager>();
             if (cameraManager == null) return;
@@ -957,7 +953,7 @@ namespace DDMAutoGUI
             }
         }
 
-        private async void Adv_Cam_AcquireSideBtn_Click(object sender, RoutedEventArgs e)
+        private async void AcquireSideCommand(object sender, RoutedEventArgs e)
         {
             var cameraManager = App.Services?.GetService<ICameraManager>();
             if (cameraManager == null) return;
@@ -1005,29 +1001,6 @@ namespace DDMAutoGUI
         #endregion
 
         #region Settings & Options
-
-        private void LoadAdvancedOptions()
-        {
-            if (_applicationConfiguration == null) return;
-
-            _applicationConfiguration.AdvancedOptions.ConnectionOptions.Controller = Adv_Opt_Con_ControllerChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.ConnectionOptions.IoLinkDevices = Adv_Opt_Con_IOLinkChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.ConnectionOptions.TopCamera = Adv_Opt_Con_TopCamChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.ConnectionOptions.SideCamera = Adv_Opt_Con_SideCamChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.ConnectionOptions.LaserSensor = Adv_Opt_Con_LaserChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.ConnectionOptions.DaqDevice = Adv_Opt_Con_DAQChk.IsChecked ?? false;
-
-            _applicationConfiguration.AdvancedOptions.DispenseOptions.CheckHealth = Adv_Opt_Disp_HealthChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.DispenseOptions.PhotoTop = Adv_Opt_Disp_TopPhotoChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.DispenseOptions.PhotoSide = Adv_Opt_Disp_SidePhotoChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.DispenseOptions.RunOCR = Adv_Opt_Disp_RunOCRChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.DispenseOptions.MeasureHeights = Adv_Opt_Disp_RingHeightChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.DispenseOptions.Dispense = Adv_Opt_Disp_DispChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.DispenseOptions.Autocalibrate = Adv_Opt_Disp_AutoCalibChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.DispenseOptions.CheckPolarity = Adv_Opt_Disp_MagPolChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.DispenseOptions.PhotoTopAfter = Adv_Opt_Disp_TopPhotoAfterChk.IsChecked ?? false;
-            _applicationConfiguration.AdvancedOptions.DispenseOptions.OverrideWarnings = Adv_Opt_Disp_OverrideChk.IsChecked ?? false;
-        }
 
         private void Adv_Cell_ReloadSettingsBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -1134,5 +1107,13 @@ namespace DDMAutoGUI
         private void Adv_Opt_Disp_Force170TChk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor170Tall.IsEnabled = false;
 
         #endregion
+
+        private void MotorSizeRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is RadioButton rb && DataContext is MainWindowViewModel vm)
+            {
+                vm.SelectedMotorType = rb.Tag as string;
+            }
+        }
     }
 }

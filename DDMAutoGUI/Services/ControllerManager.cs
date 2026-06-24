@@ -375,10 +375,10 @@ namespace DDMAutoGUI.Services
                 return true;
             }
 
-            // ========== ACTUAL CONNECTION ==========
+            // ========== REAL CONNECTION ==========
             try
             {
-                // --- PHASE 1: Controller TCS Connection ---
+                // --- Controller TCS Connection ---
                 if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.Controller == true)
                 {
                     await statusClient.ConnectAsync(statusEP);
@@ -393,19 +393,17 @@ namespace DDMAutoGUI.Services
                     UpdateConnectionLog($"✓ Controller TCS");
                 }
 
-                // --- PHASE 2: Settings Verification & Load ---
+                // --- Settings Verification & Load ---
                 // Use SettingsManager's method which verifies AND loads settings
-                // This solves the camera serial number problem since settings will be loaded
-                UpdateConnectionLog($"Loading cell settings...");
                 var settingsManager = _getSettingsManager();
-                bool settingsExist = settingsManager.VerifySettingsExistOnController(ip);
+                bool settingsExist = settingsManager.LoadAndVerifySettings(ip);
                 if (!settingsExist)
                 {
                     throw new Exception($"{ErrorCodes.conSettings.code}: {ErrorCodes.conSettings.msg}");
                 }
                 UpdateConnectionLog($"✓ Controller Settings");
 
-                // --- PHASE 3: I/O-Link Devices ---
+                // --- I/O-Link Devices ---
                 if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.IoLinkDevices == true)
                 {
                     string ioLinkString = await GetIOLinkStatusRemote();
@@ -440,7 +438,7 @@ namespace DDMAutoGUI.Services
                     }
                 }
 
-                // --- PHASE 4: Laser Sensor ---
+                // --- Laser Sensor ---
                 if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.LaserSensor == true)
                 {
                     string laserResponse = await TestLaserConnection();
@@ -451,7 +449,42 @@ namespace DDMAutoGUI.Services
                     UpdateConnectionLog($"✓ Laser Sensor");
                 }
 
-                // --- PHASE 5: Finalize Connection ---
+                // --- Verify Cameras ---
+                // Camera tests require settings to be loaded first (for serial numbers)
+                // We fire the ControllerConnected event above, which triggers SettingsManager to load
+                // Now we wait a moment for that to complete, then test cameras
+
+
+                if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.TopCamera == true)
+                {
+                    var cameraManager = _getCameraManager();
+                    bool topCameraConnected = await cameraManager.TestCameraConnection(CameraManager.CellCamera.top);
+                    if (!topCameraConnected)
+                    {
+                        throw new Exception($"{ErrorCodes.conCamTop.code}: {ErrorCodes.conCamTop.msg}");
+                    }
+                    else
+                    {
+                        UpdateConnectionLog($"✓ Top Camera");
+                    }
+                }
+
+                if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.SideCamera == true)
+                {
+                    var cameraManager = _getCameraManager();
+                    bool sideCameraConnected = await cameraManager.TestCameraConnection(CameraManager.CellCamera.side);
+                    if (!sideCameraConnected)
+                    {
+                        throw new Exception($"{ErrorCodes.conCamSide.code}: {ErrorCodes.conCamSide.msg}");
+                    }
+                    else
+                    {
+                        UpdateConnectionLog($"✓ Side Camera");
+                    }
+                }
+
+
+                // --- Finalize Connection ---
                 UpdateConnectionLog($"\nConnected successfully");
 
                 CONNECTION_STATE.isConnected = true;
@@ -464,50 +497,6 @@ namespace DDMAutoGUI.Services
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
                 StartAutoControllerState();
-
-                // --- PHASE 6: Verify Cameras (After Settings Load) ---
-                // Camera tests require settings to be loaded first (for serial numbers)
-                // We fire the ControllerConnected event above, which triggers SettingsManager to load
-                // Now we wait a moment for that to complete, then test cameras
-                bool needCameraVerification =
-                    _applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.TopCamera == true ||
-                    _applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.SideCamera == true;
-
-                if (needCameraVerification)
-                {
-                    // Wait for settings to load (SettingsManager responds to ControllerConnected event)
-                    await Task.Delay(1000);
-
-                    if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.TopCamera == true)
-                    {
-                        var cameraManager = _getCameraManager();
-                        bool topCameraConnected = await cameraManager.TestCameraConnection(CameraManager.CellCamera.top);
-                        if (!topCameraConnected)
-                        {
-                            // Note: We don't throw here - camera is verified but not critical
-                            UpdateConnectionLog($"⚠ Top Camera not detected");
-                        }
-                        else
-                        {
-                            UpdateConnectionLog($"✓ Top Camera");
-                        }
-                    }
-
-                    if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.SideCamera == true)
-                    {
-                        var cameraManager = _getCameraManager();
-                        bool sideCameraConnected = await cameraManager.TestCameraConnection(CameraManager.CellCamera.side);
-                        if (!sideCameraConnected)
-                        {
-                            // Note: We don't throw here - camera is verified but not critical
-                            UpdateConnectionLog($"⚠ Side Camera not detected");
-                        }
-                        else
-                        {
-                            UpdateConnectionLog($"✓ Side Camera");
-                        }
-                    }
-                }
 
                 return true;
             }
@@ -523,6 +512,7 @@ namespace DDMAutoGUI.Services
                 UpdateConnectionLog($"\nConnection failed ({ex.Message})");
                 UpdateConnectionLog($"{ErrorCodes.conCont.code}: {ErrorCodes.conCont.msg}");
 
+                StopAutoControllerState();  // <-- Add this
                 CONNECTION_STATE.isConnected = false;
                 CONNECTION_STATE.connectedIP = string.Empty;
                 CONNECTION_STATE.connectedTCS = string.Empty;
@@ -544,6 +534,7 @@ namespace DDMAutoGUI.Services
                 UpdateConnectionLog($"\nConnection failed");
                 UpdateConnectionLog($"{ex.Message}");
 
+                StopAutoControllerState();  // <-- Add this
                 CONNECTION_STATE.isConnected = false;
                 CONNECTION_STATE.connectedIP = string.Empty;
                 CONNECTION_STATE.connectedTCS = string.Empty;
@@ -558,23 +549,35 @@ namespace DDMAutoGUI.Services
         public async Task Disconnect()
         {
             UpdateBothLogs("Disconnecting...");
+
             if (_applicationConfiguration?.IsSimulationMode == true)
             {
+                StopAutoControllerState();  // <-- Move here
                 ClearConnectionLog();
                 UpdateConnectionLog("Disconnected from simulation");
+                CONNECTION_STATE.isConnected = false;  // <-- Then set false
+                CONNECTION_STATE.connectedIP = string.Empty;
+                CONNECTION_STATE.connectedTCS = string.Empty;
+                CONNECTION_STATE.connectedPAC = string.Empty;
+                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
+                ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
                 return;
             }
+
+            if (statusClient == null && robotClient == null)
+            {
+                return;
+            }
+
             try
             {
-
-                StopAutoControllerState();
-                await SendStatusCommand("exit");
-                await SendRobotCommand("exit");
+                StopAutoControllerState();  // <-- Stop timer FIRST
+                //await SendStatusCommand("exit");
+                //await SendRobotCommand("exit");
                 statusClient.Shutdown(SocketShutdown.Both);
                 statusClient.Close();
                 robotClient.Shutdown(SocketShutdown.Both);
                 robotClient.Close();
-
             }
             catch (SocketException e)
             {
@@ -585,7 +588,7 @@ namespace DDMAutoGUI.Services
             ClearConnectionLog();
             UpdateConnectionLog("Disconnected");
 
-            CONNECTION_STATE.isConnected = false;
+            CONNECTION_STATE.isConnected = false;  // <-- Then set false
             CONNECTION_STATE.connectedIP = string.Empty;
             CONNECTION_STATE.connectedTCS = string.Empty;
             CONNECTION_STATE.connectedPAC = string.Empty;
@@ -943,20 +946,14 @@ namespace DDMAutoGUI.Services
 
         public void StopAutoControllerState()
         {
-            if (CONNECTION_STATE.isConnected)
+            if (_timer != null)
             {
-                if (CONNECTION_STATE.isAutoControllerStateRequesting == true)
-                {
-                    if (_timer != null)
-                    {
-                        _timer.Stop();
-                        _timer.Tick -= Timer_Tick;
-                        _timer = null;
+                _timer.Stop();
+                _timer.Tick -= Timer_Tick;
+                _timer = null;
 
-                        CONNECTION_STATE.isAutoControllerStateRequesting = false;
-                        ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
-                    }
-                }
+                CONNECTION_STATE.isAutoControllerStateRequesting = false;
+                ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 

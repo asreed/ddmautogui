@@ -1,5 +1,6 @@
-﻿using DDMAutoGUI.Services;
+using DDMAutoGUI.Services;
 using DDMAutoGUI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,6 +30,8 @@ namespace DDMAutoGUI.CustomWindows
         public CalibHeightPanel()
         {
             InitializeComponent();
+            _settingsManager = App.Services?.GetService<ISettingsManager>();
+            _controllerManager = App.Services?.GetService<IControllerManager>();
         }
 
         public CalibHeightPanel(ISettingsManager settingsManager, IControllerManager controllerManager) : this()

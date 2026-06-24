@@ -46,7 +46,7 @@ namespace DDMAutoGUI.Services
         /// <summary>
         /// Verifies that settings exist on the controller at the specified IP address.
         /// </summary>
-        bool VerifySettingsExistOnController(string ip);
+        bool LoadAndVerifySettings(string ip);
 
         /// <summary>
         /// Saves the provided settings to the controller via FTP.

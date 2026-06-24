@@ -1,4 +1,3 @@
-using DDMAutoGUI.Services;
 using DDMAutoGUI.Utilities;
 using System;
 using System.Collections.Generic;
@@ -7,14 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DDMAutoGUI.ViewModels
+namespace DDMAutoGUI.Services
 {
     /// <summary>
     /// Encapsulates the complex dispense process logic.
     /// Handles all steps of the dispense workflow in a clean, testable way.
     /// This service is used by the MainWindowViewModel to coordinate the dispense process.
     /// </summary>
-    public class DispenseProcessService
+    public class DispenseProcessService : IDispenseProcessService
     {
         private readonly IControllerManager _controllerManager;
         private readonly ISettingsManager _settingsManager;

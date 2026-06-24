@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using DDMAutoGUI.Services;
 using DDMAutoGUI.CustomWindows;
@@ -30,24 +30,22 @@ namespace DDMAutoGUI
 
                 serviceCollection.AddSingleton<IApplicationConfiguration>(appConfig);
 
-                // Core Services (simple, no circular dependencies)
+                // Core Services
                 serviceCollection.AddSingleton<ISettingsManager, SettingsManager>();
-                serviceCollection.AddSingleton<ICameraManager, CameraManager>();
                 
-                // ControllerManager implements both IControllerManager and ILightController
-                // This allows CameraManager to depend only on ILightController, breaking circular dependency
                 serviceCollection.AddSingleton<ControllerManager>();
                 serviceCollection.AddSingleton<IControllerManager>(sp => sp.GetRequiredService<ControllerManager>());
                 serviceCollection.AddSingleton<ILightController>(sp => sp.GetRequiredService<ControllerManager>());
 
-                // Data & I/O Services
+                // Data & Other Services
+                serviceCollection.AddSingleton<ICameraManager, CameraManager>();
                 serviceCollection.AddSingleton<IResultsManager, ResultsManager>();
                 serviceCollection.AddSingleton<ILocalDataManager, LocalDataManager>();
                 serviceCollection.AddSingleton<IFlowCalibrationManager, FlowCalibrationManager>();
+                serviceCollection.AddTransient<IDispenseProcessService, DispenseProcessService>();
 
                 // ViewModels & UI
                 serviceCollection.AddTransient<MainWindowViewModel>();
-                serviceCollection.AddTransient<DispenseProcessService>();
                 serviceCollection.AddTransient<ServicePanel>();
                 serviceCollection.AddTransient<SettingsPanel>();
                 serviceCollection.AddTransient<CalibPositionPanel>();
@@ -81,7 +79,10 @@ namespace DDMAutoGUI
                 }
 
                 var mainWindow = Services.GetRequiredService<MainWindow>();
+                mainWindow.Closed += (s, args) => Shutdown(); // <-- add this one line
+                this.MainWindow = mainWindow;
                 mainWindow.Show();
+
             }
             catch (Exception ex)
             {
@@ -103,20 +104,35 @@ namespace DDMAutoGUI
 
         protected override void OnExit(ExitEventArgs e)
         {
-            // Clean up: Disconnect from controller on application exit
             var controllerManager = Services?.GetService<IControllerManager>();
             if (controllerManager != null)
             {
                 try
                 {
-                    controllerManager.Disconnect().Wait();
+                    controllerManager.Disconnect()
+                        .ConfigureAwait(false)
+                        .GetAwaiter()
+                        .GetResult();
                 }
                 catch (Exception ex)
                 {
                     Debug.Print($"Error during shutdown disconnect: {ex.Message}");
                 }
             }
-            
+
+            var cameraManager = Services?.GetService<ICameraManager>();
+            if (cameraManager != null)
+            {
+                try
+                {
+                    cameraManager.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Debug.Print($"Error disposing camera manager: {ex.Message}");
+                }
+            }
+
             base.OnExit(e);
         }
     }

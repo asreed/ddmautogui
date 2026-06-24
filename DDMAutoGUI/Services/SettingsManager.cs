@@ -262,7 +262,7 @@ namespace DDMAutoGUI.Services
             currentSettings = ReadSettingsFromController();
         }
 
-        public bool VerifySettingsExistOnController(string ip)
+        public bool LoadAndVerifySettings(string ip)
         {
             string rawJson = "";
             try

@@ -1,10 +1,11 @@
-﻿using ArenaNET;
+using ArenaNET;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -23,8 +24,10 @@ namespace DDMAutoGUI.Services
 
 
 
-    public class CameraManager : ICameraManager
+    public class CameraManager : ICameraManager, IDisposable
     {
+        private static string TB = "..";
+
         private const EPfncFormat PIXEL_FORMAT = EPfncFormat.BGR8;
         private string acqFilePath = string.Empty;
         private string acqFilePrefix = "acq_img";
@@ -35,6 +38,7 @@ namespace DDMAutoGUI.Services
 
         private readonly ILightController _lightController;
         private readonly Func<CellSettings> _getSettings;
+        private ISystem _system; // Arena system singleton
 
         public enum CellCamera
         {
@@ -55,7 +59,34 @@ namespace DDMAutoGUI.Services
             _lightController = lightController ?? throw new ArgumentNullException(nameof(lightController));
             _getSettings = () => settingsManager.GetAllSettings();
 
-            Debug.Print("Camera manager initialized");
+            // Initialize Arena SDK once
+            try
+            {
+                _system = ArenaNET.Arena.OpenSystem();
+                Debug.Print("Camera manager initialized (Arena SDK opened)");
+            }
+            catch (Exception ex)
+            {
+                Debug.Print($"Warning: Failed to initialize Arena SDK: {ex.Message}");
+                _system = null;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_system != null)
+            {
+                try
+                {
+                    ArenaNET.Arena.CloseSystem(_system);
+                    Debug.Print("Arena SDK closed");
+                }
+                catch (Exception ex)
+                {
+                    Debug.Print($"Error closing Arena SDK: {ex.Message}");
+                }
+                _system = null;
+            }
         }
 
         public async Task<bool> TestCameraConnection(CellCamera cellCamera)
@@ -81,24 +112,28 @@ namespace DDMAutoGUI.Services
 
         public async Task<CameraAcquisitionResult> AcquireAndSave(CellCamera cellCamera, Image displayElement, CellImageFormat imgFormat, bool skipSave)
         {
-            string sfx = string.Empty;
-            switch (imgFormat)
+            string sfx = imgFormat switch
             {
-                case CellImageFormat.PNG:
-                    sfx = acqFileSuffixPNG;
-                    break;
-                case CellImageFormat.JPG:
-                    sfx = acqFileSuffixJPG;
-                    break;
-            }
+                CellImageFormat.PNG => acqFileSuffixPNG,
+                CellImageFormat.JPG => acqFileSuffixJPG,
+                _ => acqFileSuffixJPG
+            };
             acqFilePath = acqFileDirectory + acqFilePrefix + GetTimestamp() + sfx;
 
-            CameraAcquisitionResult result = new CameraAcquisitionResult();
-            result.success = false;
-            result.filePath = acqFilePath;
-            result.fileName = acqFilePrefix + GetTimestamp() + acqFileSuffixJPG;
+            CameraAcquisitionResult result = new CameraAcquisitionResult
+            {
+                success = false,
+                filePath = acqFilePath,
+                fileName = acqFilePrefix + GetTimestamp() + sfx
+            };
 
-            ISystem system = null;
+            if (_system == null)
+            {
+                result.errorMsg = "Arena SDK not initialized";
+                return result;
+            }
+
+            IDevice device = null;
 
             try
             {
@@ -107,38 +142,28 @@ namespace DDMAutoGUI.Services
                 string cameraTopSN = settings?.camera_top_sn;
                 string cameraSideSN = settings?.camera_side_sn;
 
-                // prepare
-                system = ArenaNET.Arena.OpenSystem();
-                system.UpdateDevices(100);
-                if (system.Devices.Count == 0)
+                // Update device list
+                _system.UpdateDevices(100);
+                if (_system.Devices.Count == 0)
                 {
                     Debug.Print("\nNo camera connected\nAborting");
                     throw new Exception("No cameras detected");
                 }
 
-                Debug.Print($"Camera top SN from settings: {cameraTopSN}");
-                Debug.Print($"Camera side SN from settings: {cameraSideSN}");
-
-                Debug.Print($"Number of devices: {system.Devices.Count}");
-                for (int i = 0; i < system.Devices.Count; i++)
-                {
-                    Debug.Print($"Device {i} SN: {system.Devices[i].SerialNumber}");
-                }
-
                 IDeviceInfo selectedDeviceInfo = null;
 
-                for (int i = 0; i < system.Devices.Count; i++)
+                for (int i = 0; i < _system.Devices.Count; i++)
                 {
-                    if (system.Devices[i].SerialNumber == cameraTopSN && cellCamera == CellCamera.top)
+                    if (_system.Devices[i].SerialNumber == cameraTopSN && cellCamera == CellCamera.top)
                     {
-                        selectedDeviceInfo = system.Devices[i];
-                        Debug.Print($"Selected top camera with SN {cameraTopSN}");
+                        selectedDeviceInfo = _system.Devices[i];
+                        Debug.Print($"{TB}Selected top camera with SN {cameraTopSN}");
                         break;
                     }
-                    else if (system.Devices[i].SerialNumber == cameraSideSN && cellCamera == CellCamera.side)
+                    else if (_system.Devices[i].SerialNumber == cameraSideSN && cellCamera == CellCamera.side)
                     {
-                        selectedDeviceInfo = system.Devices[i];
-                        Debug.Print($"Selected side camera with SN {cameraSideSN}");
+                        selectedDeviceInfo = _system.Devices[i];
+                        Debug.Print($"{TB}Selected side camera with SN {cameraSideSN}");
                         break;
                     }
                 }
@@ -148,11 +173,10 @@ namespace DDMAutoGUI.Services
                     Debug.Print($"\nNo matching camera connected for {(cellCamera == CellCamera.top ? "top" : "side")}\nAborting");
                     result.errorMsg = $"No matching camera connected for {(cellCamera == CellCamera.top ? "top" : "side")}";
                     result.success = false;
-                    ArenaNET.Arena.CloseSystem(system);
                     return result;
                 }
 
-                IDevice device = system.CreateDevice(selectedDeviceInfo);
+                device = _system.CreateDevice(selectedDeviceInfo);
 
                 // enable stream auto negotiate packet size
                 var streamAutoNegotiatePacketSizeNode = (IBoolean)device.TLStreamNodeMap.GetNode("StreamAutoNegotiatePacketSize");
@@ -195,8 +219,7 @@ namespace DDMAutoGUI.Services
                 // clean up
                 device.RequeueBuffer(image);
                 device.StopStream();
-                system.DestroyDevice(device);
-                ArenaNET.Arena.CloseSystem(system);
+                _system.DestroyDevice(device);
 
                 result.success = true;
                 return result;
@@ -205,27 +228,33 @@ namespace DDMAutoGUI.Services
             catch (Exception ex)
             {
                 await _lightController.LightsOff();
-                Debug.Print("\nException thrown: {0}", ex.Message);
+                Debug.Print($"\nException thrown: {ex.Message}");
                 result.errorMsg = ex.Message;
                 result.success = false;
-                if (system != null)
+                
+                if (device != null)
                 {
-                    ArenaNET.Arena.CloseSystem(system);
+                    try
+                    {
+                        _system.DestroyDevice(device);
+                    }
+                    catch { }
                 }
+                
                 return result;
             }
-
         }
 
         static void SaveImagePNG(IImage image, string filePath)
         {
+
             // convert image
-            Debug.Print($"...Convert image to {PIXEL_FORMAT}");
+            Debug.Print($"{TB}{TB}Convert image to {PIXEL_FORMAT}");
 
             IImage converted = ImageFactory.Convert(image, PIXEL_FORMAT);
 
             // prepare image parameters
-            Debug.Print("...Prepare image parameters");
+            Debug.Print($"{TB}{TB}Prepare image parameters");
 
             SaveNET.ImageParams parameters = new SaveNET.ImageParams(
                 converted.Width,
@@ -234,7 +263,7 @@ namespace DDMAutoGUI.Services
                 true);
 
             // prepare image writer
-            Debug.Print("...Prepare image writer");
+            Debug.Print($"{TB}{TB}Prepare image writer");
 
             SaveNET.ImageWriter writer = new SaveNET.ImageWriter(parameters, filePath);
 
@@ -245,12 +274,12 @@ namespace DDMAutoGUI.Services
             //   compression level can be set between 0 to 9 and the image
             //   can be created using interlacing by changing the parameters. 
 
-            Debug.Print("...Set image writer to PNG");
+            Debug.Print($"{TB}{TB}Set image writer to PNG");
 
             writer.SetPng(".png", 0, false);
 
             // save image
-            Debug.Print("...Save image");
+            Debug.Print($"{TB}{TB}Save image");
 
             writer.Save(converted.DataArray, true);
 
@@ -261,12 +290,12 @@ namespace DDMAutoGUI.Services
         static void SaveImageJPG(IImage image, string filePath)
         {
             // convert image
-            Debug.Print($"...Convert image to {PIXEL_FORMAT}");
+            Debug.Print($"{TB}{TB}Convert image to {PIXEL_FORMAT}");
 
             IImage converted = ImageFactory.Convert(image, PIXEL_FORMAT);
 
             // prepare image parameters
-            Debug.Print("...Prepare image parameters");
+            Debug.Print($"{TB}{TB}Prepare image parameters");
 
             SaveNET.ImageParams parameters = new SaveNET.ImageParams(
                     converted.Width,
@@ -275,7 +304,7 @@ namespace DDMAutoGUI.Services
                     true);
 
             // prepare image writer
-            Debug.Print("...Prepare image writer");
+            Debug.Print($"{TB}{TB}Prepare image writer");
 
             SaveNET.ImageWriter writer = new SaveNET.ImageWriter(parameters, filePath);
 
@@ -289,7 +318,7 @@ namespace DDMAutoGUI.Services
             writer.SetJpeg(".jpg", 95, false, SaveNET.EJpegSubsampling.NoSubsampling, false);
 
             // save
-            Debug.Print("...Save image");
+            Debug.Print($"{TB}{TB}Save image");
 
             writer.Save(converted.DataArray, true);
 

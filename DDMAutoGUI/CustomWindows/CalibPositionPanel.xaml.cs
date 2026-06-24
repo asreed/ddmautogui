@@ -1,4 +1,4 @@
-﻿using DDMAutoGUI.Services;
+using DDMAutoGUI.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -29,6 +30,8 @@ namespace DDMAutoGUI.CustomWindows
         public CalibPositionPanel()
         {
             InitializeComponent();
+            _controllerManager = App.Services?.GetService<IControllerManager>();
+            _applicationConfiguration = App.Services?.GetService<IApplicationConfiguration>();
         }
 
         public CalibPositionPanel(IControllerManager controllerManager, IApplicationConfiguration applicationConfiguration) : this()

@@ -1,26 +1,12 @@
 ﻿using DDMAutoGUI.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DDMAutoGUI.CustomWindows
 {
-    /// <summary>
-    /// Interaction logic for UserControl1.xaml
-    /// </summary>
     public partial class LocalDataPanel : UserControl
     {
         private readonly ILocalDataManager _localDataManager;
@@ -28,12 +14,30 @@ namespace DDMAutoGUI.CustomWindows
         public LocalDataPanel()
         {
             InitializeComponent();
+
+            _localDataManager = App.Services?.GetService<ILocalDataManager>();
+
+            if (_localDataManager == null)
+            {
+                // Design-time or DI misconfiguration — degrade gracefully
+                return;
+            }
+
+            Loaded += LocalDataPanel_Loaded;
         }
 
-        public LocalDataPanel(ILocalDataManager localDataManager) : this()
+        private void LocalDataPanel_Loaded(object sender, RoutedEventArgs e)
         {
-            _localDataManager = localDataManager ?? throw new ArgumentNullException(nameof(localDataManager));
+            RefreshPanel();
+        }
+
+        private void RefreshPanel()
+        {
+            if (_localDataManager == null) return;
+
             LocalData data = _localDataManager.GetLocalData();
+            if (data == null) return;
+
             PopulateLocalDataTree(data);
             PopulateRawLocalData(data);
         }
@@ -41,8 +45,7 @@ namespace DDMAutoGUI.CustomWindows
         private void PopulateRawLocalData(LocalData data)
         {
             LocalDataTxt.Clear();
-            string dataString = _localDataManager.SerializeDataFromJson(data);
-            LocalDataTxt.Text = dataString;
+            LocalDataTxt.Text = _localDataManager.SerializeDataFromJson(data);
         }
 
         private void PopulateLocalDataTree(LocalData data)
@@ -56,78 +59,59 @@ namespace DDMAutoGUI.CustomWindows
         {
             if (obj == null) return;
 
-            Type type = obj.GetType();
-            PropertyInfo[] properties = type.GetProperties();
-
-            foreach (PropertyInfo property in properties)
+            foreach (PropertyInfo property in obj.GetType().GetProperties())
             {
-                var p = property.PropertyType;
-                if (p.IsClass && !p.IsArray && p != typeof(string))
-                {
-                    // Recursively add properties of nested class
+                Type propertyType = property.PropertyType;
 
-                    //Debug.Print($"Adding class node. {property.Name}");
-                    TreeViewItem nestedParent = new TreeViewItem
-                    {
-                        Header = property.Name,
-                        IsExpanded = true,
-                    };
+                if (propertyType.IsClass && !propertyType.IsArray && propertyType != typeof(string))
+                {
+                    var nestedParent = new TreeViewItem { Header = property.Name, IsExpanded = true };
                     parent.Items.Add(nestedParent);
                     GenerateTree(property.GetValue(obj), nestedParent);
                 }
-                else if (p.IsClass && p.IsArray && p != typeof(string))
+                else if (propertyType.IsArray)
                 {
-
-                    // Recursively add properties of array
-
-                    //Debug.Print($"Adding array node. {property.Name}");
-                    Array array = (Array)property.GetValue(obj);
-                    TreeViewItem arrayParent = new TreeViewItem
-                    {
-                        Header = $"{property.Name}",
-                        IsExpanded = true,
-                    };
+                    var arrayParent = new TreeViewItem { Header = property.Name, IsExpanded = true };
                     parent.Items.Add(arrayParent);
-                    int index = 0;
-                    foreach (var element in array)
+
+                    if (property.GetValue(obj) is Array array)
                     {
-                        TreeViewItem elementParent = new TreeViewItem
+                        int index = 0;
+                        foreach (var element in array)
                         {
-                            Header = $"[{index}]",
-                            IsExpanded = true,
-                        };
-                        arrayParent.Items.Add(elementParent);
-                        GenerateTree(element, elementParent);
-                        index++;
+                            var elementParent = new TreeViewItem { Header = $"[{index}]", IsExpanded = true };
+                            arrayParent.Items.Add(elementParent);
+                            GenerateTree(element, elementParent);
+                            index++;
+                        }
                     }
                 }
                 else
                 {
-                    // Add individual property
-
-                    //Debug.Print($"Adding property. {property.Name}: {property.GetValue(obj)}");
-                    TreeViewItem item = new TreeViewItem
+                    parent.Items.Add(new TreeViewItem
                     {
-                        Header = $"{property.Name}: {property.GetValue(obj)?.ToString() ?? "null"}",
-                    };
-                    parent.Items.Add(item);
+                        Header = $"{property.Name}: {property.GetValue(obj)?.ToString() ?? "null"}"
+                    });
                 }
             }
         }
 
         private void LoadBtn_Click(object sender, RoutedEventArgs e)
         {
-            PopulateLocalDataTree(_localDataManager.GetLocalData());
-            PopulateRawLocalData(_localDataManager.GetLocalData());
+            _localDataManager?.LoadLocalData();
+            RefreshPanel();
         }
 
         private void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (_localDataManager == null) return;
+
             LocalData newData = _localDataManager.DeserializeLocalDataFromString(LocalDataTxt.Text);
+            if (newData == null) return;
+
             _localDataManager.SetLocalData(newData.Clone());
             _localDataManager.SaveLocalDataToFile(newData);
-            PopulateLocalDataTree(_localDataManager.GetLocalData());
-            PopulateRawLocalData(_localDataManager.GetLocalData());
+            RefreshPanel();
         }
     }
 }

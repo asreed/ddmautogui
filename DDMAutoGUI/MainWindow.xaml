@@ -1,4 +1,4 @@
-﻿<Window 
+<Window 
         xmlns:CustomWindows="clr-namespace:DDMAutoGUI.CustomWindows"
         xmlns:windows="clr-namespace:DDMAutoGUI.windows"
         x:Class="DDMAutoGUI.MainWindow"
@@ -160,11 +160,11 @@
 
                                                     <GroupBox Header="Motor Size" Grid.Row="2" Grid.Column="0">
                                                         <StackPanel Orientation="Vertical">
-                                                            <RadioButton Content="DDM 57" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57" IsEnabled="False"/>
-                                                            <RadioButton Content="DDM 95" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95" IsEnabled="False"/>
-                                                            <RadioButton Content="DDM 116" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor116" IsEnabled="True" IsChecked="True"/>
-                                                            <RadioButton Content="DDM 170" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170" IsEnabled="False"/>
-                                                            <RadioButton Content="DDM 170 Tall" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170Tall" IsEnabled="False"/>
+                                                            <RadioButton Content="DDM 57"       GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57"      IsEnabled="False" Checked="MotorSizeRadio_Checked" Tag="ddm_57"/>
+                                                            <RadioButton Content="DDM 95"       GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95"      IsEnabled="False" Checked="MotorSizeRadio_Checked" Tag="ddm_95"/>
+                                                            <RadioButton Content="DDM 116"      GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor116"     IsEnabled="True"  Checked="MotorSizeRadio_Checked" Tag="ddm_116" IsChecked="True"/>
+                                                            <RadioButton Content="DDM 170"      GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170"     IsEnabled="False" Checked="MotorSizeRadio_Checked" Tag="ddm_170"/>
+                                                            <RadioButton Content="DDM 170 Tall" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170Tall" IsEnabled="False" Checked="MotorSizeRadio_Checked" Tag="ddm_170_tall"/>
                                                         </StackPanel>
                                                     </GroupBox>
 
@@ -179,8 +179,7 @@
                                                         Grid.Column="0"
                                                         Grid.ColumnSpan="2"
                                                         x:Name="Disp_BeginBtn"
-                                                        IsEnabled="False"
-                                                        Content="Begin Dispense" 
+                                                        Content="Begin Dispense"
                                                         Command="{Binding StartDispenseCommand}"
                                                         Style="{DynamicResource BlueButton}" 
                                                         Height="70"/>
@@ -451,26 +450,26 @@
                                 <StackPanel Orientation="Vertical" Margin="6">
                                     <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
                                         <StackPanel Orientation="Vertical">
-                                            <CheckBox x:Name="Adv_Opt_Con_ControllerChk" Content="Controller" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_IOLinkChk" Content="IO Link Devices" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_TopCamChk" Content="Top Camera" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_SideCamChk" Content="Side Camera" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_LaserChk" Content="Laser Sensor" IsChecked="True"/>
-                                            <CheckBox Visibility="Collapsed" x:Name="Adv_Opt_Con_DAQChk" Content="DAQ Device" IsChecked="True"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_ControllerChk" Content="Controller"     IsChecked="{Binding ConnectController}"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_IOLinkChk"     Content="IO Link Devices" IsChecked="{Binding ConnectIoLinkDevices}"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_TopCamChk"     Content="Top Camera"     IsChecked="{Binding ConnectTopCamera}"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_SideCamChk"    Content="Side Camera"    IsChecked="{Binding ConnectSideCamera}"/>
+                                            <CheckBox x:Name="Adv_Opt_Con_LaserChk"      Content="Laser Sensor"   IsChecked="{Binding ConnectLaserSensor}"/>
+                                            <CheckBox Visibility="Collapsed" x:Name="Adv_Opt_Con_DAQChk" Content="DAQ Device" IsChecked="{Binding ConnectDaqDevice}"/>
                                         </StackPanel>
                                     </GroupBox>
                                     <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">
                                         <StackPanel Orientation="Vertical">
-                                            <CheckBox x:Name="Adv_Opt_Disp_HealthChk" Content="Check Health" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk" Content="Photo Top" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk" Content="Photo Side" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_RunOCRChk" Content="Run OCR" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk" Content="Measure Polarity" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk" Content="Measure Heights" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_DispChk" Content="Dispense" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk" Content="Autocalibrate" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoAfterChk" Content="Photo Top After" IsChecked="True"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_OverrideChk" Content="Override Dispense Warnings" IsChecked="False" Foreground="{StaticResource PrimaryOrange}"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_HealthChk"       Content="Check Health"             IsChecked="{Binding DispCheckHealth}"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk"     Content="Photo Top"                IsChecked="{Binding DispPhotoTop}"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk"    Content="Photo Side"               IsChecked="{Binding DispPhotoSide}"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_RunOCRChk"       Content="Run OCR"                  IsChecked="{Binding DispRunOCR}"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk"       Content="Measure Polarity"         IsChecked="{Binding DispCheckPolarity}"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk"   Content="Measure Heights"          IsChecked="{Binding DispMeasureHeights}"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_DispChk"         Content="Dispense"                 IsChecked="{Binding DispDispense}"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk"    Content="Autocalibrate"            IsChecked="{Binding DispAutocalibrate}"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoAfterChk" Content="Photo Top After"         IsChecked="{Binding DispPhotoTopAfter}"/>
+                                            <CheckBox x:Name="Adv_Opt_Disp_OverrideChk"     Content="Override Dispense Warnings" IsChecked="{Binding DispOverrideWarnings}" Foreground="{StaticResource PrimaryOrange}"/>
                                         </StackPanel>
                                     </GroupBox>
                                     <GroupBox Header="Other" HorizontalAlignment="Left" Padding="12">
@@ -1165,8 +1164,8 @@
 
                                         <GroupBox Header="Acquisition" Grid.Column="0">
                                             <StackPanel Orientation="Horizontal">
-                                                <Button x:Name="Adv_Cam_AcqurieTopBtn" Content="Acquire Top" Style="{DynamicResource SmallBlackButton}" Command="{Binding AcquireTopCommand}"/>
-                                                <Button x:Name="Adv_Cam_AcqurieSideBtn" Content="Acquire Side" Style="{DynamicResource SmallBlackButton}" Command="{Binding AcquireSideCommand}"/>
+                                                <Button x:Name="Adv_Cam_AcqurieTopBtn" Content="Acquire Top" Style="{DynamicResource SmallBlackButton}" Click="AcquireTopCommand"/>
+                                                <Button x:Name="Adv_Cam_AcqurieSideBtn" Content="Acquire Side" Style="{DynamicResource SmallBlackButton}" Click="AcquireSideCommand"/>
                                             </StackPanel>
                                         </GroupBox>
                                         <GroupBox Header="Other" Grid.Column="1">
