@@ -24,7 +24,6 @@ namespace DDMAutoGUI.Services
 
         // Progress tracking
         public event EventHandler<ProgressChangedEventArgs> ProgressChanged;
-        public event EventHandler<ProcessStepEventArgs> StepChanged;
 
         // Constants
         private const string LOG_INDENT = "  ";
@@ -85,22 +84,22 @@ namespace DDMAutoGUI.Services
                 if (advancedOptions.DispenseOptions.CheckHealth)
                 {
                     await ExecuteHealthCheckAsync();
-                    ReportProgress(5);
+                    ReportProgress(5, "System health checked");
                 }
 
                 // Step 2: Power and Home
                 await ExecutePowerAndHomeAsync();
-                ReportProgress(10);
+                ReportProgress(10, "Powered and homed");
 
                 // Step 3: Clearance Check
                 await ExecuteClearanceCheckAsync(settings);
-                ReportProgress(15);
+                ReportProgress(15, "Clearance checked");
 
                 // Step 4: Setup Dispense System (pressures, etc)
                 if (advancedOptions.DispenseOptions.Dispense)
                 {
                     await ExecuteDispenseSetupAsync(settings, motorName);
-                    ReportProgress(20);
+                    ReportProgress(20, "Dispense system ready");
                 }
 
                 // Step 5: Acquire Preprocess Top Photo
@@ -108,7 +107,7 @@ namespace DDMAutoGUI.Services
                 if (advancedOptions.DispenseOptions.PhotoTop)
                 {
                     topImagePath = await ExecuteTopPhotoAcquisitionAsync(settings);
-                    ReportProgress(25);
+                    ReportProgress(25, "Top photo acquired");
                 }
 
                 // Step 6: Acquire Side Photo
@@ -116,42 +115,42 @@ namespace DDMAutoGUI.Services
                 if (advancedOptions.DispenseOptions.PhotoSide)
                 {
                     sideImagePath = await ExecuteSidePhotoAcquisitionAsync(motor);
-                    ReportProgress(30);
+                    ReportProgress(30, "Side photo acquired");
                 }
 
                 // Step 7: Process Images with OCR
                 if (advancedOptions.DispenseOptions.RunOCR)
                 {
                     await ExecuteOCRProcessingAsync(resultsPath, motorName);
-                    ReportProgress(40);
+                    ReportProgress(40, "OCR processed");
                 }
 
                 // Step 8: Check Magnet Polarity
                 if (advancedOptions.DispenseOptions.CheckPolarity)
                 {
                     await ExecutePolarityCheckAsync(settings, motor, motorName);
-                    ReportProgress(50);
+                    ReportProgress(50, "Magnet polarity checked");
                 }
 
                 // Step 9: Measure Heights
                 if (advancedOptions.DispenseOptions.MeasureHeights)
                 {
                     await ExecuteHeightMeasurementsAsync(settings, motor);
-                    ReportProgress(60);
+                    ReportProgress(60, "Heights measured");
                 }
 
                 // Step 10: Perform Dispense
                 if (advancedOptions.DispenseOptions.Dispense)
                 {
                     await ExecuteDispenseAsync(settings, motor, motorName);
-                    ReportProgress(70);
+                    ReportProgress(70, "Dispense complete");
                 }
 
                 // Step 11: Autocalibration
                 if (advancedOptions.DispenseOptions.Autocalibrate)
                 {
                     await ExecuteAutocalibrationAsync(settings, motorName);
-                    ReportProgress(80);
+                    ReportProgress(80, "Autocalibration complete");
                 }
 
                 // Step 12: Post-process Photo
@@ -163,12 +162,12 @@ namespace DDMAutoGUI.Services
                     {
                         _resultsManager.CopyPhotoToResultsFolder(topAfterImagePath, "TopPost");
                     }
-                    ReportProgress(90);
+                    ReportProgress(90, "Post-process photo acquired");
                 }
 
                 // Step 13: Move to Unload
                 await ExecuteMoveToUnloadAsync(settings);
-                ReportProgress(95);
+                ReportProgress(95, "Moving to unload");
 
                 // Determine Pass/Fail
                 _resultsManager.DeterminePassFail(
@@ -181,7 +180,7 @@ namespace DDMAutoGUI.Services
                 _resultsManager.currentResults.overall_process_result = pass;
                 _resultsManager.currentResults.overall_proces_message = message;
                 _resultsManager.AddToLog("Process complete");
-                ReportProgress(100);
+                ReportProgress(100, "Finishing up");
 
                 result.Success = true;
                 result.Pass = pass;
@@ -217,7 +216,7 @@ namespace DDMAutoGUI.Services
 
             // Save Results
             await ExecuteSaveResultsAsync(settings, resultsPath);
-            ReportProgress(100);
+            ReportProgress(100, "Process complete");
             return result;
         }
 
@@ -459,7 +458,7 @@ namespace DDMAutoGUI.Services
 
             int n = motor.laser_ring_num.Value;
             string response = await _controllerManager.MeasureHeightsContinuous(x, t, n, 10);
-            _resultsManager.currentResults.ring_heights = _controllerManager.ParseHeightData(response);
+            List<ResultsHeightMeasurement> ring_heights = _controllerManager.ParseHeightData(response);
             _resultsManager.AddToLog("Ring height data collected");
 
             _resultsManager.AddToLog("Collecting magnet/concentrator height data...");
@@ -469,14 +468,25 @@ namespace DDMAutoGUI.Services
 
             n = motor.laser_mag_num.Value;
             response = await _controllerManager.MeasureHeightsContinuous(x, t, n, 20);
-            _resultsManager.currentResults.mag_heights = _controllerManager.ParseHeightData(response);
+            List<ResultsHeightMeasurement> mag_heights = _controllerManager.ParseHeightData(response);
             _resultsManager.AddToLog("Magnet/concentrator height data collected");
             _resultsManager.AddToLog("Processing height data...");
 
             HeightVerificationResult heightResult = HeightVerification.VerifyHeightData(
-                _resultsManager.currentResults.ring_heights,
-                _resultsManager.currentResults.mag_heights,
+                ring_heights,
+                mag_heights,
                 settings);
+
+            _resultsManager.currentResults.height_verification_result = heightResult;
+            if (heightResult.passed)
+            {
+                _resultsManager.AddToLog($"Height verification passed: {heightResult.message}");
+            }
+            else
+            {
+                _resultsManager.AddToLog($"Height verification failed: {heightResult.message}");
+                throw new DispenseException($"Height verification failed");
+            }
         }
 
         private async Task ExecuteDispenseAsync(CellSettings settings, CSMotor motor, string motorName)
@@ -741,14 +751,5 @@ namespace DDMAutoGUI.Services
             Percentage = percentage;
             Step = step;
         }
-    }
-
-    /// <summary>
-    /// Event arguments for process step changes.
-    /// </summary>
-    public class ProcessStepEventArgs : EventArgs
-    {
-        public string StepName { get; set; }
-        public int StepNumber { get; set; }
     }
 }

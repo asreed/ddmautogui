@@ -14,7 +14,7 @@ namespace DDMAutoGUI.ViewModels
     /// ViewModel for MainWindow. Handles all business logic and state management
     /// for the application including connection, dispense process, and UI coordination.
     /// </summary>
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel : ViewModelBase, IDisposable
     {
         private readonly IControllerManager _controllerManager;
         private readonly ISettingsManager _settingsManager;
@@ -32,6 +32,7 @@ namespace DDMAutoGUI.ViewModels
         private string _statusLog;
         private string _robotLog;
         private double _processProgress;
+        private string _currentStep;
         private bool _isProcessing;
         private string _motorSerialNumber;
         private string _controllerIpAddress;
@@ -138,6 +139,12 @@ namespace DDMAutoGUI.ViewModels
         {
             get => _processProgress;
             set => SetProperty(ref _processProgress, value);
+        }
+
+        public string CurrentStep
+        {
+            get => _currentStep;
+            set => SetProperty(ref _currentStep, value);
         }
 
         public bool IsProcessing
@@ -561,6 +568,7 @@ namespace DDMAutoGUI.ViewModels
                 IsProcessing = true;
                 IsDispenseProcessRunning = true;
                 ProcessProgress = 0;
+                CurrentStep = "Starting dispense process...";
                 ProcessLog = "";
 
                 if (string.IsNullOrEmpty(MotorSerialNumber))
@@ -707,6 +715,11 @@ namespace DDMAutoGUI.ViewModels
             _controllerManager.RobotLogUpdated += ControllerManager_RobotLogUpdated;
             _resultsManager.UpdateProcessLog += ResultsManager_UpdateProcessLog;
             _controllerManager.ControllerStateChanged += ControllerManager_StateChanged;
+
+            // Wire dispense progress reporting to the bound ProcessProgress property.
+            // This subscription was lost in the MVVM/DI refactor, which is why the
+            // Disp_ProcessPrg bar stopped advancing during a run.
+            _dispenseProcessService.ProgressChanged += DispenseProcessService_ProgressChanged;
         }
 
         private void ControllerManager_Connected(object sender, EventArgs e)
@@ -752,9 +765,18 @@ namespace DDMAutoGUI.ViewModels
             ProcessLog = _resultsManager.GetLogAsString();
         }
 
-        private void DispenseService_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void DispenseProcessService_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            ProcessProgress = e.Percentage;
+            // The workflow awaits controller I/O and may resume on a worker thread,
+            // so marshal the update to the UI thread to keep the OneWay bindings valid.
+            Application.Current?.Dispatcher.BeginInvoke(() =>
+            {
+                ProcessProgress = e.Percentage;
+                if (!string.IsNullOrWhiteSpace(e.Step))
+                {
+                    CurrentStep = e.Step;
+                }
+            });
         }
 
         private void ControllerManager_StateChanged(object sender, EventArgs e)
@@ -808,6 +830,34 @@ namespace DDMAutoGUI.ViewModels
                 "ddm_170_tall"
             };
             SelectedMotorSizeIndex = 2; // Default to ddm_116
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        private bool _disposed;
+
+        /// <summary>
+        /// Detaches every manager/service event subscription. Called when the owning
+        /// window closes so the ViewModel does not remain rooted by the long-lived
+        /// singleton services through their event handlers.
+        /// </summary>
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            _controllerManager.ControllerConnected -= ControllerManager_Connected;
+            _controllerManager.ControllerDisconnected -= ControllerManager_Disconnected;
+            _controllerManager.ConnectionLogUpdated -= ControllerManager_ConnectionLogUpdated;
+            _controllerManager.StatusLogUpdated -= ControllerManager_StatusLogUpdated;
+            _controllerManager.RobotLogUpdated -= ControllerManager_RobotLogUpdated;
+            _controllerManager.ControllerStateChanged -= ControllerManager_StateChanged;
+            _resultsManager.UpdateProcessLog -= ResultsManager_UpdateProcessLog;
+            _dispenseProcessService.ProgressChanged -= DispenseProcessService_ProgressChanged;
+
+            _disposed = true;
         }
 
         #endregion

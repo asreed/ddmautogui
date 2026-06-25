@@ -51,7 +51,6 @@ namespace DDMAutoGUI
                 serviceCollection.AddTransient<SettingsPanel>();
                 serviceCollection.AddTransient<CalibPositionPanel>();
                 serviceCollection.AddTransient<CalibFlowPanel>();
-                serviceCollection.AddTransient<CalibHeightPanel>();
                 serviceCollection.AddTransient<LocalDataPanel>();
                 serviceCollection.AddTransient<MainWindow>();
 

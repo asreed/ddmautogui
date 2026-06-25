@@ -5,6 +5,8 @@
     xmlns:local="clr-namespace:DDMAutoGUI">
     <Application.Resources>
 
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
         <FontFamily x:Key="AppFont">Segoe UI</FontFamily>
         <FontFamily x:Key="AppFontMono">Consolas</FontFamily>
 

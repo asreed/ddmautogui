@@ -216,8 +216,6 @@ namespace DDMAutoGUI
             Status_SimBdr.Visibility = Visibility.Collapsed;
             Adv_PWEntryBdr.Visibility = Visibility.Visible;
             Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
-            Disp_ProcessPrg.Value = 0;
-
             AdvTab.Visibility = Visibility.Collapsed;
         }
 
@@ -1175,6 +1173,14 @@ namespace DDMAutoGUI
             {
                 vm.SelectedMotorType = rb.Tag as string;
             }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+
+            // Release the ViewModel's subscriptions to the long-lived singleton services.
+            (DataContext as IDisposable)?.Dispose();
         }
     }
 }

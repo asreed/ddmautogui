@@ -24,6 +24,7 @@ namespace DDMAutoGUI.Utilities
         public List<ResultsHeightMeasurement> ringData { get; set; }
         public List<ResultsHeightMeasurement> rawMagConcData { get; set; }
         public List<ResultsHeightMeasurement> normMagConcData { get; set; }
+        public string message { get; set; } = "";
 
     }
 
@@ -39,30 +40,27 @@ namespace DDMAutoGUI.Utilities
         public static HeightVerificationResult VerifyHeightData(List<ResultsHeightMeasurement> ringData, List<ResultsHeightMeasurement> magConcData, CellSettings settings)
         {
 
-            Debug.Print($"Raw ring data:");
-            PrintHeightData(ringData);
-            Debug.Print($"Raw mag conc data:");
-            PrintHeightData(magConcData);
-
 
             // Fit sine to ring data
             double A, phi, zOffset, rSquared;
             FitSinToData(ringData, out A, out phi, out zOffset, out rSquared);
 
-            Debug.Print($"Sine fit generated:\tA = {A}, phi = {phi}, Z Offset = {zOffset}, R^2 = {rSquared}");
-
             // Normalize mag conc data based on fit
-            List<ResultsHeightMeasurement> normRingData = NormalizeData(A, phi, zOffset, magConcData);
+            List<ResultsHeightMeasurement> normMagConcData = NormalizeData(A, phi, zOffset, magConcData);
 
-            Debug.Print($"Normalized mag conc data:");
-            PrintHeightData(normRingData);
+            // Print for debug
+            //Debug.Print($"Raw ring data:");
+            //PrintHeightData(ringData);
+            //Debug.Print($"Raw mag conc data:");
+            //PrintHeightData(magConcData);
+            //Debug.Print($"Sine fit generated:\tA = {A}, phi = {phi}, Z Offset = {zOffset}, R^2 = {rSquared}");
+            //Debug.Print($"Normalized mag conc data:");
+            //PrintHeightData(normMagConcData);
 
-
-            // Verify
-
+            // Collect results
             float maxAcceptableHeight = settings.height_verification.max_height.Value;
-            float maxHeight = normRingData.Max(m => m.z) ?? float.NaN;
-            float minHeight = normRingData.Min(m => m.z) ?? float.NaN;
+            float maxHeight = normMagConcData.Max(m => m.z) ?? float.NaN;
+            float minHeight = normMagConcData.Min(m => m.z) ?? float.NaN;
 
             HeightVerificationResult result = new HeightVerificationResult();
             result.ringA = A;
@@ -70,14 +68,22 @@ namespace DDMAutoGUI.Utilities
             result.ringRSquared = rSquared;
             result.ringData = ringData;
             result.rawMagConcData = magConcData;
-            result.normMagConcData = normRingData;
+            result.normMagConcData = normMagConcData;
             result.normMaxHeight = maxHeight;
             result.normMinHeight = minHeight;
 
-            result.passed = maxHeight <= maxAcceptableHeight;
-
+            // Simple verificaition
+            if (maxHeight > maxAcceptableHeight)
+            {
+                result.message = $"Height verification failed: max height {maxHeight} exceeds acceptable limit {maxAcceptableHeight}.";
+                result.passed = false;
+            }
+            else
+            {
+                result.message = $"Height verification passed: max height {maxHeight} within acceptable limit {maxAcceptableHeight}.";
+                result.passed = true;
+            }
             return result;
-
         }
 
 
@@ -105,7 +111,7 @@ namespace DDMAutoGUI.Utilities
             // https://math.stackexchange.com/questions/902166/fit-sine-wave-to-data
             // https://math.stackexchange.com/questions/3926007/least-squares-regression-of-sine-wave
 
-            // assuming period of 2pi to fit the relation:
+            // Assuming period of 2pi to fit the relation:
             // y(t) = A * sin(t + phi)
 
             // y(t) = A * sin(t) * cos(phi) + A * cos(t) * sin(phi)
@@ -121,7 +127,7 @@ namespace DDMAutoGUI.Utilities
             // A^2 = A1^2 + A2^2
             // phi = atan(A2 / A1)
 
-            // convert list to array for mathnet
+            // Convert list to array for Mathnet
             double[,] rawDataArray = new double[rawDataList.Count, 2];
             for (int i = 0; i < rawDataList.Count; i++)
             {
@@ -135,10 +141,10 @@ namespace DDMAutoGUI.Utilities
             var data = M.DenseOfArray(rawDataArray);
             var ones = V.Dense(data.RowCount, 1);
 
-            // vector of angle in radians
+            // Vector of angle in radians
             var angRad = data.Column(0) * (Math.PI / 180.0);
 
-            // vector of heights, shifted for zero mean
+            // Vector of heights, shifted for zero mean
             var height = data.Column(1);
             var offset = data.Column(1).Mean();
             var heightShifted = height - offset;

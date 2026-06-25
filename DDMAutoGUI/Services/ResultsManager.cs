@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using DDMAutoGUI.Utilities;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -39,7 +40,6 @@ namespace DDMAutoGUI.Services
         public float? od_target_vol { get; set; }
         public float? od_target_flow { get; set; }
         public float? od_calib_pressure { get; set; }
-
         public float? sys_1_autocal_sf { get; set; }
         public float? sys_2_autocal_sf { get; set; }
     }
@@ -66,8 +66,9 @@ namespace DDMAutoGUI.Services
         public bool? overall_process_result { get; set; }
         public string? overall_proces_message { get; set; }
         public DAQMatlabResults? daq_matlab_results { get; set; }
-        public List<ResultsHeightMeasurement>? ring_heights { get; set; }
-        public List<ResultsHeightMeasurement>? mag_heights { get; set; }
+        public HeightVerificationResult? height_verification_result { get; set; }
+        //public List<ResultsHeightMeasurement>? ring_heights { get; set; }
+        //public List<ResultsHeightMeasurement>? mag_heights { get; set; }
         public List<ResultsLogLine>? process_log { get; set; }
     }
 
@@ -168,8 +169,8 @@ namespace DDMAutoGUI.Services
             {
                 currentResults = new Results
                 {
-                    ring_heights = new List<ResultsHeightMeasurement>(),
-                    mag_heights = new List<ResultsHeightMeasurement>(),
+                    //ring_heights = new List<ResultsHeightMeasurement>(),
+                    //mag_heights = new List<ResultsHeightMeasurement>(),
                     shot_data = new ResultsShotData(),
                     process_log = new List<ResultsLogLine>()
                 };

@@ -23,8 +23,8 @@ namespace DDMAutoGUI.Services
         public float? calib_surface_height { get; set; }
         public float? calib_tool_height { get; set; }
         public float? calib_tool_max_diff { get; set; }
-        public CSDispense? dispense_system { get; set; }
         public CSHeightVerif? height_verification { get; set; }
+        public CSDispense? dispense_system { get; set; }
         public CSMotorCommon? ddm_common { get; set; }
         public CSMotor? ddm_57 { get; set; }
         public CSMotor? ddm_95 { get; set; }

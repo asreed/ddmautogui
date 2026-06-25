@@ -10,7 +10,6 @@ namespace DDMAutoGUI.Services
     public interface IDispenseProcessService
     {
         event EventHandler<ProgressChangedEventArgs> ProgressChanged;
-        event EventHandler<ProcessStepEventArgs> StepChanged;
 
         Task<DispenseProcessResult> ExecuteFullDispenseProcessAsync(
             string motorName,

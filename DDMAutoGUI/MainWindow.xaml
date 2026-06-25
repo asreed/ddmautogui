@@ -211,6 +211,11 @@
                                                 </GroupBox>
                                                 <GroupBox Header="Progress" Grid.Row="1">
                                                     <StackPanel Orientation="Vertical">
+                                                        <!-- label for current step... maybe not necessary -->
+                                                        <TextBlock x:Name="Disp_StepTxb"
+                                                                   Visibility="Collapsed"
+                                                                   Text="{Binding CurrentStep, Mode=OneWay}"
+                                                                   Margin="3,0,3,3"/>
                                                         <ProgressBar
                                                             x:Name="Disp_ProcessPrg"
                                                             Value="{Binding ProcessProgress, Mode=OneWay}"
@@ -218,7 +223,7 @@
                                                         <ProgressBar 
                                                             x:Name="Disp_BusyPrg"
                                                             IsIndeterminate="True"
-                                                            Visibility="Visible"
+                                                            Visibility="{Binding IsDispenseProcessRunning, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                             Style="{StaticResource ProgressMainBusy}"
                                                             Margin="0,3,0,0"/>
                                                     </StackPanel>
