@@ -396,7 +396,10 @@ namespace DDMAutoGUI.Services
                 // --- Settings Verification & Load ---
                 // Use SettingsManager's method which verifies AND loads settings
                 var settingsManager = _getSettingsManager();
-                bool settingsExist = settingsManager.LoadAndVerifySettings(ip);
+
+                // Offload the synchronous FTP download so the UI thread stays free to
+                // render connection-log updates and remain responsive during connect.
+                bool settingsExist = await Task.Run(() => settingsManager.LoadAndVerifySettings(ip));
                 if (!settingsExist)
                 {
                     throw new Exception($"{ErrorCodes.conSettings.code}: {ErrorCodes.conSettings.msg}");
@@ -458,7 +461,10 @@ namespace DDMAutoGUI.Services
                 if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.TopCamera == true)
                 {
                     var cameraManager = _getCameraManager();
-                    bool topCameraConnected = await cameraManager.TestCameraConnection(CameraManager.CellCamera.top);
+
+                    // Offload the blocking Arena SDK calls (device enumeration, GetImage)
+                    // off the UI thread.
+                    bool topCameraConnected = await Task.Run(() => cameraManager.TestCameraConnection(CameraManager.CellCamera.top));
                     if (!topCameraConnected)
                     {
                         throw new Exception($"{ErrorCodes.conCamTop.code}: {ErrorCodes.conCamTop.msg}");

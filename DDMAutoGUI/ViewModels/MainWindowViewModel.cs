@@ -64,6 +64,13 @@ namespace DDMAutoGUI.ViewModels
         private BitmapSource _acquiredImageSource;
         private string _cameraStatus;
 
+        private DispenseResultStatus _resultStatus;
+        private string _resultMessage;
+        private string _resultRingSerial;
+        private string _resultToolSerial;
+        private string _resultDispenseVolumeId;
+        private string _resultDispenseVolumeOd;
+
         public MainWindowViewModel(
             IControllerManager controllerManager,
             ISettingsManager settingsManager,
@@ -476,6 +483,77 @@ namespace DDMAutoGUI.ViewModels
             set => SetProperty(ref _cameraStatus, value);
         }
 
+        /// <summary>
+        /// Overall outcome shown on the Review Results tab. Setting this also refreshes
+        /// the three convenience flags the status borders bind their visibility to.
+        /// </summary>
+        public DispenseResultStatus ResultStatus
+        {
+            get => _resultStatus;
+            set
+            {
+                if (SetProperty(ref _resultStatus, value))
+                {
+                    OnPropertyChanged(nameof(IsResultPass));
+                    OnPropertyChanged(nameof(IsResultFail));
+                    OnPropertyChanged(nameof(IsResultIncomplete));
+                }
+            }
+        }
+
+        public bool IsResultPass => _resultStatus == DispenseResultStatus.Pass;
+        public bool IsResultFail => _resultStatus == DispenseResultStatus.Fail;
+        public bool IsResultIncomplete => _resultStatus == DispenseResultStatus.Incomplete;
+
+        public string ResultMessage
+        {
+            get => _resultMessage;
+            set => SetProperty(ref _resultMessage, value);
+        }
+
+        public string ResultRingSerial
+        {
+            get => _resultRingSerial;
+            set => SetProperty(ref _resultRingSerial, value);
+        }
+
+        public string ResultToolSerial
+        {
+            get => _resultToolSerial;
+            set => SetProperty(ref _resultToolSerial, value);
+        }
+
+        public string ResultDispenseVolumeId
+        {
+            get => _resultDispenseVolumeId;
+            set => SetProperty(ref _resultDispenseVolumeId, value);
+        }
+
+        public string ResultDispenseVolumeOd
+        {
+            get => _resultDispenseVolumeOd;
+            set => SetProperty(ref _resultDispenseVolumeOd, value);
+        }
+
+        // Tab indices for dispTabControl (inside the Operate tab) so the workflow
+        // can drive navigation without scattering magic numbers at the call site.
+        private const int SelectMotorTabIndex = 0;
+        private const int MonitorProcessTabIndex = 1;
+        private const int ReviewResultsTabIndex = 2;
+
+        private int _selectedDispenseTabIndex;
+
+        /// <summary>
+        /// Two-way bound to dispTabControl.SelectedIndex so the dispense workflow can
+        /// advance the operator from "Select Motor" to "Monitor Process" and finally
+        /// to "Review Results".
+        /// </summary>
+        public int SelectedDispenseTabIndex
+        {
+            get => _selectedDispenseTabIndex;
+            set => SetProperty(ref _selectedDispenseTabIndex, value);
+        }
+
         #endregion
 
         #region Commands
@@ -571,17 +649,22 @@ namespace DDMAutoGUI.ViewModels
                 CurrentStep = "Starting dispense process...";
                 ProcessLog = "";
 
-                if (string.IsNullOrEmpty(MotorSerialNumber))
-                {
-                    ProcessLog = "Error: Motor serial number is required";
-                    return;
-                }
+                ProcessLog += $"=== PROCESS STARTED ===\n";
 
-                if (!IsConnected)
-                {
-                    ProcessLog = "Error: Controller not connected";
-                    return;
-                }
+                // Bring the operator to the live progress/log view as the run begins.
+                SelectedDispenseTabIndex = MonitorProcessTabIndex;
+
+                //if (string.IsNullOrEmpty(MotorSerialNumber))
+                //{
+                //    ProcessLog = "Error: Motor serial number is required";
+                //    return;
+                //}
+
+                //if (!IsConnected)
+                //{
+                //    ProcessLog = "Error: Controller not connected";
+                //    return;
+                //}
 
                 // Use _appConfig.AdvancedOptions
                 var result = await _dispenseProcessService.ExecuteFullDispenseProcessAsync(
@@ -591,16 +674,23 @@ namespace DDMAutoGUI.ViewModels
 
                 if (result.Success)
                 {
-                    ProcessLog += $"\n\n=== PROCESS COMPLETED ===\n";
-                    ProcessLog += $"Result: {(result.Pass ? "PASS" : "FAIL")}\n";
-                    ProcessLog += $"Message: {result.Message}\n";
-                    ProcessLog += $"Results saved to: {result.ResultsPath}";
+                    if (result.Pass) {
+                        ProcessLog += $"\n\n=== PROCESS PASSED ===\n";
+                    }
+                    else
+                    {
+                        ProcessLog += $"\n\n=== PROCESS FAILED ===\n";
+                    }
                 }
                 else
                 {
-                    ProcessLog += $"\n\n=== PROCESS FAILED ===\n";
-                    ProcessLog += $"Error: {result.Message}";
+                    ProcessLog += $"\n\n=== PROCESS INCOMPLETE ===\n";
                 }
+
+                // Fill the Review Results tab and bring the operator to it, regardless of
+                // outcome, so pass/fail/incomplete is always visible.
+                PopulateResultsDisplay(result);
+                SelectedDispenseTabIndex = ReviewResultsTabIndex;
             }
             catch (Exception ex)
             {
@@ -609,6 +699,9 @@ namespace DDMAutoGUI.ViewModels
             }
             finally
             {
+                // Advance to the results view now that the run has finished.
+                SelectedDispenseTabIndex = ReviewResultsTabIndex;
+
                 IsProcessing = false;
                 IsDispenseProcessRunning = false;
             }
@@ -832,6 +925,26 @@ namespace DDMAutoGUI.ViewModels
             SelectedMotorSizeIndex = 2; // Default to ddm_116
         }
 
+        /// <summary>
+        /// Copies the subset of completed-run data shown on the Review Results tab into
+        /// the bound properties. The tri-state status and message come from the returned
+        /// summary; the detail fields come from the authoritative results record.
+        /// </summary>
+        private void PopulateResultsDisplay(DispenseProcessResult result)
+        {
+            ResultStatus = !result.Success
+                ? DispenseResultStatus.Incomplete
+                : result.Pass ? DispenseResultStatus.Pass : DispenseResultStatus.Fail;
+
+            ResultMessage = result.Message;
+
+            var data = _resultsManager.currentResults;
+            ResultToolSerial = string.IsNullOrWhiteSpace(data?.tool_sn) ? "-" : data.tool_sn;
+            ResultRingSerial = string.IsNullOrWhiteSpace(data?.ring_sn) ? "-" : data.ring_sn;
+            ResultDispenseVolumeId = data?.shot_data?.id_vol is float idVol ? $"{idVol:0.000}" : "-";
+            ResultDispenseVolumeOd = data?.shot_data?.od_vol is float odVol ? $"{odVol:0.000}" : "-";
+        }
+
         #endregion
 
         #region IDisposable
@@ -861,5 +974,17 @@ namespace DDMAutoGUI.ViewModels
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Display outcome for the Review Results tab. "Incomplete" represents a run that
+    /// never reached the pass/fail determination (error, abort, or unexpected stop).
+    /// </summary>
+    public enum DispenseResultStatus
+    {
+        None,
+        Pass,
+        Fail,
+        Incomplete
     }
 }

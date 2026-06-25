@@ -90,7 +90,10 @@
                                                 Command="{Binding ConnectCommand}"
                                                 CommandParameter="{Binding Text, ElementName=Con_IPTxt}"
                                                 Style="{StaticResource BlueButton}"/>
-                                        <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="Con_ConnectPrg" Visibility="Collapsed"/>
+                                        <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
+                                                     x:Name="Con_ConnectPrg" 
+                                                     IsIndeterminate="True"
+                                                     Visibility="{Binding IsProcessing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     </Grid>
                                 </GroupBox>
                                 <GroupBox Header="Connection Log">
@@ -119,15 +122,15 @@
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="450"/>
+                                <ColumnDefinition Width="500"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
 
                             <Grid Grid.Row="1" Grid.Column="1">
-                                <TabControl x:Name="dispTabControl" Grid.Row="1">
+                                <TabControl x:Name="dispTabControl" Grid.Row="1" SelectedIndex="{Binding SelectedDispenseTabIndex}">
 
-                                    <TabItem Header="1: Select Motor">
+                                    <TabItem Header="1: Configure">
                                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                                             <Grid x:Name="tabContainer1">
 
@@ -179,7 +182,7 @@
                                                         Grid.Column="0"
                                                         Grid.ColumnSpan="2"
                                                         x:Name="Disp_BeginBtn"
-                                                        Content="Begin Dispense"
+                                                        Content="Execute Cycle"
                                                         Command="{Binding StartDispenseCommand}"
                                                         Style="{DynamicResource BlueButton}" 
                                                         Height="70"/>
@@ -191,7 +194,7 @@
                                         </ScrollViewer>
                                     </TabItem>
 
-                                    <TabItem Header="2: Monitor Process">
+                                    <TabItem Header="2: Monitor">
                                         <Grid x:Name="tabContainer2">
 
                                             <Grid>
@@ -235,7 +238,7 @@
                                         </Grid>
                                     </TabItem>
 
-                                    <TabItem Header="3. Review Results">
+                                    <TabItem Header="3. Review">
                                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                                             <Grid x:Name="tabContainer3">
                                                 <Grid>
@@ -246,38 +249,44 @@
                                                         <RowDefinition Height="Auto"/>
                                                     </Grid.RowDefinitions>
 
-                                                    <GroupBox Grid.Row="0" Header="Result" Padding="16">
+                                                    <GroupBox Grid.Row="0" Header="Result" Padding="10">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="140"/>
                                                                 <ColumnDefinition/>
                                                             </Grid.ColumnDefinitions>
                                                             <StackPanel Orientation="Vertical">
-                                                                <Border x:Name="Disp_Res_PassBdr" Grid.Column="0" Visibility="Collapsed" Style="{StaticResource PassBorder}">
+                                                                <Border x:Name="Disp_Res_PassBdr" Grid.Column="0" Visibility="{Binding IsResultPass, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource PassBorder}">
                                                                     <TextBlock Text="Pass" Foreground="White"/>
                                                                 </Border>
-                                                                <Border x:Name="Disp_Res_FailBdr" Grid.Column="0" Visibility="Visible" Style="{StaticResource FailBorder}">
+                                                                <Border x:Name="Disp_Res_FailBdr" Grid.Column="0" Visibility="{Binding IsResultFail, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource FailBorder}">
                                                                     <TextBlock Text="Fail" Foreground="White"/>
+                                                                </Border>
+                                                                <Border x:Name="Disp_Res_IncompleteBdr" Grid.Column="0" Visibility="{Binding IsResultIncomplete, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource IncompleteBorder}">
+                                                                    <TextBlock Text="Incomplete" Foreground="#666"/>
                                                                 </Border>
                                                             </StackPanel>
                                                             <TextBlock x:Name="Disp_Res_ResMessageTxb"
                                                                        Grid.Column="1"
+                                                                       Margin="10,0,0,0"
                                                                        TextWrapping="Wrap"
                                                                        Foreground="Black"
-                                                                       VerticalAlignment="Center"
-                                                                       Text="-"/>
+                                                                       VerticalAlignment="Top"
+                                                                       Text="{Binding ResultMessage}"/>
                                                         </Grid>
                                                     </GroupBox>
-                                                    <GroupBox Grid.Row="2" Header="Result Details">
+                                                    <GroupBox Grid.Row="2" Header="Result Details" Padding="10">
                                                         <Grid>
                                                             <Grid.Resources>
                                                                 <Style TargetType="TextBlock">
-                                                                    <Setter Property="Margin" Value="0,0,0,3"/>
+                                                                    <Setter Property="Margin" Value="0,0,0,6"/>
+                                                                    <Setter Property="Foreground" Value="Black"/>
                                                                 </Style>
                                                             </Grid.Resources>
                                                             <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="140"/>
+                                                                <ColumnDefinition Width="150"/>
                                                                 <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
                                                             </Grid.ColumnDefinitions>
                                                             <Grid.RowDefinitions>
                                                                 <RowDefinition Height="Auto"/>
@@ -286,34 +295,39 @@
                                                                 <RowDefinition Height="Auto"/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            <TextBlock Grid.Column="0" Grid.Row="0" Text="Ring SN"/>
-                                                            <TextBlock Grid.Column="0" Grid.Row="1" Text="Dispense volume ID"/>
-                                                            <TextBlock Grid.Column="0" Grid.Row="2" Text="Dispense volume OD"/>
-                                                            <TextBlock Grid.Column="0" Grid.Row="3" Text="Flow autocalibration" Visibility="Collapsed"/>
+                                                            <TextBlock Grid.Column="0" Grid.Row="0" Text="Tool SN"/>
+                                                            <TextBlock Grid.Column="0" Grid.Row="1" Text="Ring SN"/>
+                                                            <TextBlock Grid.Column="0" Grid.Row="2" Text="Dispense volume ID"/>
+                                                            <TextBlock Grid.Column="0" Grid.Row="3" Text="Dispense volume OD"/>
+                                                            <!--<TextBlock Grid.Column="0" Grid.Row="4" Text="Flow autocalibration" Visibility="Collapsed"/>-->
 
-                                                            <TextBlock Grid.Column="1" Grid.Row="0" Text="-" x:Name="Disp_Res_SNTxb"/>
-                                                            <TextBlock Grid.Column="1" Grid.Row="1" Text="-" x:Name="Disp_Res_VolIDTxb"/>
-                                                            <TextBlock Grid.Column="1" Grid.Row="2" Text="-" x:Name="Disp_Res_VolODTxb"/>
-                                                            <TextBlock Grid.Column="1" Grid.Row="3" Text="-" x:Name="Disp_Res_FlowCalTxb" Visibility="Collapsed"/>
+                                                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding ResultToolSerial}" x:Name="Disp_Res_ToolSNTxb"/>
+                                                            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding ResultRingSerial}" x:Name="Disp_Res_SNTxb"/>
+                                                            <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding ResultDispenseVolumeId}" x:Name="Disp_Res_VolIDTxb"/>
+                                                            <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding ResultDispenseVolumeOd}" x:Name="Disp_Res_VolODTxb"/>
+                                                            <!--<TextBlock Grid.Column="1" Grid.Row="4" Text="-" x:Name="Disp_Res_FlowCalTxb" Visibility="Collapsed"/>-->
+
+                                                            <StackPanel Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" Orientation="Vertical" HorizontalAlignment="Right">
+                                                                <Button x:Name="Disp_Res_ViewResBtn"  
+                                                                    Content="View Details" 
+                                                                    Click="Disp_Res_ViewResBtn_Click" 
+                                                                    Style="{StaticResource SmallButton}" 
+                                                                    Visibility="Visible"/>
+                                                                <Button x:Name="Disp_Res_OpenFileBtn"  
+                                                                    Content="Open Folder" 
+                                                                    Click="Disp_Res_OpenFileBtn_Click"  
+                                                                    Style="{StaticResource SmallButton}" 
+                                                                    Visibility="Visible"/>
+                                                            </StackPanel>
                                                         </Grid>
                                                     </GroupBox>
                                                     <StackPanel Grid.Row="3" Orientation="Vertical">
                                                         <Button x:Name="Disp_Res_FinishBtn" 
                                                                 Content="Finish" 
+                                                                Height="50"
                                                                 Click="Disp_Res_FinishBtn_Click" 
                                                                 Style="{DynamicResource BlueButton}"/>
-                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                                            <Button x:Name="Disp_Res_ViewResBtn"  
-                                                                    Content="View Details" 
-                                                                    Click="Disp_Res_ViewResBtn_Click" 
-                                                                    Style="{StaticResource SmallButton}" 
-                                                                    Visibility="Collapsed"/>
-                                                            <Button x:Name="Disp_Res_OpenFileBtn"  
-                                                                    Content="Open Folder" 
-                                                                    Click="Disp_Res_OpenFileBtn_Click"  
-                                                                    Style="{StaticResource SmallButton}" 
-                                                                    Visibility="Collapsed"/>
-                                                        </StackPanel>
+
                                                     </StackPanel>
 
                                                 </Grid>
