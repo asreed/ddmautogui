@@ -81,11 +81,11 @@ namespace DDMAutoGUI.Services
                 _resultsManager.currentResults.ring_sn = ringSerialNumber?.Trim() ?? string.Empty;
 
                 // Step 1: System Health Check
-                if (advancedOptions.DispenseOptions.CheckHealth)
-                {
+                //if (advancedOptions.DispenseOptions.CheckHealth)
+                //{
                     await ExecuteHealthCheckAsync();
                     ReportProgress(5, "System health checked");
-                }
+                //}
 
                 // Step 2: Power and Home
                 await ExecutePowerAndHomeAsync();
@@ -189,6 +189,7 @@ namespace DDMAutoGUI.Services
             }
             catch (DispenseException ex)
             {
+
                 result.Success = false;
                 result.Message = ex.Message;
                 _resultsManager.AddToLog($"Process failed: {ex.Message}");
@@ -236,9 +237,10 @@ namespace DDMAutoGUI.Services
                 throw new DispenseException("System health check failed");
             }
 
-            _resultsManager.AddToLog("System OK");
+            await _controllerManager.ActuateHallUp();
             await _controllerManager.SetZeroShift(3);
             await _controllerManager.WaitBothRegPressures(5);
+            _resultsManager.AddToLog("System OK");
         }
 
         private async Task ExecutePowerAndHomeAsync()
@@ -403,6 +405,8 @@ namespace DDMAutoGUI.Services
         private async Task ExecutePolarityCheckAsync(CellSettings settings, CSMotor motor, string motorName)
         {
             _resultsManager.AddToLog("Checking magnet polarity...");
+            await _controllerManager.ActuateHallUp();
+
             float x = motor.hall_sensor.x.Value;
             float t = motor.hall_sensor.t.Value;
             await _controllerManager.MoveJ(x, t);
@@ -412,6 +416,9 @@ namespace DDMAutoGUI.Services
 
             // Start MATLAB processing and spin simultaneously
             Task<DAQMatlabResults> matlabTask = DAQUtilities.CollectDataAndProcessML(motorName);
+
+            // Push hall effect sensor down near magnets
+            await _controllerManager.ActuateHallDown();
 
             int delay = 5000;
             if (settings.hall_spin_delay != null)
@@ -425,6 +432,9 @@ namespace DDMAutoGUI.Services
             _resultsManager.currentResults.daq_matlab_results = matlabResult;
             _resultsManager.CopyPolarityPlotToResultsFolder(matlabResult.results_directory + "plot.png", "PolarityPlot");
             _resultsManager.CopyPolarityDataToResultsFolder(matlabResult.results_directory + "PolarityResults.json", "PolarityData");
+
+            // Raise the hall effect sensor back up
+            await _controllerManager.ActuateHallUp();
 
             if (matlabResult.result == 1)
             {
@@ -447,6 +457,7 @@ namespace DDMAutoGUI.Services
             }
 
             await spinTask;
+
         }
 
         private async Task ExecuteHeightMeasurementsAsync(CellSettings settings, CSMotor motor)
@@ -670,6 +681,7 @@ namespace DDMAutoGUI.Services
                 if (settings != null)
                 {
                     _resultsManager.AddToLog("Attempting to move to unload position...");
+                    await _controllerManager.ActuateHallUp();
                     float x = settings.ddm_common.load.x.Value;
                     float t = settings.ddm_common.load.t.Value;
                     await _controllerManager.MoveJ(x, t);

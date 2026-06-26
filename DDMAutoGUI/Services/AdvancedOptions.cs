@@ -16,6 +16,12 @@ namespace DDMAutoGUI.Services
         public bool SideCamera { get; set; } = true;
         public bool LaserSensor { get; set; } = true;
         public bool DaqDevice { get; set; } = true;
+
+        /// <summary>
+        /// I/O-Link port numbers (1-indexed) that must report "connected" for the
+        /// connection to be considered valid. Ports not listed here are ignored.
+        /// </summary>
+        public int[] ExpectedIoLinkPorts { get; set; } = new[] { 1, 2, 5, 6, 7 };
     }
 
     public class DispenseOptions

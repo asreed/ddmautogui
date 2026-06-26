@@ -98,6 +98,8 @@ namespace DDMAutoGUI.Services
         Task<string> SetZeroShift(float timeAvg);
         Task<string> SetShotTrigger(int index, bool state);
         Task<string> MeasureShotTimed(int index, float time);
+        Task<string> ActuateHallUp();
+        Task<string> ActuateHallDown();
 
         #endregion
 

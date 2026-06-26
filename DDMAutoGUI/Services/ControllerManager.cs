@@ -418,26 +418,23 @@ namespace DDMAutoGUI.Services
                     }
                     UpdateConnectionLog($"✓ I/O-Link Master");
 
-                    for (int i = 0; i < ioLinkStatus.isPortConnected.Length; i++)
+                    // Verify the live status against the expected port configuration.
+                    int[] expectedPorts =
+                        _applicationConfiguration.AdvancedOptions.ConnectionOptions.ExpectedIoLinkPorts
+                        ?? Array.Empty<int>();
+                    List<int> missingPorts = GetMissingIOLinkPorts(ioLinkStatus, expectedPorts);
+
+                    foreach (int port in expectedPorts)
                     {
-                        if (ioLinkStatus.isPortConnected[i])
-                        {
-                            UpdateConnectionLog($"✓ I/O-Link Port {i + 1}");
-                        }
-                        else
-                        {
-                            switch (i)
-                            {
-                                case 0:
-                                    throw new Exception($"{ErrorCodes.conIO1.code}: {ErrorCodes.conIO1.msg}");
-                                case 1:
-                                    throw new Exception($"{ErrorCodes.conIO2.code}: {ErrorCodes.conIO2.msg}");
-                                case 2:
-                                    throw new Exception($"{ErrorCodes.conIO3.code}: {ErrorCodes.conIO3.msg}");
-                                case 3:
-                                    throw new Exception($"{ErrorCodes.conIO4.code}: {ErrorCodes.conIO4.msg}");
-                            }
-                        }
+                        bool connected = !missingPorts.Contains(port);
+                        UpdateConnectionLog($"{(connected ? "✓" : " ")} I/O-Link Port {port}");
+                    }
+
+                    if (missingPorts.Count > 0)
+                    {
+                        throw new Exception(
+                            $"{ErrorCodes.conIOPort.code}: {ErrorCodes.conIOPort.msg} " +
+                            $"({string.Join(", ", missingPorts)})");
                     }
                 }
 
@@ -883,6 +880,8 @@ namespace DDMAutoGUI.Services
                     CONTROLLER_STATE.Initialize();
                     CONTROLLER_STATE.parseError = true;
                     CONTROLLER_STATE.parseErrorMessage = "Error while parsing data";
+                    Debug.Print($"Error while parsing controller state data. Likely version mismatch.");
+                    Debug.Print($"Raw data: {newStatusString}");
                     await Disconnect();
                 }
             }
@@ -892,6 +891,8 @@ namespace DDMAutoGUI.Services
                 CONTROLLER_STATE.Initialize();
                 CONTROLLER_STATE.parseError = true;
                 CONTROLLER_STATE.parseErrorMessage = $"Unable to parse: {parts[0]}";
+                Debug.Print("Unable to parse controller state data. Likely error from controller.");
+                Debug.Print($"Raw data: {newStatusString}");
                 await Disconnect();
             }
             ControllerStateChanged?.Invoke(this, EventArgs.Empty);
@@ -1035,6 +1036,17 @@ namespace DDMAutoGUI.Services
         public async Task<string> LightsOff()
         {
             return await SendRobotCommand($"DDM_LightsOff");
+        }
+
+
+        public async Task<string> ActuateHallUp()
+        {
+            return await SendRobotCommand($"DDM_ActuateHallUp");
+        }
+
+        public async Task<string> ActuateHallDown()
+        {
+            return await SendRobotCommand($"DDM_ActuateHallDown");
         }
 
         public async Task<string> GetTCSVersion()
@@ -1260,6 +1272,28 @@ namespace DDMAutoGUI.Services
                 measurementList.Add(measurement);
             }
             return measurementList;
+        }
+
+        /// <summary>
+        /// Compares a parsed I/O-Link status against the expected set of connected
+        /// ports. Returns the 1-indexed port numbers that are expected but not
+        /// reporting "connected" (including any out-of-range port numbers).
+        /// </summary>
+        private List<int> GetMissingIOLinkPorts(IOLinkStatus status, IEnumerable<int> expectedPorts)
+        {
+            var missing = new List<int>();
+            if (status?.isPortConnected == null || expectedPorts == null)
+                return missing;
+
+            foreach (int port in expectedPorts)
+            {
+                int index = port - 1;
+                if (index < 0 || index >= status.isPortConnected.Length || !status.isPortConnected[index])
+                {
+                    missing.Add(port);
+                }
+            }
+            return missing;
         }
     }
 }
