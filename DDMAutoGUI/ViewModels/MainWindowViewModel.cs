@@ -352,7 +352,6 @@ namespace DDMAutoGUI.ViewModels
             }
         }
 
-        // Dispense Options - write-through to _appConfig.AdvancedOptions.DispenseOptions
         public bool DispCheckHealth
         {
             get => _appConfig.AdvancedOptions.DispenseOptions.CheckHealth;
@@ -482,10 +481,6 @@ namespace DDMAutoGUI.ViewModels
                 }
             }
         }
-
-        // For robot measurement data
-        public List<ResultsHeightMeasurement> LaserRingData { get; set; }
-        public List<ResultsHeightMeasurement> LaserMagData { get; set; }
 
         // Image acquisition properties
         public BitmapSource AcquiredImageSource
