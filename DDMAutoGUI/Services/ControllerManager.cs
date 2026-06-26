@@ -140,6 +140,42 @@ namespace DDMAutoGUI.Services
         public event EventHandler RobotLogUpdated;
         public event EventHandler ConnectionStateChanged;
 
+        /// <summary>
+        /// Raised whenever IsRobotBusy transitions. Lets the UI lock/unlock the manual
+        /// robot controls without polling.
+        /// </summary>
+        public event EventHandler RobotBusyChanged;
+
+        private int _robotBusyCount;
+
+        /// <summary>
+        /// True while one or more robot commands are in flight. Robot commands share a
+        /// single socket and the TCS executes them one at a time, so the UI should block
+        /// new commands until the current one returns.
+        /// </summary>
+        public bool IsRobotBusy => Volatile.Read(ref _robotBusyCount) > 0;
+
+        /// <summary>
+        /// Marks the start of a robot command. Reference-counted so composite routines
+        /// (e.g. Home) that issue several SendRobotCommand calls keep the busy state
+        /// asserted for their whole duration instead of flickering between commands.
+        /// </summary>
+        private void BeginRobotBusy()
+        {
+            if (Interlocked.Increment(ref _robotBusyCount) == 1)
+            {
+                RobotBusyChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private void EndRobotBusy()
+        {
+            if (Interlocked.Decrement(ref _robotBusyCount) == 0)
+            {
+                RobotBusyChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
         public ControllerState CONTROLLER_STATE { get; private set; } = new ControllerState();
         public ControllerConnState CONNECTION_STATE { get; private set; } = new ControllerConnState();
 
@@ -603,64 +639,71 @@ namespace DDMAutoGUI.Services
 
         public async Task<string> SendRobotCommand(string command)
         {
-            UpdateRobotLog($">> {command}");
-
-            byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
-            StringBuilder response = new StringBuilder();
-
-            if (_applicationConfiguration?.IsSimulationMode == true)
-            {
-                UpdateRobotLog($"<< 0 (!) Generic simulated response (!)");
-                return "0";
-            }
-
+            BeginRobotBusy();
             try
             {
-                await robotClient.SendAsync(commandBytes);
+                UpdateRobotLog($">> {command}");
 
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                int i = 0;
+                byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
+                StringBuilder response = new StringBuilder();
 
-                while (true)
+                if (_applicationConfiguration?.IsSimulationMode == true)
                 {
-                    bytesRead = await robotClient.ReceiveAsync(buffer);
-                    if (bytesRead == 0)
-                    {
-                        break;
-                    }
-                    string partialResponse = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                    response.Append(partialResponse);
-                    if (partialResponse.Contains(term))
-                    {
-                        break;
-                    }
-                    i++;
+                    UpdateRobotLog($"<< 0 (!) Generic simulated response (!)");
+                    return "0";
                 }
 
-                UpdateRobotLog($"<< {response.ToString().Trim()}");
+                try
+                {
+                    await robotClient.SendAsync(commandBytes);
+
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    int i = 0;
+
+                    while (true)
+                    {
+                        bytesRead = await robotClient.ReceiveAsync(buffer);
+                        if (bytesRead == 0)
+                        {
+                            break;
+                        }
+                        string partialResponse = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                        response.Append(partialResponse);
+                        if (partialResponse.Contains(term))
+                        {
+                            break;
+                        }
+                        i++;
+                    }
+
+                    UpdateRobotLog($"<< {response.ToString().Trim()}");
+                }
+                catch (Exception e)
+                {
+                    UpdateRobotLog("Send failed");
+                    if (e is SocketException)
+                    {
+                        SocketException se = (SocketException)e;
+                        UpdateRobotLog($"{se.ErrorCode}: {se.Message}");
+                    }
+                    else
+                    {
+                        UpdateRobotLog(e.Message);
+                    }
+                    response = new StringBuilder();
+
+                    CONNECTION_STATE.isConnected = false;
+                    CONNECTION_STATE.connectedIP = string.Empty;
+                    ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
+
+                }
+                return response.ToString().Trim();
             }
-            catch (Exception e)
+            finally
             {
-                UpdateRobotLog("Send failed");
-                if (e is SocketException)
-                {
-                    SocketException se = (SocketException)e;
-                    UpdateRobotLog($"{se.ErrorCode}: {se.Message}");
-                }
-                else
-                {
-                    UpdateRobotLog(e.Message);
-                }
-                response = new StringBuilder();
-
-                CONNECTION_STATE.isConnected = false;
-                CONNECTION_STATE.connectedIP = string.Empty;
-                // Remove: ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-                ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
-
+                EndRobotBusy();
             }
-            return response.ToString().Trim();
         }
 
 
@@ -1082,40 +1125,56 @@ namespace DDMAutoGUI.Services
         {
             if (_applicationConfiguration?.IsSimulationMode == true) return "1"; // success is 1 for enabling power
 
-            string response;
-            int timeout = 0;
-
-            response = await SendRobotCommand("hp 1");
-            while (true)
+            BeginRobotBusy();
+            try
             {
-                response = await SendRobotCommand("hp");
-                if (response == "0 1")
+                string response;
+                int timeout = 0;
+
+                response = await SendRobotCommand("hp 1");
+                while (true)
                 {
-                    break;
+                    response = await SendRobotCommand("hp");
+                    if (response == "0 1")
+                    {
+                        break;
+                    }
+                    timeout++;
+                    if (timeout > 20)
+                    {
+                        response = "Timeout";
+                        break;
+                    }
+                    await Task.Delay(500);
                 }
-                timeout++;
-                if (timeout > 20)
-                {
-                    response = "Timeout";
-                    break;
-                }
-                await Task.Delay(500);
+                response = response.Split(" ").Length > 1 ? response.Substring(response.IndexOf(" ") + 1) : response;
+                return response;
             }
-            response = response.Split(" ").Length > 1 ? response.Substring(response.IndexOf(" ") + 1) : response;
-            return response;
+            finally
+            {
+                EndRobotBusy();
+            }
         }
 
         public async Task<string> Home()
         {
             if (_applicationConfiguration?.IsSimulationMode == true) return "0";  // success is 0 for homing
 
-            string response = "";
-            response = await SendRobotCommand("attach 1");
-            if (response != "0") return response;
-            response = await SendRobotCommand("home");
-            if (response != "0") return response;
-            response = await SendRobotCommand("attach 0");
-            return response;
+            BeginRobotBusy();
+            try
+            {
+                string response = "";
+                response = await SendRobotCommand("attach 1");
+                if (response != "0") return response;
+                response = await SendRobotCommand("home");
+                if (response != "0") return response;
+                response = await SendRobotCommand("attach 0");
+                return response;
+            }
+            finally
+            {
+                EndRobotBusy();
+            }
         }
 
         public async Task<string> MoveOneAxis(int axisNumber, float position)

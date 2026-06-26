@@ -162,7 +162,7 @@ namespace DDMAutoGUI
 
         private void HandleConnectionStateChanged()
         {
-            UpdateButtonLocks();
+
         }
 
         private void HandleConnectionLogUpdated()
@@ -196,16 +196,6 @@ namespace DDMAutoGUI
         {
             Status_GUISimBdr.Visibility = _applicationConfiguration?.IsSimulationMode == true ? Visibility.Visible : Visibility.Collapsed;
 
-            allButtons = new List<Button>()
-            {
-                Con_ConnectBtn,
-                Adv_Con_ConnectBtn,
-                Adv_Con_DisconnectBtn,
-                Adv_Con_StatusSendBtn,
-                Adv_Con_RobotSendBtn,
-            };
-
-            UpdateButtonLocks();
 
             Status_SimBdr.Visibility = Visibility.Collapsed;
             Adv_PWEntryBdr.Visibility = Visibility.Visible;
@@ -214,50 +204,6 @@ namespace DDMAutoGUI
         }
 
         #region UI State Management
-
-        public void UpdateButtonLocks()
-        {
-            bool isConnected = _controllerManager?.CONNECTION_STATE?.isConnected ?? false;
-
-            // Enable/disable buttons based on connection state
-            foreach (Button b in allButtons)
-            {
-                b.IsEnabled = isConnected;
-            }
-
-            LockRobotButtons(!isConnected);
-
-            // Set connect/disconnect button states
-            Con_ConnectBtn.IsEnabled = !isConnected;
-            Adv_Con_ConnectBtn.IsEnabled = !isConnected;
-            Adv_Con_DisconnectBtn.IsEnabled = isConnected;
-        }
-
-        private void LockRobotButtons(bool state)
-        {
-            Adv_Cell_EnableBtn.IsEnabled = !state;
-            Adv_Cell_HomeBtn.IsEnabled = !state;
-            Adv_Cell_MoveLoadBtn.IsEnabled = !state;
-            Adv_Cell_MoveCamTopBtn.IsEnabled = !state;
-            Adv_Cell_MoveCamSideBtn.IsEnabled = !state;
-            Adv_Cell_MoveLaserRingBtn.IsEnabled = !state;
-            Adv_Cell_MoveLaserMagBtn.IsEnabled = !state;
-            Adv_Cell_MoveDispIDBtn.IsEnabled = !state;
-            Adv_Cell_MoveDispODBtn.IsEnabled = !state;
-            Adv_Cell_MoveHallBtn.IsEnabled = !state;
-            Adv_Cell_MeasureRingBtn.IsEnabled = !state;
-            Adv_Cell_MeasureMagBtn.IsEnabled = !state;
-            Adv_Cell_SetPres1Btn.IsEnabled = !state;
-            Adv_Cell_SetPres2Btn.IsEnabled = !state;
-            Adv_Cell_Shot1Btn.IsEnabled = !state;
-            Adv_Cell_Shot2Btn.IsEnabled = !state;
-            Adv_Cell_SetZeroBothBtn.IsEnabled = !state;
-            Adv_Cell_StartMeas1Btn.IsEnabled = !state;
-            Adv_Cell_StopMeas1Btn.IsEnabled = !state;
-            Adv_Cell_StartMeas2Btn.IsEnabled = !state;
-            Adv_Cell_StopMeas2Btn.IsEnabled = !state;
-            Adv_Cell_DispShotsBtn.IsEnabled = !state;
-        }
 
         private void BlankOutMotorSettings()
         {
@@ -272,7 +218,6 @@ namespace DDMAutoGUI
             Adv_Cell_MoveHallInLbl.Content = blank;
             Adv_Cell_MeasureRingInLbl.Content = blank;
             Adv_Cell_MeasureMagInLbl.Content = blank;
-            Adv_Cell_DispShotsInLbl.Content = blank;
         }
 
         private void DisplaySettingsToPanel()
@@ -284,7 +229,6 @@ namespace DDMAutoGUI
 
             if (m != null && m.IsValid())
             {
-                LockRobotButtons(false);
                 CSShot c = m.shot_settings;
 
                 Adv_Cell_MoveLoadInLbl.Content = $"[{s.ddm_common.load.x}, {s.ddm_common.load.t}]";
@@ -300,7 +244,6 @@ namespace DDMAutoGUI
             }
             else
             {
-                LockRobotButtons(true);
                 BlankOutMotorSettings();
             }
         }
@@ -424,7 +367,6 @@ namespace DDMAutoGUI
 
             Adv_Con_StatusSendBtn.IsEnabled = false;
             await _controllerManager.SendStatusCommand(Adv_Con_StatusMsgTxt.Text);
-            UpdateButtonLocks();
         }
 
         private async void Adv_Con_RobotSendBtn_Click(object sender, RoutedEventArgs e)
@@ -433,7 +375,6 @@ namespace DDMAutoGUI
 
             Adv_Con_RobotSendBtn.IsEnabled = false;
             await _controllerManager.SendRobotCommand(Adv_Con_RobotMsgTxt.Text);
-            UpdateButtonLocks();
         }
 
         private void Adv_Con_StatusLogTxt_KeyDown(object sender, KeyEventArgs e)
@@ -560,10 +501,8 @@ namespace DDMAutoGUI
         {
             if (_controllerManager == null) return;
 
-            LockRobotButtons(true);
             string response = await _controllerManager.EnablePower();
             Adv_Cell_EnableOutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private void Adv_Cell_HomeBtn_Click(object sender, RoutedEventArgs e)
@@ -575,112 +514,92 @@ namespace DDMAutoGUI
         {
             if (_controllerManager == null || _settingsManager == null) return;
 
-            LockRobotButtons(true);
             CellSettings s = _settingsManager.GetAllSettings();
             string response = await _controllerManager.MoveJ(s.ddm_common.load.x.Value, s.ddm_common.load.t.Value);
             Adv_Cell_MoveLoadOutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_MoveCamTopBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null || _settingsManager == null) return;
 
-            LockRobotButtons(true);
             CellSettings s = _settingsManager.GetAllSettings();
             string response = await _controllerManager.MoveJ(s.ddm_common.camera_top.x.Value, s.ddm_common.camera_top.t.Value);
             Adv_Cell_MoveCamTopOutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_MoveCamSideBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null || _settingsManager == null) return;
 
-            LockRobotButtons(true);
             CSMotor m = _settingsManager.GetSettingsForSelectedSize();
             string response = await _controllerManager.MoveJ(m.camera_side.x.Value, m.camera_side.t.Value);
             Adv_Cell_MoveCamSideOutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_MoveLaserRingBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null || _settingsManager == null) return;
 
-            LockRobotButtons(true);
             CSMotor m = _settingsManager.GetSettingsForSelectedSize();
             string response = await _controllerManager.MoveJ(m.laser_ring.x.Value, m.laser_ring.t.Value);
             Adv_Cell_MoveLaserRingOutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_MoveLaserMagBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null || _settingsManager == null) return;
 
-            LockRobotButtons(true);
             CSMotor m = _settingsManager.GetSettingsForSelectedSize();
             string response = await _controllerManager.MoveJ(m.laser_mag.x.Value, m.laser_mag.t.Value);
             Adv_Cell_MoveLaserMagOutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_MoveDispIDBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null || _settingsManager == null) return;
 
-            LockRobotButtons(true);
             CSMotor m = _settingsManager.GetSettingsForSelectedSize();
             string response = await _controllerManager.MoveJ(m.id_disp.x.Value, m.id_disp.t.Value);
             Adv_Cell_MoveDispIDOutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_MoveDispODBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null || _settingsManager == null) return;
 
-            LockRobotButtons(true);
             CSMotor m = _settingsManager.GetSettingsForSelectedSize();
             string response = await _controllerManager.MoveJ(m.od_disp.x.Value, m.od_disp.t.Value);
             Adv_Cell_MoveDispODOutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_MoveHallBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null || _settingsManager == null) return;
 
-            LockRobotButtons(true);
             CSMotor m = _settingsManager.GetSettingsForSelectedSize();
             string response = await _controllerManager.MoveJ(m.hall_sensor.x.Value, m.hall_sensor.t.Value);
             Adv_Cell_MoveHallOutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_MeasureRingBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null || _settingsManager == null) return;
 
-            LockRobotButtons(true);
             CSMotor m = _settingsManager.GetSettingsForSelectedSize();
             string response = await _controllerManager.MeasureHeightsContinuous(m.laser_ring.x.Value, m.laser_ring.t.Value, m.laser_ring_num.Value, 10);
             laserRingData = _controllerManager.ParseHeightData(response);
             Adv_Cell_MeasureRingOutLbl.Content = laserRingData.Count > 0 ? "(data collected)" : $"error: {response}";
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_MeasureMagBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null || _settingsManager == null) return;
 
-            LockRobotButtons(true);
             CSMotor m = _settingsManager.GetSettingsForSelectedSize();
             string response = await _controllerManager.MeasureHeightsContinuous(m.laser_mag.x.Value, m.laser_mag.t.Value, m.laser_mag_num.Value, 20);
             laserMagData = _controllerManager.ParseHeightData(response);
             Adv_Cell_MeasureMagOutLbl.Content = laserMagData.Count > 0 ? "(data collected)" : $"error: {response}";
-            LockRobotButtons(false);
         }
 
         private void Adv_Cell_ShowRingBtn_Click(object sender, RoutedEventArgs e)
@@ -717,107 +636,86 @@ namespace DDMAutoGUI
         {
             if (_controllerManager == null) return;
 
-            LockRobotButtons(true);
             string response = await _controllerManager.MeasureHeightSingle();
             Adv_Cell_MeasureSingleOutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_SetPres1Btn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null) return;
 
-            LockRobotButtons(true);
             string response = await _controllerManager.SetRegPressureAndWait(1, float.Parse(Adv_Cell_SetPres1InTxt.Text), 10);
             Adv_Cell_SetPres1OutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_SetPres2Btn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null) return;
 
-            LockRobotButtons(true);
             string response = await _controllerManager.SetRegPressureAndWait(2, float.Parse(Adv_Cell_SetPres2InTxt.Text), 10);
             Adv_Cell_SetPres2OutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_Shot1Btn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null) return;
 
-            LockRobotButtons(true);
             string response = await _controllerManager.MeasureShotTimed(1, float.Parse(Adv_Cell_Shot1InTxt.Text));
             Adv_Cell_Shot1OutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_Shot2Btn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null) return;
 
-            LockRobotButtons(true);
             string response = await _controllerManager.MeasureShotTimed(2, float.Parse(Adv_Cell_Shot2InTxt.Text));
             Adv_Cell_Shot2OutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_SetZeroBothBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null) return;
 
-            LockRobotButtons(true);
             string response = await _controllerManager.SetZeroShift(3.0f);
             Adv_Cell_SetZeroBothLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_StartMeas1Btn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null) return;
 
-            LockRobotButtons(true);
             string response = await _controllerManager.SetShotTrigger(1, true);
             Adv_Cell_StartMeas1OutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_StopMeas1Btn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null) return;
 
-            LockRobotButtons(true);
             string response = await _controllerManager.SetShotTrigger(1, false);
             Adv_Cell_StopMeas1OutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_StartMeas2Btn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null) return;
 
-            LockRobotButtons(true);
             string response = await _controllerManager.SetShotTrigger(2, true);
             Adv_Cell_StartMeas2OutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_StopMeas2Btn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null) return;
 
-            LockRobotButtons(true);
             string response = await _controllerManager.SetShotTrigger(2, false);
             Adv_Cell_StopMeas2OutLbl.Content = response;
-            LockRobotButtons(false);
         }
 
         private void Adv_Cell_DispShotsBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_controllerManager == null || _settingsManager == null) return;
 
-            LockRobotButtons(true);
 
             CSMotor m = _settingsManager.GetSettingsForSelectedSize();
             CSShot c = m.shot_settings;
@@ -833,9 +731,7 @@ namespace DDMAutoGUI
             float target_vol_od = c.od_target_vol.Value;
 
             string response = string.Empty;
-            Adv_Cell_DispShotsOutLbl.Content = response;
 
-            LockRobotButtons(false);
         }
 
         private async void Adv_Cell_EStopBtn_Click(object sender, RoutedEventArgs e)
@@ -851,62 +747,6 @@ namespace DDMAutoGUI
             if (_controllerManager != null)
             {
                 await _controllerManager.CloseAllValves();
-            }
-        }
-
-        #endregion
-
-        #region Camera Button Handlers
-
-        private async void AcquireTopCommand(object sender, RoutedEventArgs e)
-        {
-            var cameraManager = App.Services?.GetService<ICameraManager>();
-            if (cameraManager == null) return;
-
-            acquiredImageDisplay.Source = null;
-            Adv_Cam_StatusLbl.Content = "Acquiring image...";
-
-            CameraAcquisitionResult result = await cameraManager.AcquireAndSave(CameraManager.CellCamera.top, acquiredImageDisplay);
-
-            if (result.success)
-            {
-                Adv_Cam_StatusLbl.Content = "Top image acquired";
-                cameraManager.DisplayImage(acquiredImageDisplay, result.filePath);
-            }
-            else
-            {
-                Adv_Cam_StatusLbl.Content = $"Error: {result.errorMsg}";
-            }
-        }
-
-        private async void AcquireSideCommand(object sender, RoutedEventArgs e)
-        {
-            var cameraManager = App.Services?.GetService<ICameraManager>();
-            if (cameraManager == null) return;
-
-            acquiredImageDisplay.Source = null;
-            Adv_Cam_StatusLbl.Content = "Acquiring image...";
-
-            CameraAcquisitionResult result = await cameraManager.AcquireAndSave(CameraManager.CellCamera.side, acquiredImageDisplay);
-
-            if (result.success)
-            {
-                Adv_Cam_StatusLbl.Content = "Side image acquired";
-                cameraManager.DisplayImage(acquiredImageDisplay, result.filePath);
-            }
-            else
-            {
-                Adv_Cam_StatusLbl.Content = $"Error: {result.errorMsg}";
-            }
-        }
-
-
-        private void Adv_Cam_OpenFolderBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var cameraManager = App.Services?.GetService<ICameraManager>();
-            if (cameraManager != null)
-            {
-                cameraManager.OpenExplorerToImages();
             }
         }
 

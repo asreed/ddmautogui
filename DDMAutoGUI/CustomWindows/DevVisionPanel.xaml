@@ -1,0 +1,42 @@
+<UserControl x:Class="DDMAutoGUI.CustomWindows.DevVisionPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:DDMAutoGUI.CustomWindows"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Background="White" Margin="6,6,6,0">
+            <Border BorderBrush="#DDD" BorderThickness="1">
+                <Image x:Name="acquiredImageDisplay" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Border>
+            <Label x:Name="Adv_Cam_StatusLbl" Content="No image" Foreground="#FFD4D4D4" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="-1"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Header="Acquisition" Grid.Column="0">
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="Adv_Cam_AcqurieTopBtn" Content="Acquire Top" Style="{DynamicResource SmallBlackButton}" Click="AcquireTopCommand"/>
+                    <Button x:Name="Adv_Cam_AcqurieSideBtn" Content="Acquire Side" Style="{DynamicResource SmallBlackButton}" Click="AcquireSideCommand"/>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Other" Grid.Column="1">
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="Adv_Cam_OpenFolderBtn" Content="Open folder" Click="Adv_Cam_OpenFolderBtn_Click" Style="{StaticResource SmallButton}"/>
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</UserControl>

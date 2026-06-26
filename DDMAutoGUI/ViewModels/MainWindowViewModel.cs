@@ -109,8 +109,25 @@ namespace DDMAutoGUI.ViewModels
         public bool IsConnected
         {
             get => _isConnected;
-            set => SetProperty(ref _isConnected, value);
+            set
+            {
+                if (SetProperty(ref _isConnected, value))
+                {
+                    OnPropertyChanged(nameof(IsDisconnected));
+                    OnPropertyChanged(nameof(IsRobotControlEnabled));
+                }
+            }
         }
+
+        /// <summary>True when no controller is connected. Drives the Connect button.</summary>
+        public bool IsDisconnected => !_isConnected;
+
+        /// <summary>
+        /// Gates the manual cell/robot command buttons. Requires a live connection and
+        /// no robot command in flight, since robot commands run one-at-a-time and can
+        /// take a second or two — we lock the controls until they return.
+        /// </summary>
+        public bool IsRobotControlEnabled => IsConnected && !_controllerManager.IsRobotBusy;
 
         public string ConnectionStatus
         {
@@ -816,6 +833,7 @@ namespace DDMAutoGUI.ViewModels
             // This subscription was lost in the MVVM/DI refactor, which is why the
             // Disp_ProcessPrg bar stopped advancing during a run.
             _dispenseProcessService.ProgressChanged += DispenseProcessService_ProgressChanged;
+            _controllerManager.RobotBusyChanged += ControllerManager_RobotBusyChanged;
         }
 
         private void ControllerManager_Connected(object sender, EventArgs e)
@@ -908,6 +926,17 @@ namespace DDMAutoGUI.ViewModels
             });
         }
 
+        private void ControllerManager_RobotBusyChanged(object sender, EventArgs e)
+        {
+            // Raised on the UI thread from SendRobotCommand; marshal defensively in case a
+            // future caller offloads robot I/O the way Connect() does for the camera/FTP work.
+            Application.Current?.Dispatcher.Invoke(() =>
+            {
+                OnPropertyChanged(nameof(IsRobotControlEnabled));
+                CommandManager.InvalidateRequerySuggested();
+            });
+        }
+
         #endregion
 
         #region Helper Methods
@@ -975,6 +1004,8 @@ namespace DDMAutoGUI.ViewModels
             _controllerManager.ControllerStateChanged -= ControllerManager_StateChanged;
             _resultsManager.UpdateProcessLog -= ResultsManager_UpdateProcessLog;
             _dispenseProcessService.ProgressChanged -= DispenseProcessService_ProgressChanged;
+            _controllerManager.ControllerStateChanged -= ControllerManager_StateChanged;
+            _controllerManager.RobotBusyChanged -= ControllerManager_RobotBusyChanged;
 
             _disposed = true;
         }

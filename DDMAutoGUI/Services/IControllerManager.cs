@@ -19,6 +19,7 @@ namespace DDMAutoGUI.Services
         event EventHandler StatusLogUpdated;
         event EventHandler RobotLogUpdated;
         event EventHandler ConnectionStateChanged;
+        event EventHandler RobotBusyChanged;
 
         #endregion
 
@@ -26,6 +27,9 @@ namespace DDMAutoGUI.Services
 
         ControllerState CONTROLLER_STATE { get; }
         ControllerConnState CONNECTION_STATE { get; }
+
+        /// <summary>True while one or more robot commands are in flight.</summary>
+        bool IsRobotBusy { get; }
 
         #endregion
 
