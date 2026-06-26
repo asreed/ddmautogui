@@ -87,6 +87,8 @@ namespace DDMAutoGUI.Services
                 }
                 _system = null;
             }
+
+            _deviceLock.Dispose();
         }
 
         public async Task<bool> TestCameraConnection(CellCamera cellCamera)
@@ -118,13 +120,19 @@ namespace DDMAutoGUI.Services
                 CellImageFormat.JPG => acqFileSuffixJPG,
                 _ => acqFileSuffixJPG
             };
-            acqFilePath = acqFileDirectory + acqFilePrefix + GetTimestamp() + sfx;
+
+            // Compute the timestamp once so filePath and fileName always agree,
+            // and keep it local so overlapping acquisitions can't stomp each other.
+            string timestamp = GetTimestamp();
+            string fileName = acqFilePrefix + timestamp + sfx;
+            string filePath = acqFileDirectory + fileName;
+            acqFilePath = filePath;
 
             CameraAcquisitionResult result = new CameraAcquisitionResult
             {
                 success = false,
-                filePath = acqFilePath,
-                fileName = acqFilePrefix + GetTimestamp() + sfx
+                filePath = filePath,
+                fileName = fileName
             };
 
             if (_system == null)
@@ -133,116 +141,90 @@ namespace DDMAutoGUI.Services
                 return result;
             }
 
-            IDevice device = null;
+            // Read settings on the calling thread before offloading SDK work.
+            CellSettings settings = _getSettings();
+            string targetSN = cellCamera == CellCamera.top
+                ? settings?.camera_top_sn
+                : settings?.camera_side_sn;
 
+            // Serialize all access to the shared Arena ISystem.
+            await _deviceLock.WaitAsync();
             try
             {
-                // Get camera serial numbers from settings on-demand
-                CellSettings settings = _getSettings();
-                string cameraTopSN = settings?.camera_top_sn;
-                string cameraSideSN = settings?.camera_side_sn;
-
-                // Update device list
-                _system.UpdateDevices(100);
-                if (_system.Devices.Count == 0)
-                {
-                    Debug.Print("\nNo camera connected\nAborting");
-                    throw new Exception("No cameras detected");
-                }
-
-                IDeviceInfo selectedDeviceInfo = null;
-
-                for (int i = 0; i < _system.Devices.Count; i++)
-                {
-                    if (_system.Devices[i].SerialNumber == cameraTopSN && cellCamera == CellCamera.top)
-                    {
-                        selectedDeviceInfo = _system.Devices[i];
-                        Debug.Print($"{TB}Selected top camera with SN {cameraTopSN}");
-                        break;
-                    }
-                    else if (_system.Devices[i].SerialNumber == cameraSideSN && cellCamera == CellCamera.side)
-                    {
-                        selectedDeviceInfo = _system.Devices[i];
-                        Debug.Print($"{TB}Selected side camera with SN {cameraSideSN}");
-                        break;
-                    }
-                }
-
-                if (selectedDeviceInfo == null)
-                {
-                    Debug.Print($"\nNo matching camera connected for {(cellCamera == CellCamera.top ? "top" : "side")}\nAborting");
-                    result.errorMsg = $"No matching camera connected for {(cellCamera == CellCamera.top ? "top" : "side")}";
-                    result.success = false;
-                    return result;
-                }
-
-                device = _system.CreateDevice(selectedDeviceInfo);
-
-                // enable stream auto negotiate packet size
-                var streamAutoNegotiatePacketSizeNode = (IBoolean)device.TLStreamNodeMap.GetNode("StreamAutoNegotiatePacketSize");
-                streamAutoNegotiatePacketSizeNode.Value = true;
-
-                // enable stream packet resend
-                var streamPacketResendEnableNode = (IBoolean)device.TLStreamNodeMap.GetNode("StreamPacketResendEnable");
-                streamPacketResendEnableNode.Value = true;
-
-                // turn lights on
-                if (skipSave == false)
+                if (!skipSave)
                 {
                     await _lightController.LightsOn();
                 }
 
-                // get image
-                device.StartStream();
-                IImage image = device.GetImage(2000);
-
-                // turn lights off
-                if (skipSave == false)
+                try
                 {
-                    await _lightController.LightsOff();
-                }
-
-                // save image
-                if (!skipSave)
-                {
-                    switch (imgFormat)
+                    await Task.Run(() =>
                     {
-                        case CellImageFormat.PNG:
-                            SaveImagePNG(image, acqFilePath);
-                            break;
-                        case CellImageFormat.JPG:
-                            SaveImageJPG(image, acqFilePath);
-                            break;
+                        IDevice device = null;
+                        try
+                        {
+                            device = CreateDeviceWithRetry(targetSN, cellCamera);
+
+                            ((IBoolean)device.TLStreamNodeMap.GetNode("StreamAutoNegotiatePacketSize")).Value = true;
+                            ((IBoolean)device.TLStreamNodeMap.GetNode("StreamPacketResendEnable")).Value = true;
+
+                            // Lower GigE heartbeat so a stale control channel is released quickly.
+                            var heartbeat = (IInteger)device.NodeMap.GetNode("GevHeartbeatTimeout");
+                            heartbeat.Value = 1000; // ms
+
+                            device.StartStream();
+                            IImage image = device.GetImage(2000);
+
+                            if (!skipSave)
+                            {
+                                switch (imgFormat)
+                                {
+                                    case CellImageFormat.PNG:
+                                        SaveImagePNG(image, filePath);
+                                        break;
+                                    case CellImageFormat.JPG:
+                                        SaveImageJPG(image, filePath);
+                                        break;
+                                }
+                            }
+
+                            device.RequeueBuffer(image);
+                            device.StopStream();
+                        }
+                        finally
+                        {
+                            // Always release the device so the next open starts clean —
+                            // this is what prevents the NEXT IFOpenDevice failure.
+                            if (device != null)
+                            {
+                                try { _system.DestroyDevice(device); } catch { }
+                            }
+                        }
+                    });
+
+                    result.success = true;
+                }
+                catch (Exception ex)
+                {
+                    Debug.Print($"\nException thrown: {ex.Message}");
+                    result.errorMsg = ex.Message;
+                    result.success = false;
+                }
+                finally
+                {
+                    if (!skipSave)
+                    {
+                        await _lightController.LightsOff();
                     }
                 }
-
-                // clean up
-                device.RequeueBuffer(image);
-                device.StopStream();
-                _system.DestroyDevice(device);
-
-                result.success = true;
-                return result;
-
             }
-            catch (Exception ex)
+            finally
             {
-                await _lightController.LightsOff();
-                Debug.Print($"\nException thrown: {ex.Message}");
-                result.errorMsg = ex.Message;
-                result.success = false;
-                
-                if (device != null)
-                {
-                    try
-                    {
-                        _system.DestroyDevice(device);
-                    }
-                    catch { }
-                }
-                
-                return result;
+                _deviceLock.Release();
             }
+
+            return result;
+
         }
 
         static void SaveImagePNG(IImage image, string filePath)
@@ -341,6 +323,70 @@ namespace DDMAutoGUI.Services
         public string GetTimestamp()
         {
             return DateTime.Now.ToString("_yyMMdd_HHmmss");
+        }
+
+        // Serializes access to the shared Arena ISystem. UpdateDevices / CreateDevice /
+        // DestroyDevice all mutate shared state and are NOT safe to call concurrently.
+        private readonly SemaphoreSlim _deviceLock = new SemaphoreSlim(1, 1);
+
+
+
+        // Opens the device, retrying transient IFOpenDevice failures. These occur when
+        // the camera's exclusive control channel from a previous session hasn't been
+        // released yet (GigE heartbeat). A short, increasing backoff lets it free up.
+        // Runs synchronously by design — it is only ever called from inside Task.Run.
+        private IDevice CreateDeviceWithRetry(string targetSN, CellCamera cellCamera, int maxAttempts = 3)
+        {
+            Exception lastError = null;
+
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                // Refresh the list every attempt — a stale IDeviceInfo is itself a
+                // common cause of open failures.
+                _system.UpdateDevices(100);
+
+                IDeviceInfo selectedDeviceInfo = null;
+                for (int i = 0; i < _system.Devices.Count; i++)
+                {
+                    if (_system.Devices[i].SerialNumber == targetSN)
+                    {
+                        selectedDeviceInfo = _system.Devices[i];
+                        break;
+                    }
+                }
+
+                if (selectedDeviceInfo == null)
+                {
+                    // Not a transient open failure — the camera simply isn't present.
+                    throw new Exception($"No matching camera connected for {cellCamera} (SN {targetSN})");
+                }
+
+                try
+                {
+                    IDevice device = _system.CreateDevice(selectedDeviceInfo);
+                    if (attempt > 1)
+                    {
+                        Debug.Print($"{TB}CreateDevice succeeded on attempt {attempt}");
+                    }
+                    return device;
+                }
+                catch (Exception ex)
+                {
+                    lastError = ex;
+                    Debug.Print($"{TB}CreateDevice attempt {attempt}/{maxAttempts} failed: {ex.Message}");
+
+                    if (attempt < maxAttempts)
+                    {
+                        // 300ms, 600ms... gives the camera time to release the
+                        // previous control channel.
+                        Thread.Sleep(300 * attempt);
+                    }
+                }
+            }
+
+            throw new Exception(
+                $"Failed to open {cellCamera} camera (SN {targetSN}) after {maxAttempts} attempts: {lastError?.Message}",
+                lastError);
         }
     }
 }

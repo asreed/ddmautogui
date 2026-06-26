@@ -323,7 +323,7 @@ namespace DDMAutoGUI.Services
 
         private async Task<string> ExecuteTopPhotoAcquisitionAsync(CellSettings settings)
         {
-            _resultsManager.AddToLog("Acquiring preprocess top photo...");
+            _resultsManager.AddToLog("Acquiring top photo...");
             float x = settings.ddm_common.camera_top.x.Value;
             float t = settings.ddm_common.camera_top.t.Value;
             await _controllerManager.MoveJ(x, t);
@@ -340,7 +340,7 @@ namespace DDMAutoGUI.Services
                 _resultsManager.CopyPhotoToResultsFolder(camResult.filePath, "Top");
             }
 
-            _resultsManager.AddToLog("Preprocess top photo acquired");
+            _resultsManager.AddToLog("Top photo acquired");
             return camResult.filePath;
         }
 
