@@ -110,7 +110,6 @@ namespace DDMAutoGUI
             CalibTab.IsEnabled = false;
             ServTab.IsEnabled = false;
 
-            DisableAllReadouts();
             BlankOutMotorSettings();
         }
 
@@ -158,11 +157,6 @@ namespace DDMAutoGUI
                 }
 
                 Status_SimBdr.Visibility = contState.isSimulated ? Visibility.Visible : Visibility.Collapsed;
-                FormatAllReadouts(contState);
-            }
-            else
-            {
-                DisableAllReadouts();
             }
         }
 
@@ -311,73 +305,7 @@ namespace DDMAutoGUI
             }
         }
 
-        private void FormatReadout(Label label, float value)
-        {
-            label.Foreground = new System.Windows.Media.BrushConverter().ConvertFrom("#000") as System.Windows.Media.SolidColorBrush;
-            label.Content = value.ToString();
-        }
-
-        private void FormatReadout(Label label, float value, string unit)
-        {
-            label.Foreground = new System.Windows.Media.BrushConverter().ConvertFrom("#000") as System.Windows.Media.SolidColorBrush;
-            label.Content = value.ToString() + " " + unit;
-        }
-
-        private void FormatReadout(Label label, bool value)
-        {
-            label.Content = value ? "Yes" : "No";
-            label.Foreground = new System.Windows.Media.BrushConverter().ConvertFrom("#000") as System.Windows.Media.SolidColorBrush;
-            label.Background = value
-                ? new System.Windows.Media.BrushConverter().ConvertFrom("#ffd3ddf5") as System.Windows.Media.SolidColorBrush
-                : new System.Windows.Media.BrushConverter().ConvertFrom("WhiteSmoke") as System.Windows.Media.SolidColorBrush;
-        }
-
-        private void FormatAllReadouts(ControllerState contState)
-        {
-            FormatReadout(roPowerEnabled, contState.isPowerEnabled);
-            FormatReadout(roRobotHomed, contState.isRobotHomed);
-            FormatReadout(roLinPos, contState.posLinear);
-            FormatReadout(roRotPos, contState.posRotary);
-            FormatReadout(roLinFlag1, !contState.isLinearIn1);
-            FormatReadout(roLinFlag2, !contState.isLinearIn2);
-            FormatReadout(roLinFlag3, !contState.isLinearIn3);
-            FormatReadout(roPresCmd1, contState.pressureCommand1, "psi");
-            FormatReadout(roPresMeas1, contState.pressureMeasurement1, "psi");
-            FormatReadout(roPresCmd2, contState.pressureCommand2, "psi");
-            FormatReadout(roPresMeas2, contState.pressureMeasurement2, "psi");
-            FormatReadout(roFlowVol1, contState.flowVolume1, "mL");
-            FormatReadout(roFlowErr1, contState.flowError1);
-            FormatReadout(roFlowVol2, contState.flowVolume2, "mL");
-            FormatReadout(roFlowErr2, contState.flowError2);
-            FormatReadout(roSysPressure, contState.systemPressure, "psi");
-            FormatReadout(roSafetyContState, contState.safetyControllerState);
-            FormatReadout(roSafetyErrState, contState.safetyErrorState);
-        }
-
-        private void DisableReadout(Label label)
-        {
-            label.Foreground = new System.Windows.Media.BrushConverter().ConvertFrom("#AAA") as System.Windows.Media.SolidColorBrush;
-            label.Background = new System.Windows.Media.BrushConverter().ConvertFrom("WhiteSmoke") as System.Windows.Media.SolidColorBrush;
-        }
-
-        private void DisableAllReadouts()
-        {
-            DisableReadout(roPowerEnabled);
-            DisableReadout(roRobotHomed);
-            DisableReadout(roLinPos);
-            DisableReadout(roRotPos);
-            DisableReadout(roLinFlag1);
-            DisableReadout(roLinFlag2);
-            DisableReadout(roLinFlag3);
-            DisableReadout(roPresCmd1);
-            DisableReadout(roPresMeas1);
-            DisableReadout(roPresCmd2);
-            DisableReadout(roPresMeas2);
-            DisableReadout(roFlowVol1);
-            DisableReadout(roFlowErr1);
-            DisableReadout(roFlowVol2);
-            DisableReadout(roFlowErr2);
-        }
+        
 
         /// <summary>
         /// Handle dispense errors - allows override if enabled in advanced options
@@ -972,20 +900,6 @@ namespace DDMAutoGUI
             }
         }
 
-        /// <summary>
-        /// FIXED: Use static OCRManager class with RunOCRAsync method instead of deprecated OCRUtilities.
-        /// </summary>
-        private async void Adv_Cam_RunOCR_Click(object sender, RoutedEventArgs e)
-        {
-            Adv_Cam_OCRPrg.Visibility = Visibility.Visible;
-
-            OCRData data = await OCRManager.RunOCRAsync(Adv_Cam_OCRPathTxb.Text);
-            Adv_Cam_OCRResTxb.Text = data != null
-                ? JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true })
-                : "Error reading OCR results";
-
-            Adv_Cam_OCRPrg.Visibility = Visibility.Collapsed;
-        }
 
         private void Adv_Cam_OpenFolderBtn_Click(object sender, RoutedEventArgs e)
         {

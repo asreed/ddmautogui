@@ -504,7 +504,7 @@
 
                 <TabItem x:Name="AdvTab" Header="Dev" Tag="Resources/icons/settings.ico" Style="{StaticResource MainTab}" Visibility="Visible">
 
-                    <Grid Margin="-2" Background="#FF98A4C1">
+                    <Grid Margin="-2">
 
                         <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Margin="6" Visibility="Hidden">
                             <Grid>
@@ -547,7 +547,7 @@
 
                             <TabItem Header="Options">
                                 <StackPanel Orientation="Vertical" Margin="6">
-                                    <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
+                                    <!--<GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
                                         <StackPanel Orientation="Vertical">
                                             <CheckBox x:Name="Adv_Opt_Con_ControllerChk" Content="Controller"     IsChecked="{Binding ConnectController}"/>
                                             <CheckBox x:Name="Adv_Opt_Con_IOLinkChk"     Content="IO Link Devices" IsChecked="{Binding ConnectIoLinkDevices}"/>
@@ -556,10 +556,10 @@
                                             <CheckBox x:Name="Adv_Opt_Con_LaserChk"      Content="Laser Sensor"   IsChecked="{Binding ConnectLaserSensor}"/>
                                             <CheckBox Visibility="Collapsed" x:Name="Adv_Opt_Con_DAQChk" Content="DAQ Device" IsChecked="{Binding ConnectDaqDevice}"/>
                                         </StackPanel>
-                                    </GroupBox>
+                                    </GroupBox>-->
                                     <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">
                                         <StackPanel Orientation="Vertical">
-                                            <CheckBox x:Name="Adv_Opt_Disp_HealthChk"       Content="Check Health"             IsChecked="{Binding DispCheckHealth}"/>
+                                            <!--<CheckBox x:Name="Adv_Opt_Disp_HealthChk"       Content="Check Health"             IsChecked="{Binding DispCheckHealth}"/>-->
                                             <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk"     Content="Photo Top"                IsChecked="{Binding DispPhotoTop}"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk"    Content="Photo Side"               IsChecked="{Binding DispPhotoSide}"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_RunOCRChk"       Content="Run OCR"                  IsChecked="{Binding DispRunOCR}"/>
@@ -568,7 +568,7 @@
                                             <CheckBox x:Name="Adv_Opt_Disp_DispChk"         Content="Dispense"                 IsChecked="{Binding DispDispense}"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk"    Content="Autocalibrate"            IsChecked="{Binding DispAutocalibrate}"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_TopPhotoAfterChk" Content="Photo Top After"         IsChecked="{Binding DispPhotoTopAfter}"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_OverrideChk"     Content="Override Dispense Warnings" IsChecked="{Binding DispOverrideWarnings}" Foreground="{StaticResource PrimaryOrange}"/>
+                                            <!--<CheckBox x:Name="Adv_Opt_Disp_OverrideChk"     Content="Override Dispense Warnings" IsChecked="{Binding DispOverrideWarnings}" Foreground="{StaticResource PrimaryOrange}"/>-->
                                         </StackPanel>
                                     </GroupBox>
                                     <GroupBox Header="Other" HorizontalAlignment="Left" Padding="12">
@@ -604,13 +604,6 @@
                                                                 <Setter Property="Margin" Value="2"/>
                                                                 <Setter Property="VerticalAlignment" Value="Center"/>
                                                             </Style>
-
-                                                            <Style TargetType="Label" x:Key="readout">
-                                                                <Setter Property="Padding" Value="5,2,5,2"/>
-                                                                <Setter Property="Margin" Value="2"/>
-                                                                <Setter Property="VerticalAlignment" Value="Center"/>
-                                                                <Setter Property="Background" Value="WhiteSmoke"/>
-                                                            </Style>
                                                         </Grid.Resources>
 
                                                         <Grid.ColumnDefinitions>
@@ -636,7 +629,10 @@
                                                                     <ColumnDefinition/>
                                                                 </Grid.ColumnDefinitions>
                                                                 <Label Grid.Row="0" Grid.Column="0" Content="System pressure:"/>
-                                                                <Label Grid.Row="0" Grid.Column="1" x:Name="roSysPressure" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="0" Grid.Column="1"
+                                                                       Content="{Binding SysPressure}" 
+                                                                       ContentStringFormat="{}{0:F1} psi"
+                                                                       Style="{StaticResource ReadoutLabel}"/>
                                                             </Grid>
                                                         </GroupBox>
                                                         <GroupBox Header="Robot"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
@@ -654,15 +650,38 @@
                                                                 </Grid.ColumnDefinitions>
 
                                                                 <Label Grid.Row="0" Grid.Column="0" Content="Power enabled:"/>
-                                                                <Label Grid.Row="0" Grid.Column="1" x:Name="roPowerEnabled" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="0" Grid.Column="1"
+                                                                       Style="{StaticResource ReadoutLabel}"
+                                                                       Content="{Binding IsPowerEnabled, Converter={StaticResource BoolToYesNoConverter}}">
+                                                                    <Label.Background>
+                                                                        <MultiBinding Converter="{StaticResource ReadoutBackgroundConverter}">
+                                                                            <Binding Path="IsPowerEnabled"/>
+                                                                            <Binding Path="ReadoutsEnabled"/>
+                                                                        </MultiBinding>
+                                                                    </Label.Background>
+                                                                </Label>
                                                                 <Label Grid.Row="1" Grid.Column="0" Content="Robot homed:"/>
-                                                                <Label Grid.Row="1" Grid.Column="1" x:Name="roRobotHomed" Content="-" Style="{DynamicResource readout}"/>
-
+                                                                <Label Grid.Row="1" Grid.Column="1"
+                                                                       Style="{StaticResource ReadoutLabel}"
+                                                                       Content="{Binding IsRobotHomed, Converter={StaticResource BoolToYesNoConverter}}">
+                                                                    <Label.Background>
+                                                                        <MultiBinding Converter="{StaticResource ReadoutBackgroundConverter}">
+                                                                            <Binding Path="IsRobotHomed"/>
+                                                                            <Binding Path="ReadoutsEnabled"/>
+                                                                        </MultiBinding>
+                                                                    </Label.Background>
+                                                                </Label>
 
                                                                 <Label Grid.Row="2" Grid.Column="0" Content="Linear position:"/>
-                                                                <Label Grid.Row="2" Grid.Column="1" x:Name="roLinPos" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="2" Grid.Column="1" 
+                                                                       Content="{Binding LinearPosition}" 
+                                                                       ContentStringFormat="{}{0:F3} mm"
+                                                                       Style="{StaticResource ReadoutLabel}"/>
                                                                 <Label Grid.Row="3" Grid.Column="0" Content="Rotary position:"/>
-                                                                <Label Grid.Row="3" Grid.Column="1" x:Name="roRotPos" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="3" Grid.Column="1" 
+                                                                       Content="{Binding RotaryPosition}" 
+                                                                       ContentStringFormat="{}{0:F3} deg"
+                                                                       Style="{StaticResource ReadoutLabel}"/>
                                                                 <Label Grid.Row="4" Grid.Column="0" Content="Rail flags:"/>
                                                                 <Grid Grid.Row="4" Grid.Column="1">
                                                                     <Grid.ColumnDefinitions>
@@ -670,9 +689,36 @@
                                                                         <ColumnDefinition/>
                                                                         <ColumnDefinition/>
                                                                     </Grid.ColumnDefinitions>
-                                                                    <Label Grid.Column="0" x:Name="roLinFlag1" Content="-" Style="{DynamicResource readout}"/>
-                                                                    <Label Grid.Column="1" x:Name="roLinFlag2" Content="-" Style="{DynamicResource readout}"/>
-                                                                    <Label Grid.Column="2" x:Name="roLinFlag3" Content="-" Style="{DynamicResource readout}"/>
+                                                                    <Label Grid.Column="0"
+                                                                           Style="{StaticResource ReadoutLabel}"
+                                                                           Content="{Binding LinearFlag1, Converter={StaticResource BoolToYesNoConverter}}">
+                                                                        <Label.Background>
+                                                                            <MultiBinding Converter="{StaticResource ReadoutBackgroundConverter}">
+                                                                                <Binding Path="LinearFlag1"/>
+                                                                                <Binding Path="ReadoutsEnabled"/>
+                                                                            </MultiBinding>
+                                                                        </Label.Background>
+                                                                    </Label>
+                                                                    <Label Grid.Column="1"
+                                                                           Style="{StaticResource ReadoutLabel}"
+                                                                           Content="{Binding LinearFlag2, Converter={StaticResource BoolToYesNoConverter}}">
+                                                                        <Label.Background>
+                                                                            <MultiBinding Converter="{StaticResource ReadoutBackgroundConverter}">
+                                                                                <Binding Path="LinearFlag2"/>
+                                                                                <Binding Path="ReadoutsEnabled"/>
+                                                                            </MultiBinding>
+                                                                        </Label.Background>
+                                                                    </Label>
+                                                                    <Label Grid.Column="2"
+                                                                           Style="{StaticResource ReadoutLabel}"
+                                                                           Content="{Binding LinearFlag3, Converter={StaticResource BoolToYesNoConverter}}">
+                                                                        <Label.Background>
+                                                                            <MultiBinding Converter="{StaticResource ReadoutBackgroundConverter}">
+                                                                                <Binding Path="LinearFlag3"/>
+                                                                                <Binding Path="ReadoutsEnabled"/>
+                                                                            </MultiBinding>
+                                                                        </Label.Background>
+                                                                    </Label>
                                                                 </Grid>
 
                                                             </Grid>
@@ -691,13 +737,24 @@
                                                                 </Grid.ColumnDefinitions>
 
                                                                 <Label Grid.Row="0" Grid.Column="0" Content="Pressure command:"/>
-                                                                <Label Grid.Row="0" Grid.Column="1" x:Name="roPresCmd1" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="0" Grid.Column="1"
+                                                                       Content="{Binding PressureCommand1}"
+                                                                       ContentStringFormat="{}{0:F1} psi"
+                                                                       Style="{StaticResource ReadoutLabel}"/>
                                                                 <Label Grid.Row="1" Grid.Column="0" Content="Pressure measurement:"/>
-                                                                <Label Grid.Row="1" Grid.Column="1" x:Name="roPresMeas1" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="1" Grid.Column="1"
+                                                                       Content="{Binding PressureMeasurement1}"
+                                                                       ContentStringFormat="{}{0:F1} psi"
+                                                                       Style="{StaticResource ReadoutLabel}"/>
                                                                 <Label Grid.Row="2" Grid.Column="0" Content="Flow volume:"/>
-                                                                <Label Grid.Row="2" Grid.Column="1" x:Name="roFlowVol1" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="2" Grid.Column="1"
+                                                                       Content="{Binding FlowVolume1}"
+                                                                       ContentStringFormat="{}{0:F3} mL"
+                                                                       Style="{StaticResource ReadoutLabel}"/>
                                                                 <Label Grid.Row="3" Grid.Column="0" Content="Flow error:"/>
-                                                                <Label Grid.Row="3" Grid.Column="1" x:Name="roFlowErr1" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="3" Grid.Column="1"
+                                                                       Content="{Binding FlowError1}"
+                                                                       Style="{StaticResource ReadoutLabel}"/>
 
                                                             </Grid>
                                                         </GroupBox>
@@ -715,13 +772,24 @@
                                                                 </Grid.ColumnDefinitions>
 
                                                                 <Label Grid.Row="0" Grid.Column="0" Content="Pressure command:"/>
-                                                                <Label Grid.Row="0" Grid.Column="1" x:Name="roPresCmd2" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="0" Grid.Column="1"
+                                                                       Content="{Binding PressureCommand2}"
+                                                                       ContentStringFormat="{}{0:F1} psi"
+                                                                       Style="{StaticResource ReadoutLabel}"/>
                                                                 <Label Grid.Row="1" Grid.Column="0" Content="Pressure measurement:"/>
-                                                                <Label Grid.Row="1" Grid.Column="1" x:Name="roPresMeas2" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="1" Grid.Column="1"
+                                                                       Content="{Binding PressureMeasurement2}"
+                                                                       ContentStringFormat="{}{0:F1} psi"
+                                                                       Style="{StaticResource ReadoutLabel}"/>
                                                                 <Label Grid.Row="2" Grid.Column="0" Content="Flow volume:"/>
-                                                                <Label Grid.Row="2" Grid.Column="1" x:Name="roFlowVol2" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="2" Grid.Column="1"
+                                                                       Content="{Binding FlowVolume2}"
+                                                                       ContentStringFormat="{}{0:F3} mL"
+                                                                       Style="{StaticResource ReadoutLabel}"/>
                                                                 <Label Grid.Row="3" Grid.Column="0" Content="Flow error:"/>
-                                                                <Label Grid.Row="3" Grid.Column="1" x:Name="roFlowErr2" Content="-" Style="{DynamicResource readout}"/>
+                                                                <Label Grid.Row="3" Grid.Column="1"
+                                                                       Content="{Binding FlowError2}"
+                                                                       Style="{StaticResource ReadoutLabel}"/>
 
                                                             </Grid>
                                                         </GroupBox>
@@ -739,17 +807,7 @@
                                                             <Setter Property="Margin" Value="2"/>
                                                             <Setter Property="VerticalAlignment" Value="Center"/>
                                                         </Style>
-
-                                                        <Style TargetType="Label" x:Key="readout">
-                                                            <Setter Property="Padding" Value="5,2,5,2"/>
-                                                            <Setter Property="Margin" Value="2"/>
-                                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                                            <Setter Property="Background" Value="WhiteSmoke"/>
-                                                        </Style>
                                                     </Grid.Resources>
-
-
-
 
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition/>
@@ -761,7 +819,6 @@
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="Auto"/>
                                                     </Grid.RowDefinitions>
-
 
                                                     <GroupBox Header="Robot"  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
                                                         <Grid>
@@ -778,9 +835,13 @@
                                                             </Grid.ColumnDefinitions>
 
                                                             <Label Grid.Row="0" Grid.Column="0" Content="Safety controller state:"/>
-                                                            <Label Grid.Row="0" Grid.Column="1" x:Name="roSafetyContState" Content="-" Style="{DynamicResource readout}"/>
+                                                            <Label Grid.Row="0" Grid.Column="1"
+                                                                   Content="{Binding SafetyControllerState}"
+                                                                   Style="{StaticResource ReadoutLabel}"/>
                                                             <Label Grid.Row="1" Grid.Column="0" Content="Safety error state:"/>
-                                                            <Label Grid.Row="1" Grid.Column="1" x:Name="roSafetyErrState" Content="-" Style="{DynamicResource readout}"/>
+                                                            <Label Grid.Row="1" Grid.Column="1"
+                                                                   Content="{Binding SafetyErrorState}"
+                                                                   Style="{StaticResource ReadoutLabel}"/>
 
                                                         </Grid>
                                                     </GroupBox>
@@ -1222,29 +1283,6 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="300"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Grid Grid.Row="0" Grid.Column="1">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition/>
-                                        </Grid.RowDefinitions>
-                                        <GroupBox Header="OCR Processing" Grid.Row="0">
-                                            <StackPanel Orientation="Vertical">
-                                                <TextBox x:Name="Adv_Cam_OCRPathTxb"/>
-                                                <Button x:Name="Adv_Cam_RunOCR" Click="Adv_Cam_RunOCR_Click" Content="Process" Style="{StaticResource SmallButton}"/>
-
-                                                <ProgressBar x:Name="Adv_Cam_OCRPrg"/>
-                                            </StackPanel>
-                                        </GroupBox>
-                                        <GroupBox Grid.Row="1" Header="OCR Results">
-                                            <TextBox x:Name="Adv_Cam_OCRResTxb" Style="{StaticResource MonoTextBox}" FontSize="9.5"/>
-                                        </GroupBox>
-                                    </Grid>
-
 
                                     <Grid Grid.Row="0" Background="White" Margin="6,6,6,0">
                                         <Border BorderBrush="#DDD" BorderThickness="1">
@@ -1252,8 +1290,6 @@
                                         </Border>
                                         <Label x:Name="Adv_Cam_StatusLbl" Content="No image" Foreground="#FFD4D4D4" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="-1"/>
                                     </Grid>
-
-
 
                                     <Grid Grid.Row="1">
                                         <Grid.ColumnDefinitions>

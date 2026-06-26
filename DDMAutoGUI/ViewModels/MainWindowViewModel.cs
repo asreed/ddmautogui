@@ -554,6 +554,9 @@ namespace DDMAutoGUI.ViewModels
             set => SetProperty(ref _selectedDispenseTabIndex, value);
         }
 
+        private bool _readoutsEnabled;
+        public bool ReadoutsEnabled { get => _readoutsEnabled; set => SetProperty(ref _readoutsEnabled, value); }
+
         #endregion
 
         #region Commands
@@ -830,6 +833,7 @@ namespace DDMAutoGUI.ViewModels
             Application.Current.Dispatcher.Invoke(() =>
             {
                 IsConnected = false;
+                ReadoutsEnabled = false;
                 ConnectionStatus = "Not connected";
                 CommandManager.InvalidateRequerySuggested();
             });
@@ -899,6 +903,8 @@ namespace DDMAutoGUI.ViewModels
                 SafetyControllerState = state.safetyControllerState;
                 SafetyErrorState = state.safetyErrorState;
                 IsSimulated = state.isSimulated;
+
+                ReadoutsEnabled = !state.parseError && (_controllerManager.CONNECTION_STATE?.isConnected ?? false);
             });
         }
 
