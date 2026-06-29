@@ -9,6 +9,13 @@ namespace DDMAutoGUI.Services
     /// </summary>
     public interface ILocalDataManager
     {
+        /// <summary>
+        /// Raised whenever the in-memory local data is replaced (e.g., after a flow
+        /// calibration saves new results). Lets view models refresh derived state
+        /// without polling.
+        /// </summary>
+        event EventHandler LocalDataChanged;
+
         void LoadLocalData();
         void SaveLocalData();
 

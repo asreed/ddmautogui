@@ -83,12 +83,6 @@ namespace DDMAutoGUI.Services
         }
     }
 
-    //public class CSLaserCoeff
-    //{
-    //    public float? A { get; set; }
-    //    public float? phi { get; set; }
-    //    public float? R2 { get; set; }
-    //}
 
     public class CSHeightVerif
     {

@@ -13,6 +13,8 @@ namespace DDMAutoGUI.Services
         public static readonly ErrorInfo conLaser =     new ErrorInfo("-5007", "Failed to connect to laser sensor");
         public static readonly ErrorInfo conCamTop =    new ErrorInfo("-5008", "Failed to connect to top camera");
         public static readonly ErrorInfo conCamSide =   new ErrorInfo("-5009", "Failed to connect to side camera");
+        public static readonly ErrorInfo conHB =        new ErrorInfo("-5010", "Failed to parse heartbeat");
+
 
         public class ErrorInfo
         {

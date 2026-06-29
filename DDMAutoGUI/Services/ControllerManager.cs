@@ -522,6 +522,17 @@ namespace DDMAutoGUI.Services
                     }
                 }
 
+                // --- Retest Controller State ---
+                await Task.Delay(10000);
+                string sysStateTest = await GetSystemStateRemote(false);
+                if (!sysStateTest.StartsWith("0"))
+                {
+                    throw new Exception($"{ErrorCodes.conHB.code}: {ErrorCodes.conHB.msg}");
+                } else
+                {
+                    UpdateConnectionLog($"✓ Controller Heartbeat");
+                }
+
 
                 // --- Finalize Connection ---
                 UpdateConnectionLog($"\nConnected successfully");
@@ -715,7 +726,9 @@ namespace DDMAutoGUI.Services
 
         public async Task<string> SendStatusCommand(string command, bool muteLog)
         {
-            if (!muteLog) { UpdateStatusLog($">> {command}"); }
+            if (!muteLog) { 
+                UpdateStatusLog($">> {command}"); 
+            }
 
             byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
             string response = string.Empty;
@@ -732,7 +745,9 @@ namespace DDMAutoGUI.Services
                 byte[] buffer = new byte[1024];
                 int receivedLength = await statusClient.ReceiveAsync(buffer);
                 response = Encoding.ASCII.GetString(buffer, 0, receivedLength).Trim();
-                if (!muteLog) { UpdateStatusLog($"<< {response}"); }
+                if (!muteLog) {
+                    UpdateStatusLog($"<< {response}");
+                }
             }
             catch (Exception e)
             {

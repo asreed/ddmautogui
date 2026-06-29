@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace DDMAutoGUI.ViewModels
 {
@@ -61,6 +62,8 @@ namespace DDMAutoGUI.ViewModels
         private int _safetyErrorState;
         private bool _isSimulated;
 
+        private DispatcherTimer _calibrationWatchTimer;
+
         private BitmapSource _acquiredImageSource;
         private string _cameraStatus;
 
@@ -94,6 +97,7 @@ namespace DDMAutoGUI.ViewModels
             InitializeEventHandlers();
             InitializeAppTitle();
             InitializeMotorSizes();
+            InitializeCalibrationWatch();
 
             _selectedMotorType = "ddm_116";
         }
@@ -115,6 +119,7 @@ namespace DDMAutoGUI.ViewModels
                 {
                     OnPropertyChanged(nameof(IsDisconnected));
                     OnPropertyChanged(nameof(IsRobotControlEnabled));
+                    OnPropertyChanged(nameof(IsCalibrationExpired));
                 }
             }
         }
@@ -184,6 +189,7 @@ namespace DDMAutoGUI.ViewModels
             {
                 if (SetProperty(ref _motorSerialNumber, value))
                 {
+                    OnPropertyChanged(nameof(IsSerialNumberMissing));
                     Application.Current?.Dispatcher.BeginInvoke(
                         CommandManager.InvalidateRequerySuggested);
                 }
@@ -569,6 +575,40 @@ namespace DDMAutoGUI.ViewModels
         private bool _readoutsEnabled;
         public bool ReadoutsEnabled { get => _readoutsEnabled; set => SetProperty(ref _readoutsEnabled, value); }
 
+        /// <summary>
+        /// True when no ring serial number has been entered. Drives the "No SN"
+        /// warning box and contributes to the dispense command gate.
+        /// </summary>
+        public bool IsSerialNumberMissing => string.IsNullOrEmpty(MotorSerialNumber);
+
+        /// <summary>
+        /// True when flow calibration is missing or older than the configured expiry
+        /// window. Drives the "Calibration Timeout" warning box and the dispense gate.
+        /// Re-evaluated on a timer so it can flip on its own as time elapses.
+        /// </summary>
+        public bool IsCalibrationExpired
+        {
+            get
+            {
+                // The expiry threshold lives in controller settings, which are only
+                // loaded while connected (and cleared to null on disconnect). Treat an
+                // unknown state as "not expired" so we never surface a misleading
+                // warning; CanStartDispense gates on IsConnected independently.
+                if (!IsConnected)
+                    return false;
+
+                float? expHours = _settingsManager.GetAllSettings()?.dispense_system?.calib_exp_hours;
+                if (expHours == null)
+                    return false;
+
+                DateTime? lastCalib = _localDataManager.GetLocalData()?.calib_data?.last_calib;
+                if (lastCalib == null)
+                    return true;
+
+                return (DateTime.Now - lastCalib.Value).TotalHours > expHours.Value;
+            }
+        }
+
         #endregion
 
         #region Commands
@@ -669,18 +709,6 @@ namespace DDMAutoGUI.ViewModels
                 // Bring the operator to the live progress/log view as the run begins.
                 SelectedDispenseTabIndex = MonitorProcessTabIndex;
 
-                //if (string.IsNullOrEmpty(MotorSerialNumber))
-                //{
-                //    ProcessLog = "Error: Motor serial number is required";
-                //    return;
-                //}
-
-                //if (!IsConnected)
-                //{
-                //    ProcessLog = "Error: Controller not connected";
-                //    return;
-                //}
-
                 // Use _appConfig.AdvancedOptions
                 var result = await _dispenseProcessService.ExecuteFullDispenseProcessAsync(
                     SelectedMotorType,
@@ -723,7 +751,29 @@ namespace DDMAutoGUI.ViewModels
         }
 
         private bool CanStartDispense(object parameter) 
-            => IsConnected && !IsProcessing && !string.IsNullOrEmpty(MotorSerialNumber) && !string.IsNullOrEmpty(SelectedMotorType);
+        {
+            // Must be connected to controller
+            if (!IsConnected)
+                return false;
+
+            // Cannot start while another process is running
+            if (IsProcessing)
+                return false;
+
+            // Motor serial number is required
+            if (IsSerialNumberMissing)
+                return false;
+
+            // Motor type must be selected
+            if (string.IsNullOrEmpty(SelectedMotorType))
+                return false;
+
+            // Calibration must be present and within the configured expiry window
+            if (IsCalibrationExpired)
+                return false;
+
+            return true;
+        }
 
         private void ExecuteCancelDispense(object parameter)
         {
@@ -829,6 +879,8 @@ namespace DDMAutoGUI.ViewModels
             // Disp_ProcessPrg bar stopped advancing during a run.
             _dispenseProcessService.ProgressChanged += DispenseProcessService_ProgressChanged;
             _controllerManager.RobotBusyChanged += ControllerManager_RobotBusyChanged;
+
+            _localDataManager.LocalDataChanged += LocalDataManager_LocalDataChanged;
         }
 
         private void ControllerManager_Connected(object sender, EventArgs e)
@@ -932,6 +984,15 @@ namespace DDMAutoGUI.ViewModels
             });
         }
 
+        private void LocalDataManager_LocalDataChanged(object sender, EventArgs e)
+        {
+            // last_calib is rewritten here when a flow calibration completes (from the
+            // Calibrate tab, outside this ViewModel). Marshal to the UI thread and refresh
+            // the calibration-expiry warning + dispense gate immediately, rather than
+            // waiting for the periodic timer tick to notice the new timestamp.
+            Application.Current?.Dispatcher.BeginInvoke(RefreshCalibrationStatus);
+        }
+
         #endregion
 
         #region Helper Methods
@@ -975,6 +1036,33 @@ namespace DDMAutoGUI.ViewModels
             ResultDispenseVolumeOd = data?.shot_data?.od_vol is float odVol ? $"{odVol:0.000}" : "-";
         }
 
+        /// <summary>
+        /// Starts a low-frequency timer that re-evaluates the time-based calibration
+        /// expiry so the warning surfaces (and the dispense gate updates) without
+        /// requiring any operator interaction. DispatcherTimer ticks on the UI thread,
+        /// so raising PropertyChanged here is safe.
+        /// </summary>
+        private void InitializeCalibrationWatch()
+        {
+            _calibrationWatchTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(10)
+            };
+            _calibrationWatchTimer.Tick += (_, _) => RefreshCalibrationStatus();
+            _calibrationWatchTimer.Start();
+        }
+
+        /// <summary>
+        /// Re-evaluates the calibration-expiry warning and the dispense command gate.
+        /// Call this from the timer, and after any fresh calibration completes, so the
+        /// warning clears immediately rather than at the next tick.
+        /// </summary>
+        public void RefreshCalibrationStatus()
+        {
+            OnPropertyChanged(nameof(IsCalibrationExpired));
+            CommandManager.InvalidateRequerySuggested();
+        }
+
         #endregion
 
         #region IDisposable
@@ -1001,6 +1089,9 @@ namespace DDMAutoGUI.ViewModels
             _dispenseProcessService.ProgressChanged -= DispenseProcessService_ProgressChanged;
             _controllerManager.ControllerStateChanged -= ControllerManager_StateChanged;
             _controllerManager.RobotBusyChanged -= ControllerManager_RobotBusyChanged;
+            _localDataManager.LocalDataChanged -= LocalDataManager_LocalDataChanged;
+
+            _calibrationWatchTimer?.Stop();
 
             _disposed = true;
         }

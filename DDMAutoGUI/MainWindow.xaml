@@ -150,18 +150,11 @@
                                                         <StackPanel Orientation="Vertical">
                                                             <TextBox x:Name="Disp_MotorSNTxt" 
                                                                      Height="42" 
-                                                                     Text="{Binding MotorSerialNumber, UpdateSourceTrigger=PropertyChanged}"
-                                                                     TextChanged="Disp_MotorSNTxt_TextChanged"/>
+                                                                     Text="{Binding MotorSerialNumber, UpdateSourceTrigger=PropertyChanged}"/>
                                                         </StackPanel>
                                                     </GroupBox>
 
-                                                    <GroupBox Header="Warning" Grid.Row="1" Grid.Column="0" Style="{StaticResource WarningBox}" x:Name="Disp_Warning_SNBox">
-                                                        <StackPanel Orientation="Vertical">
-                                                            <TextBlock TextWrapping="Wrap" Text="Please enter the serial number for the ring."/>
-                                                        </StackPanel>
-                                                    </GroupBox>
-
-                                                    <GroupBox Header="Motor Size" Grid.Row="2" Grid.Column="0">
+                                                    <GroupBox Header="Motor Size" Grid.Row="1" Grid.Column="0">
                                                         <StackPanel Orientation="Vertical">
                                                             <RadioButton Content="DDM 57"       GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57"      IsEnabled="False" Checked="MotorSizeRadio_Checked" Tag="ddm_57"/>
                                                             <RadioButton Content="DDM 95"       GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95"      IsEnabled="False" Checked="MotorSizeRadio_Checked" Tag="ddm_95"/>
@@ -171,14 +164,14 @@
                                                         </StackPanel>
                                                     </GroupBox>
 
-                                                    <GroupBox Header="Warning" Grid.Row="3" Grid.Column="0" Style="{StaticResource WarningBox}" x:Name="Disp_Warning_CalibBox" Visibility="Collapsed">
+                                                    <GroupBox Header="Warning" Grid.Row="2" Grid.Column="0" Style="{StaticResource WarningBox}" x:Name="Disp_Warning_CalibBox" Visibility="Collapsed">
                                                         <StackPanel Orientation="Vertical">
                                                             <TextBlock TextWrapping="Wrap" Text="Calibration for selected motor size has expired. Please run calibration before dispensing."/>
                                                         </StackPanel>
                                                     </GroupBox>
 
                                                     <Button 
-                                                        Grid.Row="4"
+                                                        Grid.Row="3"
                                                         Grid.Column="0"
                                                         Grid.ColumnSpan="2"
                                                         x:Name="Disp_BeginBtn"
@@ -186,6 +179,23 @@
                                                         Command="{Binding StartDispenseCommand}"
                                                         Style="{DynamicResource BlueButton}" 
                                                         Height="70"/>
+
+
+                                                    <StackPanel Orientation="Vertical" Grid.Row="4" Grid.Column="0">
+
+                                                        <GroupBox Header="Warning: No SN" Style="{StaticResource WarningBox}"
+                                                                  Visibility="{Binding IsSerialNumberMissing, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                            <StackPanel Orientation="Vertical">
+                                                                <TextBlock TextWrapping="Wrap" Text="Please enter the serial number for the ring."/>
+                                                            </StackPanel>
+                                                        </GroupBox>
+                                                        <GroupBox Header="Warning: Calibration Timeout" Style="{StaticResource WarningBox}"
+                                                                  Visibility="{Binding IsCalibrationExpired, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                            <StackPanel Orientation="Vertical">
+                                                                <TextBlock TextWrapping="Wrap" Text="Flow calibration has expired. Please recalibrate."/>
+                                                            </StackPanel>
+                                                        </GroupBox>
+                                                    </StackPanel>
 
                                                 </Grid>
 

@@ -85,9 +85,12 @@ namespace DDMAutoGUI.Services
             return localData.Clone();
         }
 
+        public event EventHandler LocalDataChanged;
+
         public void SetLocalData(LocalData newData)
         {
             localData = newData.Clone();
+            LocalDataChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public LDMotorCalib GetCalibFromMotorName(string name)

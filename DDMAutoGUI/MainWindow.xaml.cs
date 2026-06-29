@@ -260,12 +260,6 @@ namespace DDMAutoGUI
 
         #region Dispense Button Handlers
 
-        private void Disp_BeginBtn_Click(object sender, RoutedEventArgs e)
-        {
-            // Dispense logic now delegated to ViewModel via data binding
-            // Ensure MotorSerialNumber is populated and bind button to StartDispenseCommand
-        }
-
         private void Disp_SaveLogBtn_Click(object sender, RoutedEventArgs e)
         {
             var resultsManager = App.Services?.GetService<IResultsManager>();
@@ -330,20 +324,9 @@ namespace DDMAutoGUI
             }
         }
 
-        private void Disp_MotorSNTxt_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (sender is TextBox tb && DataContext is MainWindowViewModel vm)
-            {
-                vm.MotorSerialNumber = tb.Text;
-                Disp_Warning_SNBox.Visibility = tb.Text.Length > 0 ? Visibility.Collapsed : Visibility.Visible;
-                // Removed: Disp_BeginBtn.IsEnabled = state — let StartDispenseCommand.CanExecute handle it
-            }
-        }
-
         #endregion
 
         #region Robot Control Button Handlers
-
 
         private async void Adv_Cell_EStopBtn_Click(object sender, RoutedEventArgs e)
         {

@@ -5,7 +5,7 @@
       "releaseDate": "(in progress)",
       "releaseIntent": "(in progress)",
       "releaseDisplayNotes": "(in progress)",
-      "releaseNotes": "(in progress) OCR process optimized."
+      "releaseNotes": "(In progress) Significant restructure to align with MVVM and DI patterns. OCR process optimized. Polarity test reporting bug fixed and more diagnostic data added to the results file; error code clarity improved. Height data collection for ring, magnets, and concentrators optimized for continuous motion, improving cycle time significantly. TCS MoveJ bug fixed. Pneumatic actuator added to hall effect sensor assy; TCS updated."
     },
     {
       "version": "1.2.3",
