@@ -256,7 +256,7 @@
         <!-- Tabs -->
         
         <Style TargetType="TabItem" x:Key="MainTab">
-            <Setter Property="Width" Value="120"/>
+            <Setter Property="Width" Value="130"/>
             <Setter Property="Height" Value="50"/>
             <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
 
