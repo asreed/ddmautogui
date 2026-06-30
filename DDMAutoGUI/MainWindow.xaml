@@ -51,7 +51,7 @@
         <Grid Grid.Row="1" Grid.RowSpan="2">
 
             <TabControl x:Name="MainTabControl" TabStripPlacement="Left" SelectionChanged="MainTabControl_SelectionChanged">
-                <TabItem Header="Connect" Tag="Resources/icons/tree.ico" Style="{StaticResource MainTab}">
+                <TabItem Header="Connect" Tag="/Resources/icons/tree.ico" Style="{StaticResource MainTab}">
 
                     <Grid Margin="4">
 
@@ -110,7 +110,7 @@
                     </Grid>
 
                 </TabItem>
-                <TabItem x:Name="DispTab" Header="Operate" Tag="Resources/icons/fluid.ico" Style="{StaticResource MainTab}" IsEnabled="False">
+                <TabItem x:Name="DispTab" Header="Operate" Tag="/Resources/icons/fluid.ico" Style="{StaticResource MainTab}" IsEnabled="False">
 
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <Grid Margin="6">
@@ -305,7 +305,7 @@
                                                                 <RowDefinition Height="Auto"/>
                                                                 <RowDefinition Height="Auto"/>
                                                             </Grid.RowDefinitions>
-                                                            
+
                                                             <TextBlock Grid.Column="0" Grid.Row="0" Text="Tool SN"/>
                                                             <TextBlock Grid.Column="0" Grid.Row="1" Text="Ring SN"/>
                                                             <TextBlock Grid.Column="0" Grid.Row="2" Text="Dispense volume ID"/>
@@ -353,8 +353,7 @@
                         </Grid>
                     </ScrollViewer>
                 </TabItem>
-
-                <TabItem x:Name="CalibTab" Header="Calibrate" Tag="Resources/icons/centerpoint.ico" Style="{StaticResource MainTab}" IsEnabled="False">
+                <TabItem x:Name="CalibTab" Header="Calibrate" Tag="/Resources/icons/centerpoint.ico" Style="{StaticResource MainTab}" IsEnabled="False">
 
                     <Grid>
 
@@ -412,8 +411,7 @@
                     </Grid>
 
                 </TabItem>
-
-                <TabItem x:Name="ServTab" Header="Maintenance" Tag="Resources/icons/wrench.ico" Style="{StaticResource MainTab}" IsEnabled="False">
+                <TabItem x:Name="ServTab" Header="Maintenance" Tag="/Resources/icons/wrench.ico" Style="{StaticResource MainTab}" IsEnabled="False">
 
 
                     <Grid>
@@ -471,8 +469,7 @@
                         </Grid>
                     </Grid>
                 </TabItem>
-
-                <TabItem x:Name="AboutTab" Header="About" Tag="Resources/icons/infocircle.ico" Style="{StaticResource MainTab}" Visibility="Collapsed">
+                <TabItem x:Name="AboutTab" Header="About" Tag="/Resources/icons/infocircle.ico" Style="{StaticResource MainTab}" Visibility="Collapsed">
                     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
 
                         <Grid Margin="12">
@@ -512,8 +509,7 @@
                     </Grid>
 
                 </TabItem>
-
-                <TabItem x:Name="AdvTab" Header="Dev" Tag="Resources/icons/settings.ico" Style="{StaticResource MainTab}" Visibility="Visible">
+                <TabItem x:Name="AdvTab" Header="Dev" Tag="/Resources/icons/settings.ico" Style="{StaticResource MainTab}" Visibility="Visible">
 
                     <Grid Margin="-2">
 

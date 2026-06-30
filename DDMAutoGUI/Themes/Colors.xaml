@@ -36,7 +36,7 @@
         <GradientStop Color="#FFB71F1F" Offset="1"/>
     </LinearGradientBrush>
 
-    <!-- Only AngleWhiteGradient uses a meaningful transform (the -45° rotation) -->
+    <!-- Only AngleWhiteGradient uses a meaningful transform (45 deg rot) -->
     <LinearGradientBrush x:Key="AngleWhiteGradient" StartPoint="0.5,0" EndPoint="0.5,1">
         <LinearGradientBrush.RelativeTransform>
             <RotateTransform Angle="-45" CenterX="0.5" CenterY="0.5"/>
