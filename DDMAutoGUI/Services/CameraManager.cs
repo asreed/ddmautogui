@@ -151,19 +151,33 @@ namespace DDMAutoGUI.Services
             await _deviceLock.WaitAsync();
             try
             {
-                if (!skipSave)
-                {
-                    await _lightController.LightsOn();
-                }
-
+                // One try/catch around the WHOLE operation — light control AND
+                // acquisition — so no exception (including the re-thrown
+                // device-creation / "no matching camera" ones) can escape and crash.
                 try
                 {
+                    if (!skipSave)
+                    {
+                        await _lightController.LightsOn();
+                    }
+
                     await Task.Run(() =>
                     {
                         IDevice device = null;
+                        bool streaming = false;
                         try
                         {
-                            device = CreateDeviceWithRetry(targetSN, cellCamera);
+                            // A failed device creation surfaces as an exception. Catch it
+                            // here so the failure is attributed clearly and we never fall
+                            // through to use a null device below.
+                            try
+                            {
+                                device = CreateDeviceWithRetry(targetSN, cellCamera);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new Exception($"Device creation failed for {cellCamera} camera (SN {targetSN}): {ex.Message}", ex);
+                            }
 
                             ((IBoolean)device.TLStreamNodeMap.GetNode("StreamAutoNegotiatePacketSize")).Value = true;
                             ((IBoolean)device.TLStreamNodeMap.GetNode("StreamPacketResendEnable")).Value = true;
@@ -173,6 +187,8 @@ namespace DDMAutoGUI.Services
                             heartbeat.Value = 1000; // ms
 
                             device.StartStream();
+                            streaming = true;
+
                             IImage image = device.GetImage(2000);
 
                             if (!skipSave)
@@ -189,14 +205,19 @@ namespace DDMAutoGUI.Services
                             }
 
                             device.RequeueBuffer(image);
-                            device.StopStream();
                         }
                         finally
                         {
                             // Always release the device so the next open starts clean —
-                            // this is what prevents the NEXT IFOpenDevice failure.
+                            // this is what prevents the NEXT IFOpenDevice failure. Stop the
+                            // stream first if it was started, otherwise a mid-acquisition
+                            // failure could leave it running.
                             if (device != null)
                             {
+                                if (streaming)
+                                {
+                                    try { device.StopStream(); } catch { }
+                                }
                                 try { _system.DestroyDevice(device); } catch { }
                             }
                         }
@@ -204,19 +225,22 @@ namespace DDMAutoGUI.Services
 
                     result.success = true;
                 }
-                catch (Exception ex)
-                {
-                    Debug.Print($"\nException thrown: {ex.Message}");
-                    result.errorMsg = ex.Message;
-                    result.success = false;
-                }
                 finally
                 {
+                    // Lights always go off, even if acquisition threw.
                     if (!skipSave)
                     {
                         await _lightController.LightsOff();
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                // Single safety net: light control OR acquisition failures are
+                // reported via the result instead of crashing the program.
+                Debug.Print($"\nException thrown: {ex.Message}");
+                result.errorMsg = ex.Message;
+                result.success = false;
             }
             finally
             {
@@ -224,7 +248,6 @@ namespace DDMAutoGUI.Services
             }
 
             return result;
-
         }
 
         static void SaveImagePNG(IImage image, string filePath)

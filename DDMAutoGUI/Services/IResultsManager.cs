@@ -13,6 +13,12 @@ namespace DDMAutoGUI.Services
         Results currentResults { get; set; }
 
         /// <summary>
+        /// Absolute path to the folder where the current run's results are saved.
+        /// Set by CreateResultsFolder() and updated by RenameResultsFolder().
+        /// </summary>
+        string currentResultsFolderPath { get; }
+
+        /// <summary>
         /// Date format string for long timestamps (e.g., "MM-dd-yyyy HH:mm:ss.fff").
         /// </summary>
         string DateFormatLong { get; }

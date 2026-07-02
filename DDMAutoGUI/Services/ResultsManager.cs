@@ -87,7 +87,7 @@ namespace DDMAutoGUI.Services
         public event EventHandler UpdateProcessLog;
 
         public Results currentResults { get; set; }
-        public string currentResultsFolderPath;
+        public string currentResultsFolderPath { get; set; }
 
         public ResultsManager()
         {

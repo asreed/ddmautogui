@@ -73,6 +73,14 @@ namespace DDMAutoGUI.ViewModels
         private string _resultToolSerial;
         private string _resultDispenseVolumeId;
         private string _resultDispenseVolumeOd;
+        private string _resultStepTopPhoto;
+        private string _resultStepSidePhoto;
+        private string _resultStepSerialNumbers;
+        private string _resultStepMagnetPolarity;
+        private string _resultStepMCHeight;
+        private string _resultStepDispense;
+        private string _resultStepTopPostPhoto;
+        private string _resultMaxMCHeight;
 
         public MainWindowViewModel(
             IControllerManager controllerManager,
@@ -551,6 +559,54 @@ namespace DDMAutoGUI.ViewModels
         {
             get => _resultDispenseVolumeOd;
             set => SetProperty(ref _resultDispenseVolumeOd, value);
+        }
+
+        public string ResultStepTopPhoto
+        {
+            get => _resultStepTopPhoto;
+            set => SetProperty(ref _resultStepTopPhoto, value);
+        }
+
+        public string ResultStepSidePhoto
+        {
+            get => _resultStepSidePhoto;
+            set => SetProperty(ref _resultStepSidePhoto, value);
+        }
+
+        public string ResultStepSerialNumbers
+        {
+            get => _resultStepSerialNumbers;
+            set => SetProperty(ref _resultStepSerialNumbers, value);
+        }
+
+        public string ResultStepMagnetPolarity
+        {
+            get => _resultStepMagnetPolarity;
+            set => SetProperty(ref _resultStepMagnetPolarity, value);
+        }
+
+        public string ResultStepMCHeight
+        {
+            get => _resultStepMCHeight;
+            set => SetProperty(ref _resultStepMCHeight, value);
+        }
+
+        public string ResultStepDispense
+        {
+            get => _resultStepDispense;
+            set => SetProperty(ref _resultStepDispense, value);
+        }
+
+        public string ResultStepTopPostPhoto
+        {
+            get => _resultStepTopPostPhoto;
+            set => SetProperty(ref _resultStepTopPostPhoto, value);
+        }
+
+        public string ResultMaxMCHeight
+        {
+            get => _resultMaxMCHeight;
+            set => SetProperty(ref _resultMaxMCHeight, value);
         }
 
         // Tab indices for dispTabControl (inside the Operate tab) so the workflow
@@ -1032,9 +1088,49 @@ namespace DDMAutoGUI.ViewModels
             var data = _resultsManager.currentResults;
             ResultToolSerial = string.IsNullOrWhiteSpace(data?.tool_sn) ? "-" : data.tool_sn;
             ResultRingSerial = string.IsNullOrWhiteSpace(data?.ring_sn) ? "-" : data.ring_sn;
-            ResultDispenseVolumeId = data?.shot_data?.id_vol is float idVol ? $"{idVol:0.000}" : "-";
-            ResultDispenseVolumeOd = data?.shot_data?.od_vol is float odVol ? $"{odVol:0.000}" : "-";
+
+
+            float idFrac = data?.reference_data?.id_target_vol is float idTarget and not 0f
+                ? (data?.shot_data?.id_vol ?? 0f) / idTarget * 100
+                : 0f;
+            float odFrac = data?.reference_data?.od_target_vol is float odTarget and not 0f
+                ? (data?.shot_data?.od_vol ?? 0f) / odTarget * 100
+                : 0f;
+            ResultDispenseVolumeId = data?.shot_data?.id_vol is float idVol ? $"{idFrac:F1}% ({idVol:0.000})" : "-";
+            ResultDispenseVolumeOd = data?.shot_data?.od_vol is float odVol ? $"{odFrac:F1}% ({odVol:0.000})" : "-";
+
+            // Process step statuses
+            string folder = _resultsManager.currentResultsFolderPath;
+            ResultStepTopPhoto = PhotoSavedStatus(folder, "Top");
+            ResultStepSidePhoto = PhotoSavedStatus(folder, "Side");
+            ResultStepTopPostPhoto = PhotoSavedStatus(folder, "TopPost");
+
+            ResultStepSerialNumbers = !string.IsNullOrWhiteSpace(data?.tool_sn) && !string.IsNullOrWhiteSpace(data?.ring_sn)
+                ? "Detected"
+                : "Not Detected";
+
+            ResultStepMagnetPolarity = data?.daq_matlab_results?.result is int polarityResult
+                ? (polarityResult == 1 ? "Passed" : "Failed")
+                : "-";
+
+            ResultStepMCHeight = data?.height_verification_result?.passed is bool heightPassed
+                ? (heightPassed ? "Passed" : "Failed")
+                : "-";
+
+            ResultStepDispense = data?.shot_data?.shot_result is bool shotResult
+                ? (shotResult ? "Completed" : "Incomplete")
+                : "-";
+
+            // Process result detail values
+            ResultMaxMCHeight = data?.height_verification_result?.normMaxHeight is double maxHeight
+                ? $"{maxHeight:F2} mm"
+                : "-";
         }
+
+        private static string PhotoSavedStatus(string folder, string fileName)
+            => !string.IsNullOrEmpty(folder) && System.IO.File.Exists(System.IO.Path.Combine(folder, fileName + ".jpg"))
+                ? "Saved"
+                : "Not Saved";
 
         /// <summary>
         /// Starts a low-frequency timer that re-evaluates the time-based calibration

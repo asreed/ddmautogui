@@ -106,7 +106,7 @@ namespace DDMAutoGUI.Services
                 string topImagePath = string.Empty;
                 if (advancedOptions.DispenseOptions.PhotoTop)
                 {
-                    topImagePath = await ExecuteTopPhotoAcquisitionAsync(settings);
+                    topImagePath = await ExecuteTopPhotoAcquisitionAsync(settings, "Top");
                     ReportProgress(25, "Top photo acquired");
                 }
 
@@ -157,11 +157,7 @@ namespace DDMAutoGUI.Services
                 string topAfterImagePath = string.Empty;
                 if (advancedOptions.DispenseOptions.PhotoTopAfter)
                 {
-                    topAfterImagePath = await ExecuteTopPhotoAcquisitionAsync(settings);
-                    if (!string.IsNullOrEmpty(topAfterImagePath))
-                    {
-                        _resultsManager.CopyPhotoToResultsFolder(topAfterImagePath, "TopPost");
-                    }
+                    topAfterImagePath = await ExecuteTopPhotoAcquisitionAsync(settings, "TopPost");
                     ReportProgress(90, "Post-process photo acquired");
                 }
 
@@ -321,7 +317,7 @@ namespace DDMAutoGUI.Services
             _resultsManager.AddToLog("Pressures set");
         }
 
-        private async Task<string> ExecuteTopPhotoAcquisitionAsync(CellSettings settings)
+        private async Task<string> ExecuteTopPhotoAcquisitionAsync(CellSettings settings, string resultFileName)
         {
             _resultsManager.AddToLog("Acquiring top photo...");
             float x = settings.ddm_common.camera_top.x.Value;
@@ -337,7 +333,7 @@ namespace DDMAutoGUI.Services
 
             if (!string.IsNullOrEmpty(camResult.filePath))
             {
-                _resultsManager.CopyPhotoToResultsFolder(camResult.filePath, "Top");
+                _resultsManager.CopyPhotoToResultsFolder(camResult.filePath, resultFileName);
             }
 
             _resultsManager.AddToLog("Top photo acquired");
