@@ -2,10 +2,10 @@
   "releases": [
     {
       "version": "1.2.4",
-      "releaseDate": "(in progress)",
-      "releaseIntent": "(in progress)",
-      "releaseDisplayNotes": "(in progress)",
-      "releaseNotes": "(In progress) Significant restructure to align with MVVM and DI patterns. OCR process optimized. Polarity test reporting bug fixed and more diagnostic data added to the results file; error code clarity improved. Height data collection for ring, magnets, and concentrators optimized for continuous motion, improving cycle time significantly. TCS MoveJ bug fixed. Pneumatic actuator added to hall effect sensor assy; TCS updated."
+      "releaseDate": "2026-07-06",
+      "releaseIntent": "EVT",
+      "releaseDisplayNotes": "Pre-release for engineering verification testing of DDM 116 only on production floor.",
+      "releaseNotes": "Significant restructure to align with MVVM and DI patterns. OCR process optimized. Polarity test reporting bug fixed and more diagnostic data added to the results file; error code clarity improved. Height data collection for ring, magnets, and concentrators optimized for continuous motion, improving cycle time significantly. TCS MoveJ bug fixed. Pneumatic actuator added to hall effect sensor assy; TCS updated."
     },
     {
       "version": "1.2.3",
