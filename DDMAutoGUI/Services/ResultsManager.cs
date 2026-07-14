@@ -11,6 +11,13 @@ using System.Text.Json;
 
 namespace DDMAutoGUI.Services
 {
+    public class ResultsVersionInfo
+    {
+        public string? gui_version { get; set; }
+        public string? tcs_version { get; set; }
+        public string? pac_version { get; set; }
+        public string? polarity_version { get; set; }
+    }
     public class ResultsShotData
     {
         // Contains only directly measured shot data
@@ -61,14 +68,14 @@ namespace DDMAutoGUI.Services
         public DateTime? date_saved { get; set; }
         public string? ring_sn { get; set; }
         public string? tool_sn { get; set; }
-        public ResultsShotData? shot_data { get; set; }
-        public ResultsReferenceData? reference_data { get; set; }
+        public OCRData? ocr_data { get; set; }
         public bool? overall_process_result { get; set; }
         public string? overall_proces_message { get; set; }
-        public DAQMatlabResults? daq_matlab_results { get; set; }
+        public ResultsShotData? shot_data { get; set; }
+        public ResultsReferenceData? reference_data { get; set; }
+        public ResultsVersionInfo? version_info { get; set; }
         public HeightVerificationResult? height_verification_result { get; set; }
-        //public List<ResultsHeightMeasurement>? ring_heights { get; set; }
-        //public List<ResultsHeightMeasurement>? mag_heights { get; set; }
+        public DAQMatlabResults? daq_matlab_results { get; set; }
         public List<ResultsLogLine>? process_log { get; set; }
     }
 
@@ -93,6 +100,22 @@ namespace DDMAutoGUI.Services
         {
             currentResults = null;
             Debug.Print("Process results manager initialized");
+        }
+
+        private IControllerManager? _controllerManager;
+
+        /// <summary>
+        /// Lazily resolves the controller manager from the app's DI container.
+        /// CreateNewResults() should only be called while a controller is connected,
+        /// so the dependency is resolved on first use rather than at construction time.
+        /// </summary>
+        private IControllerManager? GetControllerManager()
+        {
+            if (_controllerManager == null)
+            {
+                _controllerManager = App.Services?.GetService(typeof(IControllerManager)) as IControllerManager;
+            }
+            return _controllerManager;
         }
 
         // ==================================================================
@@ -165,14 +188,32 @@ namespace DDMAutoGUI.Services
 
         public Results CreateNewResults()
         {
+
+            string _tcs_version = String.Empty;
+            string _pac_version = String.Empty;
+            var _controllerManager = GetControllerManager();
+            if (_controllerManager == null)
+            {
+                Debug.Print("Controller manager is not available. Cannot create new results.");
+            } else
+            {
+                _tcs_version = _controllerManager.CONNECTION_STATE.connectedTCS;
+                _pac_version = _controllerManager.CONNECTION_STATE.connectedPAC;
+            }
+
             if (currentResults == null)
             {
                 currentResults = new Results
                 {
-                    //ring_heights = new List<ResultsHeightMeasurement>(),
-                    //mag_heights = new List<ResultsHeightMeasurement>(),
                     shot_data = new ResultsShotData(),
-                    process_log = new List<ResultsLogLine>()
+                    process_log = new List<ResultsLogLine>(),
+                    version_info = new ResultsVersionInfo
+                    {
+                        gui_version = ReleaseInfo.GetCurrentVersion(),
+                        tcs_version = _tcs_version,
+                        pac_version = _pac_version,
+                        polarity_version = String.Empty
+                    }
                 };
                 return currentResults;
             }

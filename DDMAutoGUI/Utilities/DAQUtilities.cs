@@ -74,8 +74,8 @@ namespace DDMAutoGUI.Services
                 Debug.Print("Results structure null");
             }
 
-            // Suppress raw hall data from being copied into results
-            result.hall_data = null;
+            // Suppress raw hall data from being copied into results (maybe we want to consolidate data files?)
+            // result.hall_data = null;
             return result;
         }
     }

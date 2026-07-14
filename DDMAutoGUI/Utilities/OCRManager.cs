@@ -21,11 +21,11 @@ namespace DDMAutoGUI.Utilities
         /// <summary>
         /// Runs OCR on images in the specified folder using a Python script.
         /// </summary>
-        public static async Task<OCRData> RunOCRAsync(string imageInputFolder)
+        public static async Task<OCRData?> RunOCRAsync(string imageInputFolder)
         {
             string ocrOutputFile = Path.Combine(imageInputFolder, OcrOutputFileName);
 
-            OCRData result = await Task.Run(() =>
+            OCRData? result = await Task.Run(() =>
             {
                 string arguments =
                     $"\"{OcrScriptPath}\" " +
@@ -74,6 +74,7 @@ namespace DDMAutoGUI.Utilities
                         string rawJson = File.ReadAllText(ocrOutputFile);
                         var ocrResult = JsonSerializer.Deserialize<OCRData>(rawJson);
                         Debug.Print("OCR results deserialized successfully");
+                        DeleteOCROutputFile(ocrOutputFile);
                         return ocrResult;
                     }
                     catch (JsonException ex)
@@ -90,6 +91,27 @@ namespace DDMAutoGUI.Utilities
             });
 
             return result;
+        }
+
+        /// <summary>
+        /// Deletes the OCR output file after its contents have been successfully read
+        /// </summary>
+        /// <param name="ocrOutputFile">Full path to the OCR output file to delete.</param>
+        private static void DeleteOCROutputFile(string ocrOutputFile)
+        {
+            try
+            {
+                File.Delete(ocrOutputFile);
+                Debug.Print($"OCR output file deleted: {ocrOutputFile}");
+            }
+            catch (IOException ex)
+            {
+                Debug.Print($"Unable to delete OCR output file '{ocrOutputFile}': {ex.Message}");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Debug.Print($"Unable to delete OCR output file '{ocrOutputFile}': {ex.Message}");
+            }
         }
     }
 
