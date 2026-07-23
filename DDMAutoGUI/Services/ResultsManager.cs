@@ -69,8 +69,8 @@ namespace DDMAutoGUI.Services
         public string? ring_sn { get; set; }
         public string? tool_sn { get; set; }
         public OCRData? ocr_data { get; set; }
-        public bool? overall_process_result { get; set; }
-        public string? overall_proces_message { get; set; }
+        public bool? overall_part_cycle_result { get; set; }
+        public string? overall_part_cycle_message { get; set; }
         public ResultsShotData? shot_data { get; set; }
         public ResultsReferenceData? reference_data { get; set; }
         public ResultsVersionInfo? version_info { get; set; }

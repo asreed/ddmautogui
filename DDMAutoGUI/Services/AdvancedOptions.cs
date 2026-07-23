@@ -5,7 +5,7 @@ namespace DDMAutoGUI.Services
     public class AdvancedOptions
     {
         public ConnectionOptions ConnectionOptions { get; set; } = new();
-        public DispenseOptions DispenseOptions { get; set; } = new();
+        public PartCycleOptions PartCycleOptions { get; set; } = new();
     }
 
     public class ConnectionOptions
@@ -24,7 +24,7 @@ namespace DDMAutoGUI.Services
         public int[] ExpectedIoLinkPorts { get; set; } = new[] { 1, 2, 5, 6, 7 };
     }
 
-    public class DispenseOptions
+    public class PartCycleOptions
     {
         public bool CheckHealth { get; set; } = true;
         public bool Dispense { get; set; } = true;

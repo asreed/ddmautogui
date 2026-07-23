@@ -13,7 +13,7 @@ namespace DDMAutoGUI.Services
     /// Handles all steps of the dispense workflow in a clean, testable way.
     /// This service is used by the MainWindowViewModel to coordinate the dispense process.
     /// </summary>
-    public class DispenseProcessService : IDispenseProcessService
+    public class PartCycleService : IPartCycleService
     {
         private readonly IControllerManager _controllerManager;
         private readonly ISettingsManager _settingsManager;
@@ -21,6 +21,7 @@ namespace DDMAutoGUI.Services
         private readonly ICameraManager _cameraManager;
         private readonly ILocalDataManager _localDataManager;
         private readonly IFlowCalibrationManager _flowCalibrationManager;
+        private readonly IDispenseExecutionService _dispenseExecution;
 
         // Progress tracking
         public event EventHandler<ProgressChangedEventArgs> ProgressChanged;
@@ -29,13 +30,14 @@ namespace DDMAutoGUI.Services
         private const string LOG_INDENT = "  ";
         private const string LOG_DOUBLE_INDENT = "    ";
 
-        public DispenseProcessService(
+        public PartCycleService(
             IControllerManager controllerManager,
             ISettingsManager settingsManager,
             IResultsManager resultsManager,
             ICameraManager cameraManager,
             ILocalDataManager localDataManager,
-            IFlowCalibrationManager flowCalibrationManager)
+            IFlowCalibrationManager flowCalibrationManager,
+            IDispenseExecutionService dispenseExecution)
         {
             _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
             _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
@@ -43,18 +45,19 @@ namespace DDMAutoGUI.Services
             _cameraManager = cameraManager ?? throw new ArgumentNullException(nameof(cameraManager));
             _localDataManager = localDataManager ?? throw new ArgumentNullException(nameof(localDataManager));
             _flowCalibrationManager = flowCalibrationManager ?? throw new ArgumentNullException(nameof(flowCalibrationManager));
+            _dispenseExecution = dispenseExecution ?? throw new ArgumentNullException(nameof(dispenseExecution));
         }
 
         /// <summary>
-        /// Main entry point for the dispense process.
-        /// Orchestrates all steps of the dispense workflow.
+        /// Main entry point for the part cycle process.
+        /// Orchestrates all steps of the part cycle workflow.
         /// </summary>
-        public async Task<DispenseProcessResult> ExecuteFullDispenseProcessAsync(
+        public async Task<PartCycleResult> ExecutePartCycleAsync(
             string motorName,
             string ringSerialNumber,
             AdvancedOptions advancedOptions)
         {
-            var result = new DispenseProcessResult();
+            var result = new PartCycleResult();
             string resultsPath = string.Empty;
             CellSettings settings = null;
 
@@ -96,7 +99,7 @@ namespace DDMAutoGUI.Services
                 ReportProgress(15, "Clearance checked");
 
                 // Step 4: Setup Dispense System (pressures, etc)
-                if (advancedOptions.DispenseOptions.Dispense)
+                if (advancedOptions.PartCycleOptions.Dispense)
                 {
                     await ExecuteDispenseSetupAsync(settings, motorName);
                     ReportProgress(20, "Dispense system ready");
@@ -104,7 +107,7 @@ namespace DDMAutoGUI.Services
 
                 // Step 5: Acquire Preprocess Top Photo
                 string topImagePath = string.Empty;
-                if (advancedOptions.DispenseOptions.PhotoTop)
+                if (advancedOptions.PartCycleOptions.PhotoTop)
                 {
                     topImagePath = await ExecuteTopPhotoAcquisitionAsync(settings, "Top");
                     ReportProgress(25, "Top photo acquired");
@@ -112,42 +115,42 @@ namespace DDMAutoGUI.Services
 
                 // Step 6: Acquire Side Photo
                 string sideImagePath = string.Empty;
-                if (advancedOptions.DispenseOptions.PhotoSide)
+                if (advancedOptions.PartCycleOptions.PhotoSide)
                 {
                     sideImagePath = await ExecuteSidePhotoAcquisitionAsync(motor);
                     ReportProgress(30, "Side photo acquired");
                 }
 
                 // Step 7: Process Images with OCR
-                if (advancedOptions.DispenseOptions.RunOCR)
+                if (advancedOptions.PartCycleOptions.RunOCR)
                 {
                     await ExecuteOCRProcessingAsync(resultsPath, motorName);
                     ReportProgress(40, "OCR processed");
                 }
 
                 // Step 8: Check Magnet Polarity
-                if (advancedOptions.DispenseOptions.CheckPolarity)
+                if (advancedOptions.PartCycleOptions.CheckPolarity)
                 {
                     await ExecutePolarityCheckAsync(settings, motor, motorName);
                     ReportProgress(50, "Magnet polarity checked");
                 }
 
                 // Step 9: Measure Heights
-                if (advancedOptions.DispenseOptions.MeasureHeights)
+                if (advancedOptions.PartCycleOptions.MeasureHeights)
                 {
                     await ExecuteHeightMeasurementsAsync(settings, motor);
                     ReportProgress(60, "Heights measured");
                 }
 
                 // Step 10: Perform Dispense
-                if (advancedOptions.DispenseOptions.Dispense)
+                if (advancedOptions.PartCycleOptions.Dispense)
                 {
                     await ExecuteDispenseAsync(settings, motor, motorName);
                     ReportProgress(70, "Dispense complete");
                 }
 
                 // Step 11: Autocalibration
-                if (advancedOptions.DispenseOptions.Autocalibrate)
+                if (advancedOptions.PartCycleOptions.Autocalibrate)
                 {
                     await ExecuteAutocalibrationAsync(settings, motorName);
                     ReportProgress(80, "Autocalibration complete");
@@ -155,7 +158,7 @@ namespace DDMAutoGUI.Services
 
                 // Step 12: Post-process Photo
                 string topAfterImagePath = string.Empty;
-                if (advancedOptions.DispenseOptions.PhotoTopAfter)
+                if (advancedOptions.PartCycleOptions.PhotoTopAfter)
                 {
                     topAfterImagePath = await ExecuteTopPhotoAcquisitionAsync(settings, "TopPost");
                     ReportProgress(90, "Post-process photo acquired");
@@ -173,8 +176,8 @@ namespace DDMAutoGUI.Services
                     out bool pass,
                     out string message);
 
-                _resultsManager.currentResults.overall_process_result = pass;
-                _resultsManager.currentResults.overall_proces_message = message;
+                _resultsManager.currentResults.overall_part_cycle_result = pass;
+                _resultsManager.currentResults.overall_part_cycle_message = message;
                 _resultsManager.AddToLog("Process complete");
                 ReportProgress(100, "Finishing up");
 
@@ -183,7 +186,7 @@ namespace DDMAutoGUI.Services
                 result.Message = message;
                 result.ResultsPath = resultsPath;
             }
-            catch (DispenseException ex)
+            catch (PartCycleException ex)
             {
 
                 result.Success = false;
@@ -230,7 +233,7 @@ namespace DDMAutoGUI.Services
                 {
                     _resultsManager.AddToLog($"{LOG_INDENT}{issue}");
                 }
-                throw new DispenseException("System health check failed");
+                throw new PartCycleException("System health check failed");
             }
 
             await _controllerManager.ActuateHallUp();
@@ -240,23 +243,7 @@ namespace DDMAutoGUI.Services
         }
 
         private async Task ExecutePowerAndHomeAsync()
-        {
-            _resultsManager.AddToLog("Enabling power...");
-            string response = await _controllerManager.EnablePower();
-            if (response != "1")
-            {
-                throw new DispenseException("Failed to enable power");
-            }
-            _resultsManager.AddToLog("Power enabled");
-
-            _resultsManager.AddToLog("Homing...");
-            response = await _controllerManager.Home();
-            if (response != "0")
-            {
-                throw new DispenseException("Failed to home");
-            }
-            _resultsManager.AddToLog("Homed");
-        }
+            => await _dispenseExecution.EnablePowerAndHomeAsync(_resultsManager.AddToLog);
 
         private async Task ExecuteClearanceCheckAsync(CellSettings settings)
         {
@@ -273,7 +260,7 @@ namespace DDMAutoGUI.Services
             if (height > max || height < min)
             {
                 _resultsManager.AddToLog($"Clearance check failed: measured height {height} um outside of range ({min} - {max} um)");
-                throw new DispenseException("Clearance check failed");
+                throw new PartCycleException("Clearance check failed");
             }
 
             _resultsManager.AddToLog($"Clearance check passed: {height} um within range ({min} - {max} um)");
@@ -282,39 +269,8 @@ namespace DDMAutoGUI.Services
         private async Task ExecuteDispenseSetupAsync(CellSettings settings, string motorName)
         {
             _resultsManager.AddToLog($"Setting dispense system pressures for {motorName}...");
-
             LDMotorCalib calib = _localDataManager.GetCalibFromMotorName(motorName);
-            float? pressure1 = calib.sys_1_pressure;
-            float? pressure2 = calib.sys_2_pressure;
-
-            if (pressure1 != null)
-            {
-                _resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1.Value:F3} psi");
-                await _controllerManager.SetRegPressure(1, pressure1.Value);
-            }
-            else
-            {
-                _resultsManager.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
-            }
-
-            if (pressure2 != null)
-            {
-                _resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2.Value:F3} psi");
-                await _controllerManager.SetRegPressure(2, pressure2.Value);
-            }
-            else
-            {
-                _resultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
-            }
-
-            _resultsManager.AddToLog("Waiting for pressures to settle...");
-            await _controllerManager.WaitBothRegPressures(10);
-            await Task.Delay(1000);
-            _resultsManager.AddToLog("Pressures settled");
-            _resultsManager.AddToLog("Zeroing flow sensors...");
-            await _controllerManager.SetZeroShift(3);
-            _resultsManager.AddToLog("Flow sensors zeroed");
-            _resultsManager.AddToLog("Pressures set");
+            await _dispenseExecution.SetupPressuresAsync(settings, calib, _resultsManager.AddToLog);
         }
 
         private async Task<string> ExecuteTopPhotoAcquisitionAsync(CellSettings settings, string resultFileName)
@@ -328,7 +284,7 @@ namespace DDMAutoGUI.Services
 
             if (!camResult.success)
             {
-                throw new DispenseException($"Top camera acquisition failed: {camResult.errorMsg}");
+                throw new PartCycleException($"Top camera acquisition failed: {camResult.errorMsg}");
             }
 
             if (!string.IsNullOrEmpty(camResult.filePath))
@@ -351,7 +307,7 @@ namespace DDMAutoGUI.Services
 
             if (!camResult.success)
             {
-                throw new DispenseException($"Side camera acquisition failed: {camResult.errorMsg}");
+                throw new PartCycleException($"Side camera acquisition failed: {camResult.errorMsg}");
             }
 
             if (!string.IsNullOrEmpty(camResult.filePath))
@@ -371,7 +327,7 @@ namespace DDMAutoGUI.Services
             if (ocrData == null)
             {
                 _resultsManager.AddToLog("OCR processing failed");
-                throw new DispenseException("OCR processing failed");
+                throw new PartCycleException("OCR processing failed");
             }
 
             _resultsManager.currentResults.ocr_data = ocrData;
@@ -385,7 +341,7 @@ namespace DDMAutoGUI.Services
                 if (toolType != motorName)
                 {
                     _resultsManager.AddToLog($"Tool type detected from image ({toolType}) does not match expected motor type ({motorName})");
-                    throw new DispenseException("Tool type mismatch");
+                    throw new PartCycleException("Tool type mismatch");
                 }
 
                 string toolSN = ocrData.GetToolSN(motorName, "Top_compressed.jpg");
@@ -397,7 +353,7 @@ namespace DDMAutoGUI.Services
             if (ringSN == null)
             {
                 _resultsManager.AddToLog("Unable to determine ring SN from image");
-                throw new DispenseException("Ring SN not found");
+                throw new PartCycleException("Ring SN not found");
             }
 
             _resultsManager.currentResults.ring_sn = ringSN;
@@ -448,17 +404,17 @@ namespace DDMAutoGUI.Services
             else if (matlabResult.result == 0)
             {
                 _resultsManager.AddToLog($"Magnet polarity failed: {matlabResult.error_code} {matlabResult.error_message}");
-                throw new DispenseException("Magnet polarity check failed");
+                throw new PartCycleException("Magnet polarity check failed");
             }
             else if (matlabResult.result == -1)
             {
                 _resultsManager.AddToLog($"Magnet polarity check did not complete: {matlabResult.error_code} {matlabResult.error_message}");
-                throw new DispenseException("Magnet polarity check failed");
+                throw new PartCycleException("Magnet polarity check failed");
             }
             else
             {
                 _resultsManager.AddToLog($"Unexpected result from magnet polarity check: {matlabResult.result}");
-                throw new DispenseException("Magnet polarity check failed");
+                throw new PartCycleException("Magnet polarity check failed");
             }
 
             await spinTask;
@@ -501,7 +457,7 @@ namespace DDMAutoGUI.Services
             else
             {
                 _resultsManager.AddToLog($"Height verification failed: {heightResult.message}");
-                throw new DispenseException($"Height verification failed");
+                throw new PartCycleException($"Height verification failed");
             }
         }
 
@@ -510,39 +466,16 @@ namespace DDMAutoGUI.Services
             int sysID = motor.shot_settings.id_sys_num.Value;
             int sysOD = motor.shot_settings.od_sys_num.Value;
 
-            float xID = motor.id_disp.x.Value;
-            float tID = motor.id_disp.t.Value;
-            float xOD = motor.od_disp.x.Value;
-            float tOD = motor.od_disp.t.Value;
-            float targetTimeID = motor.shot_settings.id_target_vol.Value / motor.shot_settings.id_target_flow.Value;
-            float targetTimeOD = motor.shot_settings.od_target_vol.Value / motor.shot_settings.od_target_flow.Value;
-
-            _resultsManager.AddToLog("Waiting for pressures to stabilize...");
-            await _controllerManager.WaitBothRegPressures(5);
-            _resultsManager.AddToLog("Pressures stabilized");
-
-            float pressureID = float.Parse(await _controllerManager.GetRegPressureSetpoint(sysID));
-            float pressureOD = float.Parse(await _controllerManager.GetRegPressureSetpoint(sysOD));
-
-            _resultsManager.AddToLog("Dispensing cyanoacrylate...");
-            string response = await _controllerManager.DispenseToRing(
-                sysID, targetTimeID, xID, tID,
-                sysOD, targetTimeOD, xOD, tOD);
-
-            ResultsShotData shotData = _controllerManager.ParseDispenseResponse(response);
-            shotData.motor_type = motorName;
-            shotData.id_valve_num = sysID;
-            shotData.od_valve_num = sysOD;
-            shotData.id_pressure = pressureID;
-            shotData.od_pressure = pressureOD;
-
-            string substance_id = motor.shot_settings.id_sys_num == 1 
-                ? settings.dispense_system.sys_1_contents 
+            string substance_id = motor.shot_settings.id_sys_num == 1
+                ? settings.dispense_system.sys_1_contents
                 : settings.dispense_system.sys_2_contents;
-            string substance_od = motor.shot_settings.od_sys_num == 1 
-                ? settings.dispense_system.sys_1_contents 
+            string substance_od = motor.shot_settings.od_sys_num == 1
+                ? settings.dispense_system.sys_1_contents
                 : settings.dispense_system.sys_2_contents;
 
+            ResultsShotData shotData = await _dispenseExecution.DispenseToRingAsync(settings, motor, motorName, _resultsManager.AddToLog);
+
+            // production-only concern: build reference data + persist to currentResults
             var referenceData = new ResultsReferenceData
             {
                 id_substance = substance_id,
@@ -558,26 +491,17 @@ namespace DDMAutoGUI.Services
             _resultsManager.currentResults.shot_data = shotData;
             _resultsManager.currentResults.reference_data = referenceData;
 
-            if ((bool)shotData.shot_result)
-            {
-                _resultsManager.AddToLog("Dispense successful");
-                _resultsManager.AddToLog("Results:");
-                _resultsManager.AddToLog($"{LOG_INDENT}ID:");
-                _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Valve {motor.shot_settings.id_sys_num} ({substance_id})");
-                _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense volume: {shotData.id_vol:F3} mL ({shotData.id_vol.Value * 100 / motor.shot_settings.id_target_vol.Value:F1}% of target)");
-                _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense time: {shotData.id_time:F3} s");
-                _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Pressure: {shotData.id_pressure:F3} psi");
-                _resultsManager.AddToLog($"{LOG_INDENT}OD:");
-                _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Valve {motor.shot_settings.od_sys_num} ({substance_od})");
-                _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense volume: {shotData.od_vol:F3} mL ({shotData.od_vol.Value * 100 / motor.shot_settings.od_target_vol.Value:F1}% of target)");
-                _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense time: {shotData.od_time:F3} s");
-                _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Pressure: {shotData.od_pressure:F3} psi");
-            }
-            else
-            {
-                _resultsManager.AddToLog($"Dispense failed: {shotData.shot_message}");
-                throw new DispenseException($"Dispense failed: {shotData.shot_message}");
-            }
+            _resultsManager.AddToLog("Results:");
+            _resultsManager.AddToLog($"{LOG_INDENT}ID:");
+            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Valve {motor.shot_settings.id_sys_num} ({substance_id})");
+            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense volume: {shotData.id_vol:F3} mL ({shotData.id_vol.Value * 100 / motor.shot_settings.id_target_vol.Value:F1}% of target)");
+            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense time: {shotData.id_time:F3} s");
+            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Pressure: {shotData.id_pressure:F3} psi");
+            _resultsManager.AddToLog($"{LOG_INDENT}OD:");
+            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Valve {motor.shot_settings.od_sys_num} ({substance_od})");
+            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense volume: {shotData.od_vol:F3} mL ({shotData.od_vol.Value * 100 / motor.shot_settings.od_target_vol.Value:F1}% of target)");
+            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense time: {shotData.od_time:F3} s");
+            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Pressure: {shotData.od_pressure:F3} psi");
         }
 
         private async Task ExecuteAutocalibrationAsync(CellSettings settings, string motorName)
@@ -587,7 +511,7 @@ namespace DDMAutoGUI.Services
             if (_resultsManager.currentResults.shot_data == null)
             {
                 _resultsManager.AddToLog("Autocalibration failed: no results data loaded");
-                throw new DispenseException("Autocalibration failed");
+                throw new PartCycleException("Autocalibration failed");
             }
 
             bool calibSuccess;
@@ -605,7 +529,7 @@ namespace DDMAutoGUI.Services
 
             if (!calibSuccess)
             {
-                throw new DispenseException($"Calibration calculation failed: {calibMessage}");
+                throw new PartCycleException($"Calibration calculation failed: {calibMessage}");
             }
 
             _resultsManager.AddToLog("Calibration calculation succeeded.");
@@ -738,16 +662,16 @@ namespace DDMAutoGUI.Services
     /// Custom exception for dispense process failures.
     /// Makes error handling more specific to dispense operations.
     /// </summary>
-    public class DispenseException : Exception
+    public class PartCycleException : Exception
     {
-        public DispenseException(string message) : base(message) { }
-        public DispenseException(string message, Exception innerException) : base(message, innerException) { }
+        public PartCycleException(string message) : base(message) { }
+        public PartCycleException(string message, Exception innerException) : base(message, innerException) { }
     }
 
     /// <summary>
     /// Result of a dispense process execution.
     /// </summary>
-    public class DispenseProcessResult
+    public class PartCycleResult
     {
         public bool Success { get; set; }
         public bool Pass { get; set; }

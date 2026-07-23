@@ -39,6 +39,12 @@ namespace DDMAutoGUI.Services
         CSMotor GetMotorSettingsFromName(string motorName);
 
         /// <summary>
+        /// Gets the default (reference) dispense-system pressures for the given
+        /// motor name (e.g., "ddm_57", "ddm_116", etc.).
+        /// </summary>
+        CSDefaultCalib GetDefaultPressuresFromName(string motorName);
+
+        /// <summary>
         /// Reloads settings from the controller.
         /// </summary>
         void ReloadSettings();

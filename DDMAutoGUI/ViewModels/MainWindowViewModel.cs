@@ -23,7 +23,7 @@ namespace DDMAutoGUI.ViewModels
         private readonly ICameraManager _cameraManager;
         private readonly ILocalDataManager _localDataManager;
         private readonly IApplicationConfiguration _appConfig;
-        private readonly IDispenseProcessService _dispenseProcessService;
+        private readonly IPartCycleService _partCycleService;
 
         private string _appTitle;
         private bool _isConnected;
@@ -89,7 +89,7 @@ namespace DDMAutoGUI.ViewModels
             ICameraManager cameraManager,
             ILocalDataManager localDataManager,
             IApplicationConfiguration appConfig,
-            IDispenseProcessService dispenseProcessService)
+            IPartCycleService dispenseProcessService)
         {
             _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
             _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
@@ -97,7 +97,7 @@ namespace DDMAutoGUI.ViewModels
             _cameraManager = cameraManager ?? throw new ArgumentNullException(nameof(cameraManager));
             _localDataManager = localDataManager ?? throw new ArgumentNullException(nameof(localDataManager));
             _appConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
-            _dispenseProcessService = dispenseProcessService ?? throw new ArgumentNullException(nameof(dispenseProcessService));
+            _partCycleService = dispenseProcessService ?? throw new ArgumentNullException(nameof(dispenseProcessService));
 
             _controllerIpAddress = "192.168.0.1";
 
@@ -368,12 +368,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispCheckHealth
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.CheckHealth;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.CheckHealth;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.CheckHealth != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.CheckHealth != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.CheckHealth = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.CheckHealth = value;
                     OnPropertyChanged();
                 }
             }
@@ -381,12 +381,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispPhotoTop
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.PhotoTop;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.PhotoTop;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.PhotoTop != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.PhotoTop != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.PhotoTop = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.PhotoTop = value;
                     OnPropertyChanged();
                 }
             }
@@ -394,12 +394,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispPhotoSide
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.PhotoSide;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.PhotoSide;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.PhotoSide != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.PhotoSide != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.PhotoSide = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.PhotoSide = value;
                     OnPropertyChanged();
                 }
             }
@@ -407,12 +407,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispRunOCR
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.RunOCR;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.RunOCR;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.RunOCR != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.RunOCR != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.RunOCR = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.RunOCR = value;
                     OnPropertyChanged();
                 }
             }
@@ -420,12 +420,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispCheckPolarity
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.CheckPolarity;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.CheckPolarity;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.CheckPolarity != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.CheckPolarity != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.CheckPolarity = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.CheckPolarity = value;
                     OnPropertyChanged();
                 }
             }
@@ -433,12 +433,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispMeasureHeights
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.MeasureHeights;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.MeasureHeights;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.MeasureHeights != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.MeasureHeights != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.MeasureHeights = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.MeasureHeights = value;
                     OnPropertyChanged();
                 }
             }
@@ -446,12 +446,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispDispense
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.Dispense;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.Dispense;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.Dispense != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.Dispense != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.Dispense = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.Dispense = value;
                     OnPropertyChanged();
                 }
             }
@@ -459,12 +459,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispAutocalibrate
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.Autocalibrate;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.Autocalibrate;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.Autocalibrate != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.Autocalibrate != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.Autocalibrate = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.Autocalibrate = value;
                     OnPropertyChanged();
                 }
             }
@@ -472,12 +472,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispPhotoTopAfter
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.PhotoTopAfter;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.PhotoTopAfter;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.PhotoTopAfter != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.PhotoTopAfter != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.PhotoTopAfter = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.PhotoTopAfter = value;
                     OnPropertyChanged();
                 }
             }
@@ -485,12 +485,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispOverrideWarnings
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.OverrideWarnings;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.OverrideWarnings;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.OverrideWarnings != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.OverrideWarnings != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.OverrideWarnings = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.OverrideWarnings = value;
                     OnPropertyChanged();
                 }
             }
@@ -766,7 +766,7 @@ namespace DDMAutoGUI.ViewModels
                 SelectedDispenseTabIndex = MonitorProcessTabIndex;
 
                 // Use _appConfig.AdvancedOptions
-                var result = await _dispenseProcessService.ExecuteFullDispenseProcessAsync(
+                var result = await _partCycleService.ExecutePartCycleAsync(
                     SelectedMotorType,
                     MotorSerialNumber,
                     _appConfig.AdvancedOptions);
@@ -933,7 +933,7 @@ namespace DDMAutoGUI.ViewModels
             // Wire dispense progress reporting to the bound ProcessProgress property.
             // This subscription was lost in the MVVM/DI refactor, which is why the
             // Disp_ProcessPrg bar stopped advancing during a run.
-            _dispenseProcessService.ProgressChanged += DispenseProcessService_ProgressChanged;
+            _partCycleService.ProgressChanged += DispenseProcessService_ProgressChanged;
             _controllerManager.RobotBusyChanged += ControllerManager_RobotBusyChanged;
 
             _localDataManager.LocalDataChanged += LocalDataManager_LocalDataChanged;
@@ -1077,7 +1077,7 @@ namespace DDMAutoGUI.ViewModels
         /// the bound properties. The tri-state status and message come from the returned
         /// summary; the detail fields come from the authoritative results record.
         /// </summary>
-        private void PopulateResultsDisplay(DispenseProcessResult result)
+        private void PopulateResultsDisplay(PartCycleResult result)
         {
             ResultStatus = !result.Success
                 ? DispenseResultStatus.Incomplete
@@ -1123,7 +1123,7 @@ namespace DDMAutoGUI.ViewModels
 
             // Process result detail values
             ResultMaxMCHeight = data?.height_verification_result?.normMaxHeight is double maxHeight
-                ? $"{maxHeight:F2} mm"
+                ? $"{maxHeight:F2} um"
                 : "-";
         }
 
@@ -1182,7 +1182,7 @@ namespace DDMAutoGUI.ViewModels
             _controllerManager.RobotLogUpdated -= ControllerManager_RobotLogUpdated;
             _controllerManager.ControllerStateChanged -= ControllerManager_StateChanged;
             _resultsManager.UpdateProcessLog -= ResultsManager_UpdateProcessLog;
-            _dispenseProcessService.ProgressChanged -= DispenseProcessService_ProgressChanged;
+            _partCycleService.ProgressChanged -= DispenseProcessService_ProgressChanged;
             _controllerManager.ControllerStateChanged -= ControllerManager_StateChanged;
             _controllerManager.RobotBusyChanged -= ControllerManager_RobotBusyChanged;
             _localDataManager.LocalDataChanged -= LocalDataManager_LocalDataChanged;

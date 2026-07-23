@@ -1,10 +1,19 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:local="clr-namespace:DDMAutoGUI">
+	
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Colors.xaml"/>
     </ResourceDictionary.MergedDictionaries>
+
+
+	<BitmapImage x:Key="Icon.Tree" UriSource="pack://application:,,,/Resources/icons/tree.ico"/>
+	<BitmapImage x:Key="Icon.Fluid" UriSource="pack://application:,,,/Resources/icons/fluid.ico"/>
+	<BitmapImage x:Key="Icon.Gear" UriSource="pack://application:,,,/Resources/icons/settings.ico"/>
+	<BitmapImage x:Key="Icon.Wrench" UriSource="pack://application:,,,/Resources/icons/wrench.ico"/>
+	<BitmapImage x:Key="Icon.Centerpoint" UriSource="pack://application:,,,/Resources/icons/centerpoint.ico"/>
 
     <!-- TextBox -->
     <Style TargetType="TextBox">
@@ -154,7 +163,7 @@
                                 <Image Width="18"
                                        Height="18"
                                        Margin="0,0,8,0"
-                                       Source="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=Tag}"/>
+                                       Source="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=(local:TabIcon.Source)}"/>
                                 <ContentPresenter x:Name="mainLabel" ContentSource="Header">
                                     <ContentPresenter.Resources>
                                         <Style TargetType="TextBlock">

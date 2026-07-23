@@ -7,11 +7,11 @@ namespace DDMAutoGUI.Services
     /// Interface for the dispense process service.
     /// Orchestrates all steps of the dispense workflow.
     /// </summary>
-    public interface IDispenseProcessService
+    public interface IPartCycleService
     {
         event EventHandler<ProgressChangedEventArgs> ProgressChanged;
 
-        Task<DispenseProcessResult> ExecuteFullDispenseProcessAsync(
+        Task<PartCycleResult> ExecutePartCycleAsync(
             string motorName,
             string ringSerialNumber,
             AdvancedOptions advancedOptions);

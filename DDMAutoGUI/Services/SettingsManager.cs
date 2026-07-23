@@ -381,5 +381,24 @@ namespace DDMAutoGUI.Services
                 Debug.Print($"Error: {ex.Message}");
             }
         }
+
+        public CSDefaultCalib GetDefaultPressuresFromName(string motorName)
+        {
+            CellSettings settings = GetAllSettings();
+            if (settings?.dispense_system?.default_pressures == null)
+                return null;
+
+            CSDefaultPressures defaults = settings.dispense_system.default_pressures;
+
+            return motorName switch
+            {
+                "ddm_57" => defaults.ddm_57,
+                "ddm_95" => defaults.ddm_95,
+                "ddm_116" => defaults.ddm_116,
+                "ddm_170" => defaults.ddm_170,
+                "ddm_170_tall" => defaults.ddm_170_tall,
+                _ => null
+            };
+        }
     }
 }

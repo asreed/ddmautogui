@@ -188,7 +188,7 @@ namespace DDMAutoGUI
         /// </summary>
         private void ThrowDispenseError(string message)
         {
-            if (_applicationConfiguration?.AdvancedOptions?.DispenseOptions?.OverrideWarnings == true)
+            if (_applicationConfiguration?.AdvancedOptions?.PartCycleOptions?.OverrideWarnings == true)
             {
                 string cap = "Override Dispense Error?";
                 string msg = $"{message}\n\nContinue anyway?\n\n'OK' will continue; 'Cancel' will end process.";

@@ -42,8 +42,9 @@ namespace DDMAutoGUI
                 serviceCollection.AddSingleton<ICameraManager, CameraManager>();
                 serviceCollection.AddSingleton<IResultsManager, ResultsManager>();
                 serviceCollection.AddSingleton<ILocalDataManager, LocalDataManager>();
+                serviceCollection.AddSingleton<IDispenseExecutionService, DispenseExecutionService>();
                 serviceCollection.AddSingleton<IFlowCalibrationManager, FlowCalibrationManager>();
-                serviceCollection.AddTransient<IDispenseProcessService, DispenseProcessService>();
+                serviceCollection.AddTransient<IPartCycleService, PartCycleService>();
 
                 // ViewModels & UI
                 serviceCollection.AddTransient<MainWindowViewModel>();
@@ -66,6 +67,7 @@ namespace DDMAutoGUI
                     var cam = Services.GetRequiredService<ICameraManager>();
                     var rm = Services.GetRequiredService<IResultsManager>();
                     var ldm = Services.GetRequiredService<ILocalDataManager>();
+                    var des = Services.GetRequiredService<IDispenseExecutionService>();
                     var fcm = Services.GetRequiredService<IFlowCalibrationManager>();
                     var vm = Services.GetRequiredService<MainWindowViewModel>();
                 }

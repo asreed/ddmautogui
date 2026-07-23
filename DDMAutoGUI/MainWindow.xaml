@@ -51,7 +51,7 @@
         <Grid Grid.Row="1" Grid.RowSpan="2">
 
             <TabControl x:Name="MainTabControl" TabStripPlacement="Left" SelectionChanged="MainTabControl_SelectionChanged">
-                <TabItem Header="Connect" Tag="/Resources/icons/tree.ico" Style="{StaticResource MainTab}">
+                <TabItem Header="Connect" local:TabIcon.Source="{StaticResource Icon.Tree}" Style="{StaticResource MainTab}">
 
                     <Grid Margin="4">
 
@@ -110,7 +110,7 @@
                     </Grid>
 
                 </TabItem>
-                <TabItem x:Name="DispTab" Header="Operate" Tag="/Resources/icons/fluid.ico" Style="{StaticResource MainTab}" IsEnabled="False">
+                <TabItem x:Name="DispTab" Header="Part Cycle" local:TabIcon.Source="{StaticResource Icon.Fluid}" Style="{StaticResource MainTab}" IsEnabled="False">
 
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <Grid Margin="6">
@@ -156,11 +156,11 @@
 
                                                     <GroupBox Header="Motor Size" Grid.Row="1" Grid.Column="0">
                                                         <StackPanel Orientation="Vertical">
-                                                            <RadioButton Content="DDM 57"       GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57"      IsEnabled="False" Checked="MotorSizeRadio_Checked" Tag="ddm_57"/>
-                                                            <RadioButton Content="DDM 95"       GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95"      IsEnabled="False" Checked="MotorSizeRadio_Checked" Tag="ddm_95"/>
+                                                            <RadioButton Content="DDM 57"       GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57"      IsEnabled="True" Checked="MotorSizeRadio_Checked" Tag="ddm_57"/>
+                                                            <RadioButton Content="DDM 95"       GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95"      IsEnabled="True" Checked="MotorSizeRadio_Checked" Tag="ddm_95"/>
                                                             <RadioButton Content="DDM 116"      GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor116"     IsEnabled="True"  Checked="MotorSizeRadio_Checked" Tag="ddm_116" IsChecked="True"/>
-                                                            <RadioButton Content="DDM 170"      GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170"     IsEnabled="False" Checked="MotorSizeRadio_Checked" Tag="ddm_170"/>
-                                                            <RadioButton Content="DDM 170 Tall" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170Tall" IsEnabled="False" Checked="MotorSizeRadio_Checked" Tag="ddm_170_tall"/>
+                                                            <RadioButton Content="DDM 170"      GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170"     IsEnabled="True" Checked="MotorSizeRadio_Checked" Tag="ddm_170"/>
+                                                            <RadioButton Content="DDM 170 Tall" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170Tall" IsEnabled="True" Checked="MotorSizeRadio_Checked" Tag="ddm_170_tall"/>
                                                         </StackPanel>
                                                     </GroupBox>
 
@@ -175,7 +175,7 @@
                                                         Grid.Column="0"
                                                         Grid.ColumnSpan="2"
                                                         x:Name="Disp_BeginBtn"
-                                                        Content="Execute Cycle"
+                                                        Content="Execute Part Cycle"
                                                         Command="{Binding StartDispenseCommand}"
                                                         Style="{DynamicResource BlueButton}" 
                                                         Height="70"/>
@@ -376,7 +376,7 @@
                                                     </GroupBox>
                                                     <StackPanel Grid.Row="3" Orientation="Vertical">
                                                         <Button x:Name="Disp_Res_FinishBtn" 
-                                                                Content="Finish" 
+                                                                Content="Finish Cycle" 
                                                                 Height="50"
                                                                 Click="Disp_Res_FinishBtn_Click" 
                                                                 Style="{DynamicResource BlueButton}"/>
@@ -395,7 +395,7 @@
                         </Grid>
                     </ScrollViewer>
                 </TabItem>
-                <TabItem x:Name="CalibTab" Header="Calibrate" Tag="/Resources/icons/centerpoint.ico" Style="{StaticResource MainTab}" IsEnabled="False">
+                <TabItem x:Name="CalibTab" Header="Calibrate" local:TabIcon.Source="{StaticResource Icon.Centerpoint}" Style="{StaticResource MainTab}" IsEnabled="False">
 
                     <Grid>
 
@@ -453,7 +453,7 @@
                     </Grid>
 
                 </TabItem>
-                <TabItem x:Name="ServTab" Header="Maintenance" Tag="/Resources/icons/wrench.ico" Style="{StaticResource MainTab}" IsEnabled="False">
+                <TabItem x:Name="ServTab" Header="Maintenance" local:TabIcon.Source="{StaticResource Icon.Wrench}" Style="{StaticResource MainTab}" IsEnabled="False">
 
 
                     <Grid>
@@ -511,7 +511,7 @@
                         </Grid>
                     </Grid>
                 </TabItem>
-                <TabItem x:Name="AboutTab" Header="About" Tag="/Resources/icons/infocircle.ico" Style="{StaticResource MainTab}" Visibility="Collapsed">
+                <!--<TabItem x:Name="AboutTab" Header="About" Tag="/Resources/icons/infocircle.ico" Style="{StaticResource MainTab}" Visibility="Collapsed">
                     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
 
                         <Grid Margin="12">
@@ -550,8 +550,8 @@
                         </Grid>
                     </Grid>
 
-                </TabItem>
-                <TabItem x:Name="AdvTab" Header="Dev" Tag="/Resources/icons/settings.ico" Style="{StaticResource MainTab}" Visibility="Visible">
+                </TabItem>-->
+                <TabItem x:Name="AdvTab" Header="Dev" local:TabIcon.Source="{StaticResource Icon.Gear}" Style="{StaticResource MainTab}" Visibility="Visible">
 
                     <Grid Margin="-2">
 

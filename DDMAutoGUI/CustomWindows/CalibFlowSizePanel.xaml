@@ -1,0 +1,56 @@
+<UserControl x:Class="DDMAutoGUI.CustomWindows.CalibFlowSizePanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:DDMAutoGUI.CustomWindows"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="400">
+    <StackPanel Orientation="Vertical" Margin="12">
+        <Grid Margin="0,12,0,0" Background="White">
+            <Grid.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Margin" Value="2"/>
+                    <Setter Property="Padding" Value="6,4"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="Background" Value="WhiteSmoke"/>
+                </Style>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="System 1"/>
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="System 2"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Ref pressure"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Calib pressure"/>
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Calib pressure dev"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="S1_RefPresTxb"/>
+            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="S1_CalPresTxb"/>
+            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="S1_CalPresDevTxb"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="2" x:Name="S2_RefPresTxb"/>
+            <TextBlock Grid.Row="2" Grid.Column="2" x:Name="S2_CalPresTxb"/>
+            <TextBlock Grid.Row="3" Grid.Column="2" x:Name="S2_CalPresDevTxb"/>
+        </Grid>
+
+        <StackPanel Orientation="Vertical" Margin="0,18,0,0">
+            <Button x:Name="RunBtn"
+                    Click="RunBtn_Click"
+                    Style="{StaticResource BlackButton}"
+                    Content="Calibrate flow rate"
+                    Margin="0"/>
+            <ProgressBar x:Name="RunPrg"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>
