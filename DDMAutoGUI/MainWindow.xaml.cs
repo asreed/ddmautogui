@@ -97,7 +97,7 @@ namespace DDMAutoGUI
             Con_ConnectBtn.IsEnabled = true;
 
             Status_StatusTxt.Text = "Not connected";
-            Status_SimBdr.Visibility = Visibility.Collapsed;
+            //Status_SimBdr.Visibility = Visibility.Collapsed;
             Status_TCSGrd.Visibility = Visibility.Collapsed;
             Status_PACGrd.Visibility = Visibility.Collapsed;
 
@@ -116,7 +116,7 @@ namespace DDMAutoGUI
 
             ControllerState contState = _controllerManager.CONTROLLER_STATE;
 
-            Status_SimBdr.Visibility = Visibility.Collapsed;
+            //Status_SimBdr.Visibility = Visibility.Collapsed;
             if (!contState.parseError && _controllerManager.CONNECTION_STATE.isConnected)
             {
                 // Connected with good parse
@@ -153,7 +153,7 @@ namespace DDMAutoGUI
                         break;
                 }
 
-                Status_SimBdr.Visibility = contState.isSimulated ? Visibility.Visible : Visibility.Collapsed;
+                //Status_SimBdr.Visibility = contState.isSimulated ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
@@ -170,10 +170,9 @@ namespace DDMAutoGUI
         /// </summary>
         private void InitializeUI()
         {
-            Status_GUISimBdr.Visibility = _applicationConfiguration?.IsSimulationMode == true ? Visibility.Visible : Visibility.Collapsed;
+            //Status_GUISimBdr.Visibility = _applicationConfiguration?.IsSimulationMode == true ? Visibility.Visible : Visibility.Collapsed;
 
-
-            Status_SimBdr.Visibility = Visibility.Collapsed;
+            //Status_SimBdr.Visibility = Visibility.Collapsed;
             Adv_PWEntryBdr.Visibility = Visibility.Visible;
             Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
             AdvTab.Visibility = Visibility.Collapsed;
@@ -457,7 +456,7 @@ namespace DDMAutoGUI
 
         private void Dev_Btn_Click(object sender, RoutedEventArgs e)
         {
-            MainTabControl.SelectedIndex = 5;
+            MainTabControl.SelectedIndex = 4;
             Adv_PWBox.Focus();
         }
 

@@ -1086,8 +1086,8 @@ namespace DDMAutoGUI.ViewModels
             ResultMessage = result.Message;
 
             var data = _resultsManager.currentResults;
-            ResultToolSerial = string.IsNullOrWhiteSpace(data?.tool_sn) ? "-" : data.tool_sn;
-            ResultRingSerial = string.IsNullOrWhiteSpace(data?.ring_sn) ? "-" : data.ring_sn;
+            ResultToolSerial = string.IsNullOrWhiteSpace(data?.tool_sn_detected) ? "-" : data.tool_sn_detected;
+            ResultRingSerial = string.IsNullOrWhiteSpace(data?.ring_sn_detected) ? "-" : data.ring_sn_detected;
 
 
             float idFrac = data?.reference_data?.id_target_vol is float idTarget and not 0f
@@ -1105,7 +1105,7 @@ namespace DDMAutoGUI.ViewModels
             ResultStepSidePhoto = PhotoSavedStatus(folder, "Side");
             ResultStepTopPostPhoto = PhotoSavedStatus(folder, "TopPost");
 
-            ResultStepSerialNumbers = !string.IsNullOrWhiteSpace(data?.tool_sn) && !string.IsNullOrWhiteSpace(data?.ring_sn)
+            ResultStepSerialNumbers = !string.IsNullOrWhiteSpace(data?.tool_sn_detected) && !string.IsNullOrWhiteSpace(data?.ring_sn_detected)
                 ? "Detected"
                 : "Not Detected";
 

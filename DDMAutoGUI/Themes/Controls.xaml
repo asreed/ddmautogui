@@ -9,12 +9,11 @@
     </ResourceDictionary.MergedDictionaries>
 
 
-	<BitmapImage x:Key="Icon.Tree" UriSource="pack://application:,,,/Resources/icons/tree.ico"/>
-	<BitmapImage x:Key="Icon.Fluid" UriSource="pack://application:,,,/Resources/icons/fluid.ico"/>
-	<BitmapImage x:Key="Icon.Gear" UriSource="pack://application:,,,/Resources/icons/settings.ico"/>
-	<BitmapImage x:Key="Icon.Wrench" UriSource="pack://application:,,,/Resources/icons/wrench.ico"/>
-	<BitmapImage x:Key="Icon.Centerpoint" UriSource="pack://application:,,,/Resources/icons/centerpoint.ico"/>
-
+	<BitmapImage x:Key="Icon.Tree" UriSource="pack://application:,,,/Resources/icons/tree.png"/>
+	<BitmapImage x:Key="Icon.Fluid" UriSource="pack://application:,,,/Resources/icons/fluid.png"/>
+	<BitmapImage x:Key="Icon.Gear" UriSource="pack://application:,,,/Resources/icons/settings.png"/>
+	<BitmapImage x:Key="Icon.Wrench" UriSource="pack://application:,,,/Resources/icons/wrench.png"/>
+	<BitmapImage x:Key="Icon.Centerpoint" UriSource="pack://application:,,,/Resources/icons/centerpoint.png"/>
     <!-- TextBox -->
     <Style TargetType="TextBox">
         <Setter Property="Background" Value="{StaticResource TextBoxBlueLight}"/>
@@ -325,7 +324,7 @@
         <!--<Setter Property="Background" Value="WhiteSmoke"/>-->
         <Style.Resources>
             <Style TargetType="TextBlock">
-                <Setter Property="Foreground" Value="#222"/>
+                <Setter Property="Foreground" Value="#EEE"/>
                 <Setter Property="FontSize" Value="11"/>
                 <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>

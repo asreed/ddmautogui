@@ -13,9 +13,9 @@
         Width="1024"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
-        Background="#FF98A4C1">
+        Background="#FF0D192D">
 
-    <Grid Margin="4">
+    <Grid Margin="8">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -68,7 +68,7 @@
 
                         <Grid Grid.Row="1" Grid.Column="1">
                             <StackPanel Orientation="Vertical">
-                                <GroupBox Header="Controller IP Address">
+                                <GroupBox Header="Connect">
 
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -77,18 +77,19 @@
                                             <RowDefinition/>
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="1*"/>
+                                            <ColumnDefinition Width="1*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBox Grid.Column="0" 
-                                                 x:Name="Con_IPTxt" 
-                                                 Text="{Binding ControllerIpAddress, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <Button Grid.Column="1" 
+                                        <Button Grid.Column="0" 
                                                 x:Name="Con_ConnectBtn" 
                                                 Content="Connect" 
-                                                Width="110"
                                                 Command="{Binding ConnectCommand}"
                                                 CommandParameter="{Binding Text, ElementName=Con_IPTxt}"
+                                                Style="{StaticResource BlueButton}"/>
+                                        <Button Grid.Column="1" 
+                                                x:Name="Con_DisconnectBtn" 
+                                                Content="Disconnect" 
+                                                Command="{Binding DisconnectCommand}"
                                                 Style="{StaticResource BlueButton}"/>
                                         <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
                                                      x:Name="Con_ConnectPrg" 
@@ -553,7 +554,7 @@
                 </TabItem>-->
                 <TabItem x:Name="AdvTab" Header="Dev" local:TabIcon.Source="{StaticResource Icon.Gear}" Style="{StaticResource MainTab}" Visibility="Visible">
 
-                    <Grid Margin="-2">
+                    <Grid Margin="-2" Background="#FFFF9800">
 
                         <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Margin="6" Visibility="Hidden">
                             <Grid>
@@ -596,16 +597,15 @@
 
                             <TabItem Header="Options">
                                 <StackPanel Orientation="Vertical" Margin="6">
-                                    <!--<GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
+                                    <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
                                         <StackPanel Orientation="Vertical">
-                                            <CheckBox x:Name="Adv_Opt_Con_ControllerChk" Content="Controller"     IsChecked="{Binding ConnectController}"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_IOLinkChk"     Content="IO Link Devices" IsChecked="{Binding ConnectIoLinkDevices}"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_TopCamChk"     Content="Top Camera"     IsChecked="{Binding ConnectTopCamera}"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_SideCamChk"    Content="Side Camera"    IsChecked="{Binding ConnectSideCamera}"/>
-                                            <CheckBox x:Name="Adv_Opt_Con_LaserChk"      Content="Laser Sensor"   IsChecked="{Binding ConnectLaserSensor}"/>
-                                            <CheckBox Visibility="Collapsed" x:Name="Adv_Opt_Con_DAQChk" Content="DAQ Device" IsChecked="{Binding ConnectDaqDevice}"/>
+
+                                            <TextBox 
+                                                Width="150"
+                                                x:Name="Con_IPTxt" 
+                                                Text="{Binding ControllerIpAddress, UpdateSourceTrigger=PropertyChanged}"/>
                                         </StackPanel>
-                                    </GroupBox>-->
+                                    </GroupBox>
                                     <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">
                                         <StackPanel Orientation="Vertical">
                                             <!--<CheckBox x:Name="Adv_Opt_Disp_HealthChk"       Content="Check Health"             IsChecked="{Binding DispCheckHealth}"/>-->
@@ -700,7 +700,7 @@
                                 Padding="4"
                                 Margin="0"
                                 Style="{StaticResource SmallDevIconButton}">
-                            <Image Source="/Resources/icons/settings.ico" Height="20" Opacity="0.75"/>
+                            <Image Source="/Resources/icons/settings-white.png" Height="20" Opacity="0.9"/>
                         </Button>
                     </Grid>
                     <Grid Margin="0,0,12,0">
@@ -723,7 +723,7 @@
                     </Grid>
                 </StackPanel>
             </Border>
-            <Border Padding="4" Grid.Column="1">
+            <!--<Border Padding="4" Grid.Column="1">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Border x:Name="Status_SimBdr" Style="{StaticResource SimBorder}" Visibility="Visible">
                         <TextBlock Text="TCS sim enabled"/>
@@ -732,7 +732,7 @@
                         <TextBlock Text="GUI sim enabled"/>
                     </Border>
                 </StackPanel>
-            </Border>
+            </Border>-->
         </Grid>
 
     </Grid>

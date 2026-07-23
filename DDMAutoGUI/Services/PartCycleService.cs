@@ -81,7 +81,7 @@ namespace DDMAutoGUI.Services
                 }
 
                 // Store user input
-                _resultsManager.currentResults.ring_sn = ringSerialNumber?.Trim() ?? string.Empty;
+                _resultsManager.currentResults.ring_sn_detected = ringSerialNumber?.Trim() ?? string.Empty;
 
                 // Step 1: System Health Check
                 //if (advancedOptions.DispenseOptions.CheckHealth)
@@ -345,7 +345,7 @@ namespace DDMAutoGUI.Services
                 }
 
                 string toolSN = ocrData.GetToolSN(motorName, "Top_compressed.jpg");
-                _resultsManager.currentResults.tool_sn = toolSN;
+                _resultsManager.currentResults.tool_sn_detected = toolSN;
                 _resultsManager.AddToLog($"Tool SN found: {toolSN}");
             }
 
@@ -356,7 +356,7 @@ namespace DDMAutoGUI.Services
                 throw new PartCycleException("Ring SN not found");
             }
 
-            _resultsManager.currentResults.ring_sn = ringSN;
+            _resultsManager.currentResults.ring_sn_detected = ringSN;
             _resultsManager.AddToLog($"Ring SN detected: {ringSN}");
             _resultsManager.AddToLog("Images processed");
         }
@@ -630,7 +630,7 @@ namespace DDMAutoGUI.Services
 
             _resultsManager.AddToLog("Saving all results data to results folder");
             _resultsManager.SaveDataToFile();
-            _resultsManager.RenameResultsFolder(_resultsManager.currentResults.ring_sn);
+            _resultsManager.RenameResultsFolder(_resultsManager.currentResults.ring_sn_detected);
         }
 
         #endregion

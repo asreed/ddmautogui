@@ -64,25 +64,31 @@
     <None Remove="Libraries\SaveNET_v142.dll" />
     <None Remove="Resources\icons\camera.ico" />
     <None Remove="Resources\icons\centerpoint.ico" />
+    <None Remove="Resources\icons\centerpoint.png" />
     <None Remove="Resources\icons\connect.ico" />
     <None Remove="Resources\icons\document.ico" />
     <None Remove="Resources\icons\drop-w.ico" />
     <None Remove="Resources\icons\drop.ico" />
     <None Remove="Resources\icons\fluid-w.ico" />
     <None Remove="Resources\icons\fluid.ico" />
+    <None Remove="Resources\icons\fluid.png" />
     <None Remove="Resources\icons\gear-w.ico" />
     <None Remove="Resources\icons\gear.ico" />
     <None Remove="Resources\icons\info-circle-ph.png" />
     <None Remove="Resources\icons\info-circle.ico" />
     <None Remove="Resources\icons\info-circle.png" />
     <None Remove="Resources\icons\info.ico" />
+    <None Remove="Resources\icons\info.png" />
     <None Remove="Resources\icons\infocircle.ico" />
     <None Remove="Resources\icons\lan-w.ico" />
     <None Remove="Resources\icons\lan.ico" />
     <None Remove="Resources\icons\list-2.ico" />
     <None Remove="Resources\icons\list.ico" />
     <None Remove="Resources\icons\plug.ico" />
+    <None Remove="Resources\icons\recenter.png" />
+    <None Remove="Resources\icons\settings-white.png" />
     <None Remove="Resources\icons\settings.ico" />
+    <None Remove="Resources\icons\settings.png" />
     <None Remove="Resources\icons\sliders.ico" />
     <None Remove="Resources\icons\svg-cr\alert.png" />
     <None Remove="Resources\icons\svg-cr\camera-big.png" />
@@ -97,16 +103,20 @@
     <None Remove="Resources\icons\svg-cr\tools.ico" />
     <None Remove="Resources\icons\svg-cr\tools.png" />
     <None Remove="Resources\icons\target.ico" />
+    <None Remove="Resources\icons\target.png" />
     <None Remove="Resources\icons\tools.ico" />
     <None Remove="Resources\icons\tools.png" />
     <None Remove="Resources\icons\tree-w.ico" />
     <None Remove="Resources\icons\tree.ico" />
+    <None Remove="Resources\icons\tree.png" />
     <None Remove="Resources\icons\tune.ico" />
     <None Remove="Resources\icons\update.ico" />
+    <None Remove="Resources\icons\update.png" />
     <None Remove="Resources\icons\warning.ico" />
     <None Remove="Resources\icons\wrench-circle.ico" />
+    <None Remove="Resources\icons\wrench-circle.png" />
     <None Remove="Resources\icons\wrench.ico" />
-    <None Remove="_reference\DefaultSettings.json" />
+    <None Remove="Resources\icons\wrench.png" />
   </ItemGroup>
 	
   <ItemGroup>
@@ -140,25 +150,7 @@
     <Content Include="ReleaseHistory.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\icons\centerpoint.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\infocircle.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\settings.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\target.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\update.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\wrench-circle.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\icons\wrench.ico">
+    <Content Include="Resources\icons\settings-white.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -170,16 +162,7 @@
     <Content Include="Resources\logos\brooks-logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\splash\cad-splash-4.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\splash\cad-splash-5.PNG">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Services\Vision\process_images.py">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="_reference\DefaultSettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -191,10 +174,34 @@
     <Resource Include="Libraries\SaveNET_v142.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <Content Include="Resources\icons\fluid.ico">
+    <Content Include="Resources\icons\centerpoint.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\icons\tree.ico">
+    <Content Include="Resources\icons\fluid.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\info.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\recenter.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\settings.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\target.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\tree.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\update.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\wrench-circle.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\wrench.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

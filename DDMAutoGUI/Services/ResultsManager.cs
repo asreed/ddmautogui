@@ -66,8 +66,9 @@ namespace DDMAutoGUI.Services
     public class Results
     {
         public DateTime? date_saved { get; set; }
-        public string? ring_sn { get; set; }
-        public string? tool_sn { get; set; }
+        public string? ring_sn_user { get; set; }
+        public string? ring_sn_detected { get; set; }
+        public string? tool_sn_detected { get; set; }
         public OCRData? ocr_data { get; set; }
         public bool? overall_part_cycle_result { get; set; }
         public string? overall_part_cycle_message { get; set; }
@@ -131,7 +132,7 @@ namespace DDMAutoGUI.Services
                 message = "Results object is null";
                 return;
             }
-            if (results.ring_sn == null || results.ring_sn == "")
+            if (results.ring_sn_detected == null || results.ring_sn_detected == "")
             {
                 message = "Ring serial number is missing or empty";
                 return;
@@ -256,14 +257,14 @@ namespace DDMAutoGUI.Services
             string resultsFilePath;
             string zipFolderPath;
 
-            if (currentResults.ring_sn == null || currentResults.ring_sn == "")
+            if (currentResults.ring_sn_detected == null || currentResults.ring_sn_detected == "")
             {
                 resultsFolderPath = saveMainDirectory + saveFolderNoSNPrefix + DateTime.Now.ToString(DateFormatFolder);
                 zipFolderPath = resultsFolderPath;
             }
             else
             {
-                resultsFolderPath = saveMainDirectory + saveFolderPrefix + currentResults.ring_sn + "_" + DateTime.Now.ToString(DateFormatFolder);
+                resultsFolderPath = saveMainDirectory + saveFolderPrefix + currentResults.ring_sn_detected + "_" + DateTime.Now.ToString(DateFormatFolder);
                 zipFolderPath = resultsFolderPath;
             }
 
