@@ -65,7 +65,7 @@ namespace DDMAutoGUI
             _controllerManager.ControllerConnected += (s, e) => HandleConnected();
             _controllerManager.ControllerDisconnected += (s, e) => HandleDisconnected();
             _controllerManager.ControllerStateChanged += (s, e) => HandleControllerStateChanged();
-            _controllerManager.ConnectionLogUpdated += (s, e) => HandleConnectionLogUpdated();
+            //_controllerManager.ConnectionLogUpdated += (s, e) => HandleConnectionLogUpdated();
         }
 
         private void HandleConnected()
@@ -75,8 +75,8 @@ namespace DDMAutoGUI
             string TCS = _controllerManager.CONNECTION_STATE.connectedTCS;
             string PAC = _controllerManager.CONNECTION_STATE.connectedPAC;
 
-            Con_ConnectBtn.Content = "Connected";
-            Con_ConnectBtn.IsEnabled = false;
+            //Con_ConnectBtn.Content = "Connected";
+            //Con_ConnectBtn.IsEnabled = false;
 
             Status_StatusTxt.Text = $"Connected ({_controllerManager.CONNECTION_STATE.connectedIP})";
             Status_TCSGrd.Visibility = Visibility.Visible;
@@ -93,8 +93,8 @@ namespace DDMAutoGUI
 
         private void HandleDisconnected()
         {
-            Con_ConnectBtn.Content = "Connect";
-            Con_ConnectBtn.IsEnabled = true;
+            //Con_ConnectBtn.Content = "Connect";
+            //Con_ConnectBtn.IsEnabled = true;
 
             Status_StatusTxt.Text = "Not connected";
             //Status_SimBdr.Visibility = Visibility.Collapsed;
@@ -157,13 +157,13 @@ namespace DDMAutoGUI
             }
         }
 
-        private void HandleConnectionLogUpdated()
-        {
-            if (_controllerManager == null) return;
+        //private void HandleConnectionLogUpdated()
+        //{
+        //    if (_controllerManager == null) return;
 
-            Con_LogTxt.Text = _controllerManager.GetConnectionLog();
-            Con_LogTxt.ScrollToEnd();
-        }
+        //    Con_LogTxt.Text = _controllerManager.GetConnectionLog();
+        //    Con_LogTxt.ScrollToEnd();
+        //}
 
         /// <summary>
         /// Initialize UI state
@@ -201,16 +201,16 @@ namespace DDMAutoGUI
 
         #region Event Handlers - Manager Events
 
-        public void MainWindowSingle_Disp_UpdateProcessLog(object sender, EventArgs e)
-        {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
-            if (resultsManager?.currentResults?.process_log == null) return;
+        //public void MainWindowSingle_Disp_UpdateProcessLog(object sender, EventArgs e)
+        //{
+        //    var resultsManager = App.Services?.GetService<IResultsManager>();
+        //    if (resultsManager?.currentResults?.process_log == null) return;
 
-            ResultsLogLine logline = resultsManager.currentResults.process_log.Last();
-            Disp_LogTxt.Text += logline.timestamp?.ToString(resultsManager.DateFormatShort) + ": " + logline.message + "\n";
-            Disp_LogTxt.CaretIndex = Disp_LogTxt.Text.Length;
-            Disp_LogTxt.ScrollToEnd();
-        }
+        //    ResultsLogLine logline = resultsManager.currentResults.process_log.Last();
+        //    Disp_LogTxt.Text += logline.timestamp?.ToString(resultsManager.DateFormatShort) + ": " + logline.message + "\n";
+        //    Disp_LogTxt.CaretIndex = Disp_LogTxt.Text.Length;
+        //    Disp_LogTxt.ScrollToEnd();
+        //}
 
         #endregion
 
@@ -220,6 +220,12 @@ namespace DDMAutoGUI
         {
             if (e.Source is TabControl tc)
             {
+                // Re-lock the Calibration and Service areas on every navigation so they
+                // require the password again next time. The Advanced/dev area is
+                // intentionally excluded — it stays unlocked until manually locked.
+                Lock(Calib_PWBox, Calib_PWEntryBdr, Calib_PWMessageTxb, Calib_Panel);
+                Lock(Serv_PWBox, Serv_PWEntryBdr, Serv_PWMessageTxb, Serv_Panel);
+
                 switch (tc.SelectedIndex)
                 {
                     case 1:
@@ -227,7 +233,7 @@ namespace DDMAutoGUI
                         break;
                     case 2:
                         // Calibration Tab
-                        CalPanel.SetupPanel();
+                        Calib_Panel.SetupPanel();
                         break;
                 }
             }
@@ -241,19 +247,19 @@ namespace DDMAutoGUI
         /// FIXED: Directly use ControllerManager instead of DeviceConnectionManager.
         /// The connection orchestration is now handled via the ControllerManager directly.
         /// </summary>
-        private async void Con_ConnectBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null) return;
+        //private async void Con_ConnectBtn_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (_controllerManager == null) return;
 
-            Con_ConnectBtn.IsEnabled = false;
-            Con_ConnectBtn.Content = "Connecting...";
-            Con_ConnectPrg.Visibility = Visibility.Visible;
+        //    Con_ConnectBtn.IsEnabled = false;
+        //    Con_ConnectBtn.Content = "Connecting...";
+        //    Con_ConnectPrg.Visibility = Visibility.Visible;
 
-            // Connect directly through ControllerManager
-            await _controllerManager.Connect(Con_IPTxt.Text);
+        //    // Connect directly through ControllerManager
+        //    await _controllerManager.Connect(Con_IPTxt.Text);
 
-            Con_ConnectPrg.Visibility = Visibility.Collapsed;
-        }
+        //    Con_ConnectPrg.Visibility = Visibility.Collapsed;
+        //}
 
         #endregion
 
@@ -284,44 +290,7 @@ namespace DDMAutoGUI
             }
         }
 
-        private void Disp_OpenFolderBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
-            if (resultsManager != null)
-            {
-                resultsManager.OpenBrowserToDirectory();
-            }
-        }
 
-        private void Disp_Res_FinishBtn_Click(object sender, RoutedEventArgs e)
-        {
-            dispTabControl.SelectedIndex = 0;
-        }
-
-        private void Disp_Res_ViewResBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
-            if (resultsManager == null) return;
-
-            string data_string = resultsManager.GetCurrentResultsAsString();
-            TextDataViewer viewer = new TextDataViewer();
-
-            if (data_string != null)
-            {
-                viewer.Owner = this;
-                viewer.PopulateData(data_string, "Results Data");
-                viewer.ShowDialog();
-            }
-        }
-
-        private void Disp_Res_OpenFileBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
-            if (resultsManager != null)
-            {
-                resultsManager.OpenBrowserToDirectory();
-            }
-        }
 
         #endregion
 
@@ -350,97 +319,18 @@ namespace DDMAutoGUI
 
 
         private void Serv_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_applicationConfiguration == null) return;
-
-            if (Serv_PWBox.Password == _applicationConfiguration.ServicePassword)
-            {
-                Serv_PWEntryBdr.Visibility = Visibility.Collapsed;
-                Serv_PWMessageTxb.Visibility = Visibility.Collapsed;
-                Serv_Grid.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                Serv_PWMessageTxb.Visibility = Visibility.Visible;
-                Serv_PWMessageTxb.Text = "Incorrect password";
-            }
-        }
-
-        private void Serv_PWBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                Serv_PWSubmitBtn_Click(sender, e);
-            }
-        }
-
-
-
-
+            => TryUnlock(Serv_PWBox, _applicationConfiguration?.ServicePassword,
+                         Serv_PWEntryBdr, Serv_PWMessageTxb, Serv_Panel);
 
         private void Calib_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_applicationConfiguration == null) return;
-
-            if (Calib_PWBox.Password == _applicationConfiguration.CalibrationPassword)
-            {
-                Calib_PWEntryBdr.Visibility = Visibility.Collapsed;
-                Calib_PWMessageTxb.Visibility = Visibility.Collapsed;
-                Calib_Grid.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                Calib_PWMessageTxb.Visibility = Visibility.Visible;
-                Calib_PWMessageTxb.Text = "Incorrect password";
-            }
-        }
-
-        private void Calib_PWBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                Calib_PWSubmitBtn_Click(sender, e);
-            }
-        }
-
-
-
-
-
-        #region Advanced Settings
-
+            => TryUnlock(Calib_PWBox, _applicationConfiguration?.CalibrationPassword,
+                         Calib_PWEntryBdr, Calib_PWMessageTxb, Calib_Panel);
         private void Adv_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_applicationConfiguration == null) return;
-
-            if (Adv_PWBox.Password == _applicationConfiguration.AdvancedSettingsPassword)
-            {
-                Adv_PWEntryBdr.Visibility = Visibility.Collapsed;
-                Adv_PWMessageTxb.Visibility = Visibility.Collapsed;
-                Adv_AllControlsTcl.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                Adv_PWMessageTxb.Visibility = Visibility.Visible;
-                Adv_PWMessageTxb.Text = "Incorrect password";
-            }
-        }
-
-        private void Adv_PWBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                Adv_PWSubmitBtn_Click(sender, e);
-            }
-        }
+            => TryUnlock(Adv_PWBox, _applicationConfiguration?.AdvancedSettingsPassword,
+                         Adv_PWEntryBdr, Adv_PWMessageTxb, Adv_AllControlsTcl);
 
         private void Adv_Misc_LockAdvBtn_Click(object sender, RoutedEventArgs e)
-        {
-            Adv_PWBox.Clear();
-            Adv_PWEntryBdr.Visibility = Visibility.Visible;
-            Adv_PWMessageTxb.Visibility = Visibility.Collapsed;
-            Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
-        }
+            => Lock(Adv_PWBox, Adv_PWEntryBdr, Adv_PWMessageTxb, Adv_AllControlsTcl);
 
         /// <summary>
         /// FIXED: Use static DAQUtilities class instead of deprecated IDAQManager interface.
@@ -450,7 +340,7 @@ namespace DDMAutoGUI
             await DAQUtilities.CollectDataAndProcessML("ddm_116");
         }
 
-        #endregion
+
 
         #region Developer Utilities
 
@@ -470,26 +360,20 @@ namespace DDMAutoGUI
             // DAQ timed reading - implement as needed
         }
 
-        private void Adv_Opt_Disp_Force57Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor57.IsEnabled = true;
-        private void Adv_Opt_Disp_Force57Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor57.IsEnabled = false;
-        private void Adv_Opt_Disp_Force95Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor95.IsEnabled = true;
-        private void Adv_Opt_Disp_Force95Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor95.IsEnabled = false;
-        private void Adv_Opt_Disp_Force116Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor116.IsEnabled = true;
-        private void Adv_Opt_Disp_Force116Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor116.IsEnabled = false;
-        private void Adv_Opt_Disp_Force170Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor170.IsEnabled = true;
-        private void Adv_Opt_Disp_Force170Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor170.IsEnabled = false;
-        private void Adv_Opt_Disp_Force170TChk_Checked(object sender, RoutedEventArgs e) => Disp_Motor170Tall.IsEnabled = true;
-        private void Adv_Opt_Disp_Force170TChk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor170Tall.IsEnabled = false;
+        //private void Adv_Opt_Disp_Force57Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor57.IsEnabled = true;
+        //private void Adv_Opt_Disp_Force57Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor57.IsEnabled = false;
+        //private void Adv_Opt_Disp_Force95Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor95.IsEnabled = true;
+        //private void Adv_Opt_Disp_Force95Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor95.IsEnabled = false;
+        //private void Adv_Opt_Disp_Force116Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor116.IsEnabled = true;
+        //private void Adv_Opt_Disp_Force116Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor116.IsEnabled = false;
+        //private void Adv_Opt_Disp_Force170Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor170.IsEnabled = true;
+        //private void Adv_Opt_Disp_Force170Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor170.IsEnabled = false;
+        //private void Adv_Opt_Disp_Force170TChk_Checked(object sender, RoutedEventArgs e) => Disp_Motor170Tall.IsEnabled = true;
+        //private void Adv_Opt_Disp_Force170TChk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor170Tall.IsEnabled = false;
 
         #endregion
 
-        private void MotorSizeRadio_Checked(object sender, RoutedEventArgs e)
-        {
-            if (sender is RadioButton rb && DataContext is MainWindowViewModel vm)
-            {
-                vm.SelectedMotorType = rb.Tag as string;
-            }
-        }
+
 
         protected override void OnClosed(EventArgs e)
         {
@@ -497,6 +381,59 @@ namespace DDMAutoGUI
 
             // Release the ViewModel's subscriptions to the long-lived singleton services.
             (DataContext as IDisposable)?.Dispose();
+        }
+
+        /// <summary>
+        /// Validates a password entry against the expected value and toggles the
+        /// associated lock/content visibility. Centralizes the identical logic used
+        /// by the Service, Calibration, and Advanced Settings gates.
+        /// </summary>
+        private void TryUnlock(
+            PasswordBox passwordBox,
+            string expectedPassword,
+            UIElement entryBorder,
+            TextBlock messageText,
+            UIElement protectedContent)
+        {
+            if (_applicationConfiguration == null) return;
+
+            if (passwordBox.Password == expectedPassword)
+            {
+                entryBorder.Visibility = Visibility.Collapsed;
+                messageText.Visibility = Visibility.Collapsed;
+                protectedContent.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                messageText.Visibility = Visibility.Visible;
+                messageText.Text = "Incorrect password";
+            }
+        }
+
+        /// <summary>
+        /// Resets a password gate to its locked state: clears the entry, shows the
+        /// lock prompt, and hides the protected content. Symmetric counterpart to
+        /// <see cref="TryUnlock"/>.
+        /// </summary>
+        private void Lock(
+            PasswordBox passwordBox,
+            UIElement entryBorder,
+            TextBlock messageText,
+            UIElement protectedContent)
+        {
+            passwordBox.Clear();
+            entryBorder.Visibility = Visibility.Visible;
+            messageText.Visibility = Visibility.Collapsed;
+            protectedContent.Visibility = Visibility.Collapsed;
+        }
+
+        private void PasswordBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+
+            if (sender == Serv_PWBox)       Serv_PWSubmitBtn_Click(sender, e);
+            else if (sender == Calib_PWBox) Calib_PWSubmitBtn_Click(sender, e);
+            else if (sender == Adv_PWBox)   Adv_PWSubmitBtn_Click(sender, e);
         }
     }
 }

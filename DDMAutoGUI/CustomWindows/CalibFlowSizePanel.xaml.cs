@@ -13,6 +13,7 @@ namespace DDMAutoGUI.CustomWindows
         private readonly ISettingsManager _settingsManager;
         private readonly ILocalDataManager _localDataManager;
         private readonly IFlowCalibrationManager _flowCalibrationManager;
+        private readonly IControllerManager _controllerManager;
 
         /// <summary>The motor size this panel calibrates, e.g. "ddm_116".</summary>
         public string MotorName { get; set; }
@@ -28,11 +29,17 @@ namespace DDMAutoGUI.CustomWindows
             _settingsManager = App.Services?.GetService<ISettingsManager>();
             _localDataManager = App.Services?.GetService<ILocalDataManager>();
             _flowCalibrationManager = App.Services?.GetService<IFlowCalibrationManager>();
+            _controllerManager = App.Services?.GetService<IControllerManager>();
         }
 
         public void SetupPanel()
         {
             if (string.IsNullOrEmpty(MotorName))
+            {
+                return;
+            }
+
+            if (_controllerManager.CONNECTION_STATE == null || !_controllerManager.CONNECTION_STATE.isConnected)
             {
                 return;
             }

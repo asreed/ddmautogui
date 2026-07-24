@@ -10,9 +10,13 @@
 
 
 	<BitmapImage x:Key="Icon.Tree" UriSource="pack://application:,,,/Resources/icons/tree.png"/>
+	<BitmapImage x:Key="Icon.TreeFill" UriSource="pack://application:,,,/Resources/icons/tree-fill.png"/>
 	<BitmapImage x:Key="Icon.Fluid" UriSource="pack://application:,,,/Resources/icons/fluid.png"/>
+	<BitmapImage x:Key="Icon.PlayFill" UriSource="pack://application:,,,/Resources/icons/play-fill.png"/>
 	<BitmapImage x:Key="Icon.Gear" UriSource="pack://application:,,,/Resources/icons/settings.png"/>
+	<BitmapImage x:Key="Icon.GearFill" UriSource="pack://application:,,,/Resources/icons/settings-fill.png"/>
 	<BitmapImage x:Key="Icon.Wrench" UriSource="pack://application:,,,/Resources/icons/wrench.png"/>
+	<BitmapImage x:Key="Icon.WrenchFill" UriSource="pack://application:,,,/Resources/icons/wrench-fill.png"/>
 	<BitmapImage x:Key="Icon.Centerpoint" UriSource="pack://application:,,,/Resources/icons/centerpoint.png"/>
     <!-- TextBox -->
     <Style TargetType="TextBox">

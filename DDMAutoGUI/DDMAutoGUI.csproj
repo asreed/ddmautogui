@@ -84,8 +84,11 @@
     <None Remove="Resources\icons\lan.ico" />
     <None Remove="Resources\icons\list-2.ico" />
     <None Remove="Resources\icons\list.ico" />
+    <None Remove="Resources\icons\play-fill.png" />
     <None Remove="Resources\icons\plug.ico" />
     <None Remove="Resources\icons\recenter.png" />
+    <None Remove="Resources\icons\settings-fill-white.png" />
+    <None Remove="Resources\icons\settings-fill.png" />
     <None Remove="Resources\icons\settings-white.png" />
     <None Remove="Resources\icons\settings.ico" />
     <None Remove="Resources\icons\settings.png" />
@@ -106,6 +109,7 @@
     <None Remove="Resources\icons\target.png" />
     <None Remove="Resources\icons\tools.ico" />
     <None Remove="Resources\icons\tools.png" />
+    <None Remove="Resources\icons\tree-fill.png" />
     <None Remove="Resources\icons\tree-w.ico" />
     <None Remove="Resources\icons\tree.ico" />
     <None Remove="Resources\icons\tree.png" />
@@ -115,6 +119,7 @@
     <None Remove="Resources\icons\warning.ico" />
     <None Remove="Resources\icons\wrench-circle.ico" />
     <None Remove="Resources\icons\wrench-circle.png" />
+    <None Remove="Resources\icons\wrench-fill.png" />
     <None Remove="Resources\icons\wrench.ico" />
     <None Remove="Resources\icons\wrench.png" />
   </ItemGroup>
@@ -150,7 +155,22 @@
     <Content Include="ReleaseHistory.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\icons\play-fill.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\settings-fill-white.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\settings-fill.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\icons\settings-white.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\tree-fill.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\icons\wrench-fill.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

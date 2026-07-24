@@ -1,0 +1,63 @@
+<UserControl x:Class="DDMAutoGUI.CustomWindows.ConnectPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignHeight="500" d:DesignWidth="600">
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="275"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Row="1" Grid.Column="1">
+            <StackPanel Orientation="Vertical">
+                <GroupBox Header="Controller IP Address">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"
+                                 x:Name="Con_IPTxt"
+                                 Text="{Binding ControllerIpAddress, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Button Grid.Column="0"
+                                x:Name="Con_ConnectBtn"
+                                Content="Connect"
+                                Command="{Binding ConnectCommand}"
+                                CommandParameter="{Binding Text, ElementName=Con_IPTxt}"
+                                Style="{StaticResource BlueButton}"/>
+                        <Button Grid.Column="1"
+                                x:Name="Con_DisconnectBtn"
+                                Content="Disconnect"
+                                Command="{Binding DisconnectCommand}"
+                                Style="{StaticResource BlueButton}"/>
+                        <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                     IsIndeterminate="True"
+                                     Visibility="{Binding IsProcessing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Connection Log">
+                    <TextBox x:Name="Con_LogTxt"
+                             Text="{Binding ConnectionLog, Mode=OneWay}"
+                             Height="250"
+                             IsReadOnly="True"
+                             VerticalScrollBarVisibility="Disabled"
+                             TextChanged="Con_LogTxt_TextChanged"
+                             Style="{StaticResource MonoTextBox}"/>
+                </GroupBox>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

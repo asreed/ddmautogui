@@ -13,7 +13,7 @@
         Width="1024"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
-        Background="#FF0D192D">
+        Background="#FF152238">
 
     <Grid Margin="8">
 
@@ -51,355 +51,24 @@
         <Grid Grid.Row="1" Grid.RowSpan="2">
 
             <TabControl x:Name="MainTabControl" TabStripPlacement="Left" SelectionChanged="MainTabControl_SelectionChanged">
-                <TabItem Header="Connect" local:TabIcon.Source="{StaticResource Icon.Tree}" Style="{StaticResource MainTab}">
+                <TabItem Header="Connect" local:TabIcon.Source="{StaticResource Icon.TreeFill}" Style="{StaticResource MainTab}">
 
-                    <Grid Margin="4">
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="40"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="275"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Grid Grid.Row="1" Grid.Column="1">
-                            <StackPanel Orientation="Vertical">
-                                <GroupBox Header="Connect">
-
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="1*"/>
-                                            <ColumnDefinition Width="1*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Button Grid.Column="0" 
-                                                x:Name="Con_ConnectBtn" 
-                                                Content="Connect" 
-                                                Command="{Binding ConnectCommand}"
-                                                CommandParameter="{Binding Text, ElementName=Con_IPTxt}"
-                                                Style="{StaticResource BlueButton}"/>
-                                        <Button Grid.Column="1" 
-                                                x:Name="Con_DisconnectBtn" 
-                                                Content="Disconnect" 
-                                                Command="{Binding DisconnectCommand}"
-                                                Style="{StaticResource BlueButton}"/>
-                                        <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
-                                                     x:Name="Con_ConnectPrg" 
-                                                     IsIndeterminate="True"
-                                                     Visibility="{Binding IsProcessing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                    </Grid>
-                                </GroupBox>
-                                <GroupBox Header="Connection Log">
-
-                                    <TextBox x:Name="Con_LogTxt" 
-                                            Text="{Binding ConnectionLog, Mode=OneWay}"
-                                             Height="250"
-                                             IsReadOnly="True"
-                                             VerticalScrollBarVisibility="Disabled"
-                                            Style="{StaticResource MonoTextBox}"/>
-                                </GroupBox>
-                            </StackPanel>
-                        </Grid>
-                    </Grid>
+                    <CustomWindows:ConnectPanel/>
 
                 </TabItem>
-                <TabItem x:Name="DispTab" Header="Part Cycle" local:TabIcon.Source="{StaticResource Icon.Fluid}" Style="{StaticResource MainTab}" IsEnabled="False">
+                <TabItem 
+                    x:Name="DispTab" 
+                    Header="Part Cycle" 
+                    local:TabIcon.Source="{StaticResource Icon.PlayFill}" 
+                    Style="{StaticResource MainTab}" 
+                    IsEnabled="{Binding IsConnected}">
 
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <Grid Margin="6">
+                    <CustomWindows:PartCyclePanel/>
 
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="40"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="500"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-
-                            <Grid Grid.Row="1" Grid.Column="1">
-                                <TabControl x:Name="dispTabControl" Grid.Row="1" SelectedIndex="{Binding SelectedDispenseTabIndex}">
-
-                                    <TabItem Header="1: Configure">
-                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                            <Grid x:Name="tabContainer1">
-
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition/>
-                                                        <RowDefinition/>
-                                                        <RowDefinition/>
-                                                        <RowDefinition/>
-                                                        <RowDefinition/>
-                                                    </Grid.RowDefinitions>
-
-                                                    <GroupBox Header="Motor SN" Grid.Row="0" Grid.Column="0">
-                                                        <StackPanel Orientation="Vertical">
-                                                            <TextBox x:Name="Disp_MotorSNTxt" 
-                                                                     Height="42" 
-                                                                     Text="{Binding MotorSerialNumber, UpdateSourceTrigger=PropertyChanged}"/>
-                                                        </StackPanel>
-                                                    </GroupBox>
-
-                                                    <GroupBox Header="Motor Size" Grid.Row="1" Grid.Column="0">
-                                                        <StackPanel Orientation="Vertical">
-                                                            <RadioButton Content="DDM 57"       GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor57"      IsEnabled="True" Checked="MotorSizeRadio_Checked" Tag="ddm_57"/>
-                                                            <RadioButton Content="DDM 95"       GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor95"      IsEnabled="True" Checked="MotorSizeRadio_Checked" Tag="ddm_95"/>
-                                                            <RadioButton Content="DDM 116"      GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor116"     IsEnabled="True"  Checked="MotorSizeRadio_Checked" Tag="ddm_116" IsChecked="True"/>
-                                                            <RadioButton Content="DDM 170"      GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170"     IsEnabled="True" Checked="MotorSizeRadio_Checked" Tag="ddm_170"/>
-                                                            <RadioButton Content="DDM 170 Tall" GroupName="Disp_MotorSizeRdg" x:Name="Disp_Motor170Tall" IsEnabled="True" Checked="MotorSizeRadio_Checked" Tag="ddm_170_tall"/>
-                                                        </StackPanel>
-                                                    </GroupBox>
-
-                                                    <GroupBox Header="Warning" Grid.Row="2" Grid.Column="0" Style="{StaticResource WarningBox}" x:Name="Disp_Warning_CalibBox" Visibility="Collapsed">
-                                                        <StackPanel Orientation="Vertical">
-                                                            <TextBlock TextWrapping="Wrap" Text="Calibration for selected motor size has expired. Please run calibration before dispensing."/>
-                                                        </StackPanel>
-                                                    </GroupBox>
-
-                                                    <Button 
-                                                        Grid.Row="3"
-                                                        Grid.Column="0"
-                                                        Grid.ColumnSpan="2"
-                                                        x:Name="Disp_BeginBtn"
-                                                        Content="Execute Part Cycle"
-                                                        Command="{Binding StartDispenseCommand}"
-                                                        Style="{DynamicResource BlueButton}" 
-                                                        Height="70"/>
-
-
-                                                    <StackPanel Orientation="Vertical" Grid.Row="4" Grid.Column="0">
-
-                                                        <GroupBox Header="Warning: No SN" Style="{StaticResource WarningBox}"
-                                                                  Visibility="{Binding IsSerialNumberMissing, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                            <StackPanel Orientation="Vertical">
-                                                                <TextBlock TextWrapping="Wrap" Text="Please enter the serial number for the ring."/>
-                                                            </StackPanel>
-                                                        </GroupBox>
-                                                        <GroupBox Header="Warning: Calibration Timeout" Style="{StaticResource WarningBox}"
-                                                                  Visibility="{Binding IsCalibrationExpired, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                            <StackPanel Orientation="Vertical">
-                                                                <TextBlock TextWrapping="Wrap" Text="Flow calibration has expired. Please recalibrate."/>
-                                                            </StackPanel>
-                                                        </GroupBox>
-                                                    </StackPanel>
-
-                                                </Grid>
-
-
-                                            </Grid>
-                                        </ScrollViewer>
-                                    </TabItem>
-
-                                    <TabItem Header="2: Monitor">
-                                        <Grid x:Name="tabContainer2">
-
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                </Grid.ColumnDefinitions>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="400"/>
-                                                    <RowDefinition/>
-                                                </Grid.RowDefinitions>
-
-                                                <GroupBox Header="Process Log" Grid.Row="0">
-
-                                                    <TextBox x:Name="Disp_LogTxt" 
-                                                             Text="{Binding ProcessLog, Mode=OneWay}"
-                                                             IsReadOnly="True"
-                                                             Style="{StaticResource MonoTextBox}"/>
-                                                </GroupBox>
-                                                <GroupBox Header="Progress" Grid.Row="1">
-                                                    <StackPanel Orientation="Vertical">
-                                                        <!-- label for current step... maybe not necessary -->
-                                                        <TextBlock x:Name="Disp_StepTxb"
-                                                                   Visibility="Collapsed"
-                                                                   Text="{Binding CurrentStep, Mode=OneWay}"
-                                                                   Margin="3,0,3,3"/>
-                                                        <ProgressBar
-                                                            x:Name="Disp_ProcessPrg"
-                                                            Value="{Binding ProcessProgress, Mode=OneWay}"
-                                                            Style="{StaticResource ProgressMain}"/>
-                                                        <ProgressBar 
-                                                            x:Name="Disp_BusyPrg"
-                                                            IsIndeterminate="True"
-                                                            Visibility="{Binding IsDispenseProcessRunning, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                            Style="{StaticResource ProgressMainBusy}"
-                                                            Margin="0,3,0,0"/>
-                                                    </StackPanel>
-                                                </GroupBox>
-                                            </Grid>
-
-
-
-                                        </Grid>
-                                    </TabItem>
-
-                                    <TabItem Header="3. Review">
-                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                            <Grid x:Name="tabContainer3">
-                                                <Grid>
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition Height="Auto"/>
-                                                        <RowDefinition Height="Auto"/>
-                                                        <RowDefinition Height="*"/>
-                                                        <RowDefinition Height="Auto"/>
-                                                    </Grid.RowDefinitions>
-
-                                                    <GroupBox Grid.Row="0" Header="Result" Padding="10">
-                                                        <Grid>
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="140"/>
-                                                                <ColumnDefinition/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <StackPanel Orientation="Vertical">
-                                                                <Border x:Name="Disp_Res_PassBdr" Grid.Column="0" Visibility="{Binding IsResultPass, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource PassBorder}">
-                                                                    <TextBlock Text="Pass" Foreground="White"/>
-                                                                </Border>
-                                                                <Border x:Name="Disp_Res_FailBdr" Grid.Column="0" Visibility="{Binding IsResultFail, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource FailBorder}">
-                                                                    <TextBlock Text="Fail" Foreground="White"/>
-                                                                </Border>
-                                                                <Border x:Name="Disp_Res_IncompleteBdr" Grid.Column="0" Visibility="{Binding IsResultIncomplete, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource IncompleteBorder}">
-                                                                    <TextBlock Text="Incomplete" Foreground="#666"/>
-                                                                </Border>
-                                                            </StackPanel>
-                                                            <TextBlock x:Name="Disp_Res_ResMessageTxb"
-                                                                       Grid.Column="1"
-                                                                       Margin="10,0,0,0"
-                                                                       TextWrapping="Wrap"
-                                                                       Foreground="Black"
-                                                                       VerticalAlignment="Top"
-                                                                       Text="{Binding ResultMessage}"/>
-                                                        </Grid>
-                                                    </GroupBox>
-                                                    <GroupBox Grid.Row="2" Header="Result Details" Padding="10">
-                                                        <StackPanel Orientation="Vertical">
-                                                            <StackPanel.Resources>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Setter Property="Margin" Value="0,0,0,0"/>
-                                                                    <Setter Property="Foreground" Value="Black"/>
-                                                                </Style>
-                                                            </StackPanel.Resources>
-
-                                                            <!-- Process Steps -->
-                                                            <!--<TextBlock Text="Process Steps" FontWeight="Bold" Margin="0,0,0,8"/>-->
-                                                            <Grid Margin="0,0,0,14">
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="200"/>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                    <ColumnDefinition Width="Auto"/>
-                                                                </Grid.ColumnDefinitions>
-                                                                <Grid.RowDefinitions>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                </Grid.RowDefinitions>
-
-                                                                <TextBlock Grid.Column="0" Grid.Row="0" Text="Top Photo"/>
-                                                                <TextBlock Grid.Column="0" Grid.Row="1" Text="Side Photo"/>
-                                                                <TextBlock Grid.Column="0" Grid.Row="2" Text="Serial Numbers"/>
-                                                                <TextBlock Grid.Column="0" Grid.Row="3" Text="Magnet Polarity"/>
-                                                                <TextBlock Grid.Column="0" Grid.Row="4" Text="M/C Height"/>
-                                                                <TextBlock Grid.Column="0" Grid.Row="5" Text="Dispense"/>
-                                                                <TextBlock Grid.Column="0" Grid.Row="6" Text="Top Post Photo"/>
-
-                                                                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding ResultStepTopPhoto}"/>
-                                                                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding ResultStepSidePhoto}"/>
-                                                                <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding ResultStepSerialNumbers}"/>
-                                                                <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding ResultStepMagnetPolarity}"/>
-                                                                <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding ResultStepMCHeight}"/>
-                                                                <TextBlock Grid.Column="1" Grid.Row="5" Text="{Binding ResultStepDispense}"/>
-                                                                <TextBlock Grid.Column="1" Grid.Row="6" Text="{Binding ResultStepTopPostPhoto}"/>
-
-
-                                                                <StackPanel Grid.Column="2" Grid.Row="0" Grid.RowSpan="5" Orientation="Vertical" HorizontalAlignment="Right">
-                                                                    <Button
-                                                                        Content="View Details" 
-                                                                        Click="Disp_Res_ViewResBtn_Click" 
-                                                                        Style="{StaticResource SmallButton}" 
-                                                                        Visibility="Visible"/>
-                                                                    <Button 
-                                                                        Content="Open Folder" 
-                                                                        Click="Disp_Res_OpenFileBtn_Click"  
-                                                                        Style="{StaticResource SmallButton}" 
-                                                                        Visibility="Visible"/>
-                                                                </StackPanel>
-                                                            </Grid>
-
-                                                            <!-- Process Results -->
-                                                            <!--<TextBlock Text="Process Results" FontWeight="Bold" Margin="0,0,0,8"/>-->
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="200"/>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                    <ColumnDefinition Width="Auto"/>
-                                                                </Grid.ColumnDefinitions>
-                                                                <Grid.RowDefinitions>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                </Grid.RowDefinitions>
-
-                                                                <TextBlock Grid.Column="0" Grid.Row="0" Text="Tool SN (detected)"/>
-                                                                <TextBlock Grid.Column="0" Grid.Row="1" Text="Ring SN (detected)"/>
-                                                                <TextBlock Grid.Column="0" Grid.Row="2" Text="Max M/C Height"/>
-                                                                <TextBlock Grid.Column="0" Grid.Row="3" Text="Dispense volume ID"/>
-                                                                <TextBlock Grid.Column="0" Grid.Row="4" Text="Dispense volume OD"/>
-
-                                                                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding ResultToolSerial}"/>
-                                                                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding ResultRingSerial}"/>
-                                                                <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding ResultMaxMCHeight}"/>
-                                                                <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding ResultDispenseVolumeId}"/>
-                                                                <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding ResultDispenseVolumeOd}"/>
-
-                                                            </Grid>
-                                                        </StackPanel>
-                                                    </GroupBox>
-                                                    <StackPanel Grid.Row="3" Orientation="Vertical">
-                                                        <Button x:Name="Disp_Res_FinishBtn" 
-                                                                Content="Finish Cycle" 
-                                                                Height="50"
-                                                                Click="Disp_Res_FinishBtn_Click" 
-                                                                Style="{DynamicResource BlueButton}"/>
-
-                                                    </StackPanel>
-
-                                                </Grid>
-
-                                            </Grid>
-                                        </ScrollViewer>
-                                    </TabItem>
-
-                                </TabControl>
-
-                            </Grid>
-                        </Grid>
-                    </ScrollViewer>
                 </TabItem>
                 <TabItem x:Name="CalibTab" Header="Calibrate" local:TabIcon.Source="{StaticResource Icon.Centerpoint}" Style="{StaticResource MainTab}" IsEnabled="False">
 
                     <Grid>
-
                         <Border x:Name="Calib_PWEntryBdr" Background="WhiteSmoke" Margin="6" Visibility="Visible">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -422,7 +91,7 @@
                                             <PasswordBox x:Name="Calib_PWBox" 
                                                          Grid.Column="0"
                                                          Padding="6"
-                                                         KeyDown="Calib_PWBox_KeyDown"/>
+                                                         KeyDown="PasswordBox_KeyDown"/>
                                             <Button x:Name="Calib_PWSubmitBtn"
                                                     Grid.Column="1"
                                                     Padding="12,0"
@@ -436,29 +105,14 @@
                             </Grid>
                         </Border>
 
-                        <Grid Margin="6" Background="WhiteSmoke" x:Name="Calib_Grid" Visibility="Hidden">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="40"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="400"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                        <CustomWindows:CalibPanel Grid.Row="1" Grid.Column="1" x:Name="Calib_Panel"/>
 
-                            <CustomWindows:CalibPanel Grid.Row="1" Grid.Column="1" x:Name="CalPanel"/>
-
-                        </Grid>
                     </Grid>
 
                 </TabItem>
-                <TabItem x:Name="ServTab" Header="Maintenance" local:TabIcon.Source="{StaticResource Icon.Wrench}" Style="{StaticResource MainTab}" IsEnabled="False">
-
+                <TabItem x:Name="ServTab" Header="Maintenance" local:TabIcon.Source="{StaticResource Icon.WrenchFill}" Style="{StaticResource MainTab}" IsEnabled="False">
 
                     <Grid>
-
                         <Border x:Name="Serv_PWEntryBdr" Background="WhiteSmoke" Margin="6" Visibility="Visible">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -481,7 +135,7 @@
                                             <PasswordBox x:Name="Serv_PWBox" 
                                                          Grid.Column="0"
                                                          Padding="6"
-                                                         KeyDown="Serv_PWBox_KeyDown"/>
+                                                         KeyDown="PasswordBox_KeyDown"/>
                                             <Button x:Name="Serv_PWSubmitBtn"
                                                     Grid.Column="1"
                                                     Padding="12,0"
@@ -495,68 +149,15 @@
                             </Grid>
                         </Border>
 
-                        <Grid Margin="6" Background="WhiteSmoke" x:Name="Serv_Grid" Visibility="Hidden">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="40"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="400"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                        <CustomWindows:ServicePanel Grid.Row="1" Grid.Column="1" x:Name="Serv_Panel"/>
 
-                            <CustomWindows:ServicePanel Grid.Row="1" Grid.Column="1"/>
-
-                        </Grid>
                     </Grid>
                 </TabItem>
-                <!--<TabItem x:Name="AboutTab" Header="About" Tag="/Resources/icons/infocircle.ico" Style="{StaticResource MainTab}" Visibility="Collapsed">
-                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-
-                        <Grid Margin="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="60"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-
-                            <Image Source="/resources/logos/b.ico" Width="50" VerticalAlignment="Top" Margin="0,6,0,0"/>
-
-                            <Grid Grid.Column="1" VerticalAlignment="Center">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-
-                                <Label Grid.Row="0" 
-                                       Content="DDM Automation Cell Manager" 
-                                       Padding="0" 
-                                       Foreground="{StaticResource BrooksBlue}" 
-                                       FontSize="18"
-                                       />
-
-                                <TextBlock Grid.Row="1"
-                                           Name="Adv_Abt_InfoTxb" 
-                                           Text="{Binding AppTitle, Mode=OneWay}"
-                                           Padding="0" 
-                                           TextWrapping="Wrap" 
-                                           Foreground="{StaticResource BrooksBlue}" 
-                                           FontSize="10" VerticalAlignment="Top"/>
-
-
-                            </Grid>
-                        </Grid>
-                    </Grid>
-
-                </TabItem>-->
-                <TabItem x:Name="AdvTab" Header="Dev" local:TabIcon.Source="{StaticResource Icon.Gear}" Style="{StaticResource MainTab}" Visibility="Visible">
+                <TabItem x:Name="AdvTab" Header="Dev" local:TabIcon.Source="{StaticResource Icon.GearFill}" Style="{StaticResource MainTab}" Visibility="Visible">
 
                     <Grid Margin="-2" Background="#FFFF9800">
 
-                        <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Margin="6" Visibility="Hidden">
+                        <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Margin="20" Visibility="Visible">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -578,7 +179,7 @@
                                             <PasswordBox x:Name="Adv_PWBox" 
                                                      Grid.Column="0"
                                                      Padding="6"
-                                                     KeyDown="Adv_PWBox_KeyDown"/>
+                                                     KeyDown="PasswordBox_KeyDown"/>
                                             <Button x:Name="Adv_PWSubmitBtn"
                                                 Grid.Column="1"
                                                 Padding="12,0"
@@ -593,7 +194,7 @@
                         </Border>
 
 
-                        <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="6"  Background="WhiteSmoke">
+                        <TabControl x:Name="Adv_AllControlsTcl" Visibility="Hidden" TabStripPlacement="Top" Margin="6"  Background="WhiteSmoke">
 
                             <TabItem Header="Options">
                                 <StackPanel Orientation="Vertical" Margin="6">
@@ -620,7 +221,7 @@
                                             <!--<CheckBox x:Name="Adv_Opt_Disp_OverrideChk"     Content="Override Dispense Warnings" IsChecked="{Binding DispOverrideWarnings}" Foreground="{StaticResource PrimaryOrange}"/>-->
                                         </StackPanel>
                                     </GroupBox>
-                                    <GroupBox Header="Other" HorizontalAlignment="Left" Padding="12">
+                                    <!--<GroupBox Header="Other" HorizontalAlignment="Left" Padding="12">
                                         <StackPanel Orientation="Vertical">
                                             <CheckBox x:Name="Adv_Opt_Disp_Force57Chk" Content="Force DDM 57 Available" IsChecked="False" Checked="Adv_Opt_Disp_Force57Chk_Checked" Unchecked="Adv_Opt_Disp_Force57Chk_Unchecked"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_Force95Chk" Content="Force DDM 95 Available" IsChecked="False" Checked="Adv_Opt_Disp_Force95Chk_Checked" Unchecked="Adv_Opt_Disp_Force95Chk_Unchecked"/>
@@ -628,7 +229,7 @@
                                             <CheckBox x:Name="Adv_Opt_Disp_Force170Chk" Content="Force DDM 170 Available" IsChecked="False" Checked="Adv_Opt_Disp_Force170Chk_Checked" Unchecked="Adv_Opt_Disp_Force170Chk_Unchecked"/>
                                             <CheckBox x:Name="Adv_Opt_Disp_Force170TChk" Content="Force DDM 170 Tall Available" IsChecked="False" Checked="Adv_Opt_Disp_Force170TChk_Checked" Unchecked="Adv_Opt_Disp_Force170TChk_Unchecked"/>
                                         </StackPanel>
-                                    </GroupBox>
+                                    </GroupBox>-->
 
                                 </StackPanel>
                             </TabItem>
@@ -691,7 +292,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Border Padding="8,4,4,4" Grid.Column="0">
+            <Border Padding="4,4,4,4" Grid.Column="0">
                 <StackPanel Orientation="Horizontal">
 
                     <Grid Margin="0,0,12,0">
@@ -700,7 +301,7 @@
                                 Padding="4"
                                 Margin="0"
                                 Style="{StaticResource SmallDevIconButton}">
-                            <Image Source="/Resources/icons/settings-white.png" Height="20" Opacity="0.9"/>
+                            <Image Source="/Resources/icons/settings-fill-white.png" Height="20" Opacity="0.9"/>
                         </Button>
                     </Grid>
                     <Grid Margin="0,0,12,0">
