@@ -25,6 +25,7 @@ namespace DDMAutoGUI
                 // Core Configuration
                 var appConfig = new ApplicationConfiguration(
                     isSimulationMode: false,
+                    displayTitle: "ADS Work Cell Manager",
                     calibrationPassword: "ddm",
                     servicePassword: "ddm",
                     advancedSettingsPassword: "DDM");

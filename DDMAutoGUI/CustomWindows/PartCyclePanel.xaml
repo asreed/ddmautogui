@@ -69,14 +69,14 @@
                                     </GroupBox>
 
                                     <Button 
-                        Grid.Row="3"
-                        Grid.Column="0"
-                        Grid.ColumnSpan="2"
-                        x:Name="Disp_BeginBtn"
-                        Content="Execute Part Cycle"
-                        Command="{Binding StartDispenseCommand}"
-                        Style="{DynamicResource BlueButton}" 
-                        Height="70"/>
+                                        Grid.Row="3"
+                                        Grid.Column="0"
+                                        Grid.ColumnSpan="2"
+                                        x:Name="Disp_BeginBtn"
+                                        Content="Execute Part Cycle"
+                                        Command="{Binding StartDispenseCommand}"
+                                        Style="{DynamicResource BlueButton}" 
+                                        Height="70"/>
 
 
                                     <StackPanel Orientation="Vertical" Grid.Row="4" Grid.Column="0">
@@ -97,6 +97,15 @@
 
                                             <StackPanel Orientation="Vertical">
                                                 <TextBlock TextWrapping="Wrap" Text="Flow calibration has expired. Please recalibrate."/>
+                                            </StackPanel>
+                                        </GroupBox>
+                                        <GroupBox 
+                                            Header="Warning: Calibration Size Mismatch" 
+                                            Style="{StaticResource WarningBox}"
+                                            Visibility="{Binding IsCalibrationMatched, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                                            <StackPanel Orientation="Vertical">
+                                                <TextBlock TextWrapping="Wrap" Text="Flow calibration not valid for the selected size. Please run calibration for the selected size."/>
                                             </StackPanel>
                                         </GroupBox>
                                     </StackPanel>

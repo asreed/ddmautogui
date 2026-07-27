@@ -48,7 +48,7 @@ namespace DDMAutoGUI
             InitializeEventHandlers();
 
             // Initialize UI - remove static App references
-            this.Title += " " + ((MainWindowViewModel)this.DataContext)?.AppTitle ?? "DDM Auto GUI";
+            this.Title += ((MainWindowViewModel)this.DataContext)?.AppTitle;
             InitializeUI();
         }
 
@@ -66,15 +66,6 @@ namespace DDMAutoGUI
         {
             if (_controllerManager?.CONNECTION_STATE == null) return;
 
-            string TCS = _controllerManager.CONNECTION_STATE.connectedTCS;
-            string PAC = _controllerManager.CONNECTION_STATE.connectedPAC;
-
-            Status_StatusTxt.Text = $"Connected ({_controllerManager.CONNECTION_STATE.connectedIP})";
-            Status_TCSGrd.Visibility = Visibility.Visible;
-            Status_TCSTxt.Text = TCS;
-            Status_PACGrd.Visibility = Visibility.Visible;
-            Status_PACTxt.Text = PAC;
-
             DispTab.IsEnabled = true;
             CalibTab.IsEnabled = true;
             ServTab.IsEnabled = true;
@@ -84,11 +75,6 @@ namespace DDMAutoGUI
 
         private void HandleDisconnected()
         {
-
-            Status_StatusTxt.Text = "Not connected";
-            Status_TCSGrd.Visibility = Visibility.Collapsed;
-            Status_PACGrd.Visibility = Visibility.Collapsed;
-
             Alert_MsgBarBdr.Visibility = Visibility.Collapsed;
 
             DispTab.IsEnabled = false;

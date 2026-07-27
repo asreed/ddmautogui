@@ -8,7 +8,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DDMAutoGUI"
         mc:Ignorable="d"
-        Title="DDM Automation Cell Manager"
+        Title="Title"
         Height="750"
         Width="1024"
         WindowStartupLocation="CenterScreen"
@@ -194,7 +194,7 @@
                         </Border>
 
 
-                        <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="6"  Background="WhiteSmoke">
+                        <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="20"  Background="WhiteSmoke">
 
                             <TabItem Header="Options">
                                 <StackPanel Orientation="Vertical" Margin="6">
@@ -262,7 +262,7 @@
                             <TabItem Header="Misc" Visibility="Visible">
                                 <StackPanel Orientation="Vertical" Margin="6">
                                     <Button x:Name="Adv_Res_OpenFolderBtn" Command="{Binding OpenResultsFolderCommand}" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_Misc_LockAdvBtn" Command="{Binding LockAdvancedTabCommand}" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
                                 </StackPanel>
                             </TabItem>
                         </TabControl>
@@ -300,16 +300,18 @@
                             <TextBlock x:Name="Status_StatusTxt" Text="{Binding ConnectionStatus, Mode=OneWay}"/>
                         </StackPanel>
                     </Grid>
-                    <Grid Margin="0,0,12,0" x:Name="Status_TCSGrd" Visibility="Collapsed">
+                    <Grid Margin="0,0,12,0" x:Name="Status_TCSGrd"
+                          Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel Grid.Column="0" Orientation="Horizontal">
                             <TextBlock Text="TCS: "/>
-                            <TextBlock x:Name="Status_TCSTxt" Text="-"/>
+                            <TextBlock x:Name="Status_TCSTxt" Text="{Binding ConnectedTcsVersion, Mode=OneWay}"/>
                         </StackPanel>
                     </Grid>
-                    <Grid Margin="0,0,12,0" x:Name="Status_PACGrd" Visibility="Collapsed">
+                    <Grid Margin="0,0,12,0" x:Name="Status_PACGrd"
+                          Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel Grid.Column="0" Orientation="Horizontal">
                             <TextBlock Text="PAC: "/>
-                            <TextBlock x:Name="Status_PACTxt" Text="-"/>
+                            <TextBlock x:Name="Status_PACTxt" Text="{Binding ConnectedPacVersion, Mode=OneWay}"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>

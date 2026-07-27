@@ -10,10 +10,10 @@ namespace DDMAutoGUI.CustomWindows
 {
     public partial class CalibFlowSizePanel : UserControl
     {
-        private readonly ISettingsService _settingsManager;
-        private readonly ILocalDataService _localDataManager;
-        private readonly IFlowCalibrationService _flowCalibrationManager;
-        private readonly IControllerService _controllerManager;
+        private readonly ISettingsService _settingsService;
+        private readonly ILocalDataService _localDataService;
+        private readonly IFlowCalibrationService _flowCalibrationService;
+        private readonly IControllerService _controllerService;
 
         /// <summary>The motor size this panel calibrates, e.g. "ddm_116".</summary>
         public string MotorName { get; set; }
@@ -26,10 +26,10 @@ namespace DDMAutoGUI.CustomWindows
             InitializeComponent();
             RunPrg.Visibility = Visibility.Collapsed;
 
-            _settingsManager = App.Services?.GetService<ISettingsService>();
-            _localDataManager = App.Services?.GetService<ILocalDataService>();
-            _flowCalibrationManager = App.Services?.GetService<IFlowCalibrationService>();
-            _controllerManager = App.Services?.GetService<IControllerService>();
+            _settingsService = App.Services?.GetService<ISettingsService>();
+            _localDataService = App.Services?.GetService<ILocalDataService>();
+            _flowCalibrationService = App.Services?.GetService<IFlowCalibrationService>();
+            _controllerService = App.Services?.GetService<IControllerService>();
         }
 
         public void SetupPanel()
@@ -39,7 +39,7 @@ namespace DDMAutoGUI.CustomWindows
                 return;
             }
 
-            if (_controllerManager.CONNECTION_STATE == null || !_controllerManager.CONNECTION_STATE.isConnected)
+            if (_controllerService.CONNECTION_STATE == null || !_controllerService.CONNECTION_STATE.isConnected)
             {
                 return;
             }
@@ -48,12 +48,12 @@ namespace DDMAutoGUI.CustomWindows
             {
                 RunBtn.Content = $"Calibrate {DisplayName ?? MotorName} flow rate";
 
-                CellSettings settings = _settingsManager.GetAllSettings();
-                LocalData localData = _localDataManager.GetLocalData();
+                CellSettings settings = _settingsService.GetAllSettings();
+                LocalData localData = _localDataService.GetLocalData();
 
-                CSMotor motor = _settingsManager.GetMotorSettingsFromName(MotorName);
-                LDMotorCalib calib = _localDataManager.GetCalibFromMotorName(localData, MotorName);
-                CSDefaultCalib refCalib = _settingsManager.GetDefaultPressuresFromName(MotorName);
+                CSMotor motor = _settingsService.GetMotorSettingsFromName(MotorName);
+                LDMotorCalib calib = _localDataService.GetCalibFromMotorName(localData, MotorName);
+                CSDefaultCalib refCalib = _settingsService.GetDefaultPressuresFromName(MotorName);
 
                 float sys1RefPres = refCalib.sys_1_pressure.Value;
                 float sys2RefPres = refCalib.sys_2_pressure.Value;
@@ -108,12 +108,12 @@ namespace DDMAutoGUI.CustomWindows
         /// </summary>
         private async Task<bool> RunOnceAsync()
         {
-            CellSettings settings = _settingsManager.GetAllSettings();
-            LocalData localData = _localDataManager.GetLocalData();
-            LDMotorCalib calib = _localDataManager.GetCalibFromMotorName(localData, MotorName);
+            CellSettings settings = _settingsService.GetAllSettings();
+            LocalData localData = _localDataService.GetLocalData();
+            LDMotorCalib calib = _localDataService.GetCalibFromMotorName(localData, MotorName);
 
             RunCalibResult result =
-                await _flowCalibrationManager.RunDispenseForManualCalibration(settings, localData, MotorName);
+                await _flowCalibrationService.RunDispenseForManualCalibration(settings, localData, MotorName);
 
             float newSys1Pres = calib.sys_1_pressure.Value * result.sf1;
             float newSys2Pres = calib.sys_2_pressure.Value * result.sf2;
@@ -133,8 +133,8 @@ namespace DDMAutoGUI.CustomWindows
 
             if (userInput == MessageBoxResult.Yes)
             {
-                _flowCalibrationManager.GenerateAndSaveCalibration(result);
-                _flowCalibrationManager.SetPressuresFromCalibration(settings, localData, MotorName);
+                _flowCalibrationService.GenerateAndSaveCalibration(result);
+                _flowCalibrationService.SetPressuresFromCalibration(settings, localData, MotorName);
                 return false;
             }
 

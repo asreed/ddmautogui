@@ -82,6 +82,12 @@ namespace DDMAutoGUI.ViewModels
         private string _resultStepTopPostPhoto;
         private string _resultMaxMCHeight;
 
+        private int _selectedFlowCalibSizeIndex;
+        private string _selectedFlowCalibMotorType;
+
+        private string _connectedTcsVersion = "-";
+        private string _connectedPacVersion = "-";
+
         public MainWindowViewModel(
             IControllerService controllerService,
             ISettingsService settingsService,
@@ -100,6 +106,7 @@ namespace DDMAutoGUI.ViewModels
             _partCycleService = dispenseProcessService ?? throw new ArgumentNullException(nameof(dispenseProcessService));
 
             _controllerIpAddress = "192.168.0.1";
+            _connectionStatus = "Not connected";
 
             InitializeCommands();
             InitializeEventHandlers();
@@ -128,6 +135,7 @@ namespace DDMAutoGUI.ViewModels
                     OnPropertyChanged(nameof(IsDisconnected));
                     OnPropertyChanged(nameof(IsRobotControlEnabled));
                     OnPropertyChanged(nameof(IsCalibrationExpired));
+                    OnPropertyChanged(nameof(IsCalibrationMatched));
                 }
             }
         }
@@ -217,6 +225,7 @@ namespace DDMAutoGUI.ViewModels
             {
                 if (SetProperty(ref _selectedMotorType, value))
                 {
+                    OnPropertyChanged(nameof(IsCalibrationMatched));
                     Application.Current?.Dispatcher.BeginInvoke(
                         CommandManager.InvalidateRequerySuggested);
                 }
@@ -243,6 +252,32 @@ namespace DDMAutoGUI.ViewModels
             }
         }
 
+        /// <summary>The motor name (e.g. "ddm_116") the Calibrate Flow panel operates on.</summary>
+        public string SelectedFlowCalibMotorType
+        {
+            get => _selectedFlowCalibMotorType;
+            set => SetProperty(ref _selectedFlowCalibMotorType, value);
+        }
+
+        /// <summary>
+        /// Motor size selected on the Calibrate Flow panel. Kept separate from
+        /// <see cref="SelectedMotorSizeIndex"/> (the Operate tab's selection) so the two
+        /// workflows don't drive each other.
+        /// </summary>
+        public int SelectedFlowCalibSizeIndex
+        {
+            get => _selectedFlowCalibSizeIndex;
+            set
+            {
+                if (SetProperty(ref _selectedFlowCalibSizeIndex, value))
+                {
+                    SelectedFlowCalibMotorType = (MotorSizes != null && value >= 0 && value < MotorSizes.Count)
+                        ? MotorSizes[value]
+                        : null;
+                }
+            }
+        }
+
         public ObservableCollection<string> MotorSizes
         {
             get => _motorSizes;
@@ -255,11 +290,6 @@ namespace DDMAutoGUI.ViewModels
         /// </summary>
         public bool IsSimulationMode => _appConfig.IsSimulationMode;
 
-        // For displaying/managing logged content
-        public string ConnectionLogText { get; set; }
-        public string StatusLogText { get; set; }
-        public string RobotLogText { get; set; }
-        public string ProcessLogText { get; set; }
 
         // For controller state display
         public bool IsPowerEnabled { get => _isPowerEnabled; set => SetProperty(ref _isPowerEnabled, value); }
@@ -282,12 +312,7 @@ namespace DDMAutoGUI.ViewModels
         public int SafetyErrorState { get => _safetyErrorState; set => SetProperty(ref _safetyErrorState, value); }
         public bool IsSimulated { get => _isSimulated; set => SetProperty(ref _isSimulated, value); }
 
-        // For motor settings display
-        public string MotorSettingsDisplay { get; set; }
 
-        // For advanced options
-        public bool AdvancedOptionsConnectController { get; set; }
-        // Connection Options - write-through to _appConfig.AdvancedOptions.ConnectionOptions
         public bool ConnectController
         {
             get => _appConfig.AdvancedOptions.ConnectionOptions.Controller;
@@ -665,6 +690,39 @@ namespace DDMAutoGUI.ViewModels
             }
         }
 
+        /// <summary>
+        /// True when the most recent flow calibration was performed for the currently
+        /// selected motor type. Contributes to the dispense gate so an operator can't
+        /// dispense against a calibration captured for a different size. Returns false
+        /// while disconnected, since calibration/settings are only known when connected.
+        /// </summary>
+        public bool IsCalibrationMatched
+        {
+            get
+            {
+                if (!IsConnected)
+                    return false;
+
+                string? lastSize = _localDataService.GetLocalData()?.calib_data?.last_size;
+                return !string.IsNullOrEmpty(lastSize)
+                    && lastSize.Equals(SelectedMotorType, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        /// <summary>TCS firmware version reported by the controller, or "-" when unknown.</summary>
+        public string ConnectedTcsVersion
+        {
+            get => _connectedTcsVersion;
+            set => SetProperty(ref _connectedTcsVersion, value);
+        }
+
+        /// <summary>PAC firmware version reported by the controller, or "-" when unknown.</summary>
+        public string ConnectedPacVersion
+        {
+            get => _connectedPacVersion;
+            set => SetProperty(ref _connectedPacVersion, value);
+        }
+
         #endregion
 
         #region Commands
@@ -672,26 +730,22 @@ namespace DDMAutoGUI.ViewModels
         public ICommand ConnectCommand { get; private set; }
         public ICommand DisconnectCommand { get; private set; }
         public ICommand StartDispenseCommand { get; private set; }
-        public ICommand CancelDispenseCommand { get; private set; }
         public ICommand ViewResultsCommand { get; private set; }
         public ICommand OpenResultsDirectoryCommand { get; private set; }
         public ICommand AcquireTopCommand { get; private set; }
         public ICommand AcquireSideCommand { get; private set; }
         public ICommand OpenResultsFolderCommand { get; private set; }
-        public ICommand LockAdvancedTabCommand { get; private set; }
 
         private void InitializeCommands()
         {
             ConnectCommand = new AsyncRelayCommand<string>(ExecuteConnect, parameter => CanConnect(parameter));
             DisconnectCommand = new AsyncRelayCommand(ExecuteDisconnect, parameter => CanDisconnect(parameter));
             StartDispenseCommand = new AsyncRelayCommand(ExecutePartCycle, parameter => CanStartDispense(parameter));
-            CancelDispenseCommand = new RelayCommand(ExecuteCancelDispense, parameter => CanCancelDispense(parameter));
             ViewResultsCommand = new RelayCommand(ExecuteViewResults);
             OpenResultsDirectoryCommand = new RelayCommand(ExecuteOpenResultsDirectory);
             AcquireTopCommand = new AsyncRelayCommand(ExecuteAcquireTop, CanAcquireImage);
             AcquireSideCommand = new AsyncRelayCommand(ExecuteAcquireSide, CanAcquireImage);
             OpenResultsFolderCommand = new RelayCommand(_ => ExecuteOpenResultsFolder());
-            LockAdvancedTabCommand = new RelayCommand(_ => ExecuteLockAdvancedTab());
         }
 
         #endregion
@@ -791,12 +845,12 @@ namespace DDMAutoGUI.ViewModels
             catch (Exception ex)
             {
                 Debug.Print($"Dispense process error: {ex}");
+                ResultStatus = DispenseResultStatus.Incomplete;
+                ResultMessage = $"Run failed: {ex.Message}";
             }
             finally
             {
-                // Advance to the results view now that the run has finished.
                 SelectedDispenseTabIndex = ReviewResultsTabIndex;
-
                 IsProcessing = false;
                 IsDispenseProcessRunning = false;
             }
@@ -822,6 +876,10 @@ namespace DDMAutoGUI.ViewModels
 
             // Calibration must be present and within the configured expiry window
             if (IsCalibrationExpired)
+                return false;
+
+            // Calibration must match the selected motor type
+            if (!IsCalibrationMatched)
                 return false;
 
             return true;
@@ -905,11 +963,6 @@ namespace DDMAutoGUI.ViewModels
             _resultsService.OpenBrowserToDirectory();
         }
 
-        private void ExecuteLockAdvancedTab()
-        {
-            // Lock logic here
-        }
-
         private bool CanAcquireImage(object parameter) => IsConnected && !IsProcessing;
 
         #endregion
@@ -941,6 +994,8 @@ namespace DDMAutoGUI.ViewModels
             {
                 IsConnected = true;
                 ConnectionStatus = $"Connected ({_controllerService.CONNECTION_STATE?.connectedIP})";
+                ConnectedTcsVersion = _controllerService.CONNECTION_STATE?.connectedTCS ?? "-";
+                ConnectedPacVersion = _controllerService.CONNECTION_STATE?.connectedPAC ?? "-";
                 CommandManager.InvalidateRequerySuggested();
             });
         }
@@ -952,6 +1007,8 @@ namespace DDMAutoGUI.ViewModels
                 IsConnected = false;
                 ReadoutsEnabled = false;
                 ConnectionStatus = "Not connected";
+                ConnectedTcsVersion = "-";
+                ConnectedPacVersion = "-";
                 CommandManager.InvalidateRequerySuggested();
             });
         }
@@ -1052,7 +1109,7 @@ namespace DDMAutoGUI.ViewModels
         private void InitializeAppTitle()
         {
             string version = ReleaseInfo.GetCurrentVersion();
-            AppTitle = $"{version}";
+            AppTitle = $"{_appConfig.DisplayTitle} {version}";
         }
 
         private void InitializeMotorSizes()
@@ -1066,6 +1123,7 @@ namespace DDMAutoGUI.ViewModels
                 "ddm_170_tall"
             };
             SelectedMotorSizeIndex = 2; // Default to ddm_116
+            SelectedFlowCalibSizeIndex = 2; // Default to ddm_116
         }
 
         /// <summary>
@@ -1152,6 +1210,7 @@ namespace DDMAutoGUI.ViewModels
         public void RefreshCalibrationStatus()
         {
             OnPropertyChanged(nameof(IsCalibrationExpired));
+            OnPropertyChanged(nameof(IsCalibrationMatched));
             CommandManager.InvalidateRequerySuggested();
         }
 
@@ -1179,7 +1238,6 @@ namespace DDMAutoGUI.ViewModels
             _controllerService.ControllerStateChanged -= ControllerService_StateChanged;
             _resultsService.UpdateProcessLog -= ResultsService_UpdateProcessLog;
             _partCycleService.ProgressChanged -= DispenseProcessService_ProgressChanged;
-            _controllerService.ControllerStateChanged -= ControllerService_StateChanged;
             _controllerService.RobotBusyChanged -= ControllerService_RobotBusyChanged;
             _localDataService.LocalDataChanged -= LocalDataService_LocalDataChanged;
 

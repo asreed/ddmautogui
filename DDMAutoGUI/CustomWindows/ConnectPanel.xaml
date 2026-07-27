@@ -33,7 +33,7 @@
                         <Button Grid.Column="0"
                                 Content="Connect"
                                 Command="{Binding ConnectCommand}"
-                                CommandParameter="{Binding Text, ElementName=IPTxt}"
+                                CommandParameter="{Binding ControllerIpAddress}"
                                 Style="{StaticResource BlueButton}"/>
                         <Button Grid.Column="1"
                                 Content="Disconnect"

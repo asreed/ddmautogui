@@ -7,13 +7,15 @@ namespace DDMAutoGUI.Services
     /// </summary>
     public class ApplicationConfiguration : IApplicationConfiguration
     {
-        private readonly AdvancedOptions _advancedOptions;
+        private readonly string _displayTitle;
         private readonly bool _isSimulationMode;
         private readonly string _calibrationPassword;
         private readonly string _servicePassword;
         private readonly string _advancedSettingsPassword;
+        private readonly AdvancedOptions _advancedOptions;
 
         public ApplicationConfiguration(
+            string displayTitle = "ADS Work Cell Manager",
             bool isSimulationMode = false,
             string calibrationPassword = "ddm",
             string advancedSettingsPassword = "ddm",
@@ -22,11 +24,13 @@ namespace DDMAutoGUI.Services
         {
             _isSimulationMode = isSimulationMode;
             _calibrationPassword = calibrationPassword;
+            _displayTitle = displayTitle;
             _servicePassword = servicePassword;
             _advancedSettingsPassword = advancedSettingsPassword;
             _advancedOptions = advancedOptions ?? new AdvancedOptions();
         }
 
+        public string DisplayTitle => _displayTitle;
         public bool IsSimulationMode => _isSimulationMode;
         public string CalibrationPassword => _calibrationPassword;
         public string AdvancedSettingsPassword => _advancedSettingsPassword;

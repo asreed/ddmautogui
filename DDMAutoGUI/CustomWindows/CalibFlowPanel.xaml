@@ -5,37 +5,78 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DDMAutoGUI.CustomWindows"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="450">
-    <Grid>
+             d:DesignHeight="400" d:DesignWidth="450">
+    <Grid Background="White">
         <StackPanel Orientation="Vertical">
-            <Grid Margin="4" Background="WHite">
-                <Grid.Resources>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Margin" Value="2"/>
-                        <Setter Property="Padding" Value="6,4"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <!--<Setter Property="Background" Value="WhiteSmoke"/>-->
-                    </Style>
-                </Grid.Resources>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Last calibrated"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Last size"/>
+            <GroupBox Header="Calibrate Flow">
+
+                <Grid Margin="6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0">
+                        <ComboBox x:Name="MotorSizeCmb" 
+                                    Width="100"
+                                  Height="40"
+                                    VerticalAlignment="Center" 
+                                    ItemsSource="{Binding MotorSizes}"
+                                    SelectedIndex="{Binding SelectedFlowCalibSizeIndex, Mode=TwoWay}"
+                                    SelectionChanged="MotorSizeCmb_OnSelectionChanged">
+                        </ComboBox>
+                    </Grid>
+
+                    <StackPanel Grid.Column="1" Orientation="Vertical" Margin="8,0,0,0">
+                        <Button x:Name="RunBtn"
+                        Click="RunBtn_Click"
+                        Style="{StaticResource BlackButton}"
+                        Content="Calibrate flow rate"
+                        Margin="0"/>
+                        <ProgressBar x:Name="RunPrg"/>
+                    </StackPanel>
+                </Grid>
+
+            </GroupBox>
+
+            <GroupBox Header="Last Calibration Result">
+
+                <Grid Margin="4">
+                    <Grid.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Margin" Value="2"/>
+                            <Setter Property="Padding" Value="2"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Last calibration date"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Last calibration motor type"/>
+
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="" x:Name="Calib_LastCalTxb"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="" x:Name="Calib_LastMotorTxb"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="System 1 Result"/>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="System 2 Result"/>
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Visual Confirmation"/>
 
 
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="" x:Name="Calib_LastCalTxb"/>
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="" x:Name="Calib_LastMotorTxb"/>
+                </Grid>
+            </GroupBox>
 
-            </Grid>
-
-            <TabControl Margin="4">
+            <!--<TabControl Margin="4">
                 <TabItem Header="DDM 57">
                     <local:CalibFlowSizePanel x:Name="Calib_57Panel"  MotorName="ddm_57" DisplayName="DDM 57"/>
                 </TabItem>
@@ -52,7 +93,7 @@
                 <TabItem Header="DDM 170 Tall">
                     <local:CalibFlowSizePanel x:Name="Calib_170TallPanel"  MotorName="ddm_170_tall" DisplayName="DDM 170 Tall"/>
                 </TabItem>
-            </TabControl>
+            </TabControl>-->
 
 
         </StackPanel>
