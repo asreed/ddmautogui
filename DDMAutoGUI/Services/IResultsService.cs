@@ -6,7 +6,7 @@ namespace DDMAutoGUI.Services
     /// Interface for the results manager service.
     /// Handles creation, storage, and management of process results.
     /// </summary>
-    public interface IResultsManager
+    public interface IResultsService
     {
         event EventHandler UpdateProcessLog;
 

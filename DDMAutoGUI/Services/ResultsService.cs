@@ -1,4 +1,5 @@
 ﻿using DDMAutoGUI.Utilities;
+using DDMAutoGUI.Vision;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -80,8 +81,11 @@ namespace DDMAutoGUI.Services
         public List<ResultsLogLine>? process_log { get; set; }
     }
 
-    public class ResultsManager : IResultsManager
+    public class ResultsService : IResultsService
     {
+        private readonly IServiceProvider _serviceProvider;
+        private IControllerService? _controllerService;
+
         public string saveMainDirectory = AppDomain.CurrentDomain.BaseDirectory + "Results\\";
         public string saveFolderPrefix = "Ring_";
         public string saveFolderNoSNPrefix = "Ring_No_SN_";
@@ -97,27 +101,16 @@ namespace DDMAutoGUI.Services
         public Results currentResults { get; set; }
         public string currentResultsFolderPath { get; set; }
 
-        public ResultsManager()
+        public ResultsService(IServiceProvider serviceProvider)
         {
+            _serviceProvider = serviceProvider;
             currentResults = null;
-            Debug.Print("Process results manager initialized");
+            Debug.Print("Process results service initialized");
         }
 
-        private IControllerManager? _controllerManager;
-
-        /// <summary>
-        /// Lazily resolves the controller manager from the app's DI container.
-        /// CreateNewResults() should only be called while a controller is connected,
-        /// so the dependency is resolved on first use rather than at construction time.
-        /// </summary>
-        private IControllerManager? GetControllerManager()
-        {
-            if (_controllerManager == null)
-            {
-                _controllerManager = App.Services?.GetService(typeof(IControllerManager)) as IControllerManager;
-            }
-            return _controllerManager;
-        }
+        private IControllerService? GetControllerService()
+            => _controllerService ??=
+               _serviceProvider.GetService(typeof(IControllerService)) as IControllerService;
 
         // ==================================================================
         // Pass/fail determination
@@ -192,14 +185,14 @@ namespace DDMAutoGUI.Services
 
             string _tcs_version = String.Empty;
             string _pac_version = String.Empty;
-            var _controllerManager = GetControllerManager();
-            if (_controllerManager == null)
+            var _controllerService = GetControllerService();
+            if (_controllerService == null)
             {
-                Debug.Print("Controller manager is not available. Cannot create new results.");
+                Debug.Print("Controller service is not available. Cannot create new results.");
             } else
             {
-                _tcs_version = _controllerManager.CONNECTION_STATE.connectedTCS;
-                _pac_version = _controllerManager.CONNECTION_STATE.connectedPAC;
+                _tcs_version = _controllerService.CONNECTION_STATE.connectedTCS;
+                _pac_version = _controllerService.CONNECTION_STATE.connectedPAC;
             }
 
             if (currentResults == null)

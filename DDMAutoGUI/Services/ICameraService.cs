@@ -8,25 +8,25 @@ namespace DDMAutoGUI.Services
     /// Interface for the camera manager service.
     /// Handles camera acquisition and image management.
     /// </summary>
-    public interface ICameraManager : IDisposable
+    public interface ICameraService : IDisposable
     {
         Task<CameraAcquisitionResult> AcquireAndSave(
-            CameraManager.CellCamera cellCamera,
+            CameraService.CellCamera cellCamera,
             Image displayElement);
 
         Task<CameraAcquisitionResult> AcquireAndSave(
-            CameraManager.CellCamera cellCamera,
+            CameraService.CellCamera cellCamera,
             Image displayElement,
             bool skipSave);
 
         Task<CameraAcquisitionResult> AcquireAndSave(
-            CameraManager.CellCamera cellCamera,
+            CameraService.CellCamera cellCamera,
             Image displayElement,
-            CameraManager.CellImageFormat imgFormat,
+            CameraService.CellImageFormat imgFormat,
             bool skipSave);
 
         void DisplayImage(Image displayElement, string filePath);
         void OpenExplorerToImages();
-        Task<bool> TestCameraConnection(CameraManager.CellCamera cellCamera);
+        Task<bool> TestCameraConnection(CameraService.CellCamera cellCamera);
     }
 }

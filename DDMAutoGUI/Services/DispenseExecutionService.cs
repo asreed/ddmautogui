@@ -6,17 +6,17 @@ namespace DDMAutoGUI.Services
     public class DispenseExecutionService : IDispenseExecutionService
     {
         private const string LOG_INDENT = "  ";
-        private readonly IControllerManager _controllerManager;
+        private readonly IControllerService _controllerService;
 
-        public DispenseExecutionService(IControllerManager controllerManager)
+        public DispenseExecutionService(IControllerService controllerService)
         {
-            _controllerManager = controllerManager;
+            _controllerService = controllerService;
         }
 
         public async Task EnablePowerAndHomeAsync(Action<string> log = null)
         {
             log?.Invoke("Enabling power...");
-            string response = await _controllerManager.EnablePower();
+            string response = await _controllerService.EnablePower();
             if (response != "1")
             {
                 throw new PartCycleException("Failed to enable power");
@@ -24,7 +24,7 @@ namespace DDMAutoGUI.Services
             log?.Invoke("Power enabled");
 
             log?.Invoke("Homing...");
-            response = await _controllerManager.Home();
+            response = await _controllerService.Home();
             if (response != "0")
             {
                 throw new PartCycleException("Failed to home");
@@ -40,7 +40,7 @@ namespace DDMAutoGUI.Services
             if (pressure1 != null)
             {
                 log?.Invoke($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1.Value:F3} psi");
-                await _controllerManager.SetRegPressure(1, pressure1.Value);
+                await _controllerService.SetRegPressure(1, pressure1.Value);
             }
             else
             {
@@ -50,7 +50,7 @@ namespace DDMAutoGUI.Services
             if (pressure2 != null)
             {
                 log?.Invoke($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2.Value:F3} psi");
-                await _controllerManager.SetRegPressure(2, pressure2.Value);
+                await _controllerService.SetRegPressure(2, pressure2.Value);
             }
             else
             {
@@ -58,11 +58,11 @@ namespace DDMAutoGUI.Services
             }
 
             log?.Invoke("Waiting for pressures to settle...");
-            await _controllerManager.WaitBothRegPressures(10);
+            await _controllerService.WaitBothRegPressures(10);
             await Task.Delay(1000);
             log?.Invoke("Pressures settled");
             log?.Invoke("Zeroing flow sensors...");
-            await _controllerManager.SetZeroShift(3);
+            await _controllerService.SetZeroShift(3);
             log?.Invoke("Flow sensors zeroed");
         }
 
@@ -78,18 +78,18 @@ namespace DDMAutoGUI.Services
             float targetTimeOD = motor.shot_settings.od_target_vol.Value / motor.shot_settings.od_target_flow.Value;
 
             log?.Invoke("Waiting for pressures to stabilize...");
-            await _controllerManager.WaitBothRegPressures(5);
+            await _controllerService.WaitBothRegPressures(5);
             log?.Invoke("Pressures stabilized");
 
-            float pressureID = float.Parse(await _controllerManager.GetRegPressureSetpoint(sysID));
-            float pressureOD = float.Parse(await _controllerManager.GetRegPressureSetpoint(sysOD));
+            float pressureID = float.Parse(await _controllerService.GetRegPressureSetpoint(sysID));
+            float pressureOD = float.Parse(await _controllerService.GetRegPressureSetpoint(sysOD));
 
             log?.Invoke("Dispensing cyanoacrylate...");
-            string response = await _controllerManager.DispenseToRing(
+            string response = await _controllerService.DispenseToRing(
                 sysID, targetTimeID, xID, tID,
                 sysOD, targetTimeOD, xOD, tOD);
 
-            ResultsShotData shotData = _controllerManager.ParseDispenseResponse(response);
+            ResultsShotData shotData = _controllerService.ParseDispenseResponse(response);
             shotData.motor_type = motorName;
             shotData.id_valve_num = sysID;
             shotData.od_valve_num = sysOD;

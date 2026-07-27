@@ -29,8 +29,8 @@ namespace DDMAutoGUI.CustomWindows
             InitializeComponent();
         }
 
-        private void Disp_LogTxt_TextChanged(object sender, TextChangedEventArgs e)
-        => Disp_LogTxt.ScrollToEnd();
+        private void LogTxt_TextChanged(object sender, TextChangedEventArgs e)
+        => LogTxt.ScrollToEnd();
 
         private void MotorSizeRadio_Checked(object sender, RoutedEventArgs e)
         {
@@ -46,7 +46,7 @@ namespace DDMAutoGUI.CustomWindows
 
         private void Disp_Res_ViewResBtn_Click(object sender, RoutedEventArgs e)
         {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
+            var resultsManager = App.Services?.GetService<IResultsService>();
             if (resultsManager == null) return;
 
             string data_string = resultsManager.GetCurrentResultsAsString();
@@ -61,7 +61,7 @@ namespace DDMAutoGUI.CustomWindows
         }
         private void Disp_OpenFolderBtn_Click(object sender, RoutedEventArgs e)
         {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
+            var resultsManager = App.Services?.GetService<IResultsService>();
             if (resultsManager != null)
             {
                 resultsManager.OpenBrowserToDirectory();
@@ -70,7 +70,7 @@ namespace DDMAutoGUI.CustomWindows
 
         private void Disp_Res_OpenFileBtn_Click(object sender, RoutedEventArgs e)
         {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
+            var resultsManager = App.Services?.GetService<IResultsService>();
             if (resultsManager != null)
             {
                 resultsManager.OpenBrowserToDirectory();

@@ -13,6 +13,7 @@ using System.Windows.Threading;
 using System.Windows.Documents;
 using System.Web;
 using Microsoft.Extensions.DependencyInjection;
+using DDMAutoGUI.Constants;
 
 
 
@@ -110,11 +111,11 @@ namespace DDMAutoGUI.Services
         }
     }
 
-    public class ControllerManager : IControllerManager, ILightController
+    public class ControllerService : IControllerService, ILightController
     {
         private readonly IApplicationConfiguration _applicationConfiguration;
-        private readonly Func<ICameraManager> _getCameraManager; // Lazy accessor to break circular dependency
-        private readonly Func<ISettingsManager> _getSettingsManager; // Lazy accessor for settings verification
+        private readonly Func<ICameraService> _getCameraService; // Lazy accessor to break circular dependency
+        private readonly Func<ISettingsService> _getSettingsService; // Lazy accessor for settings verification
 
         public string CORRECT_TCS_VERSION = "Tcs_ddm_cell_1_1_4";
 
@@ -183,7 +184,7 @@ namespace DDMAutoGUI.Services
         /// Initializes a new instance of the ControllerManager.
         /// Takes IServiceProvider for lazy resolution of ICameraManager to avoid circular dependency.
         /// </summary>
-        public ControllerManager(
+        public ControllerService(
             IApplicationConfiguration applicationConfiguration,
             IServiceProvider serviceProvider)
         {
@@ -191,13 +192,13 @@ namespace DDMAutoGUI.Services
             
             // Lazy resolution: CameraManager depends on ILightController (this), 
             // so we resolve it only when needed to break the circular dependency
-            _getCameraManager = () => serviceProvider.GetRequiredService<ICameraManager>();
-            _getSettingsManager = () => serviceProvider.GetRequiredService<ISettingsManager>();
+            _getCameraService = () => serviceProvider.GetRequiredService<ICameraService>();
+            _getSettingsService = () => serviceProvider.GetRequiredService<ISettingsService>();
 
 
             CONTROLLER_STATE.Initialize();
             CONNECTION_STATE.Initialize();
-            Debug.Print("Controller manager initialized");
+            Debug.Print("Controller service initialized");
         }
 
         // ==================================================================
@@ -423,22 +424,22 @@ namespace DDMAutoGUI.Services
                     // Verify TCS is responsive
                     if (await TestStatusConnection() != "0")
                     {
-                        throw new Exception($"{ErrorCodes.conCont.code}: {ErrorCodes.conCont.msg}");
+                        throw new Exception($"{ErrorCodes.conCont.Code}: {ErrorCodes.conCont.Message}");
                     }
 
                     UpdateConnectionLog($"✓ Controller TCS");
                 }
 
                 // --- Settings Verification & Load ---
-                // Use SettingsManager's method which verifies AND loads settings
-                var settingsManager = _getSettingsManager();
+                // Use SettingsService's method which verifies AND loads settings
+                var settingsService = _getSettingsService();
 
                 // Offload the synchronous FTP download so the UI thread stays free to
                 // render connection-log updates and remain responsive during connect.
-                bool settingsExist = await Task.Run(() => settingsManager.LoadAndVerifySettings(ip));
+                bool settingsExist = await Task.Run(() => settingsService.LoadAndVerifySettings(ip));
                 if (!settingsExist)
                 {
-                    throw new Exception($"{ErrorCodes.conSettings.code}: {ErrorCodes.conSettings.msg}");
+                    throw new Exception($"{ErrorCodes.conSettings.Code}: {ErrorCodes.conSettings.Message}");
                 }
                 UpdateConnectionLog($"✓ Controller Settings");
 
@@ -450,7 +451,7 @@ namespace DDMAutoGUI.Services
 
                     if (!ioLinkStatus.isMasterConnected)
                     {
-                        throw new Exception($"{ErrorCodes.conIOMaster.code}: {ErrorCodes.conIOMaster.msg}");
+                        throw new Exception($"{ErrorCodes.conIOMaster.Code}: {ErrorCodes.conIOMaster.Message}");
                     }
                     UpdateConnectionLog($"✓ I/O-Link Master");
 
@@ -469,7 +470,7 @@ namespace DDMAutoGUI.Services
                     if (missingPorts.Count > 0)
                     {
                         throw new Exception(
-                            $"{ErrorCodes.conIOPort.code}: {ErrorCodes.conIOPort.msg} " +
+                            $"{ErrorCodes.conIOPort.Code}: {ErrorCodes.conIOPort.Message} " +
                             $"({string.Join(", ", missingPorts)})");
                     }
                 }
@@ -480,7 +481,7 @@ namespace DDMAutoGUI.Services
                     string laserResponse = await TestLaserConnection();
                     if (laserResponse != "-1")
                     {
-                        throw new Exception($"{ErrorCodes.conLaser.code}: {ErrorCodes.conLaser.msg}");
+                        throw new Exception($"{ErrorCodes.conLaser.Code}: {ErrorCodes.conLaser.Message}");
                     }
                     UpdateConnectionLog($"✓ Laser Sensor");
                 }
@@ -493,14 +494,14 @@ namespace DDMAutoGUI.Services
 
                 if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.TopCamera == true)
                 {
-                    var cameraManager = _getCameraManager();
+                    var cameraService = _getCameraService();
 
                     // Offload the blocking Arena SDK calls (device enumeration, GetImage)
                     // off the UI thread.
-                    bool topCameraConnected = await Task.Run(() => cameraManager.TestCameraConnection(CameraManager.CellCamera.top));
+                    bool topCameraConnected = await Task.Run(() => cameraService.TestCameraConnection(CameraService.CellCamera.top));
                     if (!topCameraConnected)
                     {
-                        throw new Exception($"{ErrorCodes.conCamTop.code}: {ErrorCodes.conCamTop.msg}");
+                        throw new Exception($"{ErrorCodes.conCamTop.Code}: {ErrorCodes.conCamTop.Message}");
                     }
                     else
                     {
@@ -510,11 +511,11 @@ namespace DDMAutoGUI.Services
 
                 if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.SideCamera == true)
                 {
-                    var cameraManager = _getCameraManager();
-                    bool sideCameraConnected = await cameraManager.TestCameraConnection(CameraManager.CellCamera.side);
+                    var cameraService = _getCameraService();
+                    bool sideCameraConnected = await cameraService.TestCameraConnection(CameraService.CellCamera.side);
                     if (!sideCameraConnected)
                     {
-                        throw new Exception($"{ErrorCodes.conCamSide.code}: {ErrorCodes.conCamSide.msg}");
+                        throw new Exception($"{ErrorCodes.conCamSide.Code}: {ErrorCodes.conCamSide.Message}");
                     }
                     else
                     {
@@ -527,7 +528,7 @@ namespace DDMAutoGUI.Services
                 string sysStateTest = await GetSystemStateRemote(false);
                 if (!sysStateTest.StartsWith("0"))
                 {
-                    throw new Exception($"{ErrorCodes.conHB.code}: {ErrorCodes.conHB.msg}");
+                    throw new Exception($"{ErrorCodes.conHB.Code}: {ErrorCodes.conHB.Message}");
                 } else
                 {
                     UpdateConnectionLog($"✓ Controller Heartbeat");
@@ -542,7 +543,7 @@ namespace DDMAutoGUI.Services
                 CONNECTION_STATE.connectedTCS = await GetTCSVersion();
                 CONNECTION_STATE.connectedPAC = await GetPACVersion();
 
-                // Fire connection events - this triggers SettingsManager to load settings
+                // Fire connection events - this triggers SettingsService to load settings
                 ControllerConnected?.Invoke(this, EventArgs.Empty);
                 ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
 
@@ -557,10 +558,10 @@ namespace DDMAutoGUI.Services
                 robotClient?.Close();
 
                 UpdateBothLogs($"Connection failed ({ex.Message})");
-                UpdateBothLogs($"{ErrorCodes.conCont.code}: {ErrorCodes.conCont.msg}");
+                UpdateBothLogs($"{ErrorCodes.conCont.Code}: {ErrorCodes.conCont.Message}");
 
                 UpdateConnectionLog($"\nConnection failed ({ex.Message})");
-                UpdateConnectionLog($"{ErrorCodes.conCont.code}: {ErrorCodes.conCont.msg}");
+                UpdateConnectionLog($"{ErrorCodes.conCont.Code}: {ErrorCodes.conCont.Message}");
 
                 StopAutoControllerState();  // <-- Add this
                 CONNECTION_STATE.isConnected = false;

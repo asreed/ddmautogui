@@ -29,32 +29,30 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox Grid.Column="0"
-                                 x:Name="Con_IPTxt"
-                                 Text="{Binding ControllerIpAddress, UpdateSourceTrigger=PropertyChanged}"/>
+                        
                         <Button Grid.Column="0"
-                                x:Name="Con_ConnectBtn"
                                 Content="Connect"
                                 Command="{Binding ConnectCommand}"
-                                CommandParameter="{Binding Text, ElementName=Con_IPTxt}"
+                                CommandParameter="{Binding Text, ElementName=IPTxt}"
                                 Style="{StaticResource BlueButton}"/>
                         <Button Grid.Column="1"
-                                x:Name="Con_DisconnectBtn"
                                 Content="Disconnect"
                                 Command="{Binding DisconnectCommand}"
                                 Style="{StaticResource BlueButton}"/>
-                        <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                        <ProgressBar Grid.Row="1" 
+                                     Grid.Column="0" 
+                                     Grid.ColumnSpan="2"
                                      IsIndeterminate="True"
                                      Visibility="{Binding IsProcessing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Connection Log">
-                    <TextBox x:Name="Con_LogTxt"
+                    <TextBox x:Name="LogTxt"
                              Text="{Binding ConnectionLog, Mode=OneWay}"
                              Height="250"
                              IsReadOnly="True"
                              VerticalScrollBarVisibility="Disabled"
-                             TextChanged="Con_LogTxt_TextChanged"
+                             TextChanged="LogTxt_TextChanged"
                              Style="{StaticResource MonoTextBox}"/>
                 </GroupBox>
             </StackPanel>

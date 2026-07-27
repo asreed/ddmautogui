@@ -6,17 +6,17 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace DDMAutoGUI.Utilities
+namespace DDMAutoGUI.Vision
 {
     /// <summary>
     /// Static utility class for OCR (Optical Character Recognition) processing.
     /// Invokes Python script for image processing and text extraction.
     /// </summary>
-    public static class OCRManager
+    public static class OCRProcessor
     {
         private static readonly string OcrScriptName = "process_images.py";
         private static readonly string OcrOutputFileName = "OCRResults.json";
-        private static readonly string OcrScriptPath = Path.Combine(AppContext.BaseDirectory, "Services", "Vision", OcrScriptName);
+        private static readonly string OcrScriptPath = Path.Combine(AppContext.BaseDirectory, "Vision", OcrScriptName);
 
         /// <summary>
         /// Runs OCR on images in the specified folder using a Python script.

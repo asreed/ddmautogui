@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace DDMAutoGUI.Services
 {
-    public interface IFlowCalibrationManager
+    public interface IFlowCalibrationService
     {
         /// <summary>
         /// Generates and saves calibration results to local data file.

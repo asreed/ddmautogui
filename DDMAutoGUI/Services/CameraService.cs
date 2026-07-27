@@ -24,7 +24,7 @@ namespace DDMAutoGUI.Services
 
 
 
-    public class CameraManager : ICameraManager, IDisposable
+    public class CameraService : ICameraService, IDisposable
     {
         private static string TB = "..";
 
@@ -52,18 +52,18 @@ namespace DDMAutoGUI.Services
             JPG
         }
 
-        public CameraManager(
+        public CameraService(
             ILightController lightController,
-            ISettingsManager settingsManager)
+            ISettingsService settingsService)
         {
             _lightController = lightController ?? throw new ArgumentNullException(nameof(lightController));
-            _getSettings = () => settingsManager.GetAllSettings();
+            _getSettings = () => settingsService.GetAllSettings();
 
             // Initialize Arena SDK once
             try
             {
                 _system = ArenaNET.Arena.OpenSystem();
-                Debug.Print("Camera manager initialized (Arena SDK opened)");
+                Debug.Print("Camera service initialized (Arena SDK opened)");
             }
             catch (Exception ex)
             {

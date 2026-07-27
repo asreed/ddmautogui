@@ -21,13 +21,13 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <TabControl Grid.Row="1" Grid.Column="1" x:Name="Cal_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top">
+            <TabControl Grid.Row="1" Grid.Column="1">
 
-                <TabItem Header="Position">
-                    <CustomWindows:CalibPositionPanel x:Name="CalPosPanel"/>
-                </TabItem>
                 <TabItem Header="Flow Rate">
                     <CustomWindows:CalibFlowPanel x:Name="CalFlowPanel"/>
+                </TabItem>
+                <TabItem Header="Position">
+                    <CustomWindows:CalibPositionPanel x:Name="CalPosPanel"/>
                 </TabItem>
 
             </TabControl>

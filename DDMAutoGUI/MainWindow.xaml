@@ -194,7 +194,7 @@
                         </Border>
 
 
-                        <TabControl x:Name="Adv_AllControlsTcl" Visibility="Hidden" TabStripPlacement="Top" Margin="6"  Background="WhiteSmoke">
+                        <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="6"  Background="WhiteSmoke">
 
                             <TabItem Header="Options">
                                 <StackPanel Orientation="Vertical" Margin="6">
@@ -203,7 +203,7 @@
 
                                             <TextBox 
                                                 Width="150"
-                                                x:Name="Con_IPTxt" 
+                                                x:Name="IPTxt"
                                                 Text="{Binding ControllerIpAddress, UpdateSourceTrigger=PropertyChanged}"/>
                                         </StackPanel>
                                     </GroupBox>
@@ -221,16 +221,6 @@
                                             <!--<CheckBox x:Name="Adv_Opt_Disp_OverrideChk"     Content="Override Dispense Warnings" IsChecked="{Binding DispOverrideWarnings}" Foreground="{StaticResource PrimaryOrange}"/>-->
                                         </StackPanel>
                                     </GroupBox>
-                                    <!--<GroupBox Header="Other" HorizontalAlignment="Left" Padding="12">
-                                        <StackPanel Orientation="Vertical">
-                                            <CheckBox x:Name="Adv_Opt_Disp_Force57Chk" Content="Force DDM 57 Available" IsChecked="False" Checked="Adv_Opt_Disp_Force57Chk_Checked" Unchecked="Adv_Opt_Disp_Force57Chk_Unchecked"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_Force95Chk" Content="Force DDM 95 Available" IsChecked="False" Checked="Adv_Opt_Disp_Force95Chk_Checked" Unchecked="Adv_Opt_Disp_Force95Chk_Unchecked"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_Force116Chk" Content="Force DDM 116 Available" IsChecked="False" Checked="Adv_Opt_Disp_Force116Chk_Checked" Unchecked="Adv_Opt_Disp_Force116Chk_Unchecked"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_Force170Chk" Content="Force DDM 170 Available" IsChecked="False" Checked="Adv_Opt_Disp_Force170Chk_Checked" Unchecked="Adv_Opt_Disp_Force170Chk_Unchecked"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_Force170TChk" Content="Force DDM 170 Tall Available" IsChecked="False" Checked="Adv_Opt_Disp_Force170TChk_Checked" Unchecked="Adv_Opt_Disp_Force170TChk_Unchecked"/>
-                                        </StackPanel>
-                                    </GroupBox>-->
-
                                 </StackPanel>
                             </TabItem>
 
@@ -269,7 +259,7 @@
 
                                 </StackPanel>
                             </TabItem>
-                            <TabItem Header="Misc" Visibility="Collapsed">
+                            <TabItem Header="Misc" Visibility="Visible">
                                 <StackPanel Orientation="Vertical" Margin="6">
                                     <Button x:Name="Adv_Res_OpenFolderBtn" Command="{Binding OpenResultsFolderCommand}" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
                                     <Button x:Name="Adv_Misc_LockAdvBtn" Command="{Binding LockAdvancedTabCommand}" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>

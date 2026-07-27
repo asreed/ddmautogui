@@ -10,10 +10,10 @@ namespace DDMAutoGUI.CustomWindows
 {
     public partial class CalibFlowSizePanel : UserControl
     {
-        private readonly ISettingsManager _settingsManager;
-        private readonly ILocalDataManager _localDataManager;
-        private readonly IFlowCalibrationManager _flowCalibrationManager;
-        private readonly IControllerManager _controllerManager;
+        private readonly ISettingsService _settingsManager;
+        private readonly ILocalDataService _localDataManager;
+        private readonly IFlowCalibrationService _flowCalibrationManager;
+        private readonly IControllerService _controllerManager;
 
         /// <summary>The motor size this panel calibrates, e.g. "ddm_116".</summary>
         public string MotorName { get; set; }
@@ -26,10 +26,10 @@ namespace DDMAutoGUI.CustomWindows
             InitializeComponent();
             RunPrg.Visibility = Visibility.Collapsed;
 
-            _settingsManager = App.Services?.GetService<ISettingsManager>();
-            _localDataManager = App.Services?.GetService<ILocalDataManager>();
-            _flowCalibrationManager = App.Services?.GetService<IFlowCalibrationManager>();
-            _controllerManager = App.Services?.GetService<IControllerManager>();
+            _settingsManager = App.Services?.GetService<ISettingsService>();
+            _localDataManager = App.Services?.GetService<ILocalDataService>();
+            _flowCalibrationManager = App.Services?.GetService<IFlowCalibrationService>();
+            _controllerManager = App.Services?.GetService<IControllerService>();
         }
 
         public void SetupPanel()

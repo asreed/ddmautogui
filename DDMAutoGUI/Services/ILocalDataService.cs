@@ -7,7 +7,7 @@ namespace DDMAutoGUI.Services
     /// Interface for the local data manager service.
     /// Handles local data storage and retrieval.
     /// </summary>
-    public interface ILocalDataManager
+    public interface ILocalDataService
     {
         /// <summary>
         /// Raised whenever the in-memory local data is replaced (e.g., after a flow

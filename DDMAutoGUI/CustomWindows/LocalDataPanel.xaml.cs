@@ -9,13 +9,13 @@ namespace DDMAutoGUI.CustomWindows
 {
     public partial class LocalDataPanel : UserControl
     {
-        private readonly ILocalDataManager _localDataManager;
+        private readonly ILocalDataService _localDataManager;
 
         public LocalDataPanel()
         {
             InitializeComponent();
 
-            _localDataManager = App.Services?.GetService<ILocalDataManager>();
+            _localDataManager = App.Services?.GetService<ILocalDataService>();
 
             if (_localDataManager == null)
             {

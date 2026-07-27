@@ -1,4 +1,4 @@
-namespace DDMAutoGUI.Services
+namespace DDMAutoGUI.Constants
 {
     /// <summary>
     /// Contains standardized error codes and messages for the DDM Auto GUI application.
@@ -27,9 +27,6 @@ namespace DDMAutoGUI.Services
                 Code = code;
                 Message = message;
             }
-
-            public string code => Code;
-            public string msg => Message;
         }
     }
 }

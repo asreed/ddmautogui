@@ -12,13 +12,13 @@ namespace DDMAutoGUI.CustomWindows
     /// </summary>
     public partial class SettingsPanel : UserControl
     {
-        private readonly ISettingsManager _settingsManager;
+        private readonly ISettingsService _settingsManager;
 
         public SettingsPanel()
         {
             InitializeComponent();
 
-            _settingsManager = App.Services?.GetService<ISettingsManager>();
+            _settingsManager = App.Services?.GetService<ISettingsService>();
 
             if (_settingsManager == null)
             {

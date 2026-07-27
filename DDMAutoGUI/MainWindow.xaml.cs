@@ -21,20 +21,15 @@ namespace DDMAutoGUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly IControllerManager _controllerManager;
-        private readonly ISettingsManager _settingsManager;
+        private readonly IControllerService _controllerManager;
         private readonly IApplicationConfiguration _applicationConfiguration;
-        private List<Button> allButtons;
-        private List<ResultsHeightMeasurement> laserRingData;
-        private List<ResultsHeightMeasurement> laserMagData;
 
         public MainWindow()
         {
             InitializeComponent();
 
             // Get services from DI container
-            _controllerManager = App.Services?.GetService<IControllerManager>();
-            _settingsManager = App.Services?.GetService<ISettingsManager>();
+            _controllerManager = App.Services?.GetService<IControllerService>();
             _applicationConfiguration = App.Services?.GetService<IApplicationConfiguration>();
 
             // Set the DataContext to the ViewModel via Dependency Injection
@@ -65,7 +60,6 @@ namespace DDMAutoGUI
             _controllerManager.ControllerConnected += (s, e) => HandleConnected();
             _controllerManager.ControllerDisconnected += (s, e) => HandleDisconnected();
             _controllerManager.ControllerStateChanged += (s, e) => HandleControllerStateChanged();
-            //_controllerManager.ConnectionLogUpdated += (s, e) => HandleConnectionLogUpdated();
         }
 
         private void HandleConnected()
@@ -74,9 +68,6 @@ namespace DDMAutoGUI
 
             string TCS = _controllerManager.CONNECTION_STATE.connectedTCS;
             string PAC = _controllerManager.CONNECTION_STATE.connectedPAC;
-
-            //Con_ConnectBtn.Content = "Connected";
-            //Con_ConnectBtn.IsEnabled = false;
 
             Status_StatusTxt.Text = $"Connected ({_controllerManager.CONNECTION_STATE.connectedIP})";
             Status_TCSGrd.Visibility = Visibility.Visible;
@@ -93,11 +84,8 @@ namespace DDMAutoGUI
 
         private void HandleDisconnected()
         {
-            //Con_ConnectBtn.Content = "Connect";
-            //Con_ConnectBtn.IsEnabled = true;
 
             Status_StatusTxt.Text = "Not connected";
-            //Status_SimBdr.Visibility = Visibility.Collapsed;
             Status_TCSGrd.Visibility = Visibility.Collapsed;
             Status_PACGrd.Visibility = Visibility.Collapsed;
 
@@ -116,7 +104,6 @@ namespace DDMAutoGUI
 
             ControllerState contState = _controllerManager.CONTROLLER_STATE;
 
-            //Status_SimBdr.Visibility = Visibility.Collapsed;
             if (!contState.parseError && _controllerManager.CONNECTION_STATE.isConnected)
             {
                 // Connected with good parse
@@ -152,18 +139,10 @@ namespace DDMAutoGUI
                         }
                         break;
                 }
-
-                //Status_SimBdr.Visibility = contState.isSimulated ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
-        //private void HandleConnectionLogUpdated()
-        //{
-        //    if (_controllerManager == null) return;
 
-        //    Con_LogTxt.Text = _controllerManager.GetConnectionLog();
-        //    Con_LogTxt.ScrollToEnd();
-        //}
 
         /// <summary>
         /// Initialize UI state
@@ -199,20 +178,7 @@ namespace DDMAutoGUI
 
         #endregion
 
-        #region Event Handlers - Manager Events
 
-        //public void MainWindowSingle_Disp_UpdateProcessLog(object sender, EventArgs e)
-        //{
-        //    var resultsManager = App.Services?.GetService<IResultsManager>();
-        //    if (resultsManager?.currentResults?.process_log == null) return;
-
-        //    ResultsLogLine logline = resultsManager.currentResults.process_log.Last();
-        //    Disp_LogTxt.Text += logline.timestamp?.ToString(resultsManager.DateFormatShort) + ": " + logline.message + "\n";
-        //    Disp_LogTxt.CaretIndex = Disp_LogTxt.Text.Length;
-        //    Disp_LogTxt.ScrollToEnd();
-        //}
-
-        #endregion
 
         #region Event Handlers - UI Events
 
@@ -238,84 +204,9 @@ namespace DDMAutoGUI
                 }
             }
         }
-
-        #endregion
-
-        #region Connection Button Handlers
-
-        /// <summary>
-        /// FIXED: Directly use ControllerManager instead of DeviceConnectionManager.
-        /// The connection orchestration is now handled via the ControllerManager directly.
-        /// </summary>
-        //private async void Con_ConnectBtn_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (_controllerManager == null) return;
-
-        //    Con_ConnectBtn.IsEnabled = false;
-        //    Con_ConnectBtn.Content = "Connecting...";
-        //    Con_ConnectPrg.Visibility = Visibility.Visible;
-
-        //    // Connect directly through ControllerManager
-        //    await _controllerManager.Connect(Con_IPTxt.Text);
-
-        //    Con_ConnectPrg.Visibility = Visibility.Collapsed;
-        //}
-
-        #endregion
-
-        #region Dispense Button Handlers
-
-        private void Disp_SaveLogBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
-            if (resultsManager != null)
-            {
-                resultsManager.SaveDataToFile();
-            }
-        }
-
-        private void Disp_ViewLogBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
-            if (resultsManager != null)
-            {
-                TextDataViewer viewer = new TextDataViewer();
-                string log = resultsManager.GetLogAsString();
-                if (log != null)
-                {
-                    viewer.Owner = this;
-                    viewer.PopulateData(log, "Process Log");
-                    viewer.ShowDialog();
-                }
-            }
-        }
-
-
-
-        #endregion
-
-        #region Robot Control Button Handlers
-
-        private async void Adv_Cell_EStopBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager != null)
-            {
-                await _controllerManager.EStop();
-            }
-        }
-
-        private async void Adv_Cell_ECloseValvesBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager != null)
-            {
-                await _controllerManager.CloseAllValves();
-            }
-        }
-
-        #endregion
         
 
-
+        #endregion
 
 
         private void Serv_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
@@ -331,6 +222,7 @@ namespace DDMAutoGUI
 
         private void Adv_Misc_LockAdvBtn_Click(object sender, RoutedEventArgs e)
             => Lock(Adv_PWBox, Adv_PWEntryBdr, Adv_PWMessageTxb, Adv_AllControlsTcl);
+
 
         /// <summary>
         /// FIXED: Use static DAQUtilities class instead of deprecated IDAQManager interface.
@@ -359,17 +251,6 @@ namespace DDMAutoGUI
         {
             // DAQ timed reading - implement as needed
         }
-
-        //private void Adv_Opt_Disp_Force57Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor57.IsEnabled = true;
-        //private void Adv_Opt_Disp_Force57Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor57.IsEnabled = false;
-        //private void Adv_Opt_Disp_Force95Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor95.IsEnabled = true;
-        //private void Adv_Opt_Disp_Force95Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor95.IsEnabled = false;
-        //private void Adv_Opt_Disp_Force116Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor116.IsEnabled = true;
-        //private void Adv_Opt_Disp_Force116Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor116.IsEnabled = false;
-        //private void Adv_Opt_Disp_Force170Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor170.IsEnabled = true;
-        //private void Adv_Opt_Disp_Force170Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor170.IsEnabled = false;
-        //private void Adv_Opt_Disp_Force170TChk_Checked(object sender, RoutedEventArgs e) => Disp_Motor170Tall.IsEnabled = true;
-        //private void Adv_Opt_Disp_Force170TChk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor170Tall.IsEnabled = false;
 
         #endregion
 

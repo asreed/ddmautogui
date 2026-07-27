@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 namespace DDMAutoGUI.Services
 {
     /// <summary>
-    /// Interface for the controller manager service.
+    /// Interface for the controller service.
     /// Handles all communication with the workcell controller.
     /// </summary>
-    public interface IControllerManager
+    public interface IControllerService
     {
         #region Events
 

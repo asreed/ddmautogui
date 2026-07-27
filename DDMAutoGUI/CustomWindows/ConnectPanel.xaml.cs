@@ -10,7 +10,7 @@ namespace DDMAutoGUI.CustomWindows
         }
 
         // Auto-scroll the connection log without imperative wiring from MainWindow.
-        private void Con_LogTxt_TextChanged(object sender, TextChangedEventArgs e)
-            => Con_LogTxt.ScrollToEnd();
+        private void LogTxt_TextChanged(object sender, TextChangedEventArgs e)
+            => LogTxt.ScrollToEnd();
     }
 }

@@ -17,11 +17,11 @@ namespace DDMAutoGUI.ViewModels
     /// </summary>
     public class MainWindowViewModel : ViewModelBase, IDisposable
     {
-        private readonly IControllerManager _controllerManager;
-        private readonly ISettingsManager _settingsManager;
-        private readonly IResultsManager _resultsManager;
-        private readonly ICameraManager _cameraManager;
-        private readonly ILocalDataManager _localDataManager;
+        private readonly IControllerService _controllerService;
+        private readonly ISettingsService _settingsService;
+        private readonly IResultsService _resultsService;
+        private readonly ICameraService _cameraService;
+        private readonly ILocalDataService _localDataService;
         private readonly IApplicationConfiguration _appConfig;
         private readonly IPartCycleService _partCycleService;
 
@@ -83,19 +83,19 @@ namespace DDMAutoGUI.ViewModels
         private string _resultMaxMCHeight;
 
         public MainWindowViewModel(
-            IControllerManager controllerManager,
-            ISettingsManager settingsManager,
-            IResultsManager resultsManager,
-            ICameraManager cameraManager,
-            ILocalDataManager localDataManager,
+            IControllerService controllerService,
+            ISettingsService settingsService,
+            IResultsService resultsService,
+            ICameraService cameraService,
+            ILocalDataService localDataService,
             IApplicationConfiguration appConfig,
             IPartCycleService dispenseProcessService)
         {
-            _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
-            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
-            _resultsManager = resultsManager ?? throw new ArgumentNullException(nameof(resultsManager));
-            _cameraManager = cameraManager ?? throw new ArgumentNullException(nameof(cameraManager));
-            _localDataManager = localDataManager ?? throw new ArgumentNullException(nameof(localDataManager));
+            _controllerService = controllerService ?? throw new ArgumentNullException(nameof(controllerService));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _resultsService = resultsService ?? throw new ArgumentNullException(nameof(resultsService));
+            _cameraService = cameraService ?? throw new ArgumentNullException(nameof(cameraService));
+            _localDataService = localDataService ?? throw new ArgumentNullException(nameof(localDataService));
             _appConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
             _partCycleService = dispenseProcessService ?? throw new ArgumentNullException(nameof(dispenseProcessService));
 
@@ -140,7 +140,7 @@ namespace DDMAutoGUI.ViewModels
         /// no robot command in flight, since robot commands run one-at-a-time and can
         /// take a second or two — we lock the controls until they return.
         /// </summary>
-        public bool IsRobotControlEnabled => IsConnected && !_controllerManager.IsRobotBusy;
+        public bool IsRobotControlEnabled => IsConnected && !_controllerService.IsRobotBusy;
 
         public string ConnectionStatus
         {
@@ -653,11 +653,11 @@ namespace DDMAutoGUI.ViewModels
                 if (!IsConnected)
                     return false;
 
-                float? expHours = _settingsManager.GetAllSettings()?.dispense_system?.calib_exp_hours;
+                float? expHours = _settingsService.GetAllSettings()?.dispense_system?.calib_exp_hours;
                 if (expHours == null)
                     return false;
 
-                DateTime? lastCalib = _localDataManager.GetLocalData()?.calib_data?.last_calib;
+                DateTime? lastCalib = _localDataService.GetLocalData()?.calib_data?.last_calib;
                 if (lastCalib == null)
                     return true;
 
@@ -710,7 +710,7 @@ namespace DDMAutoGUI.ViewModels
                     ipAddress = ControllerIpAddress;
                 }
 
-                bool connected = await _controllerManager.Connect(ipAddress);
+                bool connected = await _controllerService.Connect(ipAddress);
                 IsConnected = connected;
                 ConnectionStatus = connected ? "Connected" : "Connection failed";
             }
@@ -732,7 +732,7 @@ namespace DDMAutoGUI.ViewModels
             try
             {
                 IsProcessing = true;
-                await _controllerManager.Disconnect();
+                await _controllerService.Disconnect();
                 IsConnected = false;
                 ConnectionStatus = "Disconnected";
             }
@@ -843,7 +843,7 @@ namespace DDMAutoGUI.ViewModels
 
         private void ExecuteViewResults(object parameter)
         {
-            string resultsJson = _resultsManager.GetCurrentResultsAsString();
+            string resultsJson = _resultsService.GetCurrentResultsAsString();
             if (!string.IsNullOrEmpty(resultsJson))
             {
                 Debug.Print(resultsJson);
@@ -852,20 +852,20 @@ namespace DDMAutoGUI.ViewModels
 
         private void ExecuteOpenResultsDirectory(object parameter)
         {
-            _resultsManager.OpenBrowserToDirectory();
+            _resultsService.OpenBrowserToDirectory();
         }
 
         private async Task ExecuteAcquireTop(object parameter)
         {
-            await ExecuteAcquireCamera(CameraManager.CellCamera.top, "Top image acquired");
+            await ExecuteAcquireCamera(CameraService.CellCamera.top, "Top image acquired");
         }
 
         private async Task ExecuteAcquireSide(object parameter)
         {
-            await ExecuteAcquireCamera(CameraManager.CellCamera.side, "Side image acquired");
+            await ExecuteAcquireCamera(CameraService.CellCamera.side, "Side image acquired");
         }
 
-        private async Task ExecuteAcquireCamera(CameraManager.CellCamera camera, string successMessage)
+        private async Task ExecuteAcquireCamera(CameraService.CellCamera camera, string successMessage)
         {
             try
             {
@@ -873,7 +873,7 @@ namespace DDMAutoGUI.ViewModels
                 CameraStatus = "Acquiring image...";
                 AcquiredImageSource = null;
 
-                CameraAcquisitionResult result = await _cameraManager.AcquireAndSave(camera, null);
+                CameraAcquisitionResult result = await _cameraService.AcquireAndSave(camera, null);
 
                 if (result.success)
                 {
@@ -906,7 +906,7 @@ namespace DDMAutoGUI.ViewModels
 
         private void ExecuteOpenResultsFolder()
         {
-            _resultsManager.OpenBrowserToDirectory();
+            _resultsService.OpenBrowserToDirectory();
         }
 
         private void ExecuteLockAdvancedTab()
@@ -922,21 +922,21 @@ namespace DDMAutoGUI.ViewModels
 
         private void InitializeEventHandlers()
         {
-            _controllerManager.ControllerConnected += ControllerManager_Connected;
-            _controllerManager.ControllerDisconnected += ControllerManager_Disconnected;
-            _controllerManager.ConnectionLogUpdated += ControllerManager_ConnectionLogUpdated;
-            _controllerManager.StatusLogUpdated += ControllerManager_StatusLogUpdated;
-            _controllerManager.RobotLogUpdated += ControllerManager_RobotLogUpdated;
-            _resultsManager.UpdateProcessLog += ResultsManager_UpdateProcessLog;
-            _controllerManager.ControllerStateChanged += ControllerManager_StateChanged;
+            _controllerService.ControllerConnected += ControllerManager_Connected;
+            _controllerService.ControllerDisconnected += ControllerManager_Disconnected;
+            _controllerService.ConnectionLogUpdated += ControllerManager_ConnectionLogUpdated;
+            _controllerService.StatusLogUpdated += ControllerManager_StatusLogUpdated;
+            _controllerService.RobotLogUpdated += ControllerManager_RobotLogUpdated;
+            _resultsService.UpdateProcessLog += ResultsManager_UpdateProcessLog;
+            _controllerService.ControllerStateChanged += ControllerManager_StateChanged;
 
             // Wire dispense progress reporting to the bound ProcessProgress property.
             // This subscription was lost in the MVVM/DI refactor, which is why the
             // Disp_ProcessPrg bar stopped advancing during a run.
             _partCycleService.ProgressChanged += DispenseProcessService_ProgressChanged;
-            _controllerManager.RobotBusyChanged += ControllerManager_RobotBusyChanged;
+            _controllerService.RobotBusyChanged += ControllerManager_RobotBusyChanged;
 
-            _localDataManager.LocalDataChanged += LocalDataManager_LocalDataChanged;
+            _localDataService.LocalDataChanged += LocalDataManager_LocalDataChanged;
         }
 
         private void ControllerManager_Connected(object sender, EventArgs e)
@@ -944,7 +944,7 @@ namespace DDMAutoGUI.ViewModels
             Application.Current.Dispatcher.Invoke(() =>
             {
                 IsConnected = true;
-                ConnectionStatus = $"Connected ({_controllerManager.CONNECTION_STATE?.connectedIP})";
+                ConnectionStatus = $"Connected ({_controllerService.CONNECTION_STATE?.connectedIP})";
                 CommandManager.InvalidateRequerySuggested();
             });
         }
@@ -963,24 +963,24 @@ namespace DDMAutoGUI.ViewModels
         private void ControllerManager_ConnectionLogUpdated(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
-                ConnectionLog = _controllerManager.GetConnectionLog());
+                ConnectionLog = _controllerService.GetConnectionLog());
         }
 
         private void ControllerManager_StatusLogUpdated(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
-                StatusLog = _controllerManager.GetStatusLog());
+                StatusLog = _controllerService.GetStatusLog());
         }
 
         private void ControllerManager_RobotLogUpdated(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
-                RobotLog = _controllerManager.GetRobotLog());
+                RobotLog = _controllerService.GetRobotLog());
         }
 
         private void ResultsManager_UpdateProcessLog(object sender, EventArgs e)
         {
-            ProcessLog = _resultsManager.GetLogAsString();
+            ProcessLog = _resultsService.GetLogAsString();
         }
 
         private void DispenseProcessService_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -999,7 +999,7 @@ namespace DDMAutoGUI.ViewModels
 
         private void ControllerManager_StateChanged(object sender, EventArgs e)
         {
-            ControllerState state = _controllerManager.CONTROLLER_STATE;
+            ControllerState state = _controllerService.CONTROLLER_STATE;
             if (state == null)
                 return;
 
@@ -1025,7 +1025,7 @@ namespace DDMAutoGUI.ViewModels
                 SafetyErrorState = state.safetyErrorState;
                 IsSimulated = state.isSimulated;
 
-                ReadoutsEnabled = !state.parseError && (_controllerManager.CONNECTION_STATE?.isConnected ?? false);
+                ReadoutsEnabled = !state.parseError && (_controllerService.CONNECTION_STATE?.isConnected ?? false);
             });
         }
 
@@ -1085,7 +1085,7 @@ namespace DDMAutoGUI.ViewModels
 
             ResultMessage = result.Message;
 
-            var data = _resultsManager.currentResults;
+            var data = _resultsService.currentResults;
             ResultToolSerial = string.IsNullOrWhiteSpace(data?.tool_sn_detected) ? "-" : data.tool_sn_detected;
             ResultRingSerial = string.IsNullOrWhiteSpace(data?.ring_sn_detected) ? "-" : data.ring_sn_detected;
 
@@ -1100,7 +1100,7 @@ namespace DDMAutoGUI.ViewModels
             ResultDispenseVolumeOd = data?.shot_data?.od_vol is float odVol ? $"{odFrac:F1}% ({odVol:0.000})" : "-";
 
             // Process step statuses
-            string folder = _resultsManager.currentResultsFolderPath;
+            string folder = _resultsService.currentResultsFolderPath;
             ResultStepTopPhoto = PhotoSavedStatus(folder, "Top");
             ResultStepSidePhoto = PhotoSavedStatus(folder, "Side");
             ResultStepTopPostPhoto = PhotoSavedStatus(folder, "TopPost");
@@ -1175,17 +1175,17 @@ namespace DDMAutoGUI.ViewModels
             if (_disposed)
                 return;
 
-            _controllerManager.ControllerConnected -= ControllerManager_Connected;
-            _controllerManager.ControllerDisconnected -= ControllerManager_Disconnected;
-            _controllerManager.ConnectionLogUpdated -= ControllerManager_ConnectionLogUpdated;
-            _controllerManager.StatusLogUpdated -= ControllerManager_StatusLogUpdated;
-            _controllerManager.RobotLogUpdated -= ControllerManager_RobotLogUpdated;
-            _controllerManager.ControllerStateChanged -= ControllerManager_StateChanged;
-            _resultsManager.UpdateProcessLog -= ResultsManager_UpdateProcessLog;
+            _controllerService.ControllerConnected -= ControllerManager_Connected;
+            _controllerService.ControllerDisconnected -= ControllerManager_Disconnected;
+            _controllerService.ConnectionLogUpdated -= ControllerManager_ConnectionLogUpdated;
+            _controllerService.StatusLogUpdated -= ControllerManager_StatusLogUpdated;
+            _controllerService.RobotLogUpdated -= ControllerManager_RobotLogUpdated;
+            _controllerService.ControllerStateChanged -= ControllerManager_StateChanged;
+            _resultsService.UpdateProcessLog -= ResultsManager_UpdateProcessLog;
             _partCycleService.ProgressChanged -= DispenseProcessService_ProgressChanged;
-            _controllerManager.ControllerStateChanged -= ControllerManager_StateChanged;
-            _controllerManager.RobotBusyChanged -= ControllerManager_RobotBusyChanged;
-            _localDataManager.LocalDataChanged -= LocalDataManager_LocalDataChanged;
+            _controllerService.ControllerStateChanged -= ControllerManager_StateChanged;
+            _controllerService.RobotBusyChanged -= ControllerManager_RobotBusyChanged;
+            _localDataService.LocalDataChanged -= LocalDataManager_LocalDataChanged;
 
             _calibrationWatchTimer?.Stop();
 

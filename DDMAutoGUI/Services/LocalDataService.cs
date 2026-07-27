@@ -51,12 +51,12 @@ namespace DDMAutoGUI.Services
 
     }
 
-    public class LocalDataManager : ILocalDataManager
+    public class LocalDataService : ILocalDataService
     {
         private string localDataFilePath = AppDomain.CurrentDomain.BaseDirectory + "\\LocalData.json";
         private LocalData localData;
 
-        public LocalDataManager()
+        public LocalDataService()
         {
             localData = new LocalData();
             localData = GetLocalDataFromFile(localDataFilePath);
@@ -66,7 +66,7 @@ namespace DDMAutoGUI.Services
             }
             else
             {
-                Debug.Print("Local data manager initialized");
+                Debug.Print("Local data service initialized");
             }
         }
 

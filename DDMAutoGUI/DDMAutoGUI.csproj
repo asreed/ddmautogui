@@ -182,7 +182,7 @@
     <Content Include="Resources\logos\brooks-logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Services\Vision\process_images.py">
+    <Content Include="Vision\process_images.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

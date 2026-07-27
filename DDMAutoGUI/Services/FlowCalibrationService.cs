@@ -20,27 +20,27 @@ namespace DDMAutoGUI.Services
         public float sf2 { get; set; }
     }
 
-    public class FlowCalibrationManager : IFlowCalibrationManager
+    public class FlowCalibrationService : IFlowCalibrationService
     {
         private readonly IApplicationConfiguration _applicationConfiguration;
-        private readonly ISettingsManager _settingsManager;
-        private readonly IControllerManager _controllerManager;
-        private readonly ILocalDataManager _localDataManager;
+        private readonly ISettingsService _settingsService;
+        private readonly IControllerService _controllerService;
+        private readonly ILocalDataService _localDataService;
         private readonly IDispenseExecutionService _dispenseExecution;
 
         private static readonly Action<string> DebugLog = s => Debug.Print(s);
 
-        public FlowCalibrationManager(
+        public FlowCalibrationService(
             IApplicationConfiguration applicationConfiguration,
-            ISettingsManager settingsManager,
-            IControllerManager controllerManager,
-            ILocalDataManager localDataManager,
+            ISettingsService settingsService,
+            IControllerService controllerService,
+            ILocalDataService localDataService,
             IDispenseExecutionService dispenseExecution)
         {
             _applicationConfiguration = applicationConfiguration;
-            _settingsManager = settingsManager;
-            _controllerManager = controllerManager;
-            _localDataManager = localDataManager;
+            _settingsService = settingsService;
+            _controllerService = controllerService;
+            _localDataService = localDataService;
             _dispenseExecution = dispenseExecution;
         }
 
@@ -48,31 +48,21 @@ namespace DDMAutoGUI.Services
             CellSettings settings, LocalData localData, string motorName)
         {
             var result = new RunCalibResult { success = false, message = "" };
-            if (_applicationConfiguration.IsSimulationMode) {
-                await Task.Delay(1000); // simulate time delay
-                result.success = true;
-                result.time = DateTime.Now;
-                result.motorName = motorName;
-                result.sf1 = 0.99f;
-                result.sf2 = 1.02f;
-                result.message = "Success (!) SIMULATED (!)";
-                return result;
-            }
 
             try
             {
-                CSMotor motorSettings = _settingsManager.GetMotorSettingsFromName(motorName);
+                CSMotor motorSettings = _settingsService.GetMotorSettingsFromName(motorName);
 
                 await _dispenseExecution.EnablePowerAndHomeAsync(DebugLog);
 
-                await _controllerManager.MoveJ(settings.ddm_common.load.x.Value, settings.ddm_common.load.t.Value);
+                await _controllerService.MoveJ(settings.ddm_common.load.x.Value, settings.ddm_common.load.t.Value);
 
-                LDMotorCalib oldCalib = _localDataManager.GetCalibFromMotorName(localData, motorName);
+                LDMotorCalib oldCalib = _localDataService.GetCalibFromMotorName(localData, motorName);
                 await _dispenseExecution.SetupPressuresAsync(settings, oldCalib, DebugLog);
 
                 ResultsShotData shotData = await _dispenseExecution.DispenseToRingAsync(settings, motorSettings, motorName, DebugLog);
 
-                await _controllerManager.MoveJ(settings.ddm_common.load.x.Value, settings.ddm_common.load.t.Value);
+                await _controllerService.MoveJ(settings.ddm_common.load.x.Value, settings.ddm_common.load.t.Value);
 
                 // calibration-only policy
                 CalculateNewScaleFactors(shotData, settings, localData, out bool ok, out string msg, out float sf1, out float sf2);
@@ -100,13 +90,13 @@ namespace DDMAutoGUI.Services
         {
             // Set pressures based on current calib
             string response = string.Empty;
-            LDMotorCalib calib = _localDataManager.GetCalibFromMotorName(localData, motorName);
+            LDMotorCalib calib = _localDataService.GetCalibFromMotorName(localData, motorName);
             float? oldPressure1 = calib.sys_1_pressure;
             float? oldPressure2 = calib.sys_2_pressure;
             if (oldPressure1 != null)
             {
                 Debug.Print($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {oldPressure1.Value:F3} psi");
-                response = await _controllerManager.SetRegPressure(1, oldPressure1.Value);
+                response = await _controllerService.SetRegPressure(1, oldPressure1.Value);
             }
             else
             {
@@ -115,14 +105,14 @@ namespace DDMAutoGUI.Services
             if (oldPressure2 != null)
             {
                 Debug.Print($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {oldPressure2.Value:F3} psi");
-                response = await _controllerManager.SetRegPressure(2, oldPressure2.Value);
+                response = await _controllerService.SetRegPressure(2, oldPressure2.Value);
             }
             else
             {
                 Debug.Print($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
             }
             Debug.Print("Waiting for pressures to settle...");
-            response = await _controllerManager.WaitBothRegPressures(10);
+            response = await _controllerService.WaitBothRegPressures(10);
             await Task.Delay(1000);
             Debug.Print("Pressures settled");
             Debug.Print("Pressures set");
@@ -282,7 +272,7 @@ namespace DDMAutoGUI.Services
 
         public void GenerateAndSaveCalibration(RunCalibResult result)
         {
-            LocalData newLocalData = _localDataManager.GetLocalData();
+            LocalData newLocalData = _localDataService.GetLocalData();
 
             newLocalData.calib_data.last_size = result.motorName;
             newLocalData.calib_data.last_calib = result.time;
@@ -311,8 +301,8 @@ namespace DDMAutoGUI.Services
                     break;
             }
 
-            _localDataManager.SetLocalData(newLocalData);
-            _localDataManager.SaveLocalDataToFile();
+            _localDataService.SetLocalData(newLocalData);
+            _localDataService.SaveLocalDataToFile();
         }
     }
 }

@@ -126,13 +126,13 @@ namespace DDMAutoGUI.Services
         public float? sys_2_pressure { get; set; }
     }
 
-    public class SettingsManager : ISettingsManager
+    public class SettingsService : ISettingsService
     {
         private string settingsFTPPath = "/flash/ddm_cell/Settings.json";
         private string settingsLocalName = "Settings.json";
         private string defaultSettingsPath = AppDomain.CurrentDomain.BaseDirectory + "_reference\\DefaultSettings.json";
 
-        private readonly IControllerManager _controllerManager;
+        private readonly IControllerService _controllerService;
         private readonly IApplicationConfiguration _applicationConfiguration;
 
         public enum DDMSize
@@ -155,28 +155,28 @@ namespace DDMAutoGUI.Services
 
         private CellSettings currentSettings = new CellSettings();
 
-        public SettingsManager(
+        public SettingsService(
             IApplicationConfiguration applicationConfiguration,
-            IControllerManager controllerManager)
+            IControllerService controllerService)
         {
             _applicationConfiguration = applicationConfiguration ?? throw new ArgumentNullException(nameof(applicationConfiguration));
-            _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
+            _controllerService = controllerService ?? throw new ArgumentNullException(nameof(controllerService));
 
-            _controllerManager.ControllerConnected += SettingsManager_OnConnected;
-            _controllerManager.ControllerDisconnected += SettingsManager_OnDisconnected;
+            _controllerService.ControllerConnected += SettingsService_OnConnected;
+            _controllerService.ControllerDisconnected += SettingsService_OnDisconnected;
 
-            Debug.Print("Settings manager initialized");
+            Debug.Print("Settings service initialized");
         }
 
-        public async void SettingsManager_OnConnected(object sender, EventArgs e)
+        public async void SettingsService_OnConnected(object sender, EventArgs e)
         {
-            Debug.Print("Settings manager detected controller connected");
+            Debug.Print("Settings service detected controller connected");
             currentSettings = ReadSettingsFromController();
         }
 
-        public void SettingsManager_OnDisconnected(object sender, EventArgs e)
+        public void SettingsService_OnDisconnected(object sender, EventArgs e)
         {
-            Debug.Print("Settings manager detected controller disconnected");
+            Debug.Print("Settings service detected controller disconnected");
             currentSettings = null;
         }
 
@@ -289,7 +289,7 @@ namespace DDMAutoGUI.Services
         private CellSettings ReadSettingsFromController()
         {
             string rawJson = "";
-            if (!_controllerManager.CONNECTION_STATE.isConnected)
+            if (!_controllerService.CONNECTION_STATE.isConnected)
             {
                 Debug.Print("Settings file could not be read because no controller is connected");
                 return null;
@@ -307,7 +307,7 @@ namespace DDMAutoGUI.Services
 
             try
             {
-                string ip = _controllerManager.CONNECTION_STATE.connectedIP;
+                string ip = _controllerService.CONNECTION_STATE.connectedIP;
                 FtpWebRequest request = WebRequest.Create("ftp://" + ip + "/" + settingsFTPPath) as FtpWebRequest;
                 request.Method = WebRequestMethods.Ftp.DownloadFile;
 
@@ -348,7 +348,7 @@ namespace DDMAutoGUI.Services
 
         public void SaveSettingsToController(CellSettings settings)
         {
-            if (!_controllerManager.CONNECTION_STATE.isConnected)
+            if (!_controllerService.CONNECTION_STATE.isConnected)
             {
                 Debug.Print("Settings file could not be saved because no controller is connected");
                 return;
@@ -359,7 +359,7 @@ namespace DDMAutoGUI.Services
 
             try
             {
-                string ip = _controllerManager.CONNECTION_STATE.connectedIP;
+                string ip = _controllerService.CONNECTION_STATE.connectedIP;
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + ip + "/" + settingsFTPPath);
                 request.Method = WebRequestMethods.Ftp.UploadFile;
 

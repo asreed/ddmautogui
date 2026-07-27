@@ -12,17 +12,17 @@ namespace DDMAutoGUI.CustomWindows
     /// </summary>
     public partial class CalibFlowPanel : UserControl
     {
-        private readonly ILocalDataManager _localDataManager;
+        private readonly ILocalDataService _localDataManager;
 
         public CalibFlowPanel()
         {
             InitializeComponent();
 
             // Resolve services from DI container when instantiated via XAML
-            _localDataManager = App.Services?.GetService<ILocalDataManager>();
+            _localDataManager = App.Services?.GetService<ILocalDataService>();
         }
 
-        public CalibFlowPanel(ILocalDataManager localDataManager) : this()
+        public CalibFlowPanel(ILocalDataService localDataManager) : this()
         {
             _localDataManager = localDataManager ?? throw new ArgumentNullException(nameof(localDataManager));
         }

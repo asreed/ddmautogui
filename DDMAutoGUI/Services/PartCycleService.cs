@@ -1,4 +1,5 @@
 using DDMAutoGUI.Utilities;
+using DDMAutoGUI.Vision;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,12 +16,12 @@ namespace DDMAutoGUI.Services
     /// </summary>
     public class PartCycleService : IPartCycleService
     {
-        private readonly IControllerManager _controllerManager;
-        private readonly ISettingsManager _settingsManager;
-        private readonly IResultsManager _resultsManager;
-        private readonly ICameraManager _cameraManager;
-        private readonly ILocalDataManager _localDataManager;
-        private readonly IFlowCalibrationManager _flowCalibrationManager;
+        private readonly IControllerService _controllerManager;
+        private readonly ISettingsService _settingsManager;
+        private readonly IResultsService _resultsManager;
+        private readonly ICameraService _cameraManager;
+        private readonly ILocalDataService _localDataManager;
+        private readonly IFlowCalibrationService _flowCalibrationManager;
         private readonly IDispenseExecutionService _dispenseExecution;
 
         // Progress tracking
@@ -31,12 +32,12 @@ namespace DDMAutoGUI.Services
         private const string LOG_DOUBLE_INDENT = "    ";
 
         public PartCycleService(
-            IControllerManager controllerManager,
-            ISettingsManager settingsManager,
-            IResultsManager resultsManager,
-            ICameraManager cameraManager,
-            ILocalDataManager localDataManager,
-            IFlowCalibrationManager flowCalibrationManager,
+            IControllerService controllerManager,
+            ISettingsService settingsManager,
+            IResultsService resultsManager,
+            ICameraService cameraManager,
+            ILocalDataService localDataManager,
+            IFlowCalibrationService flowCalibrationManager,
             IDispenseExecutionService dispenseExecution)
         {
             _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
@@ -280,7 +281,7 @@ namespace DDMAutoGUI.Services
             float t = settings.ddm_common.camera_top.t.Value;
             await _controllerManager.MoveJ(x, t);
 
-            var camResult = await _cameraManager.AcquireAndSave(CameraManager.CellCamera.top, null);
+            var camResult = await _cameraManager.AcquireAndSave(CameraService.CellCamera.top, null);
 
             if (!camResult.success)
             {
@@ -303,7 +304,7 @@ namespace DDMAutoGUI.Services
             float t = motor.camera_side.t.Value;
             await _controllerManager.MoveJ(x, t);
 
-            var camResult = await _cameraManager.AcquireAndSave(CameraManager.CellCamera.side, null);
+            var camResult = await _cameraManager.AcquireAndSave(CameraService.CellCamera.side, null);
 
             if (!camResult.success)
             {
@@ -322,7 +323,7 @@ namespace DDMAutoGUI.Services
         private async Task ExecuteOCRProcessingAsync(string resultsPath, string motorName)
         {
             _resultsManager.AddToLog("Processing images...");
-            OCRData? ocrData = await OCRManager.RunOCRAsync(resultsPath);
+            OCRData? ocrData = await OCRProcessor.RunOCRAsync(resultsPath);
             
             if (ocrData == null)
             {

@@ -6,12 +6,12 @@ namespace DDMAutoGUI.Services
     /// Interface for the settings manager service.
     /// Handles loading, saving, and managing cell settings.
     /// </summary>
-    public interface ISettingsManager
+    public interface ISettingsService
     {
         /// <summary>
         /// Gets or sets the DDM size enum value for selecting which motor settings to use.
         /// </summary>
-        SettingsManager.DDMSize SelectedSize { get; set; }
+        SettingsService.DDMSize SelectedSize { get; set; }
 
         /// <summary>
         /// Retrieves all current cell settings.
