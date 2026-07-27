@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DDMAutoGUI.Services
 {
@@ -22,7 +16,6 @@ namespace DDMAutoGUI.Services
 
     public class FlowCalibrationService : IFlowCalibrationService
     {
-        private readonly IApplicationConfiguration _applicationConfiguration;
         private readonly ISettingsService _settingsService;
         private readonly IControllerService _controllerService;
         private readonly ILocalDataService _localDataService;
@@ -31,13 +24,11 @@ namespace DDMAutoGUI.Services
         private static readonly Action<string> DebugLog = s => Debug.Print(s);
 
         public FlowCalibrationService(
-            IApplicationConfiguration applicationConfiguration,
             ISettingsService settingsService,
             IControllerService controllerService,
             ILocalDataService localDataService,
             IDispenseExecutionService dispenseExecution)
         {
-            _applicationConfiguration = applicationConfiguration;
             _settingsService = settingsService;
             _controllerService = controllerService;
             _localDataService = localDataService;
@@ -131,11 +122,6 @@ namespace DDMAutoGUI.Services
             /// Takes cell settings data, compares to the latest shot data, and
             /// estimates pressure adjustments required to improve shot volume accuracy for the next
             /// run. Neither saves nor validates calibration.
-            ///
-            /// DOES NOT RUN THE ROBOT AROUND.
-            ///
-            /// DOES NOT SAVE TO FILE.
-            ///
             /// </summary>
 
             success = false;

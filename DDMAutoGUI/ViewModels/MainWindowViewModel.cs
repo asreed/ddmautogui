@@ -684,7 +684,7 @@ namespace DDMAutoGUI.ViewModels
         {
             ConnectCommand = new AsyncRelayCommand<string>(ExecuteConnect, parameter => CanConnect(parameter));
             DisconnectCommand = new AsyncRelayCommand(ExecuteDisconnect, parameter => CanDisconnect(parameter));
-            StartDispenseCommand = new AsyncRelayCommand(ExecuteStartDispense, parameter => CanStartDispense(parameter));
+            StartDispenseCommand = new AsyncRelayCommand(ExecutePartCycle, parameter => CanStartDispense(parameter));
             CancelDispenseCommand = new RelayCommand(ExecuteCancelDispense, parameter => CanCancelDispense(parameter));
             ViewResultsCommand = new RelayCommand(ExecuteViewResults);
             OpenResultsDirectoryCommand = new RelayCommand(ExecuteOpenResultsDirectory);
@@ -750,17 +750,14 @@ namespace DDMAutoGUI.ViewModels
         private bool CanDisconnect(object parameter) 
             => IsConnected && !IsProcessing;
 
-        private async Task ExecuteStartDispense(object parameter)
+        private async Task ExecutePartCycle(object parameter)
         {
             try
             {
                 IsProcessing = true;
                 IsDispenseProcessRunning = true;
                 ProcessProgress = 0;
-                CurrentStep = "Starting dispense process...";
-                ProcessLog = "";
-
-                ProcessLog += $"=== PROCESS STARTED ===\n";
+                CurrentStep = "Starting part cycle process...";
 
                 // Bring the operator to the live progress/log view as the run begins.
                 SelectedDispenseTabIndex = MonitorProcessTabIndex;
@@ -771,20 +768,20 @@ namespace DDMAutoGUI.ViewModels
                     MotorSerialNumber,
                     _appConfig.AdvancedOptions);
 
-                if (result.Success)
-                {
-                    if (result.Pass) {
-                        ProcessLog += $"\n\n=== PROCESS PASSED ===\n";
-                    }
-                    else
-                    {
-                        ProcessLog += $"\n\n=== PROCESS FAILED ===\n";
-                    }
-                }
-                else
-                {
-                    ProcessLog += $"\n\n=== PROCESS INCOMPLETE ===\n";
-                }
+                //if (result.Success)
+                //{
+                //    if (result.Pass) {
+                //        //
+                //    }
+                //    else
+                //    {
+                //        //
+                //    }
+                //}
+                //else
+                //{
+                //    //
+                //}
 
                 // Fill the Review Results tab and bring the operator to it, regardless of
                 // outcome, so pass/fail/incomplete is always visible.
@@ -793,7 +790,6 @@ namespace DDMAutoGUI.ViewModels
             }
             catch (Exception ex)
             {
-                ProcessLog += $"\n\nUnexpected error: {ex.Message}";
                 Debug.Print($"Dispense process error: {ex}");
             }
             finally
@@ -835,7 +831,7 @@ namespace DDMAutoGUI.ViewModels
         {
             IsProcessing = false;
             IsDispenseProcessRunning = false;
-            ProcessLog += "\n\n=== PROCESS CANCELLED BY USER ===";
+            ProcessLog += "\n\n=== PART CYCLE CANCELLED BY USER ===";
         }
 
         private bool CanCancelDispense(object parameter) 
@@ -922,24 +918,24 @@ namespace DDMAutoGUI.ViewModels
 
         private void InitializeEventHandlers()
         {
-            _controllerService.ControllerConnected += ControllerManager_Connected;
-            _controllerService.ControllerDisconnected += ControllerManager_Disconnected;
-            _controllerService.ConnectionLogUpdated += ControllerManager_ConnectionLogUpdated;
-            _controllerService.StatusLogUpdated += ControllerManager_StatusLogUpdated;
-            _controllerService.RobotLogUpdated += ControllerManager_RobotLogUpdated;
-            _resultsService.UpdateProcessLog += ResultsManager_UpdateProcessLog;
-            _controllerService.ControllerStateChanged += ControllerManager_StateChanged;
+            _controllerService.ControllerConnected += ControllerService_Connected;
+            _controllerService.ControllerDisconnected += ControllerService_Disconnected;
+            _controllerService.ConnectionLogUpdated += ControllerService_ConnectionLogUpdated;
+            _controllerService.StatusLogUpdated += ControllerService_StatusLogUpdated;
+            _controllerService.RobotLogUpdated += ControllerService_RobotLogUpdated;
+            _resultsService.UpdateProcessLog += ResultsService_UpdateProcessLog;
+            _controllerService.ControllerStateChanged += ControllerService_StateChanged;
 
             // Wire dispense progress reporting to the bound ProcessProgress property.
             // This subscription was lost in the MVVM/DI refactor, which is why the
             // Disp_ProcessPrg bar stopped advancing during a run.
             _partCycleService.ProgressChanged += DispenseProcessService_ProgressChanged;
-            _controllerService.RobotBusyChanged += ControllerManager_RobotBusyChanged;
+            _controllerService.RobotBusyChanged += ControllerService_RobotBusyChanged;
 
-            _localDataService.LocalDataChanged += LocalDataManager_LocalDataChanged;
+            _localDataService.LocalDataChanged += LocalDataService_LocalDataChanged;
         }
 
-        private void ControllerManager_Connected(object sender, EventArgs e)
+        private void ControllerService_Connected(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -949,7 +945,7 @@ namespace DDMAutoGUI.ViewModels
             });
         }
 
-        private void ControllerManager_Disconnected(object sender, EventArgs e)
+        private void ControllerService_Disconnected(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -960,25 +956,25 @@ namespace DDMAutoGUI.ViewModels
             });
         }
 
-        private void ControllerManager_ConnectionLogUpdated(object sender, EventArgs e)
+        private void ControllerService_ConnectionLogUpdated(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
                 ConnectionLog = _controllerService.GetConnectionLog());
         }
 
-        private void ControllerManager_StatusLogUpdated(object sender, EventArgs e)
+        private void ControllerService_StatusLogUpdated(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
                 StatusLog = _controllerService.GetStatusLog());
         }
 
-        private void ControllerManager_RobotLogUpdated(object sender, EventArgs e)
+        private void ControllerService_RobotLogUpdated(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
                 RobotLog = _controllerService.GetRobotLog());
         }
 
-        private void ResultsManager_UpdateProcessLog(object sender, EventArgs e)
+        private void ResultsService_UpdateProcessLog(object sender, EventArgs e)
         {
             ProcessLog = _resultsService.GetLogAsString();
         }
@@ -997,7 +993,7 @@ namespace DDMAutoGUI.ViewModels
             });
         }
 
-        private void ControllerManager_StateChanged(object sender, EventArgs e)
+        private void ControllerService_StateChanged(object sender, EventArgs e)
         {
             ControllerState state = _controllerService.CONTROLLER_STATE;
             if (state == null)
@@ -1029,7 +1025,7 @@ namespace DDMAutoGUI.ViewModels
             });
         }
 
-        private void ControllerManager_RobotBusyChanged(object sender, EventArgs e)
+        private void ControllerService_RobotBusyChanged(object sender, EventArgs e)
         {
             // Raised on the UI thread from SendRobotCommand; marshal defensively in case a
             // future caller offloads robot I/O the way Connect() does for the camera/FTP work.
@@ -1040,7 +1036,7 @@ namespace DDMAutoGUI.ViewModels
             });
         }
 
-        private void LocalDataManager_LocalDataChanged(object sender, EventArgs e)
+        private void LocalDataService_LocalDataChanged(object sender, EventArgs e)
         {
             // last_calib is rewritten here when a flow calibration completes (from the
             // Calibrate tab, outside this ViewModel). Marshal to the UI thread and refresh
@@ -1175,17 +1171,17 @@ namespace DDMAutoGUI.ViewModels
             if (_disposed)
                 return;
 
-            _controllerService.ControllerConnected -= ControllerManager_Connected;
-            _controllerService.ControllerDisconnected -= ControllerManager_Disconnected;
-            _controllerService.ConnectionLogUpdated -= ControllerManager_ConnectionLogUpdated;
-            _controllerService.StatusLogUpdated -= ControllerManager_StatusLogUpdated;
-            _controllerService.RobotLogUpdated -= ControllerManager_RobotLogUpdated;
-            _controllerService.ControllerStateChanged -= ControllerManager_StateChanged;
-            _resultsService.UpdateProcessLog -= ResultsManager_UpdateProcessLog;
+            _controllerService.ControllerConnected -= ControllerService_Connected;
+            _controllerService.ControllerDisconnected -= ControllerService_Disconnected;
+            _controllerService.ConnectionLogUpdated -= ControllerService_ConnectionLogUpdated;
+            _controllerService.StatusLogUpdated -= ControllerService_StatusLogUpdated;
+            _controllerService.RobotLogUpdated -= ControllerService_RobotLogUpdated;
+            _controllerService.ControllerStateChanged -= ControllerService_StateChanged;
+            _resultsService.UpdateProcessLog -= ResultsService_UpdateProcessLog;
             _partCycleService.ProgressChanged -= DispenseProcessService_ProgressChanged;
-            _controllerService.ControllerStateChanged -= ControllerManager_StateChanged;
-            _controllerService.RobotBusyChanged -= ControllerManager_RobotBusyChanged;
-            _localDataService.LocalDataChanged -= LocalDataManager_LocalDataChanged;
+            _controllerService.ControllerStateChanged -= ControllerService_StateChanged;
+            _controllerService.RobotBusyChanged -= ControllerService_RobotBusyChanged;
+            _localDataService.LocalDataChanged -= LocalDataService_LocalDataChanged;
 
             _calibrationWatchTimer?.Stop();
 

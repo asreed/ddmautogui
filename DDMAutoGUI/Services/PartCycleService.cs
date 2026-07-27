@@ -1,11 +1,7 @@
 using DDMAutoGUI.Utilities;
 using DDMAutoGUI.Vision;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DDMAutoGUI.Services
 {
@@ -16,13 +12,13 @@ namespace DDMAutoGUI.Services
     /// </summary>
     public class PartCycleService : IPartCycleService
     {
-        private readonly IControllerService _controllerManager;
-        private readonly ISettingsService _settingsManager;
-        private readonly IResultsService _resultsManager;
-        private readonly ICameraService _cameraManager;
-        private readonly ILocalDataService _localDataManager;
-        private readonly IFlowCalibrationService _flowCalibrationManager;
-        private readonly IDispenseExecutionService _dispenseExecution;
+        private readonly IControllerService _controllerService;
+        private readonly ISettingsService _settingsService;
+        private readonly IResultsService _resultsService;
+        private readonly ICameraService _cameraService;
+        private readonly ILocalDataService _localDataService;
+        private readonly IFlowCalibrationService _flowCalibrationService;
+        private readonly IDispenseExecutionService _dispenseExecutionService;
 
         // Progress tracking
         public event EventHandler<ProgressChangedEventArgs> ProgressChanged;
@@ -32,21 +28,21 @@ namespace DDMAutoGUI.Services
         private const string LOG_DOUBLE_INDENT = "    ";
 
         public PartCycleService(
-            IControllerService controllerManager,
-            ISettingsService settingsManager,
-            IResultsService resultsManager,
-            ICameraService cameraManager,
-            ILocalDataService localDataManager,
-            IFlowCalibrationService flowCalibrationManager,
-            IDispenseExecutionService dispenseExecution)
+            IControllerService controllerService,
+            ISettingsService settingsService,
+            IResultsService resultsService,
+            ICameraService cameraService,
+            ILocalDataService localDataService,
+            IFlowCalibrationService flowCalibrationService,
+            IDispenseExecutionService dispenseExecutionService)
         {
-            _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
-            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
-            _resultsManager = resultsManager ?? throw new ArgumentNullException(nameof(resultsManager));
-            _cameraManager = cameraManager ?? throw new ArgumentNullException(nameof(cameraManager));
-            _localDataManager = localDataManager ?? throw new ArgumentNullException(nameof(localDataManager));
-            _flowCalibrationManager = flowCalibrationManager ?? throw new ArgumentNullException(nameof(flowCalibrationManager));
-            _dispenseExecution = dispenseExecution ?? throw new ArgumentNullException(nameof(dispenseExecution));
+            _controllerService = controllerService ?? throw new ArgumentNullException(nameof(controllerService));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _resultsService = resultsService ?? throw new ArgumentNullException(nameof(resultsService));
+            _cameraService = cameraService ?? throw new ArgumentNullException(nameof(cameraService));
+            _localDataService = localDataService ?? throw new ArgumentNullException(nameof(localDataService));
+            _flowCalibrationService = flowCalibrationService ?? throw new ArgumentNullException(nameof(flowCalibrationService));
+            _dispenseExecutionService = dispenseExecutionService ?? throw new ArgumentNullException(nameof(dispenseExecutionService));
         }
 
         /// <summary>
@@ -65,15 +61,15 @@ namespace DDMAutoGUI.Services
             try
             {
                 // Initialize process
-                _resultsManager.ClearCurrentResults();
-                _resultsManager.CreateNewResults();
-                resultsPath = _resultsManager.CreateResultsFolder();
+                _resultsService.ClearCurrentResults();
+                _resultsService.CreateNewResults();
+                resultsPath = _resultsService.CreateResultsFolder();
 
                 ReportProgress(0, "Initializing");
-                _resultsManager.AddToLog($"Dispense process started for motor {motorName}");
+                _resultsService.AddToLog($"Dispense process started for motor {motorName}");
 
                 // Get settings and motor configuration
-                settings = _settingsManager.GetAllSettings();
+                settings = _settingsService.GetAllSettings();
                 CSMotor motor = GetMotorSettingsByName(settings, motorName);
 
                 if (motor == null)
@@ -82,7 +78,7 @@ namespace DDMAutoGUI.Services
                 }
 
                 // Store user input
-                _resultsManager.currentResults.ring_sn_detected = ringSerialNumber?.Trim() ?? string.Empty;
+                _resultsService.currentResults.ring_sn_detected = ringSerialNumber?.Trim() ?? string.Empty;
 
                 // Step 1: System Health Check
                 //if (advancedOptions.DispenseOptions.CheckHealth)
@@ -129,18 +125,18 @@ namespace DDMAutoGUI.Services
                     ReportProgress(40, "OCR processed");
                 }
 
-                // Step 8: Check Magnet Polarity
-                if (advancedOptions.PartCycleOptions.CheckPolarity)
-                {
-                    await ExecutePolarityCheckAsync(settings, motor, motorName);
-                    ReportProgress(50, "Magnet polarity checked");
-                }
-
-                // Step 9: Measure Heights
+                // Step 8: Measure Heights
                 if (advancedOptions.PartCycleOptions.MeasureHeights)
                 {
                     await ExecuteHeightMeasurementsAsync(settings, motor);
-                    ReportProgress(60, "Heights measured");
+                    ReportProgress(50, "Heights measured");
+                }
+
+                // Step 9: Check Magnet Polarity
+                if (advancedOptions.PartCycleOptions.CheckPolarity)
+                {
+                    await ExecutePolarityCheckAsync(settings, motor, motorName);
+                    ReportProgress(60, "Magnet polarity checked");
                 }
 
                 // Step 10: Perform Dispense
@@ -170,16 +166,16 @@ namespace DDMAutoGUI.Services
                 ReportProgress(95, "Moving to unload");
 
                 // Determine Pass/Fail
-                _resultsManager.DeterminePassFail(
-                    _resultsManager.currentResults,
+                _resultsService.DeterminePassFail(
+                    _resultsService.currentResults,
                     settings,
                     motor,
                     out bool pass,
                     out string message);
 
-                _resultsManager.currentResults.overall_part_cycle_result = pass;
-                _resultsManager.currentResults.overall_part_cycle_message = message;
-                _resultsManager.AddToLog("Process complete");
+                _resultsService.currentResults.overall_part_cycle_result = pass;
+                _resultsService.currentResults.overall_part_cycle_message = message;
+                _resultsService.AddToLog("Process complete");
                 ReportProgress(100, "Finishing up");
 
                 result.Success = true;
@@ -192,7 +188,7 @@ namespace DDMAutoGUI.Services
 
                 result.Success = false;
                 result.Message = ex.Message;
-                _resultsManager.AddToLog($"Process failed: {ex.Message}");
+                _resultsService.AddToLog($"Process failed: {ex.Message}");
 
                 try
                 {
@@ -200,7 +196,7 @@ namespace DDMAutoGUI.Services
                 }
                 catch (Exception unloadEx)
                 {
-                    _resultsManager.AddToLog($"Failed to move to unload position: {unloadEx.Message}");
+                    _resultsService.AddToLog($"Failed to move to unload position: {unloadEx.Message}");
                 }
 
 
@@ -210,7 +206,7 @@ namespace DDMAutoGUI.Services
             {
                 result.Success = false;
                 result.Message = $"Unexpected error: {ex.Message}";
-                _resultsManager.AddToLog($"Process failed: {ex.Message}");
+                _resultsService.AddToLog($"Process failed: {ex.Message}");
                 Debug.Print($"Dispense error: {ex}");
             }
 
@@ -225,63 +221,63 @@ namespace DDMAutoGUI.Services
 
         private async Task ExecuteHealthCheckAsync()
         {
-            _resultsManager.AddToLog("Checking system health...");
-            var healthResult = await _controllerManager.CheckSystemHealth();
+            _resultsService.AddToLog("Checking system health...");
+            var healthResult = await _controllerService.CheckSystemHealth();
             if (!healthResult.isHealthy)
             {
-                _resultsManager.AddToLog("Issues found:");
+                _resultsService.AddToLog("Issues found:");
                 foreach (string issue in healthResult.issues)
                 {
-                    _resultsManager.AddToLog($"{LOG_INDENT}{issue}");
+                    _resultsService.AddToLog($"{LOG_INDENT}{issue}");
                 }
                 throw new PartCycleException("System health check failed");
             }
 
-            await _controllerManager.ActuateHallUp();
-            await _controllerManager.SetZeroShift(3);
-            await _controllerManager.WaitBothRegPressures(5);
-            _resultsManager.AddToLog("System OK");
+            await _controllerService.ActuateHallUp();
+            await _controllerService.SetZeroShift(3);
+            await _controllerService.WaitBothRegPressures(5);
+            _resultsService.AddToLog("System OK");
         }
 
         private async Task ExecutePowerAndHomeAsync()
-            => await _dispenseExecution.EnablePowerAndHomeAsync(_resultsManager.AddToLog);
+            => await _dispenseExecutionService.EnablePowerAndHomeAsync(_resultsService.AddToLog);
 
         private async Task ExecuteClearanceCheckAsync(CellSettings settings)
         {
-            _resultsManager.AddToLog("Checking clearance on center screw...");
+            _resultsService.AddToLog("Checking clearance on center screw...");
             float x = settings.ddm_common.clearance_check.x.Value;
             float t = settings.ddm_common.clearance_check.t.Value;
-            await _controllerManager.MoveJ(x, t);
+            await _controllerService.MoveJ(x, t);
 
-            string response = await _controllerManager.MeasureHeightSingle();
+            string response = await _controllerService.MeasureHeightSingle();
             float height = float.Parse(response.Split(" ")[1]);
             float min = settings.clearance_check_min.Value;
             float max = settings.clearance_check_max.Value;
 
             if (height > max || height < min)
             {
-                _resultsManager.AddToLog($"Clearance check failed: measured height {height} um outside of range ({min} - {max} um)");
+                _resultsService.AddToLog($"Clearance check failed: measured height {height} um outside of range ({min} - {max} um)");
                 throw new PartCycleException("Clearance check failed");
             }
 
-            _resultsManager.AddToLog($"Clearance check passed: {height} um within range ({min} - {max} um)");
+            _resultsService.AddToLog($"Clearance check passed: {height} um within range ({min} - {max} um)");
         }
 
         private async Task ExecuteDispenseSetupAsync(CellSettings settings, string motorName)
         {
-            _resultsManager.AddToLog($"Setting dispense system pressures for {motorName}...");
-            LDMotorCalib calib = _localDataManager.GetCalibFromMotorName(motorName);
-            await _dispenseExecution.SetupPressuresAsync(settings, calib, _resultsManager.AddToLog);
+            _resultsService.AddToLog($"Setting dispense system pressures for {motorName}...");
+            LDMotorCalib calib = _localDataService.GetCalibFromMotorName(motorName);
+            await _dispenseExecutionService.SetupPressuresAsync(settings, calib, _resultsService.AddToLog);
         }
 
         private async Task<string> ExecuteTopPhotoAcquisitionAsync(CellSettings settings, string resultFileName)
         {
-            _resultsManager.AddToLog("Acquiring top photo...");
+            _resultsService.AddToLog("Acquiring top photo...");
             float x = settings.ddm_common.camera_top.x.Value;
             float t = settings.ddm_common.camera_top.t.Value;
-            await _controllerManager.MoveJ(x, t);
+            await _controllerService.MoveJ(x, t);
 
-            var camResult = await _cameraManager.AcquireAndSave(CameraService.CellCamera.top, null);
+            var camResult = await _cameraService.AcquireAndSave(CameraService.CellCamera.top, null);
 
             if (!camResult.success)
             {
@@ -290,21 +286,21 @@ namespace DDMAutoGUI.Services
 
             if (!string.IsNullOrEmpty(camResult.filePath))
             {
-                _resultsManager.CopyPhotoToResultsFolder(camResult.filePath, resultFileName);
+                _resultsService.CopyPhotoToResultsFolder(camResult.filePath, resultFileName);
             }
 
-            _resultsManager.AddToLog("Top photo acquired");
+            _resultsService.AddToLog("Top photo acquired");
             return camResult.filePath;
         }
 
         private async Task<string> ExecuteSidePhotoAcquisitionAsync(CSMotor motor)
         {
-            _resultsManager.AddToLog("Acquiring side photo...");
+            _resultsService.AddToLog("Acquiring side photo...");
             float x = motor.camera_side.x.Value;
             float t = motor.camera_side.t.Value;
-            await _controllerManager.MoveJ(x, t);
+            await _controllerService.MoveJ(x, t);
 
-            var camResult = await _cameraManager.AcquireAndSave(CameraService.CellCamera.side, null);
+            var camResult = await _cameraService.AcquireAndSave(CameraService.CellCamera.side, null);
 
             if (!camResult.success)
             {
@@ -313,63 +309,63 @@ namespace DDMAutoGUI.Services
 
             if (!string.IsNullOrEmpty(camResult.filePath))
             {
-                _resultsManager.CopyPhotoToResultsFolder(camResult.filePath, "Side");
+                _resultsService.CopyPhotoToResultsFolder(camResult.filePath, "Side");
             }
 
-            _resultsManager.AddToLog("Side photo acquired");
+            _resultsService.AddToLog("Side photo acquired");
             return camResult.filePath;
         }
 
         private async Task ExecuteOCRProcessingAsync(string resultsPath, string motorName)
         {
-            _resultsManager.AddToLog("Processing images...");
+            _resultsService.AddToLog("Processing images...");
             OCRData? ocrData = await OCRProcessor.RunOCRAsync(resultsPath);
             
             if (ocrData == null)
             {
-                _resultsManager.AddToLog("OCR processing failed");
+                _resultsService.AddToLog("OCR processing failed");
                 throw new PartCycleException("OCR processing failed");
             }
 
-            _resultsManager.currentResults.ocr_data = ocrData;
+            _resultsService.currentResults.ocr_data = ocrData;
             string toolType = ocrData.GetToolType("Top_compressed.jpg");
             if (toolType == null)
             {
-                _resultsManager.AddToLog("Unable to determine tool type from image");
+                _resultsService.AddToLog("Unable to determine tool type from image");
             }
             else
             {
                 if (toolType != motorName)
                 {
-                    _resultsManager.AddToLog($"Tool type detected from image ({toolType}) does not match expected motor type ({motorName})");
+                    _resultsService.AddToLog($"Tool type detected from image ({toolType}) does not match expected motor type ({motorName})");
                     throw new PartCycleException("Tool type mismatch");
                 }
 
                 string toolSN = ocrData.GetToolSN(motorName, "Top_compressed.jpg");
-                _resultsManager.currentResults.tool_sn_detected = toolSN;
-                _resultsManager.AddToLog($"Tool SN found: {toolSN}");
+                _resultsService.currentResults.tool_sn_detected = toolSN;
+                _resultsService.AddToLog($"Tool SN found: {toolSN}");
             }
 
             string ringSN = ocrData.GetRingSN(motorName, "Side_compressed.jpg");
             if (ringSN == null)
             {
-                _resultsManager.AddToLog("Unable to determine ring SN from image");
+                _resultsService.AddToLog("Unable to determine ring SN from image");
                 throw new PartCycleException("Ring SN not found");
             }
 
-            _resultsManager.currentResults.ring_sn_detected = ringSN;
-            _resultsManager.AddToLog($"Ring SN detected: {ringSN}");
-            _resultsManager.AddToLog("Images processed");
+            _resultsService.currentResults.ring_sn_detected = ringSN;
+            _resultsService.AddToLog($"Ring SN detected: {ringSN}");
+            _resultsService.AddToLog("Images processed");
         }
 
         private async Task ExecutePolarityCheckAsync(CellSettings settings, CSMotor motor, string motorName)
         {
-            _resultsManager.AddToLog("Checking magnet polarity...");
-            await _controllerManager.ActuateHallUp();
+            _resultsService.AddToLog("Checking magnet polarity...");
+            await _controllerService.ActuateHallUp();
 
             float x = motor.hall_sensor.x.Value;
             float t = motor.hall_sensor.t.Value;
-            await _controllerManager.MoveJ(x, t);
+            await _controllerService.MoveJ(x, t);
 
             float hallTime = settings.hall_spin_time.Value;
             float hallSpeed = settings.hall_spin_speed.Value;
@@ -378,43 +374,43 @@ namespace DDMAutoGUI.Services
             Task<DAQMatlabResults> matlabTask = DAQUtilities.CollectDataAndProcessML(motorName);
 
             // Push hall effect sensor down near magnets
-            await _controllerManager.ActuateHallDown();
+            await _controllerService.ActuateHallDown();
 
             int delay = 5000;
             if (settings.hall_spin_delay != null)
                 delay = (int)settings.hall_spin_delay.Value * 1000;
 
             await Task.Delay(delay);
-            Task spinTask = _controllerManager.SpinInPlace(hallTime, hallSpeed);
+            Task spinTask = _controllerService.SpinInPlace(hallTime, hallSpeed);
 
             DAQMatlabResults matlabResult = await matlabTask;
-            _resultsManager.currentResults.daq_matlab_results = matlabResult;
-            _resultsManager.currentResults.version_info.polarity_version = matlabResult.version;
+            _resultsService.currentResults.daq_matlab_results = matlabResult;
+            _resultsService.currentResults.version_info.polarity_version = matlabResult.version;
 
             // Note 7/14/2026: Save data into main process results to reduce number of files. Plot generated by external report script.
-            //_resultsManager.CopyPolarityPlotToResultsFolder(matlabResult.results_directory + "plot.png", "PolarityPlot");
-            //_resultsManager.CopyPolarityDataToResultsFolder(matlabResult.results_directory + "PolarityResults.json", "PolarityData");
+            //_resultsService.CopyPolarityPlotToResultsFolder(matlabResult.results_directory + "plot.png", "PolarityPlot");
+            //_resultsService.CopyPolarityDataToResultsFolder(matlabResult.results_directory + "PolarityResults.json", "PolarityData");
 
             // Raise the hall effect sensor back up
-            await _controllerManager.ActuateHallUp();
+            await _controllerService.ActuateHallUp();
 
             if (matlabResult.result == 1)
             {
-                _resultsManager.AddToLog("Magnet polarity OK");
+                _resultsService.AddToLog("Magnet polarity OK");
             }
             else if (matlabResult.result == 0)
             {
-                _resultsManager.AddToLog($"Magnet polarity failed: {matlabResult.error_code} {matlabResult.error_message}");
+                _resultsService.AddToLog($"Magnet polarity failed: {matlabResult.error_code} {matlabResult.error_message}");
                 throw new PartCycleException("Magnet polarity check failed");
             }
             else if (matlabResult.result == -1)
             {
-                _resultsManager.AddToLog($"Magnet polarity check did not complete: {matlabResult.error_code} {matlabResult.error_message}");
+                _resultsService.AddToLog($"Magnet polarity check did not complete: {matlabResult.error_code} {matlabResult.error_message}");
                 throw new PartCycleException("Magnet polarity check failed");
             }
             else
             {
-                _resultsManager.AddToLog($"Unexpected result from magnet polarity check: {matlabResult.result}");
+                _resultsService.AddToLog($"Unexpected result from magnet polarity check: {matlabResult.result}");
                 throw new PartCycleException("Magnet polarity check failed");
             }
 
@@ -424,40 +420,40 @@ namespace DDMAutoGUI.Services
 
         private async Task ExecuteHeightMeasurementsAsync(CellSettings settings, CSMotor motor)
         {
-            _resultsManager.AddToLog("Collecting ring height data...");
+            _resultsService.AddToLog("Collecting ring height data...");
             float x = motor.laser_ring.x.Value;
             float t = motor.laser_ring.t.Value;
-            await _controllerManager.MoveJ(x, t);
+            await _controllerService.MoveJ(x, t);
 
             int n = motor.laser_ring_num.Value;
-            string response = await _controllerManager.MeasureHeightsContinuous(x, t, n, 10);
-            List<ResultsHeightMeasurement> ring_heights = _controllerManager.ParseHeightData(response);
-            _resultsManager.AddToLog("Ring height data collected");
+            string response = await _controllerService.MeasureHeightsContinuous(x, t, n, 10);
+            List<ResultsHeightMeasurement> ring_heights = _controllerService.ParseHeightData(response);
+            _resultsService.AddToLog("Ring height data collected");
 
-            _resultsManager.AddToLog("Collecting magnet/concentrator height data...");
+            _resultsService.AddToLog("Collecting magnet/concentrator height data...");
             x = motor.laser_mag.x.Value;
             t = motor.laser_mag.t.Value;
-            await _controllerManager.MoveJ(x, t);
+            await _controllerService.MoveJ(x, t);
 
             n = motor.laser_mag_num.Value;
-            response = await _controllerManager.MeasureHeightsContinuous(x, t, n, 20);
-            List<ResultsHeightMeasurement> mag_heights = _controllerManager.ParseHeightData(response);
-            _resultsManager.AddToLog("Magnet/concentrator height data collected");
-            _resultsManager.AddToLog("Processing height data...");
+            response = await _controllerService.MeasureHeightsContinuous(x, t, n, 20);
+            List<ResultsHeightMeasurement> mag_heights = _controllerService.ParseHeightData(response);
+            _resultsService.AddToLog("Magnet/concentrator height data collected");
+            _resultsService.AddToLog("Processing height data...");
 
             HeightVerificationResult heightResult = HeightVerification.VerifyHeightData(
                 ring_heights,
                 mag_heights,
                 settings);
 
-            _resultsManager.currentResults.height_verification_result = heightResult;
+            _resultsService.currentResults.height_verification_result = heightResult;
             if (heightResult.passed)
             {
-                _resultsManager.AddToLog($"Height verification passed: {heightResult.message}");
+                _resultsService.AddToLog($"Height verification passed: {heightResult.message}");
             }
             else
             {
-                _resultsManager.AddToLog($"Height verification failed: {heightResult.message}");
+                _resultsService.AddToLog($"Height verification failed: {heightResult.message}");
                 throw new PartCycleException($"Height verification failed");
             }
         }
@@ -474,7 +470,7 @@ namespace DDMAutoGUI.Services
                 ? settings.dispense_system.sys_1_contents
                 : settings.dispense_system.sys_2_contents;
 
-            ResultsShotData shotData = await _dispenseExecution.DispenseToRingAsync(settings, motor, motorName, _resultsManager.AddToLog);
+            ResultsShotData shotData = await _dispenseExecutionService.DispenseToRingAsync(settings, motor, motorName, _resultsService.AddToLog);
 
             // production-only concern: build reference data + persist to currentResults
             var referenceData = new ResultsReferenceData
@@ -485,33 +481,33 @@ namespace DDMAutoGUI.Services
                 od_target_vol = motor.shot_settings.od_target_vol,
                 id_target_flow = motor.shot_settings.id_target_flow,
                 od_target_flow = motor.shot_settings.od_target_flow,
-                id_calib_pressure = _localDataManager.GetPressureFromMotorName(motorName, sysID),
-                od_calib_pressure = _localDataManager.GetPressureFromMotorName(motorName, sysOD)
+                id_calib_pressure = _localDataService.GetPressureFromMotorName(motorName, sysID),
+                od_calib_pressure = _localDataService.GetPressureFromMotorName(motorName, sysOD)
             };
 
-            _resultsManager.currentResults.shot_data = shotData;
-            _resultsManager.currentResults.reference_data = referenceData;
+            _resultsService.currentResults.shot_data = shotData;
+            _resultsService.currentResults.reference_data = referenceData;
 
-            _resultsManager.AddToLog("Results:");
-            _resultsManager.AddToLog($"{LOG_INDENT}ID:");
-            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Valve {motor.shot_settings.id_sys_num} ({substance_id})");
-            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense volume: {shotData.id_vol:F3} mL ({shotData.id_vol.Value * 100 / motor.shot_settings.id_target_vol.Value:F1}% of target)");
-            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense time: {shotData.id_time:F3} s");
-            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Pressure: {shotData.id_pressure:F3} psi");
-            _resultsManager.AddToLog($"{LOG_INDENT}OD:");
-            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Valve {motor.shot_settings.od_sys_num} ({substance_od})");
-            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense volume: {shotData.od_vol:F3} mL ({shotData.od_vol.Value * 100 / motor.shot_settings.od_target_vol.Value:F1}% of target)");
-            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense time: {shotData.od_time:F3} s");
-            _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}Pressure: {shotData.od_pressure:F3} psi");
+            _resultsService.AddToLog("Results:");
+            _resultsService.AddToLog($"{LOG_INDENT}ID:");
+            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Valve {motor.shot_settings.id_sys_num} ({substance_id})");
+            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense volume: {shotData.id_vol:F3} mL ({shotData.id_vol.Value * 100 / motor.shot_settings.id_target_vol.Value:F1}% of target)");
+            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense time: {shotData.id_time:F3} s");
+            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Pressure: {shotData.id_pressure:F3} psi");
+            _resultsService.AddToLog($"{LOG_INDENT}OD:");
+            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Valve {motor.shot_settings.od_sys_num} ({substance_od})");
+            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense volume: {shotData.od_vol:F3} mL ({shotData.od_vol.Value * 100 / motor.shot_settings.od_target_vol.Value:F1}% of target)");
+            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense time: {shotData.od_time:F3} s");
+            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Pressure: {shotData.od_pressure:F3} psi");
         }
 
         private async Task ExecuteAutocalibrationAsync(CellSettings settings, string motorName)
         {
-            _resultsManager.AddToLog("Autocalibrating pressures...");
+            _resultsService.AddToLog("Autocalibrating pressures...");
 
-            if (_resultsManager.currentResults.shot_data == null)
+            if (_resultsService.currentResults.shot_data == null)
             {
-                _resultsManager.AddToLog("Autocalibration failed: no results data loaded");
+                _resultsService.AddToLog("Autocalibration failed: no results data loaded");
                 throw new PartCycleException("Autocalibration failed");
             }
 
@@ -519,10 +515,10 @@ namespace DDMAutoGUI.Services
             string calibMessage;
             float sf1, sf2;
 
-            _flowCalibrationManager.CalculateNewScaleFactors(
-                _resultsManager.currentResults.shot_data,
-                _settingsManager.GetAllSettings(),
-                _localDataManager.GetLocalData(),
+            _flowCalibrationService.CalculateNewScaleFactors(
+                _resultsService.currentResults.shot_data,
+                _settingsService.GetAllSettings(),
+                _localDataService.GetLocalData(),
                 out calibSuccess,
                 out calibMessage,
                 out sf1,
@@ -533,8 +529,8 @@ namespace DDMAutoGUI.Services
                 throw new PartCycleException($"Calibration calculation failed: {calibMessage}");
             }
 
-            _resultsManager.AddToLog("Calibration calculation succeeded.");
-            _resultsManager.AddToLog("Saving new calibration to local file...");
+            _resultsService.AddToLog("Calibration calculation succeeded.");
+            _resultsService.AddToLog("Saving new calibration to local file...");
 
             var resultContainer = new RunCalibResult
             {
@@ -546,92 +542,92 @@ namespace DDMAutoGUI.Services
                 sf2 = sf2
             };
 
-            _flowCalibrationManager.GenerateAndSaveCalibration(resultContainer);
-            _resultsManager.AddToLog("Calibration saved to local file");
+            _flowCalibrationService.GenerateAndSaveCalibration(resultContainer);
+            _resultsService.AddToLog("Calibration saved to local file");
 
-            _resultsManager.currentResults.reference_data.sys_1_autocal_sf = sf1;
-            _resultsManager.currentResults.reference_data.sys_2_autocal_sf = sf2;
+            _resultsService.currentResults.reference_data.sys_1_autocal_sf = sf1;
+            _resultsService.currentResults.reference_data.sys_2_autocal_sf = sf2;
 
-            LDMotorCalib calib = _localDataManager.GetCalibFromMotorName(motorName);
+            LDMotorCalib calib = _localDataService.GetCalibFromMotorName(motorName);
             float? pressure1 = calib.sys_1_pressure;
             float? pressure2 = calib.sys_2_pressure;
 
-            _resultsManager.AddToLog("Autocalibration succeeded");
+            _resultsService.AddToLog("Autocalibration succeeded");
             if (pressure1 != null)
             {
-                _resultsManager.AddToLog($"{LOG_INDENT}System 1:");
-                _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}SF: {sf1:F3}");
-                _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}New pressure: {pressure1:F3}");
+                _resultsService.AddToLog($"{LOG_INDENT}System 1:");
+                _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}SF: {sf1:F3}");
+                _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}New pressure: {pressure1:F3}");
             }
             if (pressure2 != null)
             {
-                _resultsManager.AddToLog($"{LOG_INDENT}System 2:");
-                _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}SF: {sf2:F3}");
-                _resultsManager.AddToLog($"{LOG_INDENT}{LOG_INDENT}New pressure: {pressure2:F3}");
+                _resultsService.AddToLog($"{LOG_INDENT}System 2:");
+                _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}SF: {sf2:F3}");
+                _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}New pressure: {pressure2:F3}");
             }
 
-            _resultsManager.AddToLog("Adjusting dispense system pressures...");
+            _resultsService.AddToLog("Adjusting dispense system pressures...");
 
             if (pressure1 != null)
             {
-                _resultsManager.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1.Value:F3} psi");
-                await _controllerManager.SetRegPressure(1, pressure1.Value);
+                _resultsService.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1.Value:F3} psi");
+                await _controllerService.SetRegPressure(1, pressure1.Value);
             }
             else
             {
-                _resultsManager.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
+                _resultsService.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
             }
 
             if (pressure2 != null)
             {
-                _resultsManager.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2.Value:F3} psi");
-                await _controllerManager.SetRegPressure(2, pressure2.Value);
+                _resultsService.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2.Value:F3} psi");
+                await _controllerService.SetRegPressure(2, pressure2.Value);
             }
             else
             {
-                _resultsManager.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
+                _resultsService.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
             }
 
-            _resultsManager.AddToLog("System pressures adjusted");
+            _resultsService.AddToLog("System pressures adjusted");
         }
 
         private async Task ExecuteMoveToUnloadAsync(CellSettings settings)
         {
-            _resultsManager.AddToLog("Moving to unload...");
+            _resultsService.AddToLog("Moving to unload...");
             float x = settings.ddm_common.load.x.Value;
             float t = settings.ddm_common.load.t.Value;
-            await _controllerManager.MoveJ(x, t);
+            await _controllerService.MoveJ(x, t);
         }
 
         private async Task AttemptMoveToUnloadAsync()
         {
             try
             {
-                CellSettings settings = _settingsManager.GetAllSettings();
+                CellSettings settings = _settingsService.GetAllSettings();
                 if (settings != null)
                 {
-                    _resultsManager.AddToLog("Attempting to move to unload position...");
-                    await _controllerManager.ActuateHallUp();
+                    _resultsService.AddToLog("Attempting to move to unload position...");
+                    await _controllerService.ActuateHallUp();
                     float x = settings.ddm_common.load.x.Value;
                     float t = settings.ddm_common.load.t.Value;
-                    await _controllerManager.MoveJ(x, t);
+                    await _controllerService.MoveJ(x, t);
                 }
             }
             catch (Exception ex)
             {
-                _resultsManager.AddToLog($"Failed to move to unload position: {ex.Message}");
+                _resultsService.AddToLog($"Failed to move to unload position: {ex.Message}");
             }
         }
 
         private async Task ExecuteSaveResultsAsync(CellSettings settings, string resultsPath)
         {
 
-            _resultsManager.AddToLog("Saving settings to results folder");
-            _settingsManager.SaveSettingsCopyToLocal(settings, resultsPath);
+            _resultsService.AddToLog("Saving settings to results folder");
+            _settingsService.SaveSettingsCopyToLocal(settings, resultsPath);
 
-            _resultsManager.AddToLog("Saving all results data to results folder");
-            _resultsManager.SaveDataToFile();
-            _resultsManager.RenameResultsFolder(_resultsManager.currentResults.ring_sn_detected);
+            _resultsService.AddToLog("Saving all results data to results folder");
+            _resultsService.SaveDataToFile();
+            _resultsService.RenameResultsFolder(_resultsService.currentResults.ring_sn_detected);
         }
 
         #endregion

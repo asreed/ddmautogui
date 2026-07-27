@@ -5,7 +5,7 @@ namespace DDMAutoGUI.Services
 {
     public class DispenseExecutionService : IDispenseExecutionService
     {
-        private const string LOG_INDENT = "  ";
+
         private readonly IControllerService _controllerService;
 
         public DispenseExecutionService(IControllerService controllerService)
