@@ -21,7 +21,7 @@ namespace DDMAutoGUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly IControllerService _controllerManager;
+        private readonly IControllerService _controllerService;
         private readonly IApplicationConfiguration _applicationConfiguration;
 
         public MainWindow()
@@ -29,7 +29,7 @@ namespace DDMAutoGUI
             InitializeComponent();
 
             // Get services from DI container
-            _controllerManager = App.Services?.GetService<IControllerService>();
+            _controllerService = App.Services?.GetService<IControllerService>();
             _applicationConfiguration = App.Services?.GetService<IApplicationConfiguration>();
 
             // Set the DataContext to the ViewModel via Dependency Injection
@@ -48,23 +48,23 @@ namespace DDMAutoGUI
             InitializeEventHandlers();
 
             // Initialize UI - remove static App references
-            this.Title += ((MainWindowViewModel)this.DataContext)?.AppTitle;
+            this.Title = ((MainWindowViewModel)this.DataContext)?.AppTitle;
             InitializeUI();
         }
 
         private void InitializeEventHandlers()
         {
             // Use injected controller manager
-            if (_controllerManager == null) return;
+            if (_controllerService == null) return;
 
-            _controllerManager.ControllerConnected += (s, e) => HandleConnected();
-            _controllerManager.ControllerDisconnected += (s, e) => HandleDisconnected();
-            _controllerManager.ControllerStateChanged += (s, e) => HandleControllerStateChanged();
+            _controllerService.ControllerConnected += (s, e) => HandleConnected();
+            _controllerService.ControllerDisconnected += (s, e) => HandleDisconnected();
+            _controllerService.ControllerStateChanged += (s, e) => HandleControllerStateChanged();
         }
 
         private void HandleConnected()
         {
-            if (_controllerManager?.CONNECTION_STATE == null) return;
+            if (_controllerService?.CONNECTION_STATE == null) return;
 
             DispTab.IsEnabled = true;
             CalibTab.IsEnabled = true;
@@ -86,11 +86,11 @@ namespace DDMAutoGUI
 
         private void HandleControllerStateChanged()
         {
-            if (_controllerManager?.CONTROLLER_STATE == null) return;
+            if (_controllerService?.CONTROLLER_STATE == null) return;
 
-            ControllerState contState = _controllerManager.CONTROLLER_STATE;
+            ControllerState contState = _controllerService.CONTROLLER_STATE;
 
-            if (!contState.parseError && _controllerManager.CONNECTION_STATE.isConnected)
+            if (!contState.parseError && _controllerService.CONNECTION_STATE.isConnected)
             {
                 // Connected with good parse
                 switch (contState.safetyControllerState)

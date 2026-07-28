@@ -1,6 +1,7 @@
 <Window 
         xmlns:CustomWindows="clr-namespace:DDMAutoGUI.CustomWindows"
         xmlns:windows="clr-namespace:DDMAutoGUI.windows"
+        xmlns:utils="clr-namespace:DDMAutoGUI.Utilities"
         x:Class="DDMAutoGUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -51,7 +52,7 @@
         <Grid Grid.Row="1" Grid.RowSpan="2">
 
             <TabControl x:Name="MainTabControl" TabStripPlacement="Left" SelectionChanged="MainTabControl_SelectionChanged">
-                <TabItem Header="Connect" local:TabIcon.Source="{StaticResource Icon.TreeFill}" Style="{StaticResource MainTab}">
+                <TabItem Header="Connect" utils:TabIcon.Source="{StaticResource Icon.TreeFill}" Style="{StaticResource MainTab}">
 
                     <CustomWindows:ConnectPanel/>
 
@@ -59,14 +60,14 @@
                 <TabItem 
                     x:Name="DispTab" 
                     Header="Part Cycle" 
-                    local:TabIcon.Source="{StaticResource Icon.PlayFill}" 
+                    utils:TabIcon.Source="{StaticResource Icon.PlayFill}" 
                     Style="{StaticResource MainTab}" 
                     IsEnabled="{Binding IsConnected}">
 
                     <CustomWindows:PartCyclePanel/>
 
                 </TabItem>
-                <TabItem x:Name="CalibTab" Header="Calibrate" local:TabIcon.Source="{StaticResource Icon.Centerpoint}" Style="{StaticResource MainTab}" IsEnabled="False">
+                <TabItem x:Name="CalibTab" Header="Calibrate" utils:TabIcon.Source="{StaticResource Icon.Centerpoint}" Style="{StaticResource MainTab}" IsEnabled="False">
 
                     <Grid>
                         <Border x:Name="Calib_PWEntryBdr" Background="WhiteSmoke" Margin="6" Visibility="Visible">
@@ -110,7 +111,7 @@
                     </Grid>
 
                 </TabItem>
-                <TabItem x:Name="ServTab" Header="Maintenance" local:TabIcon.Source="{StaticResource Icon.WrenchFill}" Style="{StaticResource MainTab}" IsEnabled="False">
+                <TabItem x:Name="ServTab" Header="Maintenance" utils:TabIcon.Source="{StaticResource Icon.WrenchFill}" Style="{StaticResource MainTab}" IsEnabled="False">
 
                     <Grid>
                         <Border x:Name="Serv_PWEntryBdr" Background="WhiteSmoke" Margin="6" Visibility="Visible">
@@ -153,7 +154,7 @@
 
                     </Grid>
                 </TabItem>
-                <TabItem x:Name="AdvTab" Header="Dev" local:TabIcon.Source="{StaticResource Icon.GearFill}" Style="{StaticResource MainTab}" Visibility="Visible">
+                <TabItem x:Name="AdvTab" Header="Dev" utils:TabIcon.Source="{StaticResource Icon.GearFill}" Style="{StaticResource MainTab}" Visibility="Visible">
 
                     <Grid Margin="-2" Background="#FFFF9800">
 

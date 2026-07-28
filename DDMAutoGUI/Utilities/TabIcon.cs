@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace DDMAutoGUI
+namespace DDMAutoGUI.Utilities
 {
     /// <summary>
     /// Attached property for associating an icon with a <see cref="System.Windows.Controls.TabItem"/>

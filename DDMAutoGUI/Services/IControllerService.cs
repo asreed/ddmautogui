@@ -35,7 +35,8 @@ namespace DDMAutoGUI.Services
 
         Task<bool> Connect(string ip);
         Task Disconnect();
-        Task<string> AttemptLoadTCS(string ip);
+
+        //Task<string> AttemptLoadTCS(string ip);
 
         #endregion
 
@@ -44,8 +45,9 @@ namespace DDMAutoGUI.Services
         Task<string> SendRobotCommand(string command);
         Task<string> SendStatusCommand(string command);
         Task<string> SendStatusCommand(string command, bool muteLog);
-        Task<string> ReceiveConsoleHeader(System.Net.Sockets.Socket client);
-        Task<string> SendConsoleCmd(System.Net.Sockets.Socket client, string command);
+
+        //Task<string> ReceiveConsoleHeader(System.Net.Sockets.Socket client);
+        //Task<string> SendConsoleCmd(System.Net.Sockets.Socket client, string command);
 
         #endregion
 
@@ -141,7 +143,8 @@ namespace DDMAutoGUI.Services
         string GetConnectionLog();
         string GetStatusLog();
         string GetRobotLog();
-        string GetCorrectTCSVersion();
+
+        //string GetCorrectTCSVersion();
 
         #endregion
     }

@@ -1,3 +1,4 @@
+using DDMAutoGUI.Constants;
 using DDMAutoGUI.Services;
 using DDMAutoGUI.Utilities;
 using System;
@@ -105,15 +106,14 @@ namespace DDMAutoGUI.ViewModels
             _appConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
             _partCycleService = dispenseProcessService ?? throw new ArgumentNullException(nameof(dispenseProcessService));
 
-            _controllerIpAddress = "192.168.0.1";
-            _connectionStatus = "Not connected";
-
             InitializeCommands();
             InitializeEventHandlers();
             InitializeAppTitle();
             InitializeMotorSizes();
             InitializeCalibrationWatch();
 
+            _controllerIpAddress = _appConfig.DefaultControllerIPAddress;
+            _connectionStatus = ConnectionStatusText.NotConnected;
             _selectedMotorType = "ddm_116";
         }
 
@@ -757,7 +757,7 @@ namespace DDMAutoGUI.ViewModels
             try
             {
                 IsProcessing = true;
-                ConnectionStatus = "Connecting...";
+                ConnectionStatus = ConnectionStatusText.Connecting;
 
                 if (string.IsNullOrWhiteSpace(ipAddress))
                 {
@@ -766,11 +766,13 @@ namespace DDMAutoGUI.ViewModels
 
                 bool connected = await _controllerService.Connect(ipAddress);
                 IsConnected = connected;
-                ConnectionStatus = connected ? "Connected" : "Connection failed";
+                ConnectionStatus = connected
+                    ? ConnectionStatusText.ConnectedTo(ipAddress)
+                    : ConnectionStatusText.ConnectionFailed;
             }
             catch (Exception ex)
             {
-                ConnectionStatus = $"Error: {ex.Message}";
+                ConnectionStatus = ConnectionStatusText.Error(ex.Message);
                 Debug.Print($"Connection error: {ex}");
             }
             finally
@@ -788,11 +790,11 @@ namespace DDMAutoGUI.ViewModels
                 IsProcessing = true;
                 await _controllerService.Disconnect();
                 IsConnected = false;
-                ConnectionStatus = "Disconnected";
+                ConnectionStatus = ConnectionStatusText.Disconnected;
             }
             catch (Exception ex)
             {
-                ConnectionStatus = $"Disconnect error: {ex.Message}";
+                ConnectionStatus = ConnectionStatusText.Error(ex.Message);
                 Debug.Print($"Disconnect error: {ex}");
             }
             finally
@@ -993,7 +995,7 @@ namespace DDMAutoGUI.ViewModels
             Application.Current.Dispatcher.Invoke(() =>
             {
                 IsConnected = true;
-                ConnectionStatus = $"Connected ({_controllerService.CONNECTION_STATE?.connectedIP})";
+                ConnectionStatus = ConnectionStatusText.ConnectedTo(_controllerService.CONNECTION_STATE?.connectedIP);
                 ConnectedTcsVersion = _controllerService.CONNECTION_STATE?.connectedTCS ?? "-";
                 ConnectedPacVersion = _controllerService.CONNECTION_STATE?.connectedPAC ?? "-";
                 CommandManager.InvalidateRequerySuggested();
@@ -1006,7 +1008,7 @@ namespace DDMAutoGUI.ViewModels
             {
                 IsConnected = false;
                 ReadoutsEnabled = false;
-                ConnectionStatus = "Not connected";
+                ConnectionStatus = ConnectionStatusText.Disconnected;
                 ConnectedTcsVersion = "-";
                 ConnectedPacVersion = "-";
                 CommandManager.InvalidateRequerySuggested();

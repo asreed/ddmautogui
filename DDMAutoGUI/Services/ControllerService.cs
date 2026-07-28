@@ -109,8 +109,6 @@ namespace DDMAutoGUI.Services
         private readonly Func<ICameraService> _getCameraService; // Lazy accessor to break circular dependency
         private readonly Func<ISettingsService> _getSettingsService; // Lazy accessor for settings verification
 
-        public string CORRECT_TCS_VERSION = "Tcs_ddm_cell_1_1_4";
-
         private string connectionLog = string.Empty;
         private string statusLog = string.Empty;
         private string robotLog = string.Empty;
@@ -196,163 +194,163 @@ namespace DDMAutoGUI.Services
         // ==================================================================
         // Autoload TCS (port 23)
 
-        public async Task<string> ReceiveConsoleHeader(Socket client)
-        {
+        //public async Task<string> ReceiveConsoleHeader(Socket client)
+        //{
 
-            StringBuilder response = new StringBuilder();
-            try
-            {
-                Debug.Print("attempting to receive header");
-                byte[] buffer = new byte[1024];
-                int bytesRead;
+        //    StringBuilder response = new StringBuilder();
+        //    try
+        //    {
+        //        Debug.Print("attempting to receive header");
+        //        byte[] buffer = new byte[1024];
+        //        int bytesRead;
 
-                while (true)
-                {
-                    bytesRead = await client.ReceiveAsync(buffer);
-                    if (bytesRead == 0)
-                    {
-                        break;
-                    }
-                    response.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
-                    Debug.Print($"building response: {response.ToString()}");
-                    if (response.ToString().Trim().EndsWith(":") || response.ToString().Trim().EndsWith("..."))
-                    {
-                        break;
-                    }
+        //        while (true)
+        //        {
+        //            bytesRead = await client.ReceiveAsync(buffer);
+        //            if (bytesRead == 0)
+        //            {
+        //                break;
+        //            }
+        //            response.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
+        //            Debug.Print($"building response: {response.ToString()}");
+        //            if (response.ToString().Trim().EndsWith(":") || response.ToString().Trim().EndsWith("..."))
+        //            {
+        //                break;
+        //            }
 
-                }
-                Debug.Print($"full response: {response.ToString()}");
-            }
-            catch (SocketException e)
-            {
-                Debug.Print("Send console command failed");
-                Debug.Print($"{e.ErrorCode}: {e.Message}");
-                response.Append("Error?");
-            }
-            return response.ToString();
-        }
+        //        }
+        //        Debug.Print($"full response: {response.ToString()}");
+        //    }
+        //    catch (SocketException e)
+        //    {
+        //        Debug.Print("Send console command failed");
+        //        Debug.Print($"{e.ErrorCode}: {e.Message}");
+        //        response.Append("Error?");
+        //    }
+        //    return response.ToString();
+        //}
 
-        public async Task<string> SendConsoleCmd(Socket client, string command)
-        {
-            byte[] commandBytes = Encoding.ASCII.GetBytes(command + term);
-            StringBuilder response = new StringBuilder();
-            try
-            {
-                Debug.Print($"c >> {command}");
-                await client.SendAsync(commandBytes);
-                byte[] buffer = new byte[1024];
-                int bytesRead;
+        //public async Task<string> SendConsoleCmd(Socket client, string command)
+        //{
+        //    byte[] commandBytes = Encoding.ASCII.GetBytes(command + term);
+        //    StringBuilder response = new StringBuilder();
+        //    try
+        //    {
+        //        Debug.Print($"c >> {command}");
+        //        await client.SendAsync(commandBytes);
+        //        byte[] buffer = new byte[1024];
+        //        int bytesRead;
 
-                while (true)
-                {
-                    bytesRead = await client.ReceiveAsync(buffer);
-                    if (bytesRead == 0)
-                    {
-                        break;
-                    }
-                    response.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
-                    //Debug.Print($"building response: {response.ToString()}");
-                    if (response.ToString().Trim().EndsWith(":"))
-                    {
-                        break;
-                    }
-                }
-                Debug.Print($"c << {response.ToString()}");
-            }
-            catch (SocketException e)
-            {
-                Debug.Print("Send console command failed");
-                Debug.Print($"{e.ErrorCode}: {e.Message}");
-                response.Clear().Append("Failed");
-            }
-            return response.ToString();
-        }
+        //        while (true)
+        //        {
+        //            bytesRead = await client.ReceiveAsync(buffer);
+        //            if (bytesRead == 0)
+        //            {
+        //                break;
+        //            }
+        //            response.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
+        //            //Debug.Print($"building response: {response.ToString()}");
+        //            if (response.ToString().Trim().EndsWith(":"))
+        //            {
+        //                break;
+        //            }
+        //        }
+        //        Debug.Print($"c << {response.ToString()}");
+        //    }
+        //    catch (SocketException e)
+        //    {
+        //        Debug.Print("Send console command failed");
+        //        Debug.Print($"{e.ErrorCode}: {e.Message}");
+        //        response.Clear().Append("Failed");
+        //    }
+        //    return response.ToString();
+        //}
 
-        public async Task<string> AttemptLoadTCS(string ip)
-        {
-            string reply;
-            string response;
-            IPEndPoint controllerEP = new IPEndPoint(IPAddress.Parse(ip), 23);
-            Socket controllerClient = new Socket(controllerEP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            controllerClient.SendTimeout = sendTimeout;
-            controllerClient.ReceiveTimeout = receiveTimeout;
-            try
-            {
-                await controllerClient.ConnectAsync(controllerEP);
-                await ReceiveConsoleHeader(controllerClient);
-                await SendConsoleCmd(controllerClient, "Help");
-                response = await SendConsoleCmd(controllerClient, "show thread");
-                if (response.Contains(CORRECT_TCS_VERSION))
-                {
-                    // correct TCS already running
-                    Debug.Print("correct TCS running");
-                    reply = "Correct TCS version already running";
-                }
-                else
-                {
-                    Debug.Print("incorrect or no TCS running. Attempting to load.");
-                    response = await SendConsoleCmd(controllerClient, $"load flash/projects/{CORRECT_TCS_VERSION} -start");
-                    if (response.Contains("-508"))
-                    {
-                        Debug.Print("correct TCS is not installed on controller");
-                        reply = "Correct TCS NOT INSTALLED";
-                    }
-                    else if (response.Contains("-745"))
-                    {
-                        // project already loaded
-                        response = await SendConsoleCmd(controllerClient, $"start {CORRECT_TCS_VERSION} -compile");
-                        response = await SendConsoleCmd(controllerClient, "show thread");
-                        if (response.Contains(CORRECT_TCS_VERSION))
-                        {
-                            // correct TCS is now running
-                            reply = "Success. Correct TCS is running";
-
-
-
-                        }
-                        else
-                        {
-                            // tried to load program and now it's not running?
-                            reply = "Attempted to load and run; not running?";
-                        }
-
-                    }
-                    else if (response.Contains("Compile successful"))
-                    {
-                        // project apparently running
-                        response = await SendConsoleCmd(controllerClient, "show thread");
-                        if (response.Contains(CORRECT_TCS_VERSION))
-                        {
-                            // correct TCS is now running
-                            reply = "Success. Correct TCS is running";
+        //public async Task<string> AttemptLoadTCS(string ip)
+        //{
+        //    string reply;
+        //    string response;
+        //    IPEndPoint controllerEP = new IPEndPoint(IPAddress.Parse(ip), 23);
+        //    Socket controllerClient = new Socket(controllerEP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        //    controllerClient.SendTimeout = sendTimeout;
+        //    controllerClient.ReceiveTimeout = receiveTimeout;
+        //    try
+        //    {
+        //        await controllerClient.ConnectAsync(controllerEP);
+        //        await ReceiveConsoleHeader(controllerClient);
+        //        await SendConsoleCmd(controllerClient, "Help");
+        //        response = await SendConsoleCmd(controllerClient, "show thread");
+        //        if (response.Contains(CORRECT_TCS_VERSION))
+        //        {
+        //            // correct TCS already running
+        //            Debug.Print("correct TCS running");
+        //            reply = "Correct TCS version already running";
+        //        }
+        //        else
+        //        {
+        //            Debug.Print("incorrect or no TCS running. Attempting to load.");
+        //            response = await SendConsoleCmd(controllerClient, $"load flash/projects/{CORRECT_TCS_VERSION} -start");
+        //            if (response.Contains("-508"))
+        //            {
+        //                Debug.Print("correct TCS is not installed on controller");
+        //                reply = "Correct TCS NOT INSTALLED";
+        //            }
+        //            else if (response.Contains("-745"))
+        //            {
+        //                // project already loaded
+        //                response = await SendConsoleCmd(controllerClient, $"start {CORRECT_TCS_VERSION} -compile");
+        //                response = await SendConsoleCmd(controllerClient, "show thread");
+        //                if (response.Contains(CORRECT_TCS_VERSION))
+        //                {
+        //                    // correct TCS is now running
+        //                    reply = "Success. Correct TCS is running";
 
 
 
-                        }
-                        else
-                        {
-                            // tried to load program and now it's not running?
-                            reply = "Attempted to load and run; not running?";
-                        }
-                    }
-                    else
-                    {
-                        // unexpected response from compile command
-                        reply = "Unexpected respones to compile request";
-                    }
-                }
-                await SendConsoleCmd(controllerClient, "quit");
-                controllerClient.Close();
-                Debug.Print("end of attempt reached");
-            }
-            catch (SocketException e)
-            {
-                Debug.Print($"{e.ErrorCode}: {e.Message}");
-                controllerClient.Close();
-                reply = "Connection failure";
-            }
-            return reply;
-        }
+        //                }
+        //                else
+        //                {
+        //                    // tried to load program and now it's not running?
+        //                    reply = "Attempted to load and run; not running?";
+        //                }
+
+        //            }
+        //            else if (response.Contains("Compile successful"))
+        //            {
+        //                // project apparently running
+        //                response = await SendConsoleCmd(controllerClient, "show thread");
+        //                if (response.Contains(CORRECT_TCS_VERSION))
+        //                {
+        //                    // correct TCS is now running
+        //                    reply = "Success. Correct TCS is running";
+
+
+
+        //                }
+        //                else
+        //                {
+        //                    // tried to load program and now it's not running?
+        //                    reply = "Attempted to load and run; not running?";
+        //                }
+        //            }
+        //            else
+        //            {
+        //                // unexpected response from compile command
+        //                reply = "Unexpected respones to compile request";
+        //            }
+        //        }
+        //        await SendConsoleCmd(controllerClient, "quit");
+        //        controllerClient.Close();
+        //        Debug.Print("end of attempt reached");
+        //    }
+        //    catch (SocketException e)
+        //    {
+        //        Debug.Print($"{e.ErrorCode}: {e.Message}");
+        //        controllerClient.Close();
+        //        reply = "Connection failure";
+        //    }
+        //    return reply;
+        //}
 
 
 
@@ -377,12 +375,12 @@ namespace DDMAutoGUI.Services
             ClearConnectionLog();
 
             UpdateBothLogs($"Connecting to {ip}...");
-            UpdateConnectionLog($"Connecting to workcell...\n");
+            UpdateConnectionLog($"Connecting to work cell...\n");
 
             // ========== SIMULATION MODE ==========
             if (_applicationConfiguration?.IsSimulationMode == true)
             {
-                UpdateConnectionLog($"✓ Controller TCS");
+                UpdateConnectionLog($"✓ Controller TCS at {ip}");
                 UpdateConnectionLog($"✓ Controller Settings");
                 UpdateConnectionLog($"✓ I/O-Link Master");
                 UpdateConnectionLog($"✓ I/O-Link Port 1");
@@ -1040,10 +1038,10 @@ namespace DDMAutoGUI.Services
             return robotLog;
         }
 
-        public string GetCorrectTCSVersion()
-        {
-            return CORRECT_TCS_VERSION;
-        }
+        //public string GetCorrectTCSVersion()
+        //{
+        //    return CORRECT_TCS_VERSION;
+        //}
 
 
 

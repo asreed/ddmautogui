@@ -26,6 +26,7 @@ namespace DDMAutoGUI
                 var appConfig = new ApplicationConfiguration(
                     isSimulationMode: false,
                     displayTitle: "ADS Work Cell Manager",
+                    defaultControllerIPAddress: "192.168.0.1",
                     calibrationPassword: "ddm",
                     servicePassword: "ddm",
                     advancedSettingsPassword: "DDM");
