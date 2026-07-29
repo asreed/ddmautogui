@@ -156,120 +156,124 @@
                 </TabItem>
                 <TabItem x:Name="AdvTab" Header="Dev" utils:TabIcon.Source="{StaticResource Icon.GearFill}" Style="{StaticResource MainTab}" Visibility="Visible">
 
-                    <Grid Margin="-2" Background="#FFFF9800">
-
-                        <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Margin="20" Visibility="Visible">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="300"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <GroupBox Header="Password" Grid.Row="1" Grid.Column="1">
-                                    <StackPanel Orientation="Vertical">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <PasswordBox x:Name="Adv_PWBox" 
+                    <Border BorderBrush="#FF152238" BorderThickness="10,0,0,0" Margin="-3" Padding="0">
+                        <Grid Background="#FFFF9800">
+                            <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Margin="20" Visibility="Visible">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="300"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <GroupBox Header="Password" Grid.Row="1" Grid.Column="1">
+                                        <StackPanel Orientation="Vertical">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <PasswordBox x:Name="Adv_PWBox" 
                                                      Grid.Column="0"
                                                      Padding="6"
                                                      KeyDown="PasswordBox_KeyDown"/>
-                                            <Button x:Name="Adv_PWSubmitBtn"
+                                                <Button x:Name="Adv_PWSubmitBtn"
                                                 Grid.Column="1"
                                                 Padding="12,0"
                                                 Content="Submit" 
                                                 Style="{StaticResource SmallButton}" 
                                                 Click="Adv_PWSubmitBtn_Click"/>
-                                        </Grid>
-                                        <TextBlock x:Name="Adv_PWMessageTxb" Text="Incorrect password" Margin="3" Visibility="Collapsed"/>
-                                    </StackPanel>
-                                </GroupBox>
-                            </Grid>
-                        </Border>
+                                            </Grid>
+                                            <TextBlock x:Name="Adv_PWMessageTxb" Text="Incorrect password" Margin="3" Visibility="Collapsed"/>
+                                        </StackPanel>
+                                    </GroupBox>
+                                </Grid>
+                            </Border>
 
 
-                        <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="20"  Background="WhiteSmoke">
+                            <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="20"  Background="WhiteSmoke">
 
-                            <TabItem Header="Options">
-                                <StackPanel Orientation="Vertical" Margin="6">
-                                    <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
-                                        <StackPanel Orientation="Vertical">
+                                <TabItem Header="Options">
+                                    <StackPanel Orientation="Vertical" Margin="6">
+                                        <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
+                                            <StackPanel Orientation="Vertical">
 
-                                            <TextBox 
+                                                <TextBox 
                                                 Width="150"
                                                 x:Name="IPTxt"
                                                 Text="{Binding ControllerIpAddress, UpdateSourceTrigger=PropertyChanged}"/>
-                                        </StackPanel>
-                                    </GroupBox>
-                                    <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">
-                                        <StackPanel Orientation="Vertical">
-                                            <!--<CheckBox x:Name="Adv_Opt_Disp_HealthChk"       Content="Check Health"             IsChecked="{Binding DispCheckHealth}"/>-->
-                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk"     Content="Photo Top"                IsChecked="{Binding DispPhotoTop}"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk"    Content="Photo Side"               IsChecked="{Binding DispPhotoSide}"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_RunOCRChk"       Content="Run OCR"                  IsChecked="{Binding DispRunOCR}"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_MagPolChk"       Content="Measure Polarity"         IsChecked="{Binding DispCheckPolarity}"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk"   Content="Measure Heights"          IsChecked="{Binding DispMeasureHeights}"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_DispChk"         Content="Dispense"                 IsChecked="{Binding DispDispense}"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk"    Content="Autocalibrate"            IsChecked="{Binding DispAutocalibrate}"/>
-                                            <CheckBox x:Name="Adv_Opt_Disp_TopPhotoAfterChk" Content="Photo Top After"         IsChecked="{Binding DispPhotoTopAfter}"/>
-                                            <!--<CheckBox x:Name="Adv_Opt_Disp_OverrideChk"     Content="Override Dispense Warnings" IsChecked="{Binding DispOverrideWarnings}" Foreground="{StaticResource PrimaryOrange}"/>-->
-                                        </StackPanel>
-                                    </GroupBox>
-                                </StackPanel>
-                            </TabItem>
+                                            </StackPanel>
+                                        </GroupBox>
+                                        <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">
+                                            <StackPanel Orientation="Vertical">
+                                                <CheckBox x:Name="Adv_Opt_Disp_TopPhotoChk"     Content="Photo Top"                IsChecked="{Binding DispPhotoTop}"/>
+                                                <CheckBox x:Name="Adv_Opt_Disp_SidePhotoChk"    Content="Photo Side"               IsChecked="{Binding DispPhotoSide}"/>
+                                                <CheckBox x:Name="Adv_Opt_Disp_RunOCRChk"       Content="Run OCR"                  IsChecked="{Binding DispRunOCR}"/>
+                                                <CheckBox x:Name="Adv_Opt_Disp_MagPolChk"       Content="Measure Polarity"         IsChecked="{Binding DispCheckPolarity}"/>
+                                                <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk"   Content="Measure Heights"          IsChecked="{Binding DispMeasureHeights}"/>
+                                                <CheckBox x:Name="Adv_Opt_Disp_DispChk"         Content="Dispense"                 IsChecked="{Binding DispDispense}"/>
+                                                <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk"    Content="Autocalibrate"            IsChecked="{Binding DispAutocalibrate}"/>
+                                                <CheckBox x:Name="Adv_Opt_Disp_TopPhotoAfterChk" Content="Photo Top After"         IsChecked="{Binding DispPhotoTopAfter}"/>
+                                                </StackPanel>
+                                        </GroupBox>
+                                        <GroupBox Header="Overrides" HorizontalAlignment="Left" Padding="12">
+                                            <StackPanel Orientation="Vertical">
+                                                <CheckBox x:Name="Adv_Opt_Disp_OverridePCLocksChk"     Content="Override Part Cycle Locks" IsChecked="{Binding DispOverridePCLocks}"/>
+                                            </StackPanel>
+                                        </GroupBox>
+                                    </StackPanel>
+                                </TabItem>
 
-                            <TabItem Header="Cell Control Panel">
+                                <TabItem Header="Cell Control Panel">
 
-                                <CustomWindows:DevCellControlPanel x:Name="CellControlPanel"/>
+                                    <CustomWindows:DevCellControlPanel x:Name="CellControlPanel"/>
 
-                            </TabItem>
+                                </TabItem>
 
-                            <TabItem Header="TCS Connection">
+                                <TabItem Header="TCS Connection">
 
-                                <CustomWindows:DevTcsConnectionPanel />
+                                    <CustomWindows:DevTcsConnectionPanel />
 
-                            </TabItem>
-                            <TabItem Header="Vision">
+                                </TabItem>
+                                <TabItem Header="Vision">
 
-                                <CustomWindows:DevVisionPanel />
+                                    <CustomWindows:DevVisionPanel />
 
-                            </TabItem>
-                            <TabItem Header="Settings">
+                                </TabItem>
+                                <TabItem Header="Settings">
 
-                                <CustomWindows:SettingsPanel />
+                                    <CustomWindows:SettingsPanel />
 
-                            </TabItem>
-                            <TabItem Header="Local Data">
+                                </TabItem>
+                                <TabItem Header="Local Data">
 
-                                <CustomWindows:LocalDataPanel />
+                                    <CustomWindows:LocalDataPanel />
 
-                            </TabItem>
-                            <TabItem Header="DAQ" Visibility="Collapsed">
-                                <StackPanel Orientation="Vertical" Margin="6">
-                                    <TextBlock x:Name="Adv_DAQ_A0Txb" Text="-" />
-                                    <Button x:Name="Adv_DAQ_GetA0Btn" Click="Adv_DAQ_GetA0Btn_Click" Content="Get A0 Voltage" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_DAQ_GetA0TimedBtn" Click="Adv_DAQ_GetA0TimedBtn_Click" Content="Get A0 Many Voltages" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Run Matlab program to collect hall data " Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                </TabItem>
+                                <TabItem Header="DAQ" Visibility="Collapsed">
+                                    <StackPanel Orientation="Vertical" Margin="6">
+                                        <TextBlock x:Name="Adv_DAQ_A0Txb" Text="-" />
+                                        <Button x:Name="Adv_DAQ_GetA0Btn" Click="Adv_DAQ_GetA0Btn_Click" Content="Get A0 Voltage" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                        <Button x:Name="Adv_DAQ_GetA0TimedBtn" Click="Adv_DAQ_GetA0TimedBtn_Click" Content="Get A0 Many Voltages" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                        <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Run Matlab program to collect hall data " Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
 
-                                </StackPanel>
-                            </TabItem>
-                            <TabItem Header="Misc" Visibility="Visible">
-                                <StackPanel Orientation="Vertical" Margin="6">
-                                    <Button x:Name="Adv_Res_OpenFolderBtn" Command="{Binding OpenResultsFolderCommand}" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                    <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                </StackPanel>
-                            </TabItem>
-                        </TabControl>
+                                    </StackPanel>
+                                </TabItem>
+                                <TabItem Header="Misc" Visibility="Visible">
+                                    <StackPanel Orientation="Vertical" Margin="6">
+                                        <Button x:Name="Adv_Res_OpenFolderBtn" Command="{Binding OpenResultsFolderCommand}" Content="Open Results Folder" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                        <Button x:Name="Adv_Misc_LockAdvBtn" Click="Adv_Misc_LockAdvBtn_Click" Content="Lock Advanced Tab" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                </TabItem>
+                            </TabControl>
 
-                    </Grid>
+                        </Grid>
 
+                    </Border>
                 </TabItem>
 
             </TabControl>

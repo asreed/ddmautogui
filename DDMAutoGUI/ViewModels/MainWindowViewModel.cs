@@ -135,7 +135,7 @@ namespace DDMAutoGUI.ViewModels
                     OnPropertyChanged(nameof(IsDisconnected));
                     OnPropertyChanged(nameof(IsRobotControlEnabled));
                     OnPropertyChanged(nameof(IsCalibrationExpired));
-                    OnPropertyChanged(nameof(IsCalibrationMatched));
+                    OnPropertyChanged(nameof(IsCalibrationMismatched));
                 }
             }
         }
@@ -225,7 +225,7 @@ namespace DDMAutoGUI.ViewModels
             {
                 if (SetProperty(ref _selectedMotorType, value))
                 {
-                    OnPropertyChanged(nameof(IsCalibrationMatched));
+                    OnPropertyChanged(nameof(IsCalibrationMismatched));
                     Application.Current?.Dispatcher.BeginInvoke(
                         CommandManager.InvalidateRequerySuggested);
                 }
@@ -508,15 +508,23 @@ namespace DDMAutoGUI.ViewModels
             }
         }
 
-        public bool DispOverrideWarnings
+        private bool _dispOverridePCLocks;
+
+        /// <summary>
+        /// Dev/debug option. When enabled, bypasses the serial-number and calibration
+        /// gates in <see cref="CanExecutePartCycle"/> so a part cycle can be started for
+        /// testing without a scanned SN or valid/matching flow calibration. The
+        /// connection and "already running" gates are always enforced.
+        /// </summary>
+        public bool DispOverridePCLocks
         {
-            get => _appConfig.AdvancedOptions.PartCycleOptions.OverrideWarnings;
+            get => _dispOverridePCLocks;
             set
             {
-                if (_appConfig.AdvancedOptions.PartCycleOptions.OverrideWarnings != value)
+                if (SetProperty(ref _dispOverridePCLocks, value))
                 {
-                    _appConfig.AdvancedOptions.PartCycleOptions.OverrideWarnings = value;
-                    OnPropertyChanged();
+                    Application.Current?.Dispatcher.BeginInvoke(
+                        CommandManager.InvalidateRequerySuggested);
                 }
             }
         }
@@ -696,7 +704,7 @@ namespace DDMAutoGUI.ViewModels
         /// dispense against a calibration captured for a different size. Returns false
         /// while disconnected, since calibration/settings are only known when connected.
         /// </summary>
-        public bool IsCalibrationMatched
+        public bool IsCalibrationMismatched
         {
             get
             {
@@ -705,7 +713,7 @@ namespace DDMAutoGUI.ViewModels
 
                 string? lastSize = _localDataService.GetLocalData()?.calib_data?.last_size;
                 return !string.IsNullOrEmpty(lastSize)
-                    && lastSize.Equals(SelectedMotorType, StringComparison.OrdinalIgnoreCase);
+                    && !lastSize.Equals(SelectedMotorType, StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -740,7 +748,7 @@ namespace DDMAutoGUI.ViewModels
         {
             ConnectCommand = new AsyncRelayCommand<string>(ExecuteConnect, parameter => CanConnect(parameter));
             DisconnectCommand = new AsyncRelayCommand(ExecuteDisconnect, parameter => CanDisconnect(parameter));
-            StartDispenseCommand = new AsyncRelayCommand(ExecutePartCycle, parameter => CanStartDispense(parameter));
+            StartDispenseCommand = new AsyncRelayCommand(ExecutePartCycle, parameter => CanExecutePartCycle(parameter));
             ViewResultsCommand = new RelayCommand(ExecuteViewResults);
             OpenResultsDirectoryCommand = new RelayCommand(ExecuteOpenResultsDirectory);
             AcquireTopCommand = new AsyncRelayCommand(ExecuteAcquireTop, CanAcquireImage);
@@ -858,15 +866,19 @@ namespace DDMAutoGUI.ViewModels
             }
         }
 
-        private bool CanStartDispense(object parameter) 
+        private bool CanExecutePartCycle(object parameter)
         {
-            // Must be connected to controller
+            // Must be connected to controller (always enforced)
             if (!IsConnected)
                 return false;
 
-            // Cannot start while another process is running
+            // Cannot start while another process is running (always enforced)
             if (IsProcessing)
                 return false;
+
+            // Dev/debug override bypasses the operator-facing safety gates below.
+            if (DispOverridePCLocks)
+                return true;
 
             // Motor serial number is required
             if (IsSerialNumberMissing)
@@ -881,7 +893,7 @@ namespace DDMAutoGUI.ViewModels
                 return false;
 
             // Calibration must match the selected motor type
-            if (!IsCalibrationMatched)
+            if (IsCalibrationMismatched)
                 return false;
 
             return true;
@@ -1212,7 +1224,7 @@ namespace DDMAutoGUI.ViewModels
         public void RefreshCalibrationStatus()
         {
             OnPropertyChanged(nameof(IsCalibrationExpired));
-            OnPropertyChanged(nameof(IsCalibrationMatched));
+            OnPropertyChanged(nameof(IsCalibrationMismatched));
             CommandManager.InvalidateRequerySuggested();
         }
 
