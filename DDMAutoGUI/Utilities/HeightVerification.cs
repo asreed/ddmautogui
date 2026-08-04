@@ -18,12 +18,13 @@ namespace DDMAutoGUI.Utilities
         public bool passed { get; set; } = false;
         public double normMaxHeight { get; set; }
         public double normMinHeight { get; set; }
-        public double ringA { get; set; }
-        public double ringPhi { get; set; }
-        public double ringRSquared { get; set; }
-        public List<ResultsHeightMeasurement> surfaceData { get; set; }
+        public double refA { get; set; }
+        public double refPhi { get; set; }
+        public double refRSquared { get; set; }
+        public List<ResultsHeightMeasurement> refData { get; set; }
         public List<ResultsHeightMeasurement> ringData { get; set; }
-        public List<ResultsHeightMeasurement> rawMagConcData { get; set; }
+        public List<ResultsHeightMeasurement> magConcData { get; set; }
+        public List<ResultsHeightMeasurement> normRingData { get; set; }
         public List<ResultsHeightMeasurement> normMagConcData { get; set; }
         public string message { get; set; } = "";
 
@@ -41,61 +42,100 @@ namespace DDMAutoGUI.Utilities
             List<ResultsHeightMeasurement> refData,
             List<ResultsHeightMeasurement> ringData, 
             List<ResultsHeightMeasurement> magConcData, 
+            CSMotor motor,
             CellSettings settings)
         {
 
-
-            // Remove invalid readings from ref data
+            // Remove invalid readings from data
             const float badSensorRead = -100000000f;
             List<ResultsHeightMeasurement> refDataTrimmed = refData
+                .Where(m => m.z.HasValue && m.z.Value > badSensorRead * 0.9f)
+                .ToList();
+
+            List<ResultsHeightMeasurement> ringDataTrimmed = ringData
+                .Where(m => m.z.HasValue && m.z.Value > badSensorRead * 0.9f)
+                .ToList();
+
+            List<ResultsHeightMeasurement> magConcDataTrimmed = magConcData
                 .Where(m => m.z.HasValue && m.z.Value > badSensorRead * 0.9f)
                 .ToList();
 
 
             // Fit sine to ring data
             double A, phi, zOffset, rSquared;
-            FitSinToData(ringData, out A, out phi, out zOffset, out rSquared);
+            FitSinToData(refDataTrimmed, out A, out phi, out zOffset, out rSquared);
 
-            // Normalize mag conc data based on fit
-            List<ResultsHeightMeasurement> normMagConcData = NormalizeData(A, phi, zOffset, magConcData);
+            // Normalize ring and mag conc data based on fit
+            List<ResultsHeightMeasurement> normRingData = NormalizeData(A, phi, zOffset, ringDataTrimmed);
+            List<ResultsHeightMeasurement> normMagConcData = NormalizeData(A, phi, zOffset, magConcDataTrimmed);
 
-            // Print for debug
-            //Debug.Print($"Raw ring data:");
-            //PrintHeightData(ringData);
-            //Debug.Print($"Raw mag conc data:");
-            //PrintHeightData(magConcData);
-            //Debug.Print($"Sine fit generated:\tA = {A}, phi = {phi}, Z Offset = {zOffset}, R^2 = {rSquared}");
-            //Debug.Print($"Normalized mag conc data:");
-            //PrintHeightData(normMagConcData);
+            // Get min/max of normalized data
+            float maxRingHeight = normRingData.Max(m => m.z) ?? float.NaN;
+            float minRingHeight = normRingData.Min(m => m.z) ?? float.NaN;
+            float maxMCHeight = normMagConcData.Max(m => m.z) ?? float.NaN;
+            float minMCHeight = normMagConcData.Min(m => m.z) ?? float.NaN;
 
-            // Collect results
-            float maxAcceptableHeight = settings.height_verification.max_height.Value;
-            float maxHeight = normMagConcData.Max(m => m.z) ?? float.NaN;
-            float minHeight = normMagConcData.Min(m => m.z) ?? float.NaN;
+            // Settings data in mm, convert to um for comparison with normalized data
+            float maxAcceptableSinAmplitude = motor.sin_fit_max_amplitude.Value * 1000f;
+            float maxAcceptableRingHeight = motor.ring_height_max.Value * 1000f;
+            float minAcceptableRingHeight = motor.ring_height_min.Value * 1000f;
+            float maxAcceptableMCHeight = motor.mag_height_max.Value * 1000f;
+            float minAcceptableMCHeight = motor.mag_height_min.Value * 1000f;
+
 
             HeightVerificationResult result = new HeightVerificationResult();
-            result.surfaceData = refDataTrimmed;
-            result.ringA = A;
-            result.ringPhi = phi;
-            result.ringRSquared = rSquared;
-            result.ringData = ringData;
-            result.rawMagConcData = magConcData;
+            result.refData = refDataTrimmed;
+            result.refA = A;
+            result.refPhi = phi;
+            result.refRSquared = rSquared;
+            result.ringData = ringData; // save out raw data, including any bad reads
+            result.magConcData = magConcData;
+            result.normRingData = normRingData;
             result.normMagConcData = normMagConcData;
-            result.normMaxHeight = maxHeight;
-            result.normMinHeight = minHeight;
 
-            // Simple verificaition
-            if (maxHeight > maxAcceptableHeight)
+            List<string> failures = new List<string>();
+
+            // Guard: usable input and a usable fit
+            if (refDataTrimmed.Count == 0)
             {
-                result.message = $"Height verification failed: max height {maxHeight} exceeds acceptable limit {maxAcceptableHeight}.";
-                result.passed = false;
+                failures.Add("No valid reference readings after removing bad sensor reads.\n");
             }
-            else
+            else if (double.IsNaN(A) || double.IsNaN(rSquared))
             {
-                result.message = $"Height verification passed: max height {maxHeight} within acceptable limit {maxAcceptableHeight}.";
-                result.passed = true;
+                failures.Add("Sine fit to reference data did not converge.\n");
             }
+
+            if (failures.Count == 0)
+            {
+                CheckRange("Tool height variation", Math.Abs(A), 0, maxAcceptableSinAmplitude, failures);
+                CheckRange("Ring height", maxRingHeight, minAcceptableRingHeight, maxAcceptableRingHeight, failures);
+                CheckRange("Ring height", minRingHeight, minAcceptableRingHeight, maxAcceptableRingHeight, failures);
+                CheckRange("Mag/conc height", maxMCHeight, minAcceptableMCHeight, maxAcceptableMCHeight, failures);
+                CheckRange("Mag/conc height", minMCHeight, minAcceptableMCHeight, maxAcceptableMCHeight, failures);
+            }
+
+            result.passed = failures.Count == 0;
+            result.message = result.passed
+                ? $"Passed. Tool variation {Math.Abs(A):F1} (R^2 {rSquared:F3}), ring {minRingHeight:F1}-{maxRingHeight:F1}, mag/conc {minMCHeight:F1}-{maxMCHeight:F1}."
+                : string.Join(Environment.NewLine, failures);
+
             return result;
+        }
+
+        private static void CheckRange(string label, double value, double min, double max, List<string> failures)
+        {
+            if (double.IsNaN(value))
+            {
+                failures.Add($"{label} could not be determined (no valid readings).\n");
+            }
+            else if (value > max)
+            {
+                failures.Add($"{label} {value:F1} above acceptable limit {max:F1}.\n");
+            }
+            else if (value < min)
+            {
+                failures.Add($"{label} {value:F1} below acceptable limit {min:F1}.\n");
+            }
         }
 
 

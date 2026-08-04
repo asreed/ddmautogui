@@ -430,7 +430,7 @@ namespace DDMAutoGUI.Services
             float time = motor.laser_ref_time.Value;
             string response = await _controllerService.MeasureHeightsContinuous(x, t, n, time);
             List<ResultsHeightMeasurement> ref_heights = _controllerService.ParseHeightData(response);
-            _resultsService.AddToLog("reference height data collected");
+            _resultsService.AddToLog("Reference height data collected");
 
             _resultsService.AddToLog("Collecting ring height data...");
             x = motor.laser_ring.x.Value;
@@ -459,6 +459,7 @@ namespace DDMAutoGUI.Services
                 ref_heights,
                 ring_heights,
                 mag_heights,
+                motor,
                 settings);
 
             _resultsService.currentResults.height_verification_result = heightResult;
