@@ -36,7 +36,9 @@ namespace DDMAutoGUI.Services
         }
 
         public async Task<RunCalibResult> RunDispenseForManualCalibration(
-            CellSettings settings, LocalData localData, string motorName)
+            CellSettings settings, 
+            LocalData localData, 
+            string motorName)
         {
             var result = new RunCalibResult { success = false, message = "" };
 

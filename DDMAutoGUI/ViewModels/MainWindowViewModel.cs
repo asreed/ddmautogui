@@ -731,6 +731,51 @@ namespace DDMAutoGUI.ViewModels
             set => SetProperty(ref _connectedPacVersion, value);
         }
 
+        /// <summary>
+        /// Path to the results server share (UNC preferred over a mapped drive letter).
+        /// Write-through to AdvancedOptions.ResultsStorageOptions.ServerPath.
+        /// </summary>
+        public string ServerPathText
+        {
+            get => _appConfig.AdvancedOptions.ResultsStorageOptions.ServerPath;
+            set
+            {
+                if (_appConfig.AdvancedOptions.ResultsStorageOptions.ServerPath != value)
+                {
+                    _appConfig.AdvancedOptions.ResultsStorageOptions.ServerPath = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>Whether the connect routine verifies reachability of the results server share.</summary>
+        public bool DispVerifyServer
+        {
+            get => _appConfig.AdvancedOptions.ResultsStorageOptions.VerifyServerOnConnect;
+            set
+            {
+                if (_appConfig.AdvancedOptions.ResultsStorageOptions.VerifyServerOnConnect != value)
+                {
+                    _appConfig.AdvancedOptions.ResultsStorageOptions.VerifyServerOnConnect = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>When true, results are written locally only and never copied to the server (dev/debug).</summary>
+        public bool DispSaveLocalOnly
+        {
+            get => _appConfig.AdvancedOptions.ResultsStorageOptions.SaveLocalOnly;
+            set
+            {
+                if (_appConfig.AdvancedOptions.ResultsStorageOptions.SaveLocalOnly != value)
+                {
+                    _appConfig.AdvancedOptions.ResultsStorageOptions.SaveLocalOnly = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region Commands
@@ -876,16 +921,16 @@ namespace DDMAutoGUI.ViewModels
             if (IsProcessing)
                 return false;
 
+            // Motor type must be selected (always enforced)
+            if (string.IsNullOrEmpty(SelectedMotorType))
+                return false;
+
             // Dev/debug override bypasses the operator-facing safety gates below.
             if (DispOverridePCLocks)
                 return true;
 
             // Motor serial number is required
             if (IsSerialNumberMissing)
-                return false;
-
-            // Motor type must be selected
-            if (string.IsNullOrEmpty(SelectedMotorType))
                 return false;
 
             // Calibration must be present and within the configured expiry window

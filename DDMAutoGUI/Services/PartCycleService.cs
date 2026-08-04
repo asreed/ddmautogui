@@ -420,13 +420,26 @@ namespace DDMAutoGUI.Services
 
         private async Task ExecuteHeightMeasurementsAsync(CellSettings settings, CSMotor motor)
         {
-            _resultsService.AddToLog("Collecting ring height data...");
-            float x = motor.laser_ring.x.Value;
-            float t = motor.laser_ring.t.Value;
+
+            _resultsService.AddToLog("Collecting reference height data...");
+            float x = motor.laser_ref.x.Value;
+            float t = motor.laser_ref.t.Value;
             await _controllerService.MoveJ(x, t);
 
-            int n = motor.laser_ring_num.Value;
-            string response = await _controllerService.MeasureHeightsContinuous(x, t, n, 10);
+            int n = motor.laser_ref_num.Value;
+            float time = motor.laser_ref_time.Value;
+            string response = await _controllerService.MeasureHeightsContinuous(x, t, n, time);
+            List<ResultsHeightMeasurement> ref_heights = _controllerService.ParseHeightData(response);
+            _resultsService.AddToLog("reference height data collected");
+
+            _resultsService.AddToLog("Collecting ring height data...");
+            x = motor.laser_ring.x.Value;
+            t = motor.laser_ring.t.Value;
+            await _controllerService.MoveJ(x, t);
+
+            n = motor.laser_ring_num.Value;
+            time = motor.laser_ring_time.Value;
+            response = await _controllerService.MeasureHeightsContinuous(x, t, n, time);
             List<ResultsHeightMeasurement> ring_heights = _controllerService.ParseHeightData(response);
             _resultsService.AddToLog("Ring height data collected");
 
@@ -436,12 +449,14 @@ namespace DDMAutoGUI.Services
             await _controllerService.MoveJ(x, t);
 
             n = motor.laser_mag_num.Value;
-            response = await _controllerService.MeasureHeightsContinuous(x, t, n, 20);
+            time = motor.laser_mag_time.Value;
+            response = await _controllerService.MeasureHeightsContinuous(x, t, n, time);
             List<ResultsHeightMeasurement> mag_heights = _controllerService.ParseHeightData(response);
             _resultsService.AddToLog("Magnet/concentrator height data collected");
             _resultsService.AddToLog("Processing height data...");
 
             HeightVerificationResult heightResult = HeightVerification.VerifyHeightData(
+                ref_heights,
                 ring_heights,
                 mag_heights,
                 settings);

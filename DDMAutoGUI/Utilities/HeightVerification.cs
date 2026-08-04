@@ -21,6 +21,7 @@ namespace DDMAutoGUI.Utilities
         public double ringA { get; set; }
         public double ringPhi { get; set; }
         public double ringRSquared { get; set; }
+        public List<ResultsHeightMeasurement> surfaceData { get; set; }
         public List<ResultsHeightMeasurement> ringData { get; set; }
         public List<ResultsHeightMeasurement> rawMagConcData { get; set; }
         public List<ResultsHeightMeasurement> normMagConcData { get; set; }
@@ -36,8 +37,19 @@ namespace DDMAutoGUI.Utilities
 
 
 
-        public static HeightVerificationResult VerifyHeightData(List<ResultsHeightMeasurement> ringData, List<ResultsHeightMeasurement> magConcData, CellSettings settings)
+        public static HeightVerificationResult VerifyHeightData(
+            List<ResultsHeightMeasurement> refData,
+            List<ResultsHeightMeasurement> ringData, 
+            List<ResultsHeightMeasurement> magConcData, 
+            CellSettings settings)
         {
+
+
+            // Remove invalid readings from ref data
+            const float badSensorRead = -100000000f;
+            List<ResultsHeightMeasurement> refDataTrimmed = refData
+                .Where(m => m.z.HasValue && m.z.Value > badSensorRead * 0.9f)
+                .ToList();
 
 
             // Fit sine to ring data
@@ -62,6 +74,7 @@ namespace DDMAutoGUI.Utilities
             float minHeight = normMagConcData.Min(m => m.z) ?? float.NaN;
 
             HeightVerificationResult result = new HeightVerificationResult();
+            result.surfaceData = refDataTrimmed;
             result.ringA = A;
             result.ringPhi = phi;
             result.ringRSquared = rSquared;

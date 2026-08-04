@@ -50,8 +50,8 @@ namespace DDMAutoGUI.CustomWindows
             // Refresh the calibrate button label to reflect the newly selected size.
             string motorName = SelectedMotorName;
             RunBtn.Content = string.IsNullOrEmpty(motorName)
-                ? "Calibrate flow rate"
-                : $"Calibrate {motorName} flow rate";
+                ? "Calibrate flow"
+                : $"Calibrate {motorName} flow";
         }
 
         private async void RunBtn_Click(object sender, RoutedEventArgs e)

@@ -1,11 +1,11 @@
-using System.Diagnostics;
-using System.Net.Sockets;
-using System.Net;
-using System.Text;
-
-using System.Windows.Threading;
-using Microsoft.Extensions.DependencyInjection;
 using DDMAutoGUI.Constants;
+using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Windows.Threading;
 
 
 
@@ -511,6 +511,19 @@ namespace DDMAutoGUI.Services
                     {
                         UpdateConnectionLog($"✓ Side Camera");
                     }
+                }
+
+                // --- Results Server ---
+                var resultsStorage = _applicationConfiguration?.AdvancedOptions?.ResultsStorageOptions;
+                if (resultsStorage?.VerifyServerOnConnect == true && !resultsStorage.SaveLocalOnly)
+                {
+                    string serverPath = resultsStorage.ServerPath;
+                    bool serverReachable = await Task.Run(() => Directory.Exists(serverPath));
+                    if (!serverReachable)
+                    {
+                        throw new Exception($"{ErrorCodes.conServer.Code}: {ErrorCodes.conServer.Message}");
+                    }
+                    UpdateConnectionLog($"✓ Results Server");
                 }
 
                 // --- Retest Controller State ---

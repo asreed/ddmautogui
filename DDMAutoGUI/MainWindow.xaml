@@ -200,8 +200,8 @@
                                 <TabItem Header="Options">
                                     <StackPanel Orientation="Vertical" Margin="6">
                                         <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
-                                            <StackPanel Orientation="Vertical">
-
+                                            <StackPanel Orientation="Horizontal">
+                                                <Label Content="Controller IP" VerticalAlignment="Center"/>
                                                 <TextBox 
                                                 Width="150"
                                                 x:Name="IPTxt"
@@ -223,6 +223,19 @@
                                         <GroupBox Header="Overrides" HorizontalAlignment="Left" Padding="12">
                                             <StackPanel Orientation="Vertical">
                                                 <CheckBox x:Name="Adv_Opt_Disp_OverridePCLocksChk"     Content="Override Part Cycle Locks" IsChecked="{Binding DispOverridePCLocks}"/>
+                                            </StackPanel>
+                                        </GroupBox>
+                                        <GroupBox Header="Results Server" HorizontalAlignment="Left" Padding="12">
+                                            <StackPanel Orientation="Vertical">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Label Content="Server Path" VerticalAlignment="Center"/>
+                                                    <TextBox 
+                                                        Width="200"
+                                                        x:Name="ServerPathTxt"
+                                                        Text="{Binding ServerPathText, UpdateSourceTrigger=PropertyChanged}"/>
+                                                </StackPanel>
+                                                <CheckBox x:Name="Adv_Opt_VerifyServerChk"     Content="Verify Server On Connect" IsChecked="{Binding DispVerifyServer}"/>
+                                                <CheckBox x:Name="Adv_Opt_SaveLocalOnlyChk"     Content="Save Local Only" IsChecked="{Binding DispSaveLocalOnly}"/>
                                             </StackPanel>
                                         </GroupBox>
                                     </StackPanel>

@@ -56,13 +56,18 @@ namespace DDMAutoGUI.Services
         public CSShot? shot_settings { get; set; }
         public float? post_spin_time { get; set; }
         public float? post_spin_speed { get; set; }
+        public int? laser_ref_num { get; set; }
         public int? laser_ring_num { get; set; }
         public int? laser_mag_num { get; set; }
+        public float? laser_ref_time { get; set; } = 5f;
+        public float? laser_ring_time { get; set; } = 5f;
+        public float? laser_mag_time { get; set; } = 20f;
         public CSLocation? camera_side { get; set; }
         public CSLocation? id_disp { get; set; }
         public CSLocation? od_disp { get; set; }
-        public CSLocation? laser_mag { get; set; }
+        public CSLocation? laser_ref { get; set; }
         public CSLocation? laser_ring { get; set; }
+        public CSLocation? laser_mag { get; set; }
         public CSLocation? hall_sensor { get; set; }
         public CSLocation? calib_tool_test { get; set; }
 
