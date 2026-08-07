@@ -310,21 +310,23 @@ namespace DDMAutoGUI
         private async void Adv_DAQ_TestConnectionBtn_Click(object sender, RoutedEventArgs e)
         {
             var daqService = App.Services?.GetService<IDaqService>();
-            if (daqService == null) return;
+            if (daqService == null)
+            {
+                SetDaqResult("DAQ service unavailable");
+                return;
+            }
 
             Button btn = sender as Button;
             if (btn != null) btn.IsEnabled = false;
+            SetDaqResult("Testing connection...");
 
             try
             {
                 DaqConnectionResult result = await daqService.TestDaqConnection();
 
-                string msg = result.success
-                    ? $"DAQ connected.\n\nDevice: {result.device_id}"
-                    : $"DAQ connection failed.\n\n{result.error_code}: {result.error_message}";
-
-                MessageBox.Show(msg, "DAQ Connection Test", MessageBoxButton.OK,
-                    result.success ? MessageBoxImage.Information : MessageBoxImage.Warning);
+                SetDaqResult(result.success
+                    ? $"Connected - device {result.device_id}"
+                    : $"Connection failed - {result.error_code}: {result.error_message}");
             }
             finally
             {
@@ -335,25 +337,27 @@ namespace DDMAutoGUI
         private async void Adv_DAQ_TestSignal_Click(object sender, RoutedEventArgs e)
         {
             var daqService = App.Services?.GetService<IDaqService>();
-            if (daqService == null) return;
+            if (daqService == null)
+            {
+                SetDaqResult("DAQ service unavailable");
+                return;
+            }
 
             Button btn = sender as Button;
             if (btn != null) btn.IsEnabled = false;
+            SetDaqResult("Testing signal...");
 
             try
             {
                 DaqConnectionResult result = await daqService.TestDaqSignal();
 
                 string amplitude = result.signal_amplitude.HasValue
-                    ? $"{result.signal_amplitude.Value:F3} V peak-to-peak"
-                    : "not measured";
+                    ? $"{result.signal_amplitude.Value:F3} Vpp"
+                    : "n/a";
 
-                string msg = result.success
-                    ? $"Hall signal detected.\n\nDevice: {result.device_id}\nAmplitude: {amplitude}"
-                    : $"Signal test failed.\n\n{result.error_code}: {result.error_message}\nAmplitude: {amplitude}";
-
-                MessageBox.Show(msg, "DAQ Signal Test", MessageBoxButton.OK,
-                    result.success ? MessageBoxImage.Information : MessageBoxImage.Warning);
+                SetDaqResult(result.success
+                    ? $"Signal OK - {amplitude} on {result.device_id}"
+                    : $"Signal test failed ({amplitude}) - {result.error_code}: {result.error_message}");
             }
             finally
             {
@@ -364,7 +368,11 @@ namespace DDMAutoGUI
         private async void Adv_DAQ_TestSingleMeas_Click(object sender, RoutedEventArgs e)
         {
             var daqService = App.Services?.GetService<IDaqService>();
-            if (daqService == null) return;
+            if (daqService == null)
+            {
+                SetDaqResult("DAQ service unavailable");
+                return;
+            }
 
             Button btn = sender as Button;
             if (btn != null) btn.IsEnabled = false;
@@ -373,17 +381,85 @@ namespace DDMAutoGUI
             {
                 DaqSingleReadResult result = await daqService.ReadSingleValue();
 
-                string msg = result.success
-                    ? $"ai0 = {result.voltage:F4} V"
-                    : $"Read failed.\n\n{result.error_code}: {result.error_message}";
-
-                MessageBox.Show(msg, "DAQ Single Measurement", MessageBoxButton.OK,
-                    result.success ? MessageBoxImage.Information : MessageBoxImage.Warning);
+                SetDaqResult(result.success
+                    ? $"ai0 = {result.voltage,8:F4} V"
+                    : $"Read failed - {result.error_code}: {result.error_message}");
             }
             finally
             {
                 if (btn != null) btn.IsEnabled = true;
             }
+        }
+        private async void Adv_DAQ_AcquireHallBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var daqService = App.Services?.GetService<IDaqService>();
+            if (daqService == null)
+            {
+                SetDaqResult("DAQ service unavailable");
+                return;
+            }
+
+            Button btn = sender as Button;
+            if (btn != null) btn.IsEnabled = false;
+            SetDaqResult("Acquiring Hall data...");
+
+            try
+            {
+                HallAcquisitionResult result = await daqService.AcquireHallData();
+
+                if (!result.success)
+                {
+                    SetDaqResult($"Acquisition failed - {result.error_code}: {result.error_message}");
+                    return;
+                }
+
+                SetDaqResult($"Acquired {result.signal.Length} samples");
+
+                // Build the two-column table off the UI thread - 2020 rows of
+                // string formatting is enough to be visible as a hitch otherwise.
+                string data = await Task.Run(() => FormatHallData(result));
+
+                TextDataViewer viewer = new TextDataViewer();
+                viewer.Owner = this;
+                viewer.PopulateData(data, "Hall Data (time, signal)");
+                viewer.ShowDialog();
+            }
+            finally
+            {
+                if (btn != null) btn.IsEnabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Formats a Hall acquisition as a two-column time/voltage table with a
+        /// short summary header, for display in the TextDataViewer.
+        /// </summary>
+        private static string FormatHallData(HallAcquisitionResult result)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"Samples:   {result.signal.Length}");
+            sb.AppendLine($"Duration:  {result.time[result.time.Length - 1]:F4} s");
+            sb.AppendLine($"Min:       {result.signal.Min():F4} V");
+            sb.AppendLine($"Max:       {result.signal.Max():F4} V");
+            sb.AppendLine($"Peak-peak: {result.signal.Max() - result.signal.Min():F4} V");
+            sb.AppendLine();
+            sb.AppendLine($"{"time (s)"},{"signal (V)"}");
+
+            for (int i = 0; i < result.signal.Length; i++)
+            {
+                sb.AppendLine($"{result.time[i]:F5},{result.signal[i]:F5}");
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Writes a timestamped line to the DAQ test output on the Advanced tab.
+        /// </summary>
+        private void SetDaqResult(string message)
+        {
+            Adv_DAQ_ResultTxb.Text = $"[{DateTime.Now:HH:mm:ss}] {message}";
         }
     }
 }
