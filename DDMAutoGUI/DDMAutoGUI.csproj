@@ -270,6 +270,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="MatlabExecutables\Source\" />
     <Folder Include="MatlabResults\" />
     <Folder Include="Results\" />
   </ItemGroup>

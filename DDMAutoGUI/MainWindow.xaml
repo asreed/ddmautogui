@@ -14,7 +14,7 @@
         Width="1024"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
-        Background="#FF152238">
+        Background="{StaticResource BrooksDarkBlue}">
 
     <Grid Margin="8">
 
@@ -157,7 +157,7 @@
                 <TabItem x:Name="AdvTab" Header="Dev" utils:TabIcon.Source="{StaticResource Icon.GearFill}" Style="{StaticResource MainTab}" Visibility="Visible">
 
                     <Border BorderBrush="#FF152238" BorderThickness="10,0,0,0" Margin="-3" Padding="0">
-                        <Grid Background="#FFFF9800">
+                        <Grid Background="#FFFFC958">
                             <Border x:Name="Adv_PWEntryBdr" Background="WhiteSmoke" Margin="20" Visibility="Visible">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -267,12 +267,24 @@
                                     <CustomWindows:LocalDataPanel />
 
                                 </TabItem>
-                                <TabItem Header="DAQ" Visibility="Collapsed">
+                                <TabItem Header="DAQ" Visibility="Visible">
                                     <StackPanel Orientation="Vertical" Margin="6">
-                                        <TextBlock x:Name="Adv_DAQ_A0Txb" Text="-" />
-                                        <Button x:Name="Adv_DAQ_GetA0Btn" Click="Adv_DAQ_GetA0Btn_Click" Content="Get A0 Voltage" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                        <Button x:Name="Adv_DAQ_GetA0TimedBtn" Click="Adv_DAQ_GetA0TimedBtn_Click" Content="Get A0 Many Voltages" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
-                                        <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Run Matlab program to collect hall data " Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                        <GroupBox Header="Matlab" HorizontalAlignment="Left">
+                                            <StackPanel Orientation="Vertical">
+                                                <TextBlock x:Name="Adv_DAQ_A0Txb" Text="-" />
+                                                <Button x:Name="Adv_DAQ_GetA0Btn" Click="Adv_DAQ_GetA0Btn_Click" Content="Get A0 Voltage" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                                <Button x:Name="Adv_DAQ_GetA0TimedBtn" Click="Adv_DAQ_GetA0TimedBtn_Click" Content="Get A0 Many Voltages" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                                <Button x:Name="Adv_Misc_TestMatlabBtn" Click="Adv_Misc_TestMatlabBtn_Click" Content="Run Matlab program to collect hall data " Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                            </StackPanel>
+                                        </GroupBox>
+
+                                        <GroupBox Header="C#" HorizontalAlignment="Left">
+                                            <StackPanel Orientation="Vertical">
+                                                <Button x:Name="Adv_DAQ_TestConnectionBtn" Click="Adv_DAQ_TestConnectionBtn_Click" Content="Test DAQ Connection" Style="{StaticResource SmallButton}"/>
+                                                <Button x:Name="Adv_DAQ_TestSignal" Click="Adv_DAQ_TestSignal_Click" Content="Test DAQ Signal" Style="{StaticResource SmallButton}"/>
+                                                <Button x:Name="Adv_DAQ_TestSingleMeas" Click="Adv_DAQ_TestSingleMeas_Click" Content="Test DAQ Measurement" Style="{StaticResource SmallButton}"/>
+                                            </StackPanel>
+                                        </GroupBox>
 
                                     </StackPanel>
                                 </TabItem>

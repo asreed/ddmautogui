@@ -42,6 +42,7 @@ namespace DDMAutoGUI
 
                 // Data & Other Services
                 serviceCollection.AddSingleton<ICameraService, CameraService>();
+                serviceCollection.AddSingleton<IDaqService, DaqService>();
                 serviceCollection.AddSingleton<IResultsService, ResultsService>();
                 serviceCollection.AddSingleton<ILocalDataService, LocalDataService>();
                 serviceCollection.AddSingleton<IDispenseExecutionService, DispenseExecutionService>();
@@ -71,6 +72,7 @@ namespace DDMAutoGUI
                     var lds = Services.GetRequiredService<ILocalDataService>();
                     var des = Services.GetRequiredService<IDispenseExecutionService>();
                     var fcs = Services.GetRequiredService<IFlowCalibrationService>();
+                    var das = Services.GetRequiredService<IDaqService>();
                     var vm = Services.GetRequiredService<MainWindowViewModel>();
                 }
                 catch (Exception testEx)

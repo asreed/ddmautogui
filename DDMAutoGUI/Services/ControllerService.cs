@@ -108,6 +108,7 @@ namespace DDMAutoGUI.Services
         private readonly IApplicationConfiguration _applicationConfiguration;
         private readonly Func<ICameraService> _getCameraService; // Lazy accessor to break circular dependency
         private readonly Func<ISettingsService> _getSettingsService; // Lazy accessor for settings verification
+        private readonly Func<IDaqService> _getDaqService; // Lazy accessor for DAQ service
 
         private string connectionLog = string.Empty;
         private string statusLog = string.Empty;
@@ -184,6 +185,7 @@ namespace DDMAutoGUI.Services
             // so we resolve it only when needed to break the circular dependency
             _getCameraService = () => serviceProvider.GetRequiredService<ICameraService>();
             _getSettingsService = () => serviceProvider.GetRequiredService<ISettingsService>();
+            _getDaqService = () => serviceProvider.GetRequiredService<IDaqService>();
 
 
             CONTROLLER_STATE.Initialize();
@@ -390,6 +392,7 @@ namespace DDMAutoGUI.Services
                 UpdateConnectionLog($"✓ Laser Sensor");
                 UpdateConnectionLog($"✓ Top Camera");
                 UpdateConnectionLog($"✓ Side Camera");
+                UpdateConnectionLog($"✓ Hall DAQ");
                 UpdateConnectionLog($"\nConnected successfully");
 
                 CONNECTION_STATE.isConnected = true;
@@ -513,6 +516,21 @@ namespace DDMAutoGUI.Services
                     }
                 }
 
+                // --- Hall DAQ ---
+                if (_applicationConfiguration?.AdvancedOptions?.ConnectionOptions?.DaqDevice == true)
+                {
+                    var daqService = _getDaqService();
+
+                    // TestDaqConnection enumerates and verifies the task without
+                    // acquiring samples, so this adds only milliseconds to connect.
+                    DaqConnectionResult daqResult = await daqService.TestDaqConnection();
+                    if (!daqResult.success)
+                    {
+                        throw new Exception($"{ErrorCodes.conDaq.Code}: {ErrorCodes.conDaq.Message}");
+                    }
+                    UpdateConnectionLog($"✓ Hall DAQ ({daqResult.device_id})");
+                }
+
                 // --- Results Server ---
                 var resultsStorage = _applicationConfiguration?.AdvancedOptions?.ResultsStorageOptions;
                 if (resultsStorage?.VerifyServerOnConnect == true && !resultsStorage.SaveLocalOnly)
@@ -566,7 +584,11 @@ namespace DDMAutoGUI.Services
                 UpdateConnectionLog($"\nConnection failed ({ex.Message})");
                 UpdateConnectionLog($"{ErrorCodes.conCont.Code}: {ErrorCodes.conCont.Message}");
 
-                StopAutoControllerState();  // <-- Add this
+                StopAutoControllerState();
+
+                // Clear DAQ status so the UI does not report a stale connection.
+                ResetDaqConnectionState();
+
                 CONNECTION_STATE.isConnected = false;
                 CONNECTION_STATE.connectedIP = string.Empty;
                 CONNECTION_STATE.connectedTCS = string.Empty;
@@ -588,7 +610,11 @@ namespace DDMAutoGUI.Services
                 UpdateConnectionLog($"\nConnection failed");
                 UpdateConnectionLog($"{ex.Message}");
 
-                StopAutoControllerState();  // <-- Add this
+                StopAutoControllerState();
+
+                // Clear DAQ status so the UI does not report a stale connection.
+                ResetDaqConnectionState();
+
                 CONNECTION_STATE.isConnected = false;
                 CONNECTION_STATE.connectedIP = string.Empty;
                 CONNECTION_STATE.connectedTCS = string.Empty;
@@ -606,7 +632,10 @@ namespace DDMAutoGUI.Services
 
             if (_applicationConfiguration?.IsSimulationMode == true)
             {
-                StopAutoControllerState();  // <-- Move here
+                // Clear DAQ status so the UI does not report a stale connection.
+                ResetDaqConnectionState();
+
+                StopAutoControllerState();
                 ClearConnectionLog();
                 UpdateConnectionLog("Disconnected from simulation");
                 CONNECTION_STATE.isConnected = false;  // <-- Then set false
@@ -618,6 +647,9 @@ namespace DDMAutoGUI.Services
                 return;
             }
 
+            // Clear DAQ status so the UI does not report a stale connection.
+            ResetDaqConnectionState();
+
             if (statusClient == null && robotClient == null)
             {
                 return;
@@ -625,7 +657,7 @@ namespace DDMAutoGUI.Services
 
             try
             {
-                StopAutoControllerState();  // <-- Stop timer FIRST
+                StopAutoControllerState();
                 //await SendStatusCommand("exit");
                 //await SendRobotCommand("exit");
                 statusClient.Shutdown(SocketShutdown.Both);
@@ -642,7 +674,7 @@ namespace DDMAutoGUI.Services
             ClearConnectionLog();
             UpdateConnectionLog("Disconnected");
 
-            CONNECTION_STATE.isConnected = false;  // <-- Then set false
+            CONNECTION_STATE.isConnected = false;
             CONNECTION_STATE.connectedIP = string.Empty;
             CONNECTION_STATE.connectedTCS = string.Empty;
             CONNECTION_STATE.connectedPAC = string.Empty;
@@ -798,6 +830,12 @@ namespace DDMAutoGUI.Services
 
             // check flow calibration
 
+            // check DAQ connection
+            //DaqConnectionResult daq = await _getDaqService().TestDaqConnection();
+            //if (!daq.success)
+            //{
+            //    result.issues.Add($"DAQ not available: {daq.error_message}");
+            //}
 
             if (result.issues.Count == 0)
             {
@@ -989,6 +1027,23 @@ namespace DDMAutoGUI.Services
         {
             connectionLog += logLine + "\n";
             ConnectionLogUpdated?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Clears DAQ status so the UI does not report a stale connection.
+        /// Never throws - disconnect and connect-failure paths must complete
+        /// even if the DAQ service is unavailable.
+        /// </summary>
+        private void ResetDaqConnectionState()
+        {
+            try
+            {
+                _getDaqService?.Invoke()?.ResetConnectionState();
+            }
+            catch (Exception ex)
+            {
+                Debug.Print($"Failed to reset DAQ connection state: {ex.Message}");
+            }
         }
 
 

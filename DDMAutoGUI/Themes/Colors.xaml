@@ -45,6 +45,17 @@
         <GradientStop Color="#00FFFFFF" Offset="0.6"/>
     </LinearGradientBrush>
 
+    <!-- Official Brooks Colors -->
+    <SolidColorBrush x:Key="BrooksBrooksBlue" Color="#FF0B74BB"/>
+    <SolidColorBrush x:Key="BrooksDarkBlue" Color="#FF14355A"/>
+    <SolidColorBrush x:Key="BrooksMidnight" Color="#FF0C1B2C"/>
+    <SolidColorBrush x:Key="BrooksSky" Color="#FF27AAE1"/>
+    <SolidColorBrush x:Key="BrooksVerdant" Color="#FF42AF54"/>
+    <SolidColorBrush x:Key="BrooksViolet" Color="#FF914B9D"/>
+    <SolidColorBrush x:Key="BrooksYellow" Color="#FFFFC958"/>
+    <SolidColorBrush x:Key="BrooksOrange" Color="#FFEB7354"/>
+    <SolidColorBrush x:Key="BrooksWafer" Color="#FFE0E0DF"/>
+
     <!-- Blue -->
     <SolidColorBrush x:Key="PrimaryBlue" Color="#FF0072BC"/>
     <SolidColorBrush x:Key="PrimaryBlueLight" Color="#FF57BEFF"/>

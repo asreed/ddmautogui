@@ -231,11 +231,15 @@ namespace DDMAutoGUI
         private void Adv_DAQ_GetA0Btn_Click(object sender, RoutedEventArgs e)
         {
             // DAQ voltage reading - implement as needed
+
+
         }
 
         private void Adv_DAQ_GetA0TimedBtn_Click(object sender, RoutedEventArgs e)
         {
             // DAQ timed reading - implement as needed
+
+
         }
 
         #endregion
@@ -301,6 +305,85 @@ namespace DDMAutoGUI
             if (sender == Serv_PWBox)       Serv_PWSubmitBtn_Click(sender, e);
             else if (sender == Calib_PWBox) Calib_PWSubmitBtn_Click(sender, e);
             else if (sender == Adv_PWBox)   Adv_PWSubmitBtn_Click(sender, e);
+        }
+
+        private async void Adv_DAQ_TestConnectionBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var daqService = App.Services?.GetService<IDaqService>();
+            if (daqService == null) return;
+
+            Button btn = sender as Button;
+            if (btn != null) btn.IsEnabled = false;
+
+            try
+            {
+                DaqConnectionResult result = await daqService.TestDaqConnection();
+
+                string msg = result.success
+                    ? $"DAQ connected.\n\nDevice: {result.device_id}"
+                    : $"DAQ connection failed.\n\n{result.error_code}: {result.error_message}";
+
+                MessageBox.Show(msg, "DAQ Connection Test", MessageBoxButton.OK,
+                    result.success ? MessageBoxImage.Information : MessageBoxImage.Warning);
+            }
+            finally
+            {
+                if (btn != null) btn.IsEnabled = true;
+            }
+        }
+
+        private async void Adv_DAQ_TestSignal_Click(object sender, RoutedEventArgs e)
+        {
+            var daqService = App.Services?.GetService<IDaqService>();
+            if (daqService == null) return;
+
+            Button btn = sender as Button;
+            if (btn != null) btn.IsEnabled = false;
+
+            try
+            {
+                DaqConnectionResult result = await daqService.TestDaqSignal();
+
+                string amplitude = result.signal_amplitude.HasValue
+                    ? $"{result.signal_amplitude.Value:F3} V peak-to-peak"
+                    : "not measured";
+
+                string msg = result.success
+                    ? $"Hall signal detected.\n\nDevice: {result.device_id}\nAmplitude: {amplitude}"
+                    : $"Signal test failed.\n\n{result.error_code}: {result.error_message}\nAmplitude: {amplitude}";
+
+                MessageBox.Show(msg, "DAQ Signal Test", MessageBoxButton.OK,
+                    result.success ? MessageBoxImage.Information : MessageBoxImage.Warning);
+            }
+            finally
+            {
+                if (btn != null) btn.IsEnabled = true;
+            }
+        }
+
+        private async void Adv_DAQ_TestSingleMeas_Click(object sender, RoutedEventArgs e)
+        {
+            var daqService = App.Services?.GetService<IDaqService>();
+            if (daqService == null) return;
+
+            Button btn = sender as Button;
+            if (btn != null) btn.IsEnabled = false;
+
+            try
+            {
+                DaqSingleReadResult result = await daqService.ReadSingleValue();
+
+                string msg = result.success
+                    ? $"ai0 = {result.voltage:F4} V"
+                    : $"Read failed.\n\n{result.error_code}: {result.error_message}";
+
+                MessageBox.Show(msg, "DAQ Single Measurement", MessageBoxButton.OK,
+                    result.success ? MessageBoxImage.Information : MessageBoxImage.Warning);
+            }
+            finally
+            {
+                if (btn != null) btn.IsEnabled = true;
+            }
         }
     }
 }
