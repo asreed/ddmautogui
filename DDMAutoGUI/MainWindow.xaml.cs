@@ -461,5 +461,140 @@ namespace DDMAutoGUI
         {
             Adv_DAQ_ResultTxb.Text = $"[{DateTime.Now:HH:mm:ss}] {message}";
         }
+
+        /// <summary>
+        /// Composes the DAQ acquisition and the polarity algorithm at the call
+        /// site, keeping DaqService free of processing logic and
+        /// PolarityVerification free of hardware dependencies.
+        /// </summary>
+        private async void Adv_DAQ_VerifyPolarityBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var daqService = App.Services?.GetService<IDaqService>();
+            var settingsService = App.Services?.GetService<ISettingsService>();
+
+            if (daqService == null || settingsService == null)
+            {
+                SetDaqResult("DAQ or settings service unavailable");
+                return;
+            }
+
+            //CSMotor motor = settingsService.GetSettingsForSelectedSize();
+            //if (motor == null)
+            //{
+            //    SetDaqResult("No motor settings loaded - connect to the work cell first");
+            //    return;
+            //}
+
+            // ============================ TEST ONLY
+            // Use DDM 116 for test
+            CSMotor motor = new CSMotor
+            {
+                pol_expected_wavelength = 0.0125f,
+                pol_expected_magnets = 80
+            };
+            // ============================
+
+
+            Button btn = sender as Button;
+            if (btn != null) btn.IsEnabled = false;
+            SetDaqResult("Acquiring Hall data...");
+
+            try
+            {
+                HallAcquisitionResult acquisition = await daqService.AcquireHallData();
+
+                if (!acquisition.success)
+                {
+                    SetDaqResult($"Acquisition failed - {acquisition.error_code}: {acquisition.error_message}");
+                    return;
+                }
+
+                SetDaqResult($"Acquired {acquisition.signal.Length} samples - verifying...");
+
+                // Filtering and peak detection over ~2020 samples is CPU-bound;
+                // keep it off the UI thread.
+                PolarityVerificationResult verification = await Task.Run(() =>
+                    PolarityVerification.VerifyPolarityData(
+                        acquisition.time,
+                        acquisition.signal,
+                        DaqService.SampleRate,
+                        motor));
+
+                SetDaqResult(verification.passed
+                    ? $"PASS - {verification.message}"
+                    : $"FAIL - {verification.message.Replace(Environment.NewLine, " ")}");
+
+                string data = await Task.Run(() => FormatPolarityResult(acquisition, verification));
+
+                TextDataViewer viewer = new TextDataViewer();
+                viewer.Owner = this;
+                viewer.PopulateData(data, "Polarity Verification");
+                viewer.ShowDialog();
+            }
+            finally
+            {
+                if (btn != null) btn.IsEnabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Formats a polarity verification for the TextDataViewer: summary,
+        /// detected wavelengths, then the raw and filtered sample table.
+        /// </summary>
+        private static string FormatPolarityResult(
+            HallAcquisitionResult acquisition,
+            PolarityVerificationResult v)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"Result:            {(v.passed ? "PASS" : "FAIL")}");
+            sb.AppendLine($"Message:           {v.message.Trim()}");
+            sb.AppendLine();
+            sb.AppendLine($"Peaks detected:    {v.numPeaks}");
+            sb.AppendLine($"Expected magnets:  {v.expectedMagnets}");
+            sb.AppendLine($"Expected lambda:   {v.expectedWavelength:F5} s");
+            sb.AppendLine($"Long wavelengths:  {v.numLongWavelengths}");
+            sb.AppendLine($"Short wavelengths: {v.numShortWavelengths}");
+            sb.AppendLine();
+            sb.AppendLine($"Samples:           {acquisition.signal.Length}");
+            sb.AppendLine($"Min / Max:         {acquisition.signal.Min():F4} / {acquisition.signal.Max():F4} V");
+            sb.AppendLine($"Peak-peak:         {acquisition.signal.Max() - acquisition.signal.Min():F4} V");
+
+            // Wavelength list makes an out-of-range gap easy to spot by eye.
+            if (v.wavelengths != null && v.wavelengths.Length > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("Wavelengths (s), * = long, ! = short:");
+                for (int i = 0; i < v.wavelengths.Length; i++)
+                {
+                    double w = v.wavelengths[i];
+                    string flag = w > 1.8 * v.expectedWavelength ? " *"
+                                : w < 0.65 * v.expectedWavelength ? " !"
+                                : "";
+                    sb.AppendLine($"  {i,4}: {w,10:F5}{flag}");
+                }
+            }
+
+            sb.AppendLine();
+            sb.AppendLine($"{"time (s)",12}  {"raw (V)",12}  {"filtered (V)",13}  peak");
+            sb.AppendLine(new string('-', 48));
+
+            var extrema = new HashSet<int>(v.extremaIndices ?? Array.Empty<int>());
+
+            for (int i = 0; i < acquisition.signal.Length; i++)
+            {
+                string filtered = v.filteredSignal != null && i < v.filteredSignal.Length
+                    ? $"{v.filteredSignal[i],13:F5}"
+                    : new string(' ', 13);
+
+                sb.AppendLine(
+                    $"{acquisition.time[i],12:F5}  " +
+                    $"{acquisition.signal[i],12:F5}  " +
+                    $"{filtered}  " +
+                    $"{(extrema.Contains(i) ? "<--" : "")}");
+            }
+
+            return sb.ToString();
+        }
     }
 }

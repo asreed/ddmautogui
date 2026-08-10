@@ -292,6 +292,7 @@
                                                 <Button x:Name="Adv_DAQ_TestSignal" Click="Adv_DAQ_TestSignal_Click" Content="Test DAQ Signal" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
                                                 <Button x:Name="Adv_DAQ_TestSingleMeas" Click="Adv_DAQ_TestSingleMeas_Click" Content="Test DAQ Single Measurement" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
                                                 <Button x:Name="Adv_DAQ_AcquireHallBtn" Content="Acquire Hall Data" Click="Adv_DAQ_AcquireHallBtn_Click" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
+                                                <Button x:Name="Adv_DAQ_VerifyPolarityBtn" Content="Collect and Verify Polarity (DDM 116)" Click="Adv_DAQ_VerifyPolarityBtn_Click" Style="{StaticResource SmallButton}" HorizontalAlignment="Left"/>
                                             </StackPanel>
                                         </GroupBox>
 

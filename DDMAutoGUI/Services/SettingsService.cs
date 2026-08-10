@@ -67,6 +67,8 @@ namespace DDMAutoGUI.Services
         public float? ring_height_max { get; set; }
         public float? mag_height_min { get; set; }
         public float? mag_height_max { get; set; }
+        public float? pol_expected_wavelength { get; set; }
+        public int? pol_expected_magnets { get; set; }
         public CSLocation? camera_side { get; set; }
         public CSLocation? id_disp { get; set; }
         public CSLocation? od_disp { get; set; }
