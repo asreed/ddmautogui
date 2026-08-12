@@ -3,8 +3,9 @@
     {
       "version": "1.3.0",
       "releaseDate": "(In progress)",
-      "releaseIntent": "(In progress)",
-      "releaseDisplayNotes": "(In progress) Result JSON files consolidated. Polarity plot generated removed from Matlab."
+      "releaseIntent": "ENGINEERING ONLY",
+      "releaseDisplayNotes": "Intended for new UV-cure adhesive testing",
+      "releaseNotes": "(In progress) Result JSON files consolidated. Polarity plot generated removed from Matlab; Matlab EXE depreciation started and direction connection to DAQ from GUI started. Remote server connection for results storage started. Height verification method improved to catch tilted ring. (...)"
     },
     {
       "version": "1.2.4",

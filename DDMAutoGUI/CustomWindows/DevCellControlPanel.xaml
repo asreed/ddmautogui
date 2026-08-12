@@ -9,11 +9,11 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320"/>
             <ColumnDefinition/>
+            <ColumnDefinition Width="320"/>
         </Grid.ColumnDefinitions>
 
-        <GroupBox Header="System State" Grid.Column="0">
+        <GroupBox Header="System State" Grid.Column="1">
             <TabControl>
                 <TabItem Header="Overview">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -272,7 +272,7 @@
             </TabControl>
         </GroupBox>
 
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -323,7 +323,7 @@
                                     <Grid>
 
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="100"/>
                                             <ColumnDefinition Width="140"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
@@ -389,7 +389,7 @@
                                     <Grid>
 
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="100"/>
                                             <ColumnDefinition Width="150"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
@@ -429,83 +429,89 @@
 
                     </TabItem>
 
-                    <TabItem Header="Dispense Setup">
+                    <TabItem Header="Dispense System">
 
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel Orientation="Vertical">
 
-                                <GroupBox Header="Pressure Regulators">
-                                    <Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
 
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="110"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
 
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                        </Grid.RowDefinitions>
+                                    <GroupBox Header="Pressure Regulators" Grid.Column="0">
+                                        <Grid>
 
-                                        <TextBox Grid.Row="0" Grid.Column="0" x:Name="Adv_Cell_SetPres1InTxt" Text="10.0" Style="{StaticResource SmallTextBox}"/>
-                                        <Button  Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_SetPres1Btn" Content="Set pressure 1" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallOrangeButton}" Click="Adv_Cell_SetPres1Btn_Click"/>
-                                        <Label   Grid.Row="0" Grid.Column="2" x:Name="Adv_Cell_SetPres1OutLbl" Content="-"/>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
 
-                                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="Adv_Cell_SetPres2InTxt" Text="30.0" Style="{StaticResource SmallTextBox}"/>
-                                        <Button  Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_SetPres2Btn" Content="Set pressure 2" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallOrangeButton}" Click="Adv_Cell_SetPres2Btn_Click"/>
-                                        <Label   Grid.Row="1" Grid.Column="2" x:Name="Adv_Cell_SetPres2OutLbl" Content="-"/>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
 
-                                    </Grid>
-                                </GroupBox>
+                                            <TextBox Grid.Row="0" Grid.Column="0" x:Name="Adv_Cell_SetPres1InTxt" Text="10.0" Style="{StaticResource SmallTextBox}"/>
+                                            <Button  Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_SetPres1Btn" Content="Set pressure 1" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallOrangeButton}" Click="Adv_Cell_SetPres1Btn_Click"/>
+                                            <Label   Grid.Row="0" Grid.Column="2" x:Name="Adv_Cell_SetPres1OutLbl" Content="-"/>
 
-                                <GroupBox Header="Shot Volume Measurment">
-                                    <Grid>
+                                            <TextBox Grid.Row="1" Grid.Column="0" x:Name="Adv_Cell_SetPres2InTxt" Text="30.0" Style="{StaticResource SmallTextBox}"/>
+                                            <Button  Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_SetPres2Btn" Content="Set pressure 2" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallOrangeButton}" Click="Adv_Cell_SetPres2Btn_Click"/>
+                                            <Label   Grid.Row="1" Grid.Column="2" x:Name="Adv_Cell_SetPres2OutLbl" Content="-"/>
 
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="160"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
+                                        </Grid>
+                                    </GroupBox>
 
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                        </Grid.RowDefinitions>
+                                    <GroupBox Header="Shot Volume Measurment" Grid.Column="1">
+                                        <Grid>
 
-                                        <StackPanel 
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="50"/>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+
+                                            <StackPanel 
                                             Orientation="Vertical"
                                             Grid.Row="0" 
                                             Grid.Column="0" 
                                             Grid.ColumnSpan="3"
                                             Margin="0,0,0,8">
 
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="This will open a valve and trigger the flow sensor to measure the dispensed volume." TextWrapping="Wrap"/>
-                                        </StackPanel>
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="This will open a valve and trigger the flow sensor to measure the dispensed volume." TextWrapping="Wrap"/>
+                                            </StackPanel>
 
-                                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="Adv_Cell_Shot1InTxt"  Text="1.0" Style="{StaticResource SmallTextBox}"/>
-                                        <Button  Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_Shot1Btn" Content="Measure shot from valve 1" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallBlackButton}" Click="Adv_Cell_Shot1Btn_Click"/>
-                                        <Label   Grid.Row="1" Grid.Column="2" x:Name="Adv_Cell_Shot1OutLbl" Content="-"/>
+                                            <Button Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_SetZeroBothBtn" Content="Set Zero Shift" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallBlackButton}" Click="Adv_Cell_SetZeroBothBtn_Click"/>
+                                            <Label  Grid.Row="1" Grid.Column="2" x:Name="Adv_Cell_SetZeroBothLbl" Content="-"/>
 
-                                        <TextBox Grid.Row="2" Grid.Column="0" x:Name="Adv_Cell_Shot2InTxt"  Text="1.0" Style="{StaticResource SmallTextBox}"/>
-                                        <Button  Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_Shot2Btn" Content="Measure shot from valve 2" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallBlackButton}" Click="Adv_Cell_Shot2Btn_Click"/>
-                                        <Label   Grid.Row="2" Grid.Column="2" x:Name="Adv_Cell_Shot2OutLbl" Content="-"/>
-                                    </Grid>
+                                            <TextBox Grid.Row="2" Grid.Column="0" x:Name="Adv_Cell_Shot1InTxt"  Text="1.0" Style="{StaticResource SmallTextBox}"/>
+                                            <Button  Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_Shot1Btn" Content="Disp from valve 1" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallBlackButton}" Click="Adv_Cell_Shot1Btn_Click"/>
+                                            <Label   Grid.Row="2" Grid.Column="2" x:Name="Adv_Cell_Shot1OutLbl" Content="-"/>
+
+                                            <TextBox Grid.Row="3" Grid.Column="0" x:Name="Adv_Cell_Shot2InTxt"  Text="1.0" Style="{StaticResource SmallTextBox}"/>
+                                            <Button  Grid.Row="3" Grid.Column="1" x:Name="Adv_Cell_Shot2Btn" Content="Disp from valve 2" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallBlackButton}" Click="Adv_Cell_Shot2Btn_Click"/>
+                                            <Label   Grid.Row="3" Grid.Column="2" x:Name="Adv_Cell_Shot2OutLbl" Content="-"/>
+                                        </Grid>
 
 
-                                </GroupBox>
+                                    </GroupBox>
 
-                                <GroupBox Header="Flow Sensors">
+                                </Grid>
+
+                                <!--<GroupBox Header="Flow Sensors">
                                     <Grid>
 
                                         <Grid.ColumnDefinitions>
@@ -538,6 +544,43 @@
 
                                         <Button Grid.Row="5" Grid.Column="1" x:Name="Adv_Cell_StopMeas2Btn" Content="Stop measure 2" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallRedButton}" Click="Adv_Cell_StopMeas2Btn_Click"/>
                                         <Label  Grid.Row="5" Grid.Column="2" x:Name="Adv_Cell_StopMeas2OutLbl" Content="-"/>
+
+
+                                    </Grid>
+                                </GroupBox>-->
+
+                                <GroupBox Header="Single Track Dispense">
+                                    <Grid>
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBox Grid.Row="0" Grid.Column="0"  Text="0" Style="{StaticResource SmallTextBox}"/>
+                                        <Label   Grid.Row="0" Grid.Column="1"  Content="Valve number"/>
+
+                                        <TextBox Grid.Row="1" Grid.Column="0"  Text="1.5" Style="{StaticResource SmallTextBox}"/>
+                                        <Label   Grid.Row="1" Grid.Column="1"  Content="Shot time (s)"/>
+
+                                        <TextBox Grid.Row="2" Grid.Column="0"  Text="0.00" Style="{StaticResource SmallTextBox}"/>
+                                        <Label   Grid.Row="2" Grid.Column="1"  Content="Start x pos (mm)"/>
+
+                                        <TextBox Grid.Row="3" Grid.Column="0"  Text="0.00" Style="{StaticResource SmallTextBox}"/>
+                                        <Label   Grid.Row="3" Grid.Column="1"  Content="Start theta pos (deg)"/>
+
+                                        <Button  Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Left" Content="Dispense single track" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource BlackButton}" Click=""/>
+
+                                        <Label   Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3"  Content="-"/>
 
 
                                     </Grid>

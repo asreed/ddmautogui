@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace DDMAutoGUI.Services
 {
     /// <summary>
-    /// Static utility class for DAQ and Matlab processing operations.
+    /// Static utility class for DAQ and Matlab processing operations. DEPRECIATED.
     /// </summary>
     public static class DAQUtilities
     {
