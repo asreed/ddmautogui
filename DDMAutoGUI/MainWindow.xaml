@@ -154,6 +154,12 @@
 
                     </Grid>
                 </TabItem>
+
+                <!--<TabItem x:Name="ArmInspectTab" Header="Inspect" utils:TabIcon.Source="{StaticResource Icon.WrenchFill}" Style="{StaticResource MainTab}" IsEnabled="False">
+                    <Grid>
+                        <CustomWindows:InspectPanel x:Name="Insp_Panel"/>
+                    </Grid>
+                </TabItem>-->
                 <TabItem x:Name="AdvTab" Header="Dev" utils:TabIcon.Source="{StaticResource Icon.GearFill}" Style="{StaticResource MainTab}" Visibility="Visible">
 
                     <Border BorderBrush="{StaticResource BrooksMidnight}" BorderThickness="10,0,0,0" Margin="-3" Padding="0">
@@ -199,12 +205,13 @@
 
                                 <TabItem Header="Options">
                                     <StackPanel Orientation="Vertical" Margin="6">
-                                        <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="12">
+                                        <GroupBox Header="Connection" HorizontalAlignment="Left" Padding="4">
                                             <StackPanel Orientation="Horizontal">
                                                 <Label Content="Controller IP" VerticalAlignment="Center"/>
                                                 <TextBox 
                                                 Width="150"
                                                 x:Name="IPTxt"
+                                                    Style="{StaticResource SmallTextBox}"
                                                 Text="{Binding ControllerIpAddress, UpdateSourceTrigger=PropertyChanged}"/>
                                             </StackPanel>
                                         </GroupBox>
@@ -232,6 +239,7 @@
                                                     <TextBox 
                                                         Width="200"
                                                         x:Name="ServerPathTxt"
+                                                        Style="{StaticResource SmallTextBox}"
                                                         Text="{Binding ServerPathText, UpdateSourceTrigger=PropertyChanged}"/>
                                                 </StackPanel>
                                                 <CheckBox x:Name="Adv_Opt_VerifyServerChk"     Content="Verify Server On Connect" IsChecked="{Binding DispVerifyServer}"/>
@@ -281,7 +289,7 @@
                                         <GroupBox Header="C#" HorizontalAlignment="Left">
                                             <StackPanel Orientation="Vertical">
                                                 <TextBox x:Name="Adv_DAQ_ResultTxb"
-                                                         Width="300"
+                                                         Width="400"
                                                          Padding="12"
                                                          VerticalScrollBarVisibility="Disabled"
                                                          VerticalAlignment="Center"

@@ -54,14 +54,12 @@ namespace DDMAutoGUI.Services
     public class CSMotor
     {
         public CSShot? shot_settings { get; set; }
-        public float? post_spin_time { get; set; }
-        public float? post_spin_speed { get; set; }
         public int? laser_ref_num { get; set; } = 30;
         public int? laser_ring_num { get; set; } = 30;
         public int? laser_mag_num { get; set; }
-        public float? laser_ref_time { get; set; } = 4f;
-        public float? laser_ring_time { get; set; } = 8f;
-        public float? laser_mag_time { get; set; } = 20f;
+        public float? laser_ref_time { get; set; }
+        public float? laser_ring_time { get; set; }
+        public float? laser_mag_time { get; set; }
         public float? sin_fit_max_amplitude { get; set; }
         public float? ring_height_min { get; set; }
         public float? ring_height_max { get; set; }
