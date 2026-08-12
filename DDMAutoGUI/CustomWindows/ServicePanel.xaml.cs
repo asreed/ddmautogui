@@ -24,19 +24,19 @@ namespace DDMAutoGUI.CustomWindows
 
     public partial class ServicePanel : UserControl
     {
-        private readonly IControllerManager _controllerManager;
-        private readonly ISettingsManager _settingsManager;
+        private readonly IControllerService _controllerManager;
+        private readonly ISettingsService _settingsManager;
 
         public ServicePanel()
         {
             InitializeComponent();
 
             // Resolve dependencies from DI container, same pattern as MainWindow
-            _controllerManager = App.Services?.GetService<IControllerManager>();
-            _settingsManager = App.Services?.GetService<ISettingsManager>();
+            _controllerManager = App.Services?.GetService<IControllerService>();
+            _settingsManager = App.Services?.GetService<ISettingsService>();
         }
 
-        public ServicePanel(IControllerManager controllerManager, ISettingsManager settingsManager) : this()
+        public ServicePanel(IControllerService controllerManager, ISettingsService settingsManager) : this()
         {
             _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
             _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));

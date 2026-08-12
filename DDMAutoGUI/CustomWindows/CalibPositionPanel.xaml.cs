@@ -24,17 +24,17 @@ namespace DDMAutoGUI.CustomWindows
 
     public partial class CalibPositionPanel : UserControl
     {
-        private readonly IControllerManager _controllerManager;
+        private readonly IControllerService _controllerManager;
         private readonly IApplicationConfiguration _applicationConfiguration;
 
         public CalibPositionPanel()
         {
             InitializeComponent();
-            _controllerManager = App.Services?.GetService<IControllerManager>();
+            _controllerManager = App.Services?.GetService<IControllerService>();
             _applicationConfiguration = App.Services?.GetService<IApplicationConfiguration>();
         }
 
-        public CalibPositionPanel(IControllerManager controllerManager, IApplicationConfiguration applicationConfiguration) : this()
+        public CalibPositionPanel(IControllerService controllerManager, IApplicationConfiguration applicationConfiguration) : this()
         {
             _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
             _applicationConfiguration = applicationConfiguration ?? throw new ArgumentNullException(nameof(applicationConfiguration));

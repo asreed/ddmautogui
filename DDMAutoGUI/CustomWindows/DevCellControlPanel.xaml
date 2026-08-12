@@ -7,7 +7,7 @@
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="900">
 
-    <Grid x:Name="robotBtnContainer">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="320"/>
             <ColumnDefinition/>
@@ -315,9 +315,6 @@
 
                                         <Button Grid.Row="0" Grid.Column="1" x:Name="Adv_Cell_EnableBtn" Content="Enable power" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_EnableBtn_Click" />
                                         <Label  Grid.Row="0" Grid.Column="2" x:Name="Adv_Cell_EnableOutLbl" Content="-"/>
-
-                                        <Button Grid.Row="1" Grid.Column="1" x:Name="Adv_Cell_HomeBtn" Content="Home" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_HomeBtn_Click"/>
-                                        <Label  Grid.Row="1" Grid.Column="2" x:Name="Adv_Cell_HomeOutLbl" Content="-"/>
 
                                     </Grid>
                                 </GroupBox>

@@ -7,19 +7,25 @@ namespace DDMAutoGUI.Services
     /// </summary>
     public class ApplicationConfiguration : IApplicationConfiguration
     {
-        private readonly AdvancedOptions _advancedOptions;
+        private readonly string _defaultControllerIPAddress;
+        private readonly string _displayTitle;
         private readonly bool _isSimulationMode;
         private readonly string _calibrationPassword;
         private readonly string _servicePassword;
         private readonly string _advancedSettingsPassword;
+        private readonly AdvancedOptions _advancedOptions;
 
         public ApplicationConfiguration(
+            string defaultControllerIPAddress = "192.168.0.1",
+            string displayTitle = "ADS Work Cell Manager",
             bool isSimulationMode = false,
             string calibrationPassword = "ddm",
-            string advancedSettingsPassword = "ddm",
             string servicePassword = "ddm",
+            string advancedSettingsPassword = "DDM",
             AdvancedOptions advancedOptions = null)
         {
+            _defaultControllerIPAddress = defaultControllerIPAddress;
+            _displayTitle = displayTitle;
             _isSimulationMode = isSimulationMode;
             _calibrationPassword = calibrationPassword;
             _servicePassword = servicePassword;
@@ -27,6 +33,8 @@ namespace DDMAutoGUI.Services
             _advancedOptions = advancedOptions ?? new AdvancedOptions();
         }
 
+        public string DefaultControllerIPAddress => _defaultControllerIPAddress;
+        public string DisplayTitle => _displayTitle;
         public bool IsSimulationMode => _isSimulationMode;
         public string CalibrationPassword => _calibrationPassword;
         public string AdvancedSettingsPassword => _advancedSettingsPassword;

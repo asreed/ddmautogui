@@ -17,13 +17,13 @@ namespace DDMAutoGUI.CustomWindows
 
         private async void AcquireTopCommand(object sender, RoutedEventArgs e)
         {
-            var cameraManager = App.Services?.GetService<ICameraManager>();
+            var cameraManager = App.Services?.GetService<ICameraService>();
             if (cameraManager == null) return;
 
             acquiredImageDisplay.Source = null;
             Adv_Cam_StatusLbl.Content = "Acquiring image...";
 
-            CameraAcquisitionResult result = await cameraManager.AcquireAndSave(CameraManager.CellCamera.top, acquiredImageDisplay);
+            CameraAcquisitionResult result = await cameraManager.AcquireAndSave(CameraService.CellCamera.top, acquiredImageDisplay);
 
             if (result.success)
             {
@@ -38,13 +38,13 @@ namespace DDMAutoGUI.CustomWindows
 
         private async void AcquireSideCommand(object sender, RoutedEventArgs e)
         {
-            var cameraManager = App.Services?.GetService<ICameraManager>();
+            var cameraManager = App.Services?.GetService<ICameraService>();
             if (cameraManager == null) return;
 
             acquiredImageDisplay.Source = null;
             Adv_Cam_StatusLbl.Content = "Acquiring image...";
 
-            CameraAcquisitionResult result = await cameraManager.AcquireAndSave(CameraManager.CellCamera.side, acquiredImageDisplay);
+            CameraAcquisitionResult result = await cameraManager.AcquireAndSave(CameraService.CellCamera.side, acquiredImageDisplay);
 
             if (result.success)
             {
@@ -59,7 +59,7 @@ namespace DDMAutoGUI.CustomWindows
 
         private void Adv_Cam_OpenFolderBtn_Click(object sender, RoutedEventArgs e)
         {
-            var cameraManager = App.Services?.GetService<ICameraManager>();
+            var cameraManager = App.Services?.GetService<ICameraService>();
             if (cameraManager != null)
             {
                 cameraManager.OpenExplorerToImages();

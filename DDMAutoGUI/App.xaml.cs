@@ -25,6 +25,8 @@ namespace DDMAutoGUI
                 // Core Configuration
                 var appConfig = new ApplicationConfiguration(
                     isSimulationMode: false,
+                    displayTitle: "ADS Work Cell Manager",
+                    defaultControllerIPAddress: "192.168.0.1",
                     calibrationPassword: "ddm",
                     servicePassword: "ddm",
                     advancedSettingsPassword: "DDM");
@@ -32,18 +34,20 @@ namespace DDMAutoGUI
                 serviceCollection.AddSingleton<IApplicationConfiguration>(appConfig);
 
                 // Core Services
-                serviceCollection.AddSingleton<ISettingsManager, SettingsManager>();
+                serviceCollection.AddSingleton<ISettingsService, SettingsService>();
                 
-                serviceCollection.AddSingleton<ControllerManager>();
-                serviceCollection.AddSingleton<IControllerManager>(sp => sp.GetRequiredService<ControllerManager>());
-                serviceCollection.AddSingleton<ILightController>(sp => sp.GetRequiredService<ControllerManager>());
+                serviceCollection.AddSingleton<ControllerService>();
+                serviceCollection.AddSingleton<IControllerService>(sp => sp.GetRequiredService<ControllerService>());
+                serviceCollection.AddSingleton<ILightController>(sp => sp.GetRequiredService<ControllerService>());
 
                 // Data & Other Services
-                serviceCollection.AddSingleton<ICameraManager, CameraManager>();
-                serviceCollection.AddSingleton<IResultsManager, ResultsManager>();
-                serviceCollection.AddSingleton<ILocalDataManager, LocalDataManager>();
-                serviceCollection.AddSingleton<IFlowCalibrationManager, FlowCalibrationManager>();
-                serviceCollection.AddTransient<IDispenseProcessService, DispenseProcessService>();
+                serviceCollection.AddSingleton<ICameraService, CameraService>();
+                serviceCollection.AddSingleton<IDaqService, DaqService>();
+                serviceCollection.AddSingleton<IResultsService, ResultsService>();
+                serviceCollection.AddSingleton<ILocalDataService, LocalDataService>();
+                serviceCollection.AddSingleton<IDispenseExecutionService, DispenseExecutionService>();
+                serviceCollection.AddSingleton<IFlowCalibrationService, FlowCalibrationService>();
+                serviceCollection.AddTransient<IPartCycleService, PartCycleService>();
 
                 // ViewModels & UI
                 serviceCollection.AddTransient<MainWindowViewModel>();
@@ -61,12 +65,14 @@ namespace DDMAutoGUI
                 Debug.Print("Testing individual service resolution...");
                 try
                 {
-                    var cm = Services.GetRequiredService<IControllerManager>();
-                    var sm = Services.GetRequiredService<ISettingsManager>();
-                    var cam = Services.GetRequiredService<ICameraManager>();
-                    var rm = Services.GetRequiredService<IResultsManager>();
-                    var ldm = Services.GetRequiredService<ILocalDataManager>();
-                    var fcm = Services.GetRequiredService<IFlowCalibrationManager>();
+                    var cs = Services.GetRequiredService<IControllerService>();
+                    var ss = Services.GetRequiredService<ISettingsService>();
+                    var cas = Services.GetRequiredService<ICameraService>();
+                    var rs = Services.GetRequiredService<IResultsService>();
+                    var lds = Services.GetRequiredService<ILocalDataService>();
+                    var des = Services.GetRequiredService<IDispenseExecutionService>();
+                    var fcs = Services.GetRequiredService<IFlowCalibrationService>();
+                    var das = Services.GetRequiredService<IDaqService>();
                     var vm = Services.GetRequiredService<MainWindowViewModel>();
                 }
                 catch (Exception testEx)
@@ -104,12 +110,12 @@ namespace DDMAutoGUI
 
         protected override void OnExit(ExitEventArgs e)
         {
-            var controllerManager = Services?.GetService<IControllerManager>();
-            if (controllerManager != null)
+            var controllerService = Services?.GetService<IControllerService>();
+            if (controllerService != null)
             {
                 try
                 {
-                    controllerManager.Disconnect()
+                    controllerService.Disconnect()
                         .ConfigureAwait(false)
                         .GetAwaiter()
                         .GetResult();
@@ -120,12 +126,12 @@ namespace DDMAutoGUI
                 }
             }
 
-            var cameraManager = Services?.GetService<ICameraManager>();
-            if (cameraManager != null)
+            var cameraService = Services?.GetService<ICameraService>();
+            if (cameraService != null)
             {
                 try
                 {
-                    cameraManager.Dispose();
+                    cameraService.Dispose();
                 }
                 catch (Exception ex)
                 {

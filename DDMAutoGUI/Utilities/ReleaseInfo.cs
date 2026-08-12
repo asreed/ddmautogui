@@ -32,7 +32,7 @@ namespace DDMAutoGUI.Utilities
     {
         private static ReleaseInfoHistory? _releaseHistory;
         private static ReleaseInfoEntry? _currentRelease;
-        private static readonly string ReleaseInfoFileName = "releaseHistory.json";
+        private static readonly string ReleaseInfoFileName = "ReleaseHistory.json";
 
         static ReleaseInfo()
         {

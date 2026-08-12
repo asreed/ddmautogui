@@ -1,155 +1,135 @@
 using DDMAutoGUI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DDMAutoGUI.CustomWindows
 {
     /// <summary>
-    /// Interaction logic for CalibFlowPanel.xaml
+    /// Interaction logic for CalibFlowPanel.xaml.
+    /// Runs the manual flow calibration routine for the motor size selected in the
+    /// ComboBox and displays the most recent calibration result.
     /// </summary>
     public partial class CalibFlowPanel : UserControl
     {
-        private readonly ISettingsManager _settingsManager;
-        private readonly ILocalDataManager _localDataManager;
-        private readonly IFlowCalibrationManager _flowCalibrationManager;
-
-        private RunCalibResult runCalibResult = new RunCalibResult();
+        private readonly ISettingsService _settingsService;
+        private readonly ILocalDataService _localDataService;
+        private readonly IFlowCalibrationService _flowCalibrationService;
+        private readonly IControllerService _controllerService;
 
         public CalibFlowPanel()
         {
             InitializeComponent();
-            Calib_116_RunPrg.Visibility = Visibility.Collapsed;
+            RunPrg.Visibility = Visibility.Collapsed;
 
-            // Resolve services from DI container when instantiated via XAML
-            _settingsManager = App.Services?.GetService<ISettingsManager>();
-            _localDataManager = App.Services?.GetService<ILocalDataManager>();
-            _flowCalibrationManager = App.Services?.GetService<IFlowCalibrationManager>();
+            // Resolve services from DI container when instantiated via XAML.
+            _settingsService = App.Services?.GetService<ISettingsService>();
+            _localDataService = App.Services?.GetService<ILocalDataService>();
+            _flowCalibrationService = App.Services?.GetService<IFlowCalibrationService>();
+            _controllerService = App.Services?.GetService<IControllerService>();
         }
 
-        public CalibFlowPanel(
-            ISettingsManager settingsManager,
-            ILocalDataManager localDataManager,
-            IFlowCalibrationManager flowCalibrationManager) : this()
-        {
-            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
-            _localDataManager = localDataManager ?? throw new ArgumentNullException(nameof(localDataManager));
-            _flowCalibrationManager = flowCalibrationManager ?? throw new ArgumentNullException(nameof(flowCalibrationManager));
-        }
+        /// <summary>The motor size currently selected in the ComboBox, e.g. "ddm_116".</summary>
+        private string SelectedMotorName => MotorSizeCmb.SelectedItem as string;
 
         public void SetupPanel()
         {
-            try
+            LocalData localData = _localDataService?.GetLocalData();
+            if (localData?.calib_data != null)
             {
-                CellSettings settings = _settingsManager.GetAllSettings();
-                LocalData localData = _localDataManager.GetLocalData();
-
-                Calib_LastCalTxb.Text = localData.calib_data.last_calib.Value.ToString();
-                Calib_LastMotorTxb.Text = localData.calib_data.last_size;
-
-                int sysID = settings.ddm_116.shot_settings.id_sys_num.Value;
-                int sysOD = settings.ddm_116.shot_settings.od_sys_num.Value;
-
-                float sys1RefPres = settings.dispense_system.default_pressures.ddm_116.sys_1_pressure.Value;
-                float sys2RefPres = settings.dispense_system.default_pressures.ddm_116.sys_2_pressure.Value;
-                float sys1CalPres = localData.calib_data.ddm_116.sys_1_pressure.Value;
-                float sys2CalPres = localData.calib_data.ddm_116.sys_2_pressure.Value;
-
-                float sys1Dev = (sys1CalPres - sys1RefPres) / sys1RefPres * 100;
-                float sys2Dev = (sys2CalPres - sys2RefPres) / sys2RefPres * 100;
-
-                Calib_116_S1_RefPresTxb.Text = sys1RefPres.ToString("F2") + " psi";
-                Calib_116_S2_RefPresTxb.Text = sys2RefPres.ToString("F2") + " psi";
-                Calib_116_S1_CalPresTxb.Text = sys1CalPres.ToString("F2") + " psi";
-                Calib_116_S2_CalPresTxb.Text = sys2CalPres.ToString("F2") + " psi";
-                Calib_116_S1_CalPresDevTxb.Text = sys1Dev.ToString("F2") + "%";
-                Calib_116_S2_CalPresDevTxb.Text = sys2Dev.ToString("F2") + "%";
-
-                //float refFlowID = settings.ddm_116.shot_settings.id_target_flow.Value;
-                //float refFlowOD = settings.ddm_116.shot_settings.od_target_flow.Value;
-
-                //Calib_116_ID_RefFlowTxb.Text = refFlowID.ToString("F2") + " mL/s";
-                //Calib_116_OD_RefFlowTxb.Text = refFlowOD.ToString("F2") + " mL/s";
-
-            }
-            catch (Exception ex)
-            {
-                Debug.Print("Error populating flow calibration data: " + ex.Message);
+                Calib_LastCalTxb.Text = localData.calib_data.last_calib?.ToString() ?? "-";
+                Calib_LastMotorTxb.Text = localData.calib_data.last_size ?? "-";
             }
         }
 
-        private async void Calib_116_RunBtn_Click(object sender, RoutedEventArgs e)
+        private void MotorSizeCmb_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // Refresh the calibrate button label to reflect the newly selected size.
+            string motorName = SelectedMotorName;
+            RunBtn.Content = string.IsNullOrEmpty(motorName)
+                ? "Calibrate flow"
+                : $"Calibrate {motorName} flow";
+        }
+
+        private async void RunBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string motorName = SelectedMotorName;
+            if (string.IsNullOrEmpty(motorName))
+            {
+                return;
+            }
+
+            // Calibration drives the robot, so require a live controller connection.
+            if (_controllerService?.CONNECTION_STATE == null || !_controllerService.CONNECTION_STATE.isConnected)
+            {
+                Debug.Print("Flow calibration requested while not connected; ignoring.");
+                return;
+            }
+
+            RunBtn.IsEnabled = false;
+            RunPrg.Visibility = Visibility.Visible;
+
             try
             {
-                Calib_116_RunBtn.IsEnabled = false;
-                Calib_116_RunPrg.Visibility = Visibility.Visible;
-
-                CellSettings settings = _settingsManager.GetAllSettings();
-                LocalData localData = _localDataManager.GetLocalData();
-
-                // do the dispense, get a preliminary calibration result back
-                // display calibration result for user confirmation
-                // if user accepts, saves and completes
-                // otherwise, recursively re-runs until user accepts or cancels
-
-                RunCalibResult result = await _flowCalibrationManager.RunDispenseForManualCalibration(settings, localData, "ddm_116");
-
-                float newSys1Pres = localData.calib_data.ddm_116.sys_1_pressure.Value * result.sf1;
-                float newSys2Pres = localData.calib_data.ddm_116.sys_2_pressure.Value * result.sf2;
-
-                string caption = $"Accept new calibration?";
-                string message = "";
-                message += $"Calibration scale factors:\n\n";
-                message += $"SF1: {result.sf1:F2}\n";
-                message += $"SF2: {result.sf2:F2}\n\n";
-                message += $"New calculated pressures:\n\n";
-                message += $"Sys 1: {newSys1Pres:F2} psi\n";
-                message += $"Sys 2: {newSys2Pres:F2} psi\n\n";
-                message += $"Accept results? \"No\" will re-run procedure.";
-
-                MessageBoxResult userInput = MessageBox.Show(message, caption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-
-                if (userInput == MessageBoxResult.Yes)
+                bool rerun;
+                do
                 {
-                    // if OK, save, set new pressures, and reset UI
-
-                    _flowCalibrationManager.GenerateAndSaveCalibration(result);
-                    _flowCalibrationManager.SetPressuresFromCalibration(settings, localData, "ddm_116");
-                    Calib_116_RunBtn.IsEnabled = true;
-                    Calib_116_RunPrg.Visibility = Visibility.Collapsed;
+                    rerun = await RunOnceAsync(motorName);
                 }
-                else if (userInput == MessageBoxResult.No)
-                {
-                    Calib_116_RunBtn_Click(sender, e);
-                }
-                else
-                {
-                    Calib_116_RunBtn.IsEnabled = true;
-                    Calib_116_RunPrg.Visibility = Visibility.Collapsed;
-                }
+                while (rerun);
             }
             catch (Exception ex)
             {
-                Debug.Print($"Error during flow calibration: {ex.Message}");
-                Calib_116_RunBtn.IsEnabled = true;
-                Calib_116_RunPrg.Visibility = Visibility.Collapsed;
+                Debug.Print($"Error during flow calibration for {motorName}: {ex.Message}");
+            }
+            finally
+            {
+                RunBtn.IsEnabled = true;
+                RunPrg.Visibility = Visibility.Collapsed;
+                SetupPanel();
+            }
+        }
+
+        /// <summary>
+        /// Runs one calibration attempt for <paramref name="motorName"/> and prompts the
+        /// user. Returns true if the user chose to re-run.
+        /// </summary>
+        private async Task<bool> RunOnceAsync(string motorName)
+        {
+            CellSettings settings = _settingsService.GetAllSettings();
+            LocalData localData = _localDataService.GetLocalData();
+            LDMotorCalib calib = _localDataService.GetCalibFromMotorName(localData, motorName);
+
+            RunCalibResult result =
+                await _flowCalibrationService.RunDispenseForManualCalibration(settings, localData, motorName);
+
+            float newSys1Pres = calib.sys_1_pressure.Value * result.sf1;
+            float newSys2Pres = calib.sys_2_pressure.Value * result.sf2;
+
+            string caption = "Accept new calibration?";
+            string message =
+                $"Calibration scale factors:\n\n" +
+                $"SF1: {result.sf1:F2}\n" +
+                $"SF2: {result.sf2:F2}\n\n" +
+                $"New calculated pressures:\n\n" +
+                $"Sys 1: {newSys1Pres:F2} psi\n" +
+                $"Sys 2: {newSys2Pres:F2} psi\n\n" +
+                $"Accept results? \"No\" will re-run procedure.";
+
+            MessageBoxResult userInput =
+                MessageBox.Show(message, caption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+            if (userInput == MessageBoxResult.Yes)
+            {
+                _flowCalibrationService.GenerateAndSaveCalibration(result);
+                _flowCalibrationService.SetPressuresFromCalibration(settings, localData, motorName);
+                return false;
             }
 
-            SetupPanel();
+            return userInput == MessageBoxResult.No; // No = re-run, Cancel = stop
         }
     }
 }

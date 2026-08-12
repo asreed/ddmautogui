@@ -7,6 +7,8 @@ namespace DDMAutoGUI.Services
     /// </summary>
     public interface IApplicationConfiguration
     {
+        string DefaultControllerIPAddress { get; }
+        string DisplayTitle { get; }
         bool IsSimulationMode { get; }
         string CalibrationPassword { get; }
         string ServicePassword { get; }

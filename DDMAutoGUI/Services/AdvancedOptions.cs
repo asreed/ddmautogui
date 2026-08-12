@@ -5,7 +5,8 @@ namespace DDMAutoGUI.Services
     public class AdvancedOptions
     {
         public ConnectionOptions ConnectionOptions { get; set; } = new();
-        public DispenseOptions DispenseOptions { get; set; } = new();
+        public PartCycleOptions PartCycleOptions { get; set; } = new();
+        public ResultsStorageOptions ResultsStorageOptions { get; set; } = new();
     }
 
     public class ConnectionOptions
@@ -22,9 +23,24 @@ namespace DDMAutoGUI.Services
         /// connection to be considered valid. Ports not listed here are ignored.
         /// </summary>
         public int[] ExpectedIoLinkPorts { get; set; } = new[] { 1, 2, 5, 6, 7 };
+
     }
 
-    public class DispenseOptions
+    public class ResultsStorageOptions
+    {
+        /// <summary>UNC or mapped path to the server results share, e.g. @"\\us-wst-xxxxxx\share".</summary>
+        public string ServerPath { get; set; } = @"\\us-wst-1-fsx-01\share";
+
+        public bool VerifyServerOnConnect { get; set; } = true;
+
+        /// <summary>When true, results are written locally only and never copied to the server (dev/debug).</summary>
+        public bool SaveLocalOnly { get; set; } = false;
+
+        /// <summary>When true, the local copy is deleted after a verified server copy. Off until the flow is proven.</summary>
+        public bool DeleteLocalAfterCopy { get; set; } = false;
+    }
+
+    public class PartCycleOptions
     {
         public bool CheckHealth { get; set; } = true;
         public bool Dispense { get; set; } = true;

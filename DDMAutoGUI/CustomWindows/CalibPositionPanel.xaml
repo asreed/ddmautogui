@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:DDMAutoGUI.CustomWindows"
              mc:Ignorable="d" 
              Background="White"
-             d:DesignHeight="450" d:DesignWidth="450">
+             d:DesignHeight="450" 
+             d:DesignWidth="450">
 
     <Grid>
 

@@ -14,13 +14,13 @@ namespace DDMAutoGUI.CustomWindows
     /// </summary>
     public partial class DevTcsConnectionPanel : UserControl
     {
-        private readonly IControllerManager _controllerManager;
+        private readonly IControllerService _controllerManager;
 
         public DevTcsConnectionPanel()
         {
             InitializeComponent();
 
-            _controllerManager = App.Services?.GetService<IControllerManager>();
+            _controllerManager = App.Services?.GetService<IControllerService>();
         }
 
         private async void Adv_Con_ConnectBtn_Click(object sender, RoutedEventArgs e)

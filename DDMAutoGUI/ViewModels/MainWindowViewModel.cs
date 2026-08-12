@@ -1,3 +1,4 @@
+using DDMAutoGUI.Constants;
 using DDMAutoGUI.Services;
 using DDMAutoGUI.Utilities;
 using System;
@@ -17,13 +18,13 @@ namespace DDMAutoGUI.ViewModels
     /// </summary>
     public class MainWindowViewModel : ViewModelBase, IDisposable
     {
-        private readonly IControllerManager _controllerManager;
-        private readonly ISettingsManager _settingsManager;
-        private readonly IResultsManager _resultsManager;
-        private readonly ICameraManager _cameraManager;
-        private readonly ILocalDataManager _localDataManager;
+        private readonly IControllerService _controllerService;
+        private readonly ISettingsService _settingsService;
+        private readonly IResultsService _resultsService;
+        private readonly ICameraService _cameraService;
+        private readonly ILocalDataService _localDataService;
         private readonly IApplicationConfiguration _appConfig;
-        private readonly IDispenseProcessService _dispenseProcessService;
+        private readonly IPartCycleService _partCycleService;
 
         private string _appTitle;
         private bool _isConnected;
@@ -82,24 +83,28 @@ namespace DDMAutoGUI.ViewModels
         private string _resultStepTopPostPhoto;
         private string _resultMaxMCHeight;
 
-        public MainWindowViewModel(
-            IControllerManager controllerManager,
-            ISettingsManager settingsManager,
-            IResultsManager resultsManager,
-            ICameraManager cameraManager,
-            ILocalDataManager localDataManager,
-            IApplicationConfiguration appConfig,
-            IDispenseProcessService dispenseProcessService)
-        {
-            _controllerManager = controllerManager ?? throw new ArgumentNullException(nameof(controllerManager));
-            _settingsManager = settingsManager ?? throw new ArgumentNullException(nameof(settingsManager));
-            _resultsManager = resultsManager ?? throw new ArgumentNullException(nameof(resultsManager));
-            _cameraManager = cameraManager ?? throw new ArgumentNullException(nameof(cameraManager));
-            _localDataManager = localDataManager ?? throw new ArgumentNullException(nameof(localDataManager));
-            _appConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
-            _dispenseProcessService = dispenseProcessService ?? throw new ArgumentNullException(nameof(dispenseProcessService));
+        private int _selectedFlowCalibSizeIndex;
+        private string _selectedFlowCalibMotorType;
 
-            _controllerIpAddress = "192.168.0.1";
+        private string _connectedTcsVersion = "-";
+        private string _connectedPacVersion = "-";
+
+        public MainWindowViewModel(
+            IControllerService controllerService,
+            ISettingsService settingsService,
+            IResultsService resultsService,
+            ICameraService cameraService,
+            ILocalDataService localDataService,
+            IApplicationConfiguration appConfig,
+            IPartCycleService dispenseProcessService)
+        {
+            _controllerService = controllerService ?? throw new ArgumentNullException(nameof(controllerService));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _resultsService = resultsService ?? throw new ArgumentNullException(nameof(resultsService));
+            _cameraService = cameraService ?? throw new ArgumentNullException(nameof(cameraService));
+            _localDataService = localDataService ?? throw new ArgumentNullException(nameof(localDataService));
+            _appConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
+            _partCycleService = dispenseProcessService ?? throw new ArgumentNullException(nameof(dispenseProcessService));
 
             InitializeCommands();
             InitializeEventHandlers();
@@ -107,6 +112,8 @@ namespace DDMAutoGUI.ViewModels
             InitializeMotorSizes();
             InitializeCalibrationWatch();
 
+            _controllerIpAddress = _appConfig.DefaultControllerIPAddress;
+            _connectionStatus = ConnectionStatusText.NotConnected;
             _selectedMotorType = "ddm_116";
         }
 
@@ -128,6 +135,7 @@ namespace DDMAutoGUI.ViewModels
                     OnPropertyChanged(nameof(IsDisconnected));
                     OnPropertyChanged(nameof(IsRobotControlEnabled));
                     OnPropertyChanged(nameof(IsCalibrationExpired));
+                    OnPropertyChanged(nameof(IsCalibrationMismatched));
                 }
             }
         }
@@ -140,7 +148,7 @@ namespace DDMAutoGUI.ViewModels
         /// no robot command in flight, since robot commands run one-at-a-time and can
         /// take a second or two — we lock the controls until they return.
         /// </summary>
-        public bool IsRobotControlEnabled => IsConnected && !_controllerManager.IsRobotBusy;
+        public bool IsRobotControlEnabled => IsConnected && !_controllerService.IsRobotBusy;
 
         public string ConnectionStatus
         {
@@ -217,6 +225,7 @@ namespace DDMAutoGUI.ViewModels
             {
                 if (SetProperty(ref _selectedMotorType, value))
                 {
+                    OnPropertyChanged(nameof(IsCalibrationMismatched));
                     Application.Current?.Dispatcher.BeginInvoke(
                         CommandManager.InvalidateRequerySuggested);
                 }
@@ -243,6 +252,32 @@ namespace DDMAutoGUI.ViewModels
             }
         }
 
+        /// <summary>The motor name (e.g. "ddm_116") the Calibrate Flow panel operates on.</summary>
+        public string SelectedFlowCalibMotorType
+        {
+            get => _selectedFlowCalibMotorType;
+            set => SetProperty(ref _selectedFlowCalibMotorType, value);
+        }
+
+        /// <summary>
+        /// Motor size selected on the Calibrate Flow panel. Kept separate from
+        /// <see cref="SelectedMotorSizeIndex"/> (the Operate tab's selection) so the two
+        /// workflows don't drive each other.
+        /// </summary>
+        public int SelectedFlowCalibSizeIndex
+        {
+            get => _selectedFlowCalibSizeIndex;
+            set
+            {
+                if (SetProperty(ref _selectedFlowCalibSizeIndex, value))
+                {
+                    SelectedFlowCalibMotorType = (MotorSizes != null && value >= 0 && value < MotorSizes.Count)
+                        ? MotorSizes[value]
+                        : null;
+                }
+            }
+        }
+
         public ObservableCollection<string> MotorSizes
         {
             get => _motorSizes;
@@ -255,11 +290,6 @@ namespace DDMAutoGUI.ViewModels
         /// </summary>
         public bool IsSimulationMode => _appConfig.IsSimulationMode;
 
-        // For displaying/managing logged content
-        public string ConnectionLogText { get; set; }
-        public string StatusLogText { get; set; }
-        public string RobotLogText { get; set; }
-        public string ProcessLogText { get; set; }
 
         // For controller state display
         public bool IsPowerEnabled { get => _isPowerEnabled; set => SetProperty(ref _isPowerEnabled, value); }
@@ -282,12 +312,7 @@ namespace DDMAutoGUI.ViewModels
         public int SafetyErrorState { get => _safetyErrorState; set => SetProperty(ref _safetyErrorState, value); }
         public bool IsSimulated { get => _isSimulated; set => SetProperty(ref _isSimulated, value); }
 
-        // For motor settings display
-        public string MotorSettingsDisplay { get; set; }
 
-        // For advanced options
-        public bool AdvancedOptionsConnectController { get; set; }
-        // Connection Options - write-through to _appConfig.AdvancedOptions.ConnectionOptions
         public bool ConnectController
         {
             get => _appConfig.AdvancedOptions.ConnectionOptions.Controller;
@@ -368,12 +393,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispCheckHealth
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.CheckHealth;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.CheckHealth;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.CheckHealth != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.CheckHealth != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.CheckHealth = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.CheckHealth = value;
                     OnPropertyChanged();
                 }
             }
@@ -381,12 +406,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispPhotoTop
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.PhotoTop;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.PhotoTop;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.PhotoTop != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.PhotoTop != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.PhotoTop = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.PhotoTop = value;
                     OnPropertyChanged();
                 }
             }
@@ -394,12 +419,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispPhotoSide
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.PhotoSide;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.PhotoSide;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.PhotoSide != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.PhotoSide != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.PhotoSide = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.PhotoSide = value;
                     OnPropertyChanged();
                 }
             }
@@ -407,12 +432,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispRunOCR
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.RunOCR;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.RunOCR;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.RunOCR != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.RunOCR != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.RunOCR = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.RunOCR = value;
                     OnPropertyChanged();
                 }
             }
@@ -420,12 +445,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispCheckPolarity
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.CheckPolarity;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.CheckPolarity;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.CheckPolarity != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.CheckPolarity != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.CheckPolarity = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.CheckPolarity = value;
                     OnPropertyChanged();
                 }
             }
@@ -433,12 +458,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispMeasureHeights
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.MeasureHeights;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.MeasureHeights;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.MeasureHeights != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.MeasureHeights != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.MeasureHeights = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.MeasureHeights = value;
                     OnPropertyChanged();
                 }
             }
@@ -446,12 +471,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispDispense
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.Dispense;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.Dispense;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.Dispense != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.Dispense != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.Dispense = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.Dispense = value;
                     OnPropertyChanged();
                 }
             }
@@ -459,12 +484,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispAutocalibrate
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.Autocalibrate;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.Autocalibrate;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.Autocalibrate != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.Autocalibrate != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.Autocalibrate = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.Autocalibrate = value;
                     OnPropertyChanged();
                 }
             }
@@ -472,26 +497,34 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispPhotoTopAfter
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.PhotoTopAfter;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.PhotoTopAfter;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.PhotoTopAfter != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.PhotoTopAfter != value)
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.PhotoTopAfter = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.PhotoTopAfter = value;
                     OnPropertyChanged();
                 }
             }
         }
 
-        public bool DispOverrideWarnings
+        private bool _dispOverridePCLocks;
+
+        /// <summary>
+        /// Dev/debug option. When enabled, bypasses the serial-number and calibration
+        /// gates in <see cref="CanExecutePartCycle"/> so a part cycle can be started for
+        /// testing without a scanned SN or valid/matching flow calibration. The
+        /// connection and "already running" gates are always enforced.
+        /// </summary>
+        public bool DispOverridePCLocks
         {
-            get => _appConfig.AdvancedOptions.DispenseOptions.OverrideWarnings;
+            get => _dispOverridePCLocks;
             set
             {
-                if (_appConfig.AdvancedOptions.DispenseOptions.OverrideWarnings != value)
+                if (SetProperty(ref _dispOverridePCLocks, value))
                 {
-                    _appConfig.AdvancedOptions.DispenseOptions.OverrideWarnings = value;
-                    OnPropertyChanged();
+                    Application.Current?.Dispatcher.BeginInvoke(
+                        CommandManager.InvalidateRequerySuggested);
                 }
             }
         }
@@ -653,15 +686,93 @@ namespace DDMAutoGUI.ViewModels
                 if (!IsConnected)
                     return false;
 
-                float? expHours = _settingsManager.GetAllSettings()?.dispense_system?.calib_exp_hours;
+                float? expHours = _settingsService.GetAllSettings()?.dispense_system?.calib_exp_hours;
                 if (expHours == null)
                     return false;
 
-                DateTime? lastCalib = _localDataManager.GetLocalData()?.calib_data?.last_calib;
+                DateTime? lastCalib = _localDataService.GetLocalData()?.calib_data?.last_calib;
                 if (lastCalib == null)
                     return true;
 
                 return (DateTime.Now - lastCalib.Value).TotalHours > expHours.Value;
+            }
+        }
+
+        /// <summary>
+        /// True when the most recent flow calibration was performed for the currently
+        /// selected motor type. Contributes to the dispense gate so an operator can't
+        /// dispense against a calibration captured for a different size. Returns false
+        /// while disconnected, since calibration/settings are only known when connected.
+        /// </summary>
+        public bool IsCalibrationMismatched
+        {
+            get
+            {
+                if (!IsConnected)
+                    return false;
+
+                string? lastSize = _localDataService.GetLocalData()?.calib_data?.last_size;
+                return !string.IsNullOrEmpty(lastSize)
+                    && !lastSize.Equals(SelectedMotorType, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        /// <summary>TCS firmware version reported by the controller, or "-" when unknown.</summary>
+        public string ConnectedTcsVersion
+        {
+            get => _connectedTcsVersion;
+            set => SetProperty(ref _connectedTcsVersion, value);
+        }
+
+        /// <summary>PAC firmware version reported by the controller, or "-" when unknown.</summary>
+        public string ConnectedPacVersion
+        {
+            get => _connectedPacVersion;
+            set => SetProperty(ref _connectedPacVersion, value);
+        }
+
+        /// <summary>
+        /// Path to the results server share (UNC preferred over a mapped drive letter).
+        /// Write-through to AdvancedOptions.ResultsStorageOptions.ServerPath.
+        /// </summary>
+        public string ServerPathText
+        {
+            get => _appConfig.AdvancedOptions.ResultsStorageOptions.ServerPath;
+            set
+            {
+                if (_appConfig.AdvancedOptions.ResultsStorageOptions.ServerPath != value)
+                {
+                    _appConfig.AdvancedOptions.ResultsStorageOptions.ServerPath = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>Whether the connect routine verifies reachability of the results server share.</summary>
+        public bool DispVerifyServer
+        {
+            get => _appConfig.AdvancedOptions.ResultsStorageOptions.VerifyServerOnConnect;
+            set
+            {
+                if (_appConfig.AdvancedOptions.ResultsStorageOptions.VerifyServerOnConnect != value)
+                {
+                    _appConfig.AdvancedOptions.ResultsStorageOptions.VerifyServerOnConnect = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>When true, results are written locally only and never copied to the server (dev/debug).</summary>
+        public bool DispSaveLocalOnly
+        {
+            get => _appConfig.AdvancedOptions.ResultsStorageOptions.SaveLocalOnly;
+            set
+            {
+                if (_appConfig.AdvancedOptions.ResultsStorageOptions.SaveLocalOnly != value)
+                {
+                    _appConfig.AdvancedOptions.ResultsStorageOptions.SaveLocalOnly = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -672,26 +783,22 @@ namespace DDMAutoGUI.ViewModels
         public ICommand ConnectCommand { get; private set; }
         public ICommand DisconnectCommand { get; private set; }
         public ICommand StartDispenseCommand { get; private set; }
-        public ICommand CancelDispenseCommand { get; private set; }
         public ICommand ViewResultsCommand { get; private set; }
         public ICommand OpenResultsDirectoryCommand { get; private set; }
         public ICommand AcquireTopCommand { get; private set; }
         public ICommand AcquireSideCommand { get; private set; }
         public ICommand OpenResultsFolderCommand { get; private set; }
-        public ICommand LockAdvancedTabCommand { get; private set; }
 
         private void InitializeCommands()
         {
             ConnectCommand = new AsyncRelayCommand<string>(ExecuteConnect, parameter => CanConnect(parameter));
             DisconnectCommand = new AsyncRelayCommand(ExecuteDisconnect, parameter => CanDisconnect(parameter));
-            StartDispenseCommand = new AsyncRelayCommand(ExecuteStartDispense, parameter => CanStartDispense(parameter));
-            CancelDispenseCommand = new RelayCommand(ExecuteCancelDispense, parameter => CanCancelDispense(parameter));
+            StartDispenseCommand = new AsyncRelayCommand(ExecutePartCycle, parameter => CanExecutePartCycle(parameter));
             ViewResultsCommand = new RelayCommand(ExecuteViewResults);
             OpenResultsDirectoryCommand = new RelayCommand(ExecuteOpenResultsDirectory);
             AcquireTopCommand = new AsyncRelayCommand(ExecuteAcquireTop, CanAcquireImage);
             AcquireSideCommand = new AsyncRelayCommand(ExecuteAcquireSide, CanAcquireImage);
             OpenResultsFolderCommand = new RelayCommand(_ => ExecuteOpenResultsFolder());
-            LockAdvancedTabCommand = new RelayCommand(_ => ExecuteLockAdvancedTab());
         }
 
         #endregion
@@ -703,20 +810,22 @@ namespace DDMAutoGUI.ViewModels
             try
             {
                 IsProcessing = true;
-                ConnectionStatus = "Connecting...";
+                ConnectionStatus = ConnectionStatusText.Connecting;
 
                 if (string.IsNullOrWhiteSpace(ipAddress))
                 {
                     ipAddress = ControllerIpAddress;
                 }
 
-                bool connected = await _controllerManager.Connect(ipAddress);
+                bool connected = await _controllerService.Connect(ipAddress);
                 IsConnected = connected;
-                ConnectionStatus = connected ? "Connected" : "Connection failed";
+                ConnectionStatus = connected
+                    ? ConnectionStatusText.ConnectedTo(ipAddress)
+                    : ConnectionStatusText.ConnectionFailed;
             }
             catch (Exception ex)
             {
-                ConnectionStatus = $"Error: {ex.Message}";
+                ConnectionStatus = ConnectionStatusText.Error(ex.Message);
                 Debug.Print($"Connection error: {ex}");
             }
             finally
@@ -732,13 +841,13 @@ namespace DDMAutoGUI.ViewModels
             try
             {
                 IsProcessing = true;
-                await _controllerManager.Disconnect();
+                await _controllerService.Disconnect();
                 IsConnected = false;
-                ConnectionStatus = "Disconnected";
+                ConnectionStatus = ConnectionStatusText.Disconnected;
             }
             catch (Exception ex)
             {
-                ConnectionStatus = $"Disconnect error: {ex.Message}";
+                ConnectionStatus = ConnectionStatusText.Error(ex.Message);
                 Debug.Print($"Disconnect error: {ex}");
             }
             finally
@@ -750,41 +859,38 @@ namespace DDMAutoGUI.ViewModels
         private bool CanDisconnect(object parameter) 
             => IsConnected && !IsProcessing;
 
-        private async Task ExecuteStartDispense(object parameter)
+        private async Task ExecutePartCycle(object parameter)
         {
             try
             {
                 IsProcessing = true;
                 IsDispenseProcessRunning = true;
                 ProcessProgress = 0;
-                CurrentStep = "Starting dispense process...";
-                ProcessLog = "";
-
-                ProcessLog += $"=== PROCESS STARTED ===\n";
+                CurrentStep = "Starting part cycle process...";
 
                 // Bring the operator to the live progress/log view as the run begins.
                 SelectedDispenseTabIndex = MonitorProcessTabIndex;
 
                 // Use _appConfig.AdvancedOptions
-                var result = await _dispenseProcessService.ExecuteFullDispenseProcessAsync(
+                var result = await _partCycleService.ExecutePartCycleAsync(
                     SelectedMotorType,
                     MotorSerialNumber,
                     _appConfig.AdvancedOptions);
 
-                if (result.Success)
-                {
-                    if (result.Pass) {
-                        ProcessLog += $"\n\n=== PROCESS PASSED ===\n";
-                    }
-                    else
-                    {
-                        ProcessLog += $"\n\n=== PROCESS FAILED ===\n";
-                    }
-                }
-                else
-                {
-                    ProcessLog += $"\n\n=== PROCESS INCOMPLETE ===\n";
-                }
+                //if (result.Success)
+                //{
+                //    if (result.Pass) {
+                //        //
+                //    }
+                //    else
+                //    {
+                //        //
+                //    }
+                //}
+                //else
+                //{
+                //    //
+                //}
 
                 // Fill the Review Results tab and bring the operator to it, regardless of
                 // outcome, so pass/fail/incomplete is always visible.
@@ -793,39 +899,46 @@ namespace DDMAutoGUI.ViewModels
             }
             catch (Exception ex)
             {
-                ProcessLog += $"\n\nUnexpected error: {ex.Message}";
                 Debug.Print($"Dispense process error: {ex}");
+                ResultStatus = DispenseResultStatus.Incomplete;
+                ResultMessage = $"Run failed: {ex.Message}";
             }
             finally
             {
-                // Advance to the results view now that the run has finished.
                 SelectedDispenseTabIndex = ReviewResultsTabIndex;
-
                 IsProcessing = false;
                 IsDispenseProcessRunning = false;
             }
         }
 
-        private bool CanStartDispense(object parameter) 
+        private bool CanExecutePartCycle(object parameter)
         {
-            // Must be connected to controller
+            // Must be connected to controller (always enforced)
             if (!IsConnected)
                 return false;
 
-            // Cannot start while another process is running
+            // Cannot start while another process is running (always enforced)
             if (IsProcessing)
                 return false;
+
+            // Motor type must be selected (always enforced)
+            if (string.IsNullOrEmpty(SelectedMotorType))
+                return false;
+
+            // Dev/debug override bypasses the operator-facing safety gates below.
+            if (DispOverridePCLocks)
+                return true;
 
             // Motor serial number is required
             if (IsSerialNumberMissing)
                 return false;
 
-            // Motor type must be selected
-            if (string.IsNullOrEmpty(SelectedMotorType))
-                return false;
-
             // Calibration must be present and within the configured expiry window
             if (IsCalibrationExpired)
+                return false;
+
+            // Calibration must match the selected motor type
+            if (IsCalibrationMismatched)
                 return false;
 
             return true;
@@ -835,7 +948,7 @@ namespace DDMAutoGUI.ViewModels
         {
             IsProcessing = false;
             IsDispenseProcessRunning = false;
-            ProcessLog += "\n\n=== PROCESS CANCELLED BY USER ===";
+            ProcessLog += "\n\n=== PART CYCLE CANCELLED BY USER ===";
         }
 
         private bool CanCancelDispense(object parameter) 
@@ -843,7 +956,7 @@ namespace DDMAutoGUI.ViewModels
 
         private void ExecuteViewResults(object parameter)
         {
-            string resultsJson = _resultsManager.GetCurrentResultsAsString();
+            string resultsJson = _resultsService.GetCurrentResultsAsString();
             if (!string.IsNullOrEmpty(resultsJson))
             {
                 Debug.Print(resultsJson);
@@ -852,20 +965,20 @@ namespace DDMAutoGUI.ViewModels
 
         private void ExecuteOpenResultsDirectory(object parameter)
         {
-            _resultsManager.OpenBrowserToDirectory();
+            _resultsService.OpenBrowserToDirectory();
         }
 
         private async Task ExecuteAcquireTop(object parameter)
         {
-            await ExecuteAcquireCamera(CameraManager.CellCamera.top, "Top image acquired");
+            await ExecuteAcquireCamera(CameraService.CellCamera.top, "Top image acquired");
         }
 
         private async Task ExecuteAcquireSide(object parameter)
         {
-            await ExecuteAcquireCamera(CameraManager.CellCamera.side, "Side image acquired");
+            await ExecuteAcquireCamera(CameraService.CellCamera.side, "Side image acquired");
         }
 
-        private async Task ExecuteAcquireCamera(CameraManager.CellCamera camera, string successMessage)
+        private async Task ExecuteAcquireCamera(CameraService.CellCamera camera, string successMessage)
         {
             try
             {
@@ -873,7 +986,7 @@ namespace DDMAutoGUI.ViewModels
                 CameraStatus = "Acquiring image...";
                 AcquiredImageSource = null;
 
-                CameraAcquisitionResult result = await _cameraManager.AcquireAndSave(camera, null);
+                CameraAcquisitionResult result = await _cameraService.AcquireAndSave(camera, null);
 
                 if (result.success)
                 {
@@ -906,12 +1019,7 @@ namespace DDMAutoGUI.ViewModels
 
         private void ExecuteOpenResultsFolder()
         {
-            _resultsManager.OpenBrowserToDirectory();
-        }
-
-        private void ExecuteLockAdvancedTab()
-        {
-            // Lock logic here
+            _resultsService.OpenBrowserToDirectory();
         }
 
         private bool CanAcquireImage(object parameter) => IsConnected && !IsProcessing;
@@ -922,65 +1030,69 @@ namespace DDMAutoGUI.ViewModels
 
         private void InitializeEventHandlers()
         {
-            _controllerManager.ControllerConnected += ControllerManager_Connected;
-            _controllerManager.ControllerDisconnected += ControllerManager_Disconnected;
-            _controllerManager.ConnectionLogUpdated += ControllerManager_ConnectionLogUpdated;
-            _controllerManager.StatusLogUpdated += ControllerManager_StatusLogUpdated;
-            _controllerManager.RobotLogUpdated += ControllerManager_RobotLogUpdated;
-            _resultsManager.UpdateProcessLog += ResultsManager_UpdateProcessLog;
-            _controllerManager.ControllerStateChanged += ControllerManager_StateChanged;
+            _controllerService.ControllerConnected += ControllerService_Connected;
+            _controllerService.ControllerDisconnected += ControllerService_Disconnected;
+            _controllerService.ConnectionLogUpdated += ControllerService_ConnectionLogUpdated;
+            _controllerService.StatusLogUpdated += ControllerService_StatusLogUpdated;
+            _controllerService.RobotLogUpdated += ControllerService_RobotLogUpdated;
+            _resultsService.UpdateProcessLog += ResultsService_UpdateProcessLog;
+            _controllerService.ControllerStateChanged += ControllerService_StateChanged;
 
             // Wire dispense progress reporting to the bound ProcessProgress property.
             // This subscription was lost in the MVVM/DI refactor, which is why the
             // Disp_ProcessPrg bar stopped advancing during a run.
-            _dispenseProcessService.ProgressChanged += DispenseProcessService_ProgressChanged;
-            _controllerManager.RobotBusyChanged += ControllerManager_RobotBusyChanged;
+            _partCycleService.ProgressChanged += DispenseProcessService_ProgressChanged;
+            _controllerService.RobotBusyChanged += ControllerService_RobotBusyChanged;
 
-            _localDataManager.LocalDataChanged += LocalDataManager_LocalDataChanged;
+            _localDataService.LocalDataChanged += LocalDataService_LocalDataChanged;
         }
 
-        private void ControllerManager_Connected(object sender, EventArgs e)
+        private void ControllerService_Connected(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
                 IsConnected = true;
-                ConnectionStatus = $"Connected ({_controllerManager.CONNECTION_STATE?.connectedIP})";
+                ConnectionStatus = ConnectionStatusText.ConnectedTo(_controllerService.CONNECTION_STATE?.connectedIP);
+                ConnectedTcsVersion = _controllerService.CONNECTION_STATE?.connectedTCS ?? "-";
+                ConnectedPacVersion = _controllerService.CONNECTION_STATE?.connectedPAC ?? "-";
                 CommandManager.InvalidateRequerySuggested();
             });
         }
 
-        private void ControllerManager_Disconnected(object sender, EventArgs e)
+        private void ControllerService_Disconnected(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
                 IsConnected = false;
                 ReadoutsEnabled = false;
-                ConnectionStatus = "Not connected";
+                ConnectionStatus = ConnectionStatusText.Disconnected;
+                ConnectedTcsVersion = "-";
+                ConnectedPacVersion = "-";
                 CommandManager.InvalidateRequerySuggested();
             });
         }
 
-        private void ControllerManager_ConnectionLogUpdated(object sender, EventArgs e)
+        private void ControllerService_ConnectionLogUpdated(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
-                ConnectionLog = _controllerManager.GetConnectionLog());
+                ConnectionLog = _controllerService.GetConnectionLog());
         }
 
-        private void ControllerManager_StatusLogUpdated(object sender, EventArgs e)
+        private void ControllerService_StatusLogUpdated(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
-                StatusLog = _controllerManager.GetStatusLog());
+                StatusLog = _controllerService.GetStatusLog());
         }
 
-        private void ControllerManager_RobotLogUpdated(object sender, EventArgs e)
+        private void ControllerService_RobotLogUpdated(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
-                RobotLog = _controllerManager.GetRobotLog());
+                RobotLog = _controllerService.GetRobotLog());
         }
 
-        private void ResultsManager_UpdateProcessLog(object sender, EventArgs e)
+        private void ResultsService_UpdateProcessLog(object sender, EventArgs e)
         {
-            ProcessLog = _resultsManager.GetLogAsString();
+            ProcessLog = _resultsService.GetLogAsString();
         }
 
         private void DispenseProcessService_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -997,9 +1109,9 @@ namespace DDMAutoGUI.ViewModels
             });
         }
 
-        private void ControllerManager_StateChanged(object sender, EventArgs e)
+        private void ControllerService_StateChanged(object sender, EventArgs e)
         {
-            ControllerState state = _controllerManager.CONTROLLER_STATE;
+            ControllerState state = _controllerService.CONTROLLER_STATE;
             if (state == null)
                 return;
 
@@ -1025,11 +1137,11 @@ namespace DDMAutoGUI.ViewModels
                 SafetyErrorState = state.safetyErrorState;
                 IsSimulated = state.isSimulated;
 
-                ReadoutsEnabled = !state.parseError && (_controllerManager.CONNECTION_STATE?.isConnected ?? false);
+                ReadoutsEnabled = !state.parseError && (_controllerService.CONNECTION_STATE?.isConnected ?? false);
             });
         }
 
-        private void ControllerManager_RobotBusyChanged(object sender, EventArgs e)
+        private void ControllerService_RobotBusyChanged(object sender, EventArgs e)
         {
             // Raised on the UI thread from SendRobotCommand; marshal defensively in case a
             // future caller offloads robot I/O the way Connect() does for the camera/FTP work.
@@ -1040,7 +1152,7 @@ namespace DDMAutoGUI.ViewModels
             });
         }
 
-        private void LocalDataManager_LocalDataChanged(object sender, EventArgs e)
+        private void LocalDataService_LocalDataChanged(object sender, EventArgs e)
         {
             // last_calib is rewritten here when a flow calibration completes (from the
             // Calibrate tab, outside this ViewModel). Marshal to the UI thread and refresh
@@ -1056,7 +1168,7 @@ namespace DDMAutoGUI.ViewModels
         private void InitializeAppTitle()
         {
             string version = ReleaseInfo.GetCurrentVersion();
-            AppTitle = $"{version}";
+            AppTitle = $"{_appConfig.DisplayTitle} {version}";
         }
 
         private void InitializeMotorSizes()
@@ -1070,6 +1182,7 @@ namespace DDMAutoGUI.ViewModels
                 "ddm_170_tall"
             };
             SelectedMotorSizeIndex = 2; // Default to ddm_116
+            SelectedFlowCalibSizeIndex = 2; // Default to ddm_116
         }
 
         /// <summary>
@@ -1077,7 +1190,7 @@ namespace DDMAutoGUI.ViewModels
         /// the bound properties. The tri-state status and message come from the returned
         /// summary; the detail fields come from the authoritative results record.
         /// </summary>
-        private void PopulateResultsDisplay(DispenseProcessResult result)
+        private void PopulateResultsDisplay(PartCycleResult result)
         {
             ResultStatus = !result.Success
                 ? DispenseResultStatus.Incomplete
@@ -1085,9 +1198,9 @@ namespace DDMAutoGUI.ViewModels
 
             ResultMessage = result.Message;
 
-            var data = _resultsManager.currentResults;
-            ResultToolSerial = string.IsNullOrWhiteSpace(data?.tool_sn) ? "-" : data.tool_sn;
-            ResultRingSerial = string.IsNullOrWhiteSpace(data?.ring_sn) ? "-" : data.ring_sn;
+            var data = _resultsService.currentResults;
+            ResultToolSerial = string.IsNullOrWhiteSpace(data?.tool_sn_detected) ? "-" : data.tool_sn_detected;
+            ResultRingSerial = string.IsNullOrWhiteSpace(data?.ring_sn_detected) ? "-" : data.ring_sn_detected;
 
 
             float idFrac = data?.reference_data?.id_target_vol is float idTarget and not 0f
@@ -1100,12 +1213,12 @@ namespace DDMAutoGUI.ViewModels
             ResultDispenseVolumeOd = data?.shot_data?.od_vol is float odVol ? $"{odFrac:F1}% ({odVol:0.000})" : "-";
 
             // Process step statuses
-            string folder = _resultsManager.currentResultsFolderPath;
+            string folder = _resultsService.currentResultsFolderPath;
             ResultStepTopPhoto = PhotoSavedStatus(folder, "Top");
             ResultStepSidePhoto = PhotoSavedStatus(folder, "Side");
             ResultStepTopPostPhoto = PhotoSavedStatus(folder, "TopPost");
 
-            ResultStepSerialNumbers = !string.IsNullOrWhiteSpace(data?.tool_sn) && !string.IsNullOrWhiteSpace(data?.ring_sn)
+            ResultStepSerialNumbers = !string.IsNullOrWhiteSpace(data?.tool_sn_detected) && !string.IsNullOrWhiteSpace(data?.ring_sn_detected)
                 ? "Detected"
                 : "Not Detected";
 
@@ -1123,7 +1236,7 @@ namespace DDMAutoGUI.ViewModels
 
             // Process result detail values
             ResultMaxMCHeight = data?.height_verification_result?.normMaxHeight is double maxHeight
-                ? $"{maxHeight:F2} mm"
+                ? $"{maxHeight:F2} um"
                 : "-";
         }
 
@@ -1156,6 +1269,7 @@ namespace DDMAutoGUI.ViewModels
         public void RefreshCalibrationStatus()
         {
             OnPropertyChanged(nameof(IsCalibrationExpired));
+            OnPropertyChanged(nameof(IsCalibrationMismatched));
             CommandManager.InvalidateRequerySuggested();
         }
 
@@ -1175,17 +1289,16 @@ namespace DDMAutoGUI.ViewModels
             if (_disposed)
                 return;
 
-            _controllerManager.ControllerConnected -= ControllerManager_Connected;
-            _controllerManager.ControllerDisconnected -= ControllerManager_Disconnected;
-            _controllerManager.ConnectionLogUpdated -= ControllerManager_ConnectionLogUpdated;
-            _controllerManager.StatusLogUpdated -= ControllerManager_StatusLogUpdated;
-            _controllerManager.RobotLogUpdated -= ControllerManager_RobotLogUpdated;
-            _controllerManager.ControllerStateChanged -= ControllerManager_StateChanged;
-            _resultsManager.UpdateProcessLog -= ResultsManager_UpdateProcessLog;
-            _dispenseProcessService.ProgressChanged -= DispenseProcessService_ProgressChanged;
-            _controllerManager.ControllerStateChanged -= ControllerManager_StateChanged;
-            _controllerManager.RobotBusyChanged -= ControllerManager_RobotBusyChanged;
-            _localDataManager.LocalDataChanged -= LocalDataManager_LocalDataChanged;
+            _controllerService.ControllerConnected -= ControllerService_Connected;
+            _controllerService.ControllerDisconnected -= ControllerService_Disconnected;
+            _controllerService.ConnectionLogUpdated -= ControllerService_ConnectionLogUpdated;
+            _controllerService.StatusLogUpdated -= ControllerService_StatusLogUpdated;
+            _controllerService.RobotLogUpdated -= ControllerService_RobotLogUpdated;
+            _controllerService.ControllerStateChanged -= ControllerService_StateChanged;
+            _resultsService.UpdateProcessLog -= ResultsService_UpdateProcessLog;
+            _partCycleService.ProgressChanged -= DispenseProcessService_ProgressChanged;
+            _controllerService.RobotBusyChanged -= ControllerService_RobotBusyChanged;
+            _localDataService.LocalDataChanged -= LocalDataService_LocalDataChanged;
 
             _calibrationWatchTimer?.Stop();
 

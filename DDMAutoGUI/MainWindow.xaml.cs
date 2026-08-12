@@ -21,20 +21,15 @@ namespace DDMAutoGUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly IControllerManager _controllerManager;
-        private readonly ISettingsManager _settingsManager;
+        private readonly IControllerService _controllerService;
         private readonly IApplicationConfiguration _applicationConfiguration;
-        private List<Button> allButtons;
-        private List<ResultsHeightMeasurement> laserRingData;
-        private List<ResultsHeightMeasurement> laserMagData;
 
         public MainWindow()
         {
             InitializeComponent();
 
             // Get services from DI container
-            _controllerManager = App.Services?.GetService<IControllerManager>();
-            _settingsManager = App.Services?.GetService<ISettingsManager>();
+            _controllerService = App.Services?.GetService<IControllerService>();
             _applicationConfiguration = App.Services?.GetService<IApplicationConfiguration>();
 
             // Set the DataContext to the ViewModel via Dependency Injection
@@ -53,36 +48,23 @@ namespace DDMAutoGUI
             InitializeEventHandlers();
 
             // Initialize UI - remove static App references
-            this.Title += " " + ((MainWindowViewModel)this.DataContext)?.AppTitle ?? "DDM Auto GUI";
+            this.Title = ((MainWindowViewModel)this.DataContext)?.AppTitle;
             InitializeUI();
         }
 
         private void InitializeEventHandlers()
         {
             // Use injected controller manager
-            if (_controllerManager == null) return;
+            if (_controllerService == null) return;
 
-            _controllerManager.ControllerConnected += (s, e) => HandleConnected();
-            _controllerManager.ControllerDisconnected += (s, e) => HandleDisconnected();
-            _controllerManager.ControllerStateChanged += (s, e) => HandleControllerStateChanged();
-            _controllerManager.ConnectionLogUpdated += (s, e) => HandleConnectionLogUpdated();
+            _controllerService.ControllerConnected += (s, e) => HandleConnected();
+            _controllerService.ControllerDisconnected += (s, e) => HandleDisconnected();
+            _controllerService.ControllerStateChanged += (s, e) => HandleControllerStateChanged();
         }
 
         private void HandleConnected()
         {
-            if (_controllerManager?.CONNECTION_STATE == null) return;
-
-            string TCS = _controllerManager.CONNECTION_STATE.connectedTCS;
-            string PAC = _controllerManager.CONNECTION_STATE.connectedPAC;
-
-            Con_ConnectBtn.Content = "Connected";
-            Con_ConnectBtn.IsEnabled = false;
-
-            Status_StatusTxt.Text = $"Connected ({_controllerManager.CONNECTION_STATE.connectedIP})";
-            Status_TCSGrd.Visibility = Visibility.Visible;
-            Status_TCSTxt.Text = TCS;
-            Status_PACGrd.Visibility = Visibility.Visible;
-            Status_PACTxt.Text = PAC;
+            if (_controllerService?.CONNECTION_STATE == null) return;
 
             DispTab.IsEnabled = true;
             CalibTab.IsEnabled = true;
@@ -93,14 +75,6 @@ namespace DDMAutoGUI
 
         private void HandleDisconnected()
         {
-            Con_ConnectBtn.Content = "Connect";
-            Con_ConnectBtn.IsEnabled = true;
-
-            Status_StatusTxt.Text = "Not connected";
-            Status_SimBdr.Visibility = Visibility.Collapsed;
-            Status_TCSGrd.Visibility = Visibility.Collapsed;
-            Status_PACGrd.Visibility = Visibility.Collapsed;
-
             Alert_MsgBarBdr.Visibility = Visibility.Collapsed;
 
             DispTab.IsEnabled = false;
@@ -112,12 +86,11 @@ namespace DDMAutoGUI
 
         private void HandleControllerStateChanged()
         {
-            if (_controllerManager?.CONTROLLER_STATE == null) return;
+            if (_controllerService?.CONTROLLER_STATE == null) return;
 
-            ControllerState contState = _controllerManager.CONTROLLER_STATE;
+            ControllerState contState = _controllerService.CONTROLLER_STATE;
 
-            Status_SimBdr.Visibility = Visibility.Collapsed;
-            if (!contState.parseError && _controllerManager.CONNECTION_STATE.isConnected)
+            if (!contState.parseError && _controllerService.CONNECTION_STATE.isConnected)
             {
                 // Connected with good parse
                 switch (contState.safetyControllerState)
@@ -152,28 +125,19 @@ namespace DDMAutoGUI
                         }
                         break;
                 }
-
-                Status_SimBdr.Visibility = contState.isSimulated ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
-        private void HandleConnectionLogUpdated()
-        {
-            if (_controllerManager == null) return;
 
-            Con_LogTxt.Text = _controllerManager.GetConnectionLog();
-            Con_LogTxt.ScrollToEnd();
-        }
 
         /// <summary>
         /// Initialize UI state
         /// </summary>
         private void InitializeUI()
         {
-            Status_GUISimBdr.Visibility = _applicationConfiguration?.IsSimulationMode == true ? Visibility.Visible : Visibility.Collapsed;
+            //Status_GUISimBdr.Visibility = _applicationConfiguration?.IsSimulationMode == true ? Visibility.Visible : Visibility.Collapsed;
 
-
-            Status_SimBdr.Visibility = Visibility.Collapsed;
+            //Status_SimBdr.Visibility = Visibility.Collapsed;
             Adv_PWEntryBdr.Visibility = Visibility.Visible;
             Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
             AdvTab.Visibility = Visibility.Collapsed;
@@ -188,7 +152,7 @@ namespace DDMAutoGUI
         /// </summary>
         private void ThrowDispenseError(string message)
         {
-            if (_applicationConfiguration?.AdvancedOptions?.DispenseOptions?.OverrideWarnings == true)
+            if (_applicationConfiguration?.AdvancedOptions?.PartCycleOptions?.OverrideWarnings == true)
             {
                 string cap = "Override Dispense Error?";
                 string msg = $"{message}\n\nContinue anyway?\n\n'OK' will continue; 'Cancel' will end process.";
@@ -200,20 +164,7 @@ namespace DDMAutoGUI
 
         #endregion
 
-        #region Event Handlers - Manager Events
 
-        public void MainWindowSingle_Disp_UpdateProcessLog(object sender, EventArgs e)
-        {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
-            if (resultsManager?.currentResults?.process_log == null) return;
-
-            ResultsLogLine logline = resultsManager.currentResults.process_log.Last();
-            Disp_LogTxt.Text += logline.timestamp?.ToString(resultsManager.DateFormatShort) + ": " + logline.message + "\n";
-            Disp_LogTxt.CaretIndex = Disp_LogTxt.Text.Length;
-            Disp_LogTxt.ScrollToEnd();
-        }
-
-        #endregion
 
         #region Event Handlers - UI Events
 
@@ -221,6 +172,12 @@ namespace DDMAutoGUI
         {
             if (e.Source is TabControl tc)
             {
+                // Re-lock the Calibration and Service areas on every navigation so they
+                // require the password again next time. The Advanced/dev area is
+                // intentionally excluded — it stays unlocked until manually locked.
+                Lock(Calib_PWBox, Calib_PWEntryBdr, Calib_PWMessageTxb, Calib_Panel);
+                Lock(Serv_PWBox, Serv_PWEntryBdr, Serv_PWMessageTxb, Serv_Panel);
+
                 switch (tc.SelectedIndex)
                 {
                     case 1:
@@ -228,220 +185,30 @@ namespace DDMAutoGUI
                         break;
                     case 2:
                         // Calibration Tab
-                        CalPanel.SetupPanel();
+                        Calib_Panel.SetupPanel();
                         break;
                 }
             }
         }
-
-        #endregion
-
-        #region Connection Button Handlers
-
-        /// <summary>
-        /// FIXED: Directly use ControllerManager instead of DeviceConnectionManager.
-        /// The connection orchestration is now handled via the ControllerManager directly.
-        /// </summary>
-        private async void Con_ConnectBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null) return;
-
-            Con_ConnectBtn.IsEnabled = false;
-            Con_ConnectBtn.Content = "Connecting...";
-            Con_ConnectPrg.Visibility = Visibility.Visible;
-
-            // Connect directly through ControllerManager
-            await _controllerManager.Connect(Con_IPTxt.Text);
-
-            Con_ConnectPrg.Visibility = Visibility.Collapsed;
-        }
-
-        #endregion
-
-        #region Dispense Button Handlers
-
-        private void Disp_SaveLogBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
-            if (resultsManager != null)
-            {
-                resultsManager.SaveDataToFile();
-            }
-        }
-
-        private void Disp_ViewLogBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
-            if (resultsManager != null)
-            {
-                TextDataViewer viewer = new TextDataViewer();
-                string log = resultsManager.GetLogAsString();
-                if (log != null)
-                {
-                    viewer.Owner = this;
-                    viewer.PopulateData(log, "Process Log");
-                    viewer.ShowDialog();
-                }
-            }
-        }
-
-        private void Disp_OpenFolderBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
-            if (resultsManager != null)
-            {
-                resultsManager.OpenBrowserToDirectory();
-            }
-        }
-
-        private void Disp_Res_FinishBtn_Click(object sender, RoutedEventArgs e)
-        {
-            dispTabControl.SelectedIndex = 0;
-        }
-
-        private void Disp_Res_ViewResBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
-            if (resultsManager == null) return;
-
-            string data_string = resultsManager.GetCurrentResultsAsString();
-            TextDataViewer viewer = new TextDataViewer();
-
-            if (data_string != null)
-            {
-                viewer.Owner = this;
-                viewer.PopulateData(data_string, "Results Data");
-                viewer.ShowDialog();
-            }
-        }
-
-        private void Disp_Res_OpenFileBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var resultsManager = App.Services?.GetService<IResultsManager>();
-            if (resultsManager != null)
-            {
-                resultsManager.OpenBrowserToDirectory();
-            }
-        }
-
-        #endregion
-
-        #region Robot Control Button Handlers
-
-        private async void Adv_Cell_EStopBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager != null)
-            {
-                await _controllerManager.EStop();
-            }
-        }
-
-        private async void Adv_Cell_ECloseValvesBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager != null)
-            {
-                await _controllerManager.CloseAllValves();
-            }
-        }
-
-        #endregion
         
 
-
+        #endregion
 
 
         private void Serv_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_applicationConfiguration == null) return;
-
-            if (Serv_PWBox.Password == _applicationConfiguration.ServicePassword)
-            {
-                Serv_PWEntryBdr.Visibility = Visibility.Collapsed;
-                Serv_PWMessageTxb.Visibility = Visibility.Collapsed;
-                Serv_Grid.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                Serv_PWMessageTxb.Visibility = Visibility.Visible;
-                Serv_PWMessageTxb.Text = "Incorrect password";
-            }
-        }
-
-        private void Serv_PWBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                Serv_PWSubmitBtn_Click(sender, e);
-            }
-        }
-
-
-
-
+            => TryUnlock(Serv_PWBox, _applicationConfiguration?.ServicePassword,
+                         Serv_PWEntryBdr, Serv_PWMessageTxb, Serv_Panel);
 
         private void Calib_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_applicationConfiguration == null) return;
-
-            if (Calib_PWBox.Password == _applicationConfiguration.CalibrationPassword)
-            {
-                Calib_PWEntryBdr.Visibility = Visibility.Collapsed;
-                Calib_PWMessageTxb.Visibility = Visibility.Collapsed;
-                Calib_Grid.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                Calib_PWMessageTxb.Visibility = Visibility.Visible;
-                Calib_PWMessageTxb.Text = "Incorrect password";
-            }
-        }
-
-        private void Calib_PWBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                Calib_PWSubmitBtn_Click(sender, e);
-            }
-        }
-
-
-
-
-
-        #region Advanced Settings
-
+            => TryUnlock(Calib_PWBox, _applicationConfiguration?.CalibrationPassword,
+                         Calib_PWEntryBdr, Calib_PWMessageTxb, Calib_Panel);
         private void Adv_PWSubmitBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_applicationConfiguration == null) return;
-
-            if (Adv_PWBox.Password == _applicationConfiguration.AdvancedSettingsPassword)
-            {
-                Adv_PWEntryBdr.Visibility = Visibility.Collapsed;
-                Adv_PWMessageTxb.Visibility = Visibility.Collapsed;
-                Adv_AllControlsTcl.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                Adv_PWMessageTxb.Visibility = Visibility.Visible;
-                Adv_PWMessageTxb.Text = "Incorrect password";
-            }
-        }
-
-        private void Adv_PWBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                Adv_PWSubmitBtn_Click(sender, e);
-            }
-        }
+            => TryUnlock(Adv_PWBox, _applicationConfiguration?.AdvancedSettingsPassword,
+                         Adv_PWEntryBdr, Adv_PWMessageTxb, Adv_AllControlsTcl);
 
         private void Adv_Misc_LockAdvBtn_Click(object sender, RoutedEventArgs e)
-        {
-            Adv_PWBox.Clear();
-            Adv_PWEntryBdr.Visibility = Visibility.Visible;
-            Adv_PWMessageTxb.Visibility = Visibility.Collapsed;
-            Adv_AllControlsTcl.Visibility = Visibility.Collapsed;
-        }
+            => Lock(Adv_PWBox, Adv_PWEntryBdr, Adv_PWMessageTxb, Adv_AllControlsTcl);
+
 
         /// <summary>
         /// FIXED: Use static DAQUtilities class instead of deprecated IDAQManager interface.
@@ -451,46 +218,33 @@ namespace DDMAutoGUI
             await DAQUtilities.CollectDataAndProcessML("ddm_116");
         }
 
-        #endregion
+
 
         #region Developer Utilities
 
         private void Dev_Btn_Click(object sender, RoutedEventArgs e)
         {
-            MainTabControl.SelectedIndex = 5;
+            MainTabControl.SelectedIndex = 4;
             Adv_PWBox.Focus();
         }
 
         private void Adv_DAQ_GetA0Btn_Click(object sender, RoutedEventArgs e)
         {
             // DAQ voltage reading - implement as needed
+
+
         }
 
         private void Adv_DAQ_GetA0TimedBtn_Click(object sender, RoutedEventArgs e)
         {
             // DAQ timed reading - implement as needed
-        }
 
-        private void Adv_Opt_Disp_Force57Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor57.IsEnabled = true;
-        private void Adv_Opt_Disp_Force57Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor57.IsEnabled = false;
-        private void Adv_Opt_Disp_Force95Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor95.IsEnabled = true;
-        private void Adv_Opt_Disp_Force95Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor95.IsEnabled = false;
-        private void Adv_Opt_Disp_Force116Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor116.IsEnabled = true;
-        private void Adv_Opt_Disp_Force116Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor116.IsEnabled = false;
-        private void Adv_Opt_Disp_Force170Chk_Checked(object sender, RoutedEventArgs e) => Disp_Motor170.IsEnabled = true;
-        private void Adv_Opt_Disp_Force170Chk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor170.IsEnabled = false;
-        private void Adv_Opt_Disp_Force170TChk_Checked(object sender, RoutedEventArgs e) => Disp_Motor170Tall.IsEnabled = true;
-        private void Adv_Opt_Disp_Force170TChk_Unchecked(object sender, RoutedEventArgs e) => Disp_Motor170Tall.IsEnabled = false;
+
+        }
 
         #endregion
 
-        private void MotorSizeRadio_Checked(object sender, RoutedEventArgs e)
-        {
-            if (sender is RadioButton rb && DataContext is MainWindowViewModel vm)
-            {
-                vm.SelectedMotorType = rb.Tag as string;
-            }
-        }
+
 
         protected override void OnClosed(EventArgs e)
         {
@@ -498,6 +252,349 @@ namespace DDMAutoGUI
 
             // Release the ViewModel's subscriptions to the long-lived singleton services.
             (DataContext as IDisposable)?.Dispose();
+        }
+
+        /// <summary>
+        /// Validates a password entry against the expected value and toggles the
+        /// associated lock/content visibility. Centralizes the identical logic used
+        /// by the Service, Calibration, and Advanced Settings gates.
+        /// </summary>
+        private void TryUnlock(
+            PasswordBox passwordBox,
+            string expectedPassword,
+            UIElement entryBorder,
+            TextBlock messageText,
+            UIElement protectedContent)
+        {
+            if (_applicationConfiguration == null) return;
+
+            if (passwordBox.Password == expectedPassword)
+            {
+                entryBorder.Visibility = Visibility.Collapsed;
+                messageText.Visibility = Visibility.Collapsed;
+                protectedContent.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                messageText.Visibility = Visibility.Visible;
+                messageText.Text = "Incorrect password";
+            }
+        }
+
+        /// <summary>
+        /// Resets a password gate to its locked state: clears the entry, shows the
+        /// lock prompt, and hides the protected content. Symmetric counterpart to
+        /// <see cref="TryUnlock"/>.
+        /// </summary>
+        private void Lock(
+            PasswordBox passwordBox,
+            UIElement entryBorder,
+            TextBlock messageText,
+            UIElement protectedContent)
+        {
+            passwordBox.Clear();
+            entryBorder.Visibility = Visibility.Visible;
+            messageText.Visibility = Visibility.Collapsed;
+            protectedContent.Visibility = Visibility.Collapsed;
+        }
+
+        private void PasswordBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+
+            if (sender == Serv_PWBox)       Serv_PWSubmitBtn_Click(sender, e);
+            else if (sender == Calib_PWBox) Calib_PWSubmitBtn_Click(sender, e);
+            else if (sender == Adv_PWBox)   Adv_PWSubmitBtn_Click(sender, e);
+        }
+
+        private async void Adv_DAQ_TestConnectionBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var daqService = App.Services?.GetService<IDaqService>();
+            if (daqService == null)
+            {
+                SetDaqResult("DAQ service unavailable");
+                return;
+            }
+
+            Button btn = sender as Button;
+            if (btn != null) btn.IsEnabled = false;
+            SetDaqResult("Testing connection...");
+
+            try
+            {
+                DaqConnectionResult result = await daqService.TestDaqConnection();
+
+                SetDaqResult(result.success
+                    ? $"Connected - device {result.device_id}"
+                    : $"Connection failed - {result.error_code}: {result.error_message}");
+            }
+            finally
+            {
+                if (btn != null) btn.IsEnabled = true;
+            }
+        }
+
+        private async void Adv_DAQ_TestSignal_Click(object sender, RoutedEventArgs e)
+        {
+            var daqService = App.Services?.GetService<IDaqService>();
+            if (daqService == null)
+            {
+                SetDaqResult("DAQ service unavailable");
+                return;
+            }
+
+            Button btn = sender as Button;
+            if (btn != null) btn.IsEnabled = false;
+            SetDaqResult("Testing signal...");
+
+            try
+            {
+                DaqConnectionResult result = await daqService.TestDaqSignal();
+
+                string amplitude = result.signal_amplitude.HasValue
+                    ? $"{result.signal_amplitude.Value:F3} Vpp"
+                    : "n/a";
+
+                SetDaqResult(result.success
+                    ? $"Signal OK - {amplitude} on {result.device_id}"
+                    : $"Signal test failed ({amplitude}) - {result.error_code}: {result.error_message}");
+            }
+            finally
+            {
+                if (btn != null) btn.IsEnabled = true;
+            }
+        }
+
+        private async void Adv_DAQ_TestSingleMeas_Click(object sender, RoutedEventArgs e)
+        {
+            var daqService = App.Services?.GetService<IDaqService>();
+            if (daqService == null)
+            {
+                SetDaqResult("DAQ service unavailable");
+                return;
+            }
+
+            Button btn = sender as Button;
+            if (btn != null) btn.IsEnabled = false;
+
+            try
+            {
+                DaqSingleReadResult result = await daqService.ReadSingleValue();
+
+                SetDaqResult(result.success
+                    ? $"ai0 = {result.voltage,8:F4} V"
+                    : $"Read failed - {result.error_code}: {result.error_message}");
+            }
+            finally
+            {
+                if (btn != null) btn.IsEnabled = true;
+            }
+        }
+        private async void Adv_DAQ_AcquireHallBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var daqService = App.Services?.GetService<IDaqService>();
+            if (daqService == null)
+            {
+                SetDaqResult("DAQ service unavailable");
+                return;
+            }
+
+            Button btn = sender as Button;
+            if (btn != null) btn.IsEnabled = false;
+            SetDaqResult("Acquiring Hall data...");
+
+            try
+            {
+                HallAcquisitionResult result = await daqService.AcquireHallData();
+
+                if (!result.success)
+                {
+                    SetDaqResult($"Acquisition failed - {result.error_code}: {result.error_message}");
+                    return;
+                }
+
+                SetDaqResult($"Acquired {result.signal.Length} samples");
+
+                // Build the two-column table off the UI thread - 2020 rows of
+                // string formatting is enough to be visible as a hitch otherwise.
+                string data = await Task.Run(() => FormatHallData(result));
+
+                TextDataViewer viewer = new TextDataViewer();
+                viewer.Owner = this;
+                viewer.PopulateData(data, "Hall Data (time, signal)");
+                viewer.ShowDialog();
+            }
+            finally
+            {
+                if (btn != null) btn.IsEnabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Formats a Hall acquisition as a two-column time/voltage table with a
+        /// short summary header, for display in the TextDataViewer.
+        /// </summary>
+        private static string FormatHallData(HallAcquisitionResult result)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"Samples:   {result.signal.Length}");
+            sb.AppendLine($"Duration:  {result.time[result.time.Length - 1]:F4} s");
+            sb.AppendLine($"Min:       {result.signal.Min():F4} V");
+            sb.AppendLine($"Max:       {result.signal.Max():F4} V");
+            sb.AppendLine($"Peak-peak: {result.signal.Max() - result.signal.Min():F4} V");
+            sb.AppendLine();
+            sb.AppendLine($"{"time (s)"},{"signal (V)"}");
+
+            for (int i = 0; i < result.signal.Length; i++)
+            {
+                sb.AppendLine($"{result.time[i]:F5},{result.signal[i]:F5}");
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Writes a timestamped line to the DAQ test output on the Advanced tab.
+        /// </summary>
+        private void SetDaqResult(string message)
+        {
+            Adv_DAQ_ResultTxb.Text = $"[{DateTime.Now:HH:mm:ss}] {message}";
+        }
+
+        /// <summary>
+        /// Composes the DAQ acquisition and the polarity algorithm at the call
+        /// site, keeping DaqService free of processing logic and
+        /// PolarityVerification free of hardware dependencies.
+        /// </summary>
+        private async void Adv_DAQ_VerifyPolarityBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var daqService = App.Services?.GetService<IDaqService>();
+            var settingsService = App.Services?.GetService<ISettingsService>();
+
+            if (daqService == null || settingsService == null)
+            {
+                SetDaqResult("DAQ or settings service unavailable");
+                return;
+            }
+
+            //CSMotor motor = settingsService.GetSettingsForSelectedSize();
+            //if (motor == null)
+            //{
+            //    SetDaqResult("No motor settings loaded - connect to the work cell first");
+            //    return;
+            //}
+
+            // ============================ TEST ONLY
+            // Use DDM 116 for test
+            CSMotor motor = new CSMotor
+            {
+                pol_expected_wavelength = 0.0125f,
+                pol_expected_magnets = 80
+            };
+            // ============================
+
+
+            Button btn = sender as Button;
+            if (btn != null) btn.IsEnabled = false;
+            SetDaqResult("Acquiring Hall data...");
+
+            try
+            {
+                HallAcquisitionResult acquisition = await daqService.AcquireHallData();
+
+                if (!acquisition.success)
+                {
+                    SetDaqResult($"Acquisition failed - {acquisition.error_code}: {acquisition.error_message}");
+                    return;
+                }
+
+                SetDaqResult($"Acquired {acquisition.signal.Length} samples - verifying...");
+
+                // Filtering and peak detection over ~2020 samples is CPU-bound;
+                // keep it off the UI thread.
+                PolarityVerificationResult verification = await Task.Run(() =>
+                    PolarityVerification.VerifyPolarityData(
+                        acquisition.time,
+                        acquisition.signal,
+                        DaqService.SampleRate,
+                        motor));
+
+                SetDaqResult(verification.passed
+                    ? $"PASS - {verification.message}"
+                    : $"FAIL - {verification.message.Replace(Environment.NewLine, " ")}");
+
+                string data = await Task.Run(() => FormatPolarityResult(acquisition, verification));
+
+                TextDataViewer viewer = new TextDataViewer();
+                viewer.Owner = this;
+                viewer.PopulateData(data, "Polarity Verification");
+                viewer.ShowDialog();
+            }
+            finally
+            {
+                if (btn != null) btn.IsEnabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Formats a polarity verification for the TextDataViewer: summary,
+        /// detected wavelengths, then the raw and filtered sample table.
+        /// </summary>
+        private static string FormatPolarityResult(
+            HallAcquisitionResult acquisition,
+            PolarityVerificationResult v)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"Result:            {(v.passed ? "PASS" : "FAIL")}");
+            sb.AppendLine($"Message:           {v.message.Trim()}");
+            sb.AppendLine();
+            sb.AppendLine($"Peaks detected:    {v.numPeaks}");
+            sb.AppendLine($"Expected magnets:  {v.expectedMagnets}");
+            sb.AppendLine($"Expected lambda:   {v.expectedWavelength:F5} s");
+            sb.AppendLine($"Long wavelengths:  {v.numLongWavelengths}");
+            sb.AppendLine($"Short wavelengths: {v.numShortWavelengths}");
+            sb.AppendLine();
+            sb.AppendLine($"Samples:           {acquisition.signal.Length}");
+            sb.AppendLine($"Min / Max:         {acquisition.signal.Min():F4} / {acquisition.signal.Max():F4} V");
+            sb.AppendLine($"Peak-peak:         {acquisition.signal.Max() - acquisition.signal.Min():F4} V");
+
+            // Wavelength list makes an out-of-range gap easy to spot by eye.
+            if (v.wavelengths != null && v.wavelengths.Length > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("Wavelengths (s), * = long, ! = short:");
+                for (int i = 0; i < v.wavelengths.Length; i++)
+                {
+                    double w = v.wavelengths[i];
+                    string flag = w > 1.8 * v.expectedWavelength ? " *"
+                                : w < 0.65 * v.expectedWavelength ? " !"
+                                : "";
+                    sb.AppendLine($"  {i,4}: {w,10:F5}{flag}");
+                }
+            }
+
+            sb.AppendLine();
+            sb.AppendLine($"{"time (s)",12}  {"raw (V)",12}  {"filtered (V)",13}  peak");
+            sb.AppendLine(new string('-', 48));
+
+            var extrema = new HashSet<int>(v.extremaIndices ?? Array.Empty<int>());
+
+            for (int i = 0; i < acquisition.signal.Length; i++)
+            {
+                string filtered = v.filteredSignal != null && i < v.filteredSignal.Length
+                    ? $"{v.filteredSignal[i],13:F5}"
+                    : new string(' ', 13);
+
+                sb.AppendLine(
+                    $"{acquisition.time[i],12:F5}  " +
+                    $"{acquisition.signal[i],12:F5}  " +
+                    $"{filtered}  " +
+                    $"{(extrema.Contains(i) ? "<--" : "")}");
+            }
+
+            return sb.ToString();
         }
     }
 }

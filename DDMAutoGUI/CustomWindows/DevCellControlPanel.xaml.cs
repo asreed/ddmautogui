@@ -17,8 +17,8 @@ namespace DDMAutoGUI.CustomWindows
     /// </summary>
     public partial class DevCellControlPanel : UserControl
     {
-        private readonly IControllerManager _controllerManager;
-        private readonly ISettingsManager _settingsManager;
+        private readonly IControllerService _controllerManager;
+        private readonly ISettingsService _settingsManager;
 
         private List<ResultsHeightMeasurement> laserRingData;
         private List<ResultsHeightMeasurement> laserMagData;
@@ -27,8 +27,8 @@ namespace DDMAutoGUI.CustomWindows
         {
             InitializeComponent();
 
-            _controllerManager = App.Services?.GetService<IControllerManager>();
-            _settingsManager = App.Services?.GetService<ISettingsManager>();
+            _controllerManager = App.Services?.GetService<IControllerService>();
+            _settingsManager = App.Services?.GetService<ISettingsService>();
         }
 
         // ==================================================================
@@ -64,8 +64,6 @@ namespace DDMAutoGUI.CustomWindows
 
             if (m != null && m.IsValid())
             {
-                CSShot c = m.shot_settings;
-
                 Adv_Cell_MoveLoadInLbl.Content = $"[{s.ddm_common.load.x}, {s.ddm_common.load.t}]";
                 Adv_Cell_MoveCamTopInLbl.Content = $"[{s.ddm_common.camera_top.x}, {s.ddm_common.camera_top.t}]";
                 Adv_Cell_MoveCamSideInLbl.Content = $"[{m.camera_side.x}, {m.camera_side.t}]";
@@ -98,14 +96,14 @@ namespace DDMAutoGUI.CustomWindows
             Adv_Cell_MeasureMagInLbl.Content = blank;
         }
 
-        private SettingsManager.DDMSize SizeEnumFromIdx(int idx) => idx switch
+        private SettingsService.DDMSize SizeEnumFromIdx(int idx) => idx switch
         {
-            0 => SettingsManager.DDMSize.ddm_57,
-            1 => SettingsManager.DDMSize.ddm_95,
-            2 => SettingsManager.DDMSize.ddm_116,
-            3 => SettingsManager.DDMSize.ddm_170,
-            4 => SettingsManager.DDMSize.ddm_170_tall,
-            _ => SettingsManager.DDMSize.none
+            0 => SettingsService.DDMSize.ddm_57,
+            1 => SettingsService.DDMSize.ddm_95,
+            2 => SettingsService.DDMSize.ddm_116,
+            3 => SettingsService.DDMSize.ddm_170,
+            4 => SettingsService.DDMSize.ddm_170_tall,
+            _ => SettingsService.DDMSize.none
         };
 
         private void Adv_Cell_MotorSizeCmb_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -135,84 +133,42 @@ namespace DDMAutoGUI.CustomWindows
             Adv_Cell_EnableOutLbl.Content = response;
         }
 
-        private void Adv_Cell_HomeBtn_Click(object sender, RoutedEventArgs e)
-        {
-            Adv_Cell_HomeOutLbl.Content = "(not implemented)";
-        }
-
         // ==================================================================
         // Movement
 
         private async void Adv_Cell_MoveLoadBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null || _settingsManager == null) return;
-
-            CellSettings s = _settingsManager.GetAllSettings();
-            string response = await _controllerManager.MoveJ(s.ddm_common.load.x.Value, s.ddm_common.load.t.Value);
-            Adv_Cell_MoveLoadOutLbl.Content = response;
-        }
+            => await MoveToAsync(_settingsManager?.GetAllSettings()?.ddm_common?.load, Adv_Cell_MoveLoadOutLbl);
 
         private async void Adv_Cell_MoveCamTopBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null || _settingsManager == null) return;
-
-            CellSettings s = _settingsManager.GetAllSettings();
-            string response = await _controllerManager.MoveJ(s.ddm_common.camera_top.x.Value, s.ddm_common.camera_top.t.Value);
-            Adv_Cell_MoveCamTopOutLbl.Content = response;
-        }
+            => await MoveToAsync(_settingsManager?.GetAllSettings()?.ddm_common?.camera_top, Adv_Cell_MoveCamTopOutLbl);
 
         private async void Adv_Cell_MoveCamSideBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null || _settingsManager == null) return;
-
-            CSMotor m = _settingsManager.GetSettingsForSelectedSize();
-            string response = await _controllerManager.MoveJ(m.camera_side.x.Value, m.camera_side.t.Value);
-            Adv_Cell_MoveCamSideOutLbl.Content = response;
-        }
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.camera_side, Adv_Cell_MoveCamSideOutLbl);
 
         private async void Adv_Cell_MoveLaserRingBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null || _settingsManager == null) return;
-
-            CSMotor m = _settingsManager.GetSettingsForSelectedSize();
-            string response = await _controllerManager.MoveJ(m.laser_ring.x.Value, m.laser_ring.t.Value);
-            Adv_Cell_MoveLaserRingOutLbl.Content = response;
-        }
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.laser_ring, Adv_Cell_MoveLaserRingOutLbl);
 
         private async void Adv_Cell_MoveLaserMagBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null || _settingsManager == null) return;
-
-            CSMotor m = _settingsManager.GetSettingsForSelectedSize();
-            string response = await _controllerManager.MoveJ(m.laser_mag.x.Value, m.laser_mag.t.Value);
-            Adv_Cell_MoveLaserMagOutLbl.Content = response;
-        }
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.laser_mag, Adv_Cell_MoveLaserMagOutLbl);
 
         private async void Adv_Cell_MoveDispIDBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null || _settingsManager == null) return;
-
-            CSMotor m = _settingsManager.GetSettingsForSelectedSize();
-            string response = await _controllerManager.MoveJ(m.id_disp.x.Value, m.id_disp.t.Value);
-            Adv_Cell_MoveDispIDOutLbl.Content = response;
-        }
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.id_disp, Adv_Cell_MoveDispIDOutLbl);
 
         private async void Adv_Cell_MoveDispODBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null || _settingsManager == null) return;
-
-            CSMotor m = _settingsManager.GetSettingsForSelectedSize();
-            string response = await _controllerManager.MoveJ(m.od_disp.x.Value, m.od_disp.t.Value);
-            Adv_Cell_MoveDispODOutLbl.Content = response;
-        }
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.od_disp, Adv_Cell_MoveDispODOutLbl);
 
         private async void Adv_Cell_MoveHallBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null || _settingsManager == null) return;
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.hall_sensor, Adv_Cell_MoveHallOutLbl);
 
-            CSMotor m = _settingsManager.GetSettingsForSelectedSize();
-            string response = await _controllerManager.MoveJ(m.hall_sensor.x.Value, m.hall_sensor.t.Value);
-            Adv_Cell_MoveHallOutLbl.Content = response;
+        /// <summary>
+        /// Shared move helper: performs a MoveJ to the given position and writes the
+        /// controller response to the supplied output label.
+        /// </summary>
+        private async Task MoveToAsync(CSLocation? position, Label output)
+        {
+            if (_controllerManager == null || position?.x == null || position?.t == null) return;
+
+            output.Content = await _controllerManager.MoveJ(position.x.Value, position.t.Value);
         }
 
         // ==================================================================
@@ -356,24 +312,8 @@ namespace DDMAutoGUI.CustomWindows
 
         private void Adv_Cell_DispShotsBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (_controllerManager == null || _settingsManager == null) return;
-
-
-            CSMotor m = _settingsManager.GetSettingsForSelectedSize();
-            CSShot c = m.shot_settings;
-
-            float x_id = m.id_disp.x.Value;
-            float t_id = m.id_disp.t.Value;
-            float valve_num_id = c.id_sys_num.Value;
-            float target_vol_id = c.id_target_vol.Value;
-
-            float x_od = m.od_disp.x.Value;
-            float t_od = m.od_disp.t.Value;
-            float valve_num_od = c.od_sys_num.Value;
-            float target_vol_od = c.od_target_vol.Value;
-
-            string response = string.Empty;
-
+            // TODO: Not yet implemented. The Dispense tab is currently collapsed in XAML.
+            Adv_Cell_DispShotsOutLbl.Content = "(not implemented)";
         }
     }
 }
