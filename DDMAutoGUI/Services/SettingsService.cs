@@ -31,19 +31,24 @@ namespace DDMAutoGUI.Services
         public CSMotor? ddm_170_tall { get; set; }
     }
 
-    public class CSLocation
+    public class CSDispense
     {
-        public float? x { get; set; }
-        public float? t { get; set; }
-    }
-    public class CSShot
-    {
-        public int? id_sys_num { get; set; }
-        public float? id_target_vol { get; set; }
-        public float? id_target_flow { get; set; }
-        public int? od_sys_num { get; set; }
-        public float? od_target_vol { get; set; }
-        public float? od_target_flow { get; set; }
+        public string? sys_1_contents { get; set; }
+        public string? sys_2_contents { get; set; }
+        public float? sys_1_max_pressure { get; set; }
+        public float? sys_2_max_pressure { get; set; }
+        public float? sys_1_max_pressure_dev_percent { get; set; }
+        public float? sys_2_max_pressure_dev_percent { get; set; }
+        public float? sys_1_flush_pressure { get; set; }
+        public float? sys_2_flush_pressure { get; set; }
+        public float? sys_1_flush_time { get; set; }
+        public float? sys_2_flush_time { get; set; }
+        public float? sys_1_fill_time { get; set; }
+        public float? sys_2_fill_time { get; set; }
+        public float? sys_1_vol_max_err_percent { get; set; }
+        public float? sys_2_vol_max_err_percent { get; set; }
+        public float? calib_exp_hours { get; set; }
+        public CSDefaultPressures? default_pressures { get; set; }
     }
     public class CSMotorCommon
     {
@@ -51,6 +56,7 @@ namespace DDMAutoGUI.Services
         public CSLocation? camera_top { get; set; }
         public CSLocation? clearance_check { get; set; }
     }
+
     public class CSMotor
     {
         public CSShot? shot_settings { get; set; }
@@ -91,31 +97,25 @@ namespace DDMAutoGUI.Services
         }
     }
 
+    public class CSShot
+    {
+        public int? id_sys_num { get; set; }
+        public float? id_target_vol { get; set; }
+        public float? id_target_flow { get; set; }
+        public int? od_sys_num { get; set; }
+        public float? od_target_vol { get; set; }
+        public float? od_target_flow { get; set; }
+    }
+
+    public class CSLocation
+    {
+        public float? x { get; set; }
+        public float? t { get; set; }
+    }
 
     public class CSHeightVerif
     {
         public float? max_height { get; set; }
-    }
-
-    public class CSDispense
-    {
-        public string? sys_1_contents { get; set; }
-        public string? sys_2_contents { get; set; }
-        public float? sys_1_max_pressure { get; set; }
-        public float? sys_2_max_pressure { get; set; }
-        public float? sys_1_max_pressure_dev_percent { get; set; }
-        public float? sys_2_max_pressure_dev_percent { get; set; }
-        public float? sys_1_flush_pressure { get; set; }
-        public float? sys_2_flush_pressure { get; set; }
-        public float? sys_1_flush_time { get; set; }
-        public float? sys_2_flush_time { get; set; }
-        public float? sys_1_fill_time { get; set; }
-        public float? sys_2_fill_time { get; set; }
-        public float? id_vol_max_err_percent { get; set; }
-        public float? od_vol_max_err_percent { get; set; }
-        public float? calib_exp_hours { get; set; }
-        public CSDefaultPressures? default_pressures { get; set; }
-
     }
 
     public class CSDefaultPressures
@@ -133,6 +133,9 @@ namespace DDMAutoGUI.Services
         public float? sys_1_pressure { get; set; }
         public float? sys_2_pressure { get; set; }
     }
+
+
+
 
     public class SettingsService : ISettingsService
     {
@@ -301,16 +304,6 @@ namespace DDMAutoGUI.Services
             {
                 Debug.Print("Settings file could not be read because no controller is connected");
                 return null;
-            }
-
-            if (_applicationConfiguration.IsSimulationMode)
-            {
-                Debug.Print("(!) Settings file simulated using default parameters (!)");
-                rawJson = File.ReadAllText(defaultSettingsPath);
-                CellSettings settings = JsonSerializer.Deserialize<CellSettings>(rawJson);
-                Debug.Print($"Default settings file read successfully from file");
-                currentSettings = settings;
-                return settings;
             }
 
             try

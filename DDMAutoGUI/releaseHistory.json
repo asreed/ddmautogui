@@ -5,7 +5,7 @@
       "releaseDate": "(In progress)",
       "releaseIntent": "ENGINEERING ONLY",
       "releaseDisplayNotes": "Intended for new UV-cure adhesive testing",
-      "releaseNotes": "(In progress) Result JSON files consolidated. Polarity plot generated removed from Matlab; Matlab EXE depreciation started and direction connection to DAQ from GUI started. Remote server connection for results storage started. Height verification method improved to catch tilted ring. (...)"
+      "releaseNotes": "(In progress Major changes made to process: 825 removed, 801 used exclusively on all sizes, ID/OD changed to multipass options. Settings changed significantly. TCS updated. PAC files updated. Result JSON files consolidated. Polarity plot generated removed from Matlab; Matlab EXE depreciation started and direction connection to DAQ from GUI started. Remote server connection for results storage started. Height verification method improved to catch tilted ring. ..."
     },
     {
       "version": "1.2.4",

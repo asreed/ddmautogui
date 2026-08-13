@@ -275,37 +275,37 @@ namespace DDMAutoGUI.CustomWindows
             Adv_Cell_SetZeroBothLbl.Content = response;
         }
 
-        private async void Adv_Cell_StartMeas1Btn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null) return;
+        //private async void Adv_Cell_StartMeas1Btn_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (_controllerManager == null) return;
 
-            string response = await _controllerManager.SetShotTrigger(1, true);
-            Adv_Cell_StartMeas1OutLbl.Content = response;
-        }
+        //    string response = await _controllerManager.SetShotTrigger(1, true);
+        //    Adv_Cell_StartMeas1OutLbl.Content = response;
+        //}
 
-        private async void Adv_Cell_StopMeas1Btn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null) return;
+        //private async void Adv_Cell_StopMeas1Btn_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (_controllerManager == null) return;
 
-            string response = await _controllerManager.SetShotTrigger(1, false);
-            Adv_Cell_StopMeas1OutLbl.Content = response;
-        }
+        //    string response = await _controllerManager.SetShotTrigger(1, false);
+        //    Adv_Cell_StopMeas1OutLbl.Content = response;
+        //}
 
-        private async void Adv_Cell_StartMeas2Btn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null) return;
+        //private async void Adv_Cell_StartMeas2Btn_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (_controllerManager == null) return;
 
-            string response = await _controllerManager.SetShotTrigger(2, true);
-            Adv_Cell_StartMeas2OutLbl.Content = response;
-        }
+        //    string response = await _controllerManager.SetShotTrigger(2, true);
+        //    Adv_Cell_StartMeas2OutLbl.Content = response;
+        //}
 
-        private async void Adv_Cell_StopMeas2Btn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_controllerManager == null) return;
+        //private async void Adv_Cell_StopMeas2Btn_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (_controllerManager == null) return;
 
-            string response = await _controllerManager.SetShotTrigger(2, false);
-            Adv_Cell_StopMeas2OutLbl.Content = response;
-        }
+        //    string response = await _controllerManager.SetShotTrigger(2, false);
+        //    Adv_Cell_StopMeas2OutLbl.Content = response;
+        //}
 
         // ==================================================================
         // Dispense

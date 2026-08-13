@@ -578,7 +578,7 @@
                                         <TextBox Grid.Row="3" Grid.Column="0"  Text="0.00" Style="{StaticResource SmallTextBox}"/>
                                         <Label   Grid.Row="3" Grid.Column="1"  Content="Start theta pos (deg)"/>
 
-                                        <Button  Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Left" Content="Dispense single track" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource BlackButton}" Click=""/>
+                                        <Button  Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Left" Content="Dispense single track" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource BlackButton}"/>
 
                                         <Label   Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3"  Content="-"/>
 

@@ -288,7 +288,6 @@ namespace DDMAutoGUI.ViewModels
         /// Gets whether the application is running in simulation mode.
         /// Reads directly from application configuration.
         /// </summary>
-        public bool IsSimulationMode => _appConfig.IsSimulationMode;
 
 
         // For controller state display
@@ -1135,7 +1134,6 @@ namespace DDMAutoGUI.ViewModels
                 SysPressure = state.systemPressure;
                 SafetyControllerState = state.safetyControllerState;
                 SafetyErrorState = state.safetyErrorState;
-                IsSimulated = state.isSimulated;
 
                 ReadoutsEnabled = !state.parseError && (_controllerService.CONNECTION_STATE?.isConnected ?? false);
             });

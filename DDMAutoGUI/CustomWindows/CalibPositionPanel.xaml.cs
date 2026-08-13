@@ -40,11 +40,7 @@ namespace DDMAutoGUI.CustomWindows
             _applicationConfiguration = applicationConfiguration ?? throw new ArgumentNullException(nameof(applicationConfiguration));
 
             _controllerManager.ControllerStateChanged += UpdatePositionLabels;
-            if (_applicationConfiguration.IsSimulationMode)
-            {
-                j1PosTxb.Text = "2.451 deg";
-                j2PosTxb.Text = "0.005 mm";
-            }
+
         }
 
         public void SetupPanel()
@@ -64,11 +60,6 @@ namespace DDMAutoGUI.CustomWindows
             {
                 j1PosTxb.Text = "-";
                 j2PosTxb.Text = "-";
-            }
-            if (_applicationConfiguration.IsSimulationMode)
-            {
-                j1PosTxb.Text = "2.451 deg";
-                j2PosTxb.Text = "0.005 mm";
             }
         }
 

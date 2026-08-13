@@ -35,7 +35,6 @@ namespace DDMAutoGUI.Services
         public float flowVolume2 { get; set; }
         public int flowError2 { get; set; }
         public float systemPressure { get; set; }
-        public bool isSimulated { get; set; }
         public int safetyControllerState { get; set; }
         public int safetyErrorState { get; set; }
 
@@ -58,7 +57,6 @@ namespace DDMAutoGUI.Services
             flowError1 = 0;
             flowVolume2 = 0.0f;
             flowError2 = 0;
-            isSimulated = false;
             safetyControllerState = 0;
             safetyErrorState = 0;
         }
@@ -379,32 +377,6 @@ namespace DDMAutoGUI.Services
             UpdateBothLogs($"Connecting to {ip}...");
             UpdateConnectionLog($"Connecting to work cell...\n");
 
-            // ========== SIMULATION MODE ==========
-            if (_applicationConfiguration?.IsSimulationMode == true)
-            {
-                UpdateConnectionLog($"✓ Controller TCS at {ip}");
-                UpdateConnectionLog($"✓ Controller Settings");
-                UpdateConnectionLog($"✓ I/O-Link Master");
-                UpdateConnectionLog($"✓ I/O-Link Port 1");
-                UpdateConnectionLog($"✓ I/O-Link Port 2");
-                UpdateConnectionLog($"✓ I/O-Link Port 3");
-                UpdateConnectionLog($"✓ I/O-Link Port 4");
-                UpdateConnectionLog($"✓ Laser Sensor");
-                UpdateConnectionLog($"✓ Top Camera");
-                UpdateConnectionLog($"✓ Side Camera");
-                UpdateConnectionLog($"✓ Hall DAQ");
-                UpdateConnectionLog($"\nConnected successfully");
-
-                CONNECTION_STATE.isConnected = true;
-                CONNECTION_STATE.connectedIP = "Simulated";
-                CONNECTION_STATE.connectedTCS = "Simulated";
-                CONNECTION_STATE.connectedPAC = "Simulated";
-                ControllerConnected?.Invoke(this, EventArgs.Empty);
-                ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
-
-                return true;
-            }
-
             // ========== REAL CONNECTION ==========
             try
             {
@@ -630,23 +602,6 @@ namespace DDMAutoGUI.Services
         {
             UpdateBothLogs("Disconnecting...");
 
-            if (_applicationConfiguration?.IsSimulationMode == true)
-            {
-                // Clear DAQ status so the UI does not report a stale connection.
-                ResetDaqConnectionState();
-
-                StopAutoControllerState();
-                ClearConnectionLog();
-                UpdateConnectionLog("Disconnected from simulation");
-                CONNECTION_STATE.isConnected = false;  // <-- Then set false
-                CONNECTION_STATE.connectedIP = string.Empty;
-                CONNECTION_STATE.connectedTCS = string.Empty;
-                CONNECTION_STATE.connectedPAC = string.Empty;
-                ControllerDisconnected?.Invoke(this, EventArgs.Empty);
-                ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
-                return;
-            }
-
             // Clear DAQ status so the UI does not report a stale connection.
             ResetDaqConnectionState();
 
@@ -693,12 +648,6 @@ namespace DDMAutoGUI.Services
 
                 byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
                 StringBuilder response = new StringBuilder();
-
-                if (_applicationConfiguration?.IsSimulationMode == true)
-                {
-                    UpdateRobotLog($"<< 0 (!) Generic simulated response (!)");
-                    return "0";
-                }
 
                 try
                 {
@@ -768,12 +717,6 @@ namespace DDMAutoGUI.Services
 
             byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
             string response = string.Empty;
-
-            if (_applicationConfiguration?.IsSimulationMode == true)
-            {
-                UpdateStatusLog($"<< 0 (!) Generic simulated response (!)");
-                return "0";
-            }
 
             try
             {
@@ -965,10 +908,8 @@ namespace DDMAutoGUI.Services
 
                         systemPressure = float.Parse(parts[16]),
 
-                        isSimulated = parts[17] != "0",
-
-                        safetyControllerState = int.Parse(parts[18]),
-                        safetyErrorState = int.Parse(parts[19]),
+                        safetyControllerState = int.Parse(parts[17]),
+                        safetyErrorState = int.Parse(parts[18]),
 
                         parseError = false,
                         parseErrorMessage = "",
@@ -1197,7 +1138,6 @@ namespace DDMAutoGUI.Services
 
         public async Task<string> EnablePower()
         {
-            if (_applicationConfiguration?.IsSimulationMode == true) return "1"; // success is 1 for enabling power
 
             BeginRobotBusy();
             try
@@ -1232,7 +1172,6 @@ namespace DDMAutoGUI.Services
 
         public async Task<string> Home()
         {
-            if (_applicationConfiguration?.IsSimulationMode == true) return "0";  // success is 0 for homing
 
             BeginRobotBusy();
             try

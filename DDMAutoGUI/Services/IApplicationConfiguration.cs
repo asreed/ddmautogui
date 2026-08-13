@@ -9,7 +9,6 @@ namespace DDMAutoGUI.Services
     {
         string DefaultControllerIPAddress { get; }
         string DisplayTitle { get; }
-        bool IsSimulationMode { get; }
         string CalibrationPassword { get; }
         string ServicePassword { get; }
         string AdvancedSettingsPassword { get; }
