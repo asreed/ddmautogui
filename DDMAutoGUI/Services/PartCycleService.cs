@@ -96,7 +96,7 @@ namespace DDMAutoGUI.Services
                 ReportProgress(15, "Clearance checked");
 
                 // Step 4: Setup Dispense System (pressures, etc)
-                if (advancedOptions.PartCycleOptions.Dispense)
+                if (advancedOptions.PartCycleOptions.DispenseCA)
                 {
                     await ExecuteDispenseSetupAsync(settings, motorName);
                     ReportProgress(20, "Dispense system ready");
@@ -122,38 +122,52 @@ namespace DDMAutoGUI.Services
                 if (advancedOptions.PartCycleOptions.RunOCR)
                 {
                     await ExecuteOCRProcessingAsync(resultsPath, motorName);
-                    ReportProgress(40, "OCR processed");
+                    ReportProgress(35, "OCR processed");
                 }
 
                 // Step 8: Measure Heights
                 if (advancedOptions.PartCycleOptions.MeasureHeights)
                 {
                     await ExecuteHeightMeasurementsAsync(settings, motor);
-                    ReportProgress(50, "Heights measured");
+                    ReportProgress(40, "Heights measured");
                 }
 
                 // Step 9: Check Magnet Polarity
                 if (advancedOptions.PartCycleOptions.CheckPolarity)
                 {
                     await ExecutePolarityCheckAsync(settings, motor, motorName);
-                    ReportProgress(60, "Magnet polarity checked");
+                    ReportProgress(45, "Magnet polarity checked");
                 }
 
-                // Step 10: Perform Dispense
-                if (advancedOptions.PartCycleOptions.Dispense)
+                // Step 10: Perform CA Dispense
+                if (advancedOptions.PartCycleOptions.DispenseCA)
                 {
-                    await ExecuteDispenseAsync(settings, motor, motorName);
-                    ReportProgress(70, "Dispense complete");
+                    await ExecuteCADispenseAsync(settings, motor, motorName);
+                    ReportProgress(50, "CA dispense complete");
                 }
 
-                // Step 11: Autocalibration
+                // Step 11: Perform UV Dispense
+                if (advancedOptions.PartCycleOptions.DispenseUV)
+                {
+                    await ExecuteUVDispenseAsync(settings, motor, motorName);
+                    ReportProgress(65, "UV dispense complete");
+                }
+
+                // Step 12: Perform UV Cure
+                if (advancedOptions.PartCycleOptions.CureUV)
+                {
+                    await ExecuteUVCureAsync(settings, motor, motorName);
+                    ReportProgress(80, "UV cure complete");
+                }
+
+                // Step 13: Autocalibration
                 if (advancedOptions.PartCycleOptions.Autocalibrate)
                 {
                     await ExecuteAutocalibrationAsync(settings, motorName);
-                    ReportProgress(80, "Autocalibration complete");
+                    ReportProgress(85, "Autocalibration complete");
                 }
 
-                // Step 12: Post-process Photo
+                // Step 14: Post-process Photo
                 string topAfterImagePath = string.Empty;
                 if (advancedOptions.PartCycleOptions.PhotoTopAfter)
                 {
@@ -161,7 +175,7 @@ namespace DDMAutoGUI.Services
                     ReportProgress(90, "Post-process photo acquired");
                 }
 
-                // Step 13: Move to Unload
+                // Step 15: Move to Unload
                 await ExecuteMoveToUnloadAsync(settings);
                 ReportProgress(95, "Moving to unload");
 
@@ -245,8 +259,8 @@ namespace DDMAutoGUI.Services
         private async Task ExecuteClearanceCheckAsync(CellSettings settings)
         {
             _resultsService.AddToLog("Checking clearance on center screw...");
-            float x = settings.ddm_common.clearance_check.x.Value;
-            float t = settings.ddm_common.clearance_check.t.Value;
+            float x = settings.ddm_common.pos_clearance_check.x.Value;
+            float t = settings.ddm_common.pos_clearance_check.t.Value;
             await _controllerService.MoveJ(x, t);
 
             string response = await _controllerService.MeasureHeightSingle();
@@ -273,8 +287,8 @@ namespace DDMAutoGUI.Services
         private async Task<string> ExecuteTopPhotoAcquisitionAsync(CellSettings settings, string resultFileName)
         {
             _resultsService.AddToLog("Acquiring top photo...");
-            float x = settings.ddm_common.camera_top.x.Value;
-            float t = settings.ddm_common.camera_top.t.Value;
+            float x = settings.ddm_common.pos_camera_top.x.Value;
+            float t = settings.ddm_common.pos_camera_top.t.Value;
             await _controllerService.MoveJ(x, t);
 
             var camResult = await _cameraService.AcquireAndSave(CameraService.CellCamera.top, null);
@@ -296,8 +310,8 @@ namespace DDMAutoGUI.Services
         private async Task<string> ExecuteSidePhotoAcquisitionAsync(CSMotor motor)
         {
             _resultsService.AddToLog("Acquiring side photo...");
-            float x = motor.camera_side.x.Value;
-            float t = motor.camera_side.t.Value;
+            float x = motor.pos_camera_side.x.Value;
+            float t = motor.pos_camera_side.t.Value;
             await _controllerService.MoveJ(x, t);
 
             var camResult = await _cameraService.AcquireAndSave(CameraService.CellCamera.side, null);
@@ -363,8 +377,8 @@ namespace DDMAutoGUI.Services
             _resultsService.AddToLog("Checking magnet polarity...");
             await _controllerService.ActuateHallUp();
 
-            float x = motor.hall_sensor.x.Value;
-            float t = motor.hall_sensor.t.Value;
+            float x = motor.pos_hall_sensor.x.Value;
+            float t = motor.pos_hall_sensor.t.Value;
             await _controllerService.MoveJ(x, t);
 
             float hallTime = settings.hall_spin_time.Value;
@@ -422,8 +436,8 @@ namespace DDMAutoGUI.Services
         {
 
             _resultsService.AddToLog("Collecting reference height data...");
-            float x = motor.laser_ref.x.Value;
-            float t = motor.laser_ref.t.Value;
+            float x = motor.pos_laser_ref.x.Value;
+            float t = motor.pos_laser_ref.t.Value;
             await _controllerService.MoveJ(x, t);
 
             int n = motor.laser_ref_num.Value;
@@ -433,8 +447,8 @@ namespace DDMAutoGUI.Services
             _resultsService.AddToLog("Reference height data collected");
 
             _resultsService.AddToLog("Collecting ring height data...");
-            x = motor.laser_ring.x.Value;
-            t = motor.laser_ring.t.Value;
+            x = motor.pos_laser_ring.x.Value;
+            t = motor.pos_laser_ring.t.Value;
             await _controllerService.MoveJ(x, t);
 
             n = motor.laser_ring_num.Value;
@@ -444,8 +458,8 @@ namespace DDMAutoGUI.Services
             _resultsService.AddToLog("Ring height data collected");
 
             _resultsService.AddToLog("Collecting magnet/concentrator height data...");
-            x = motor.laser_mag.x.Value;
-            t = motor.laser_mag.t.Value;
+            x = motor.pos_laser_mag.x.Value;
+            t = motor.pos_laser_mag.t.Value;
             await _controllerService.MoveJ(x, t);
 
             n = motor.laser_mag_num.Value;
@@ -474,144 +488,258 @@ namespace DDMAutoGUI.Services
             }
         }
 
-        private async Task ExecuteDispenseAsync(CellSettings settings, CSMotor motor, string motorName)
+        private async Task ExecuteCADispenseAsync(CellSettings settings, CSMotor motor, string motorName)
         {
-            int sysID = motor.shot_settings.id_sys_num.Value;
-            int sysOD = motor.shot_settings.od_sys_num.Value;
+            float xPos, tPos, shotVolume, shotTime, shotDelay;
+            string response;
+            int dir;
 
-            string substance_id = motor.shot_settings.id_sys_num == 1
-                ? settings.dispense_system.sys_1_contents
-                : settings.dispense_system.sys_2_contents;
-            string substance_od = motor.shot_settings.od_sys_num == 1
-                ? settings.dispense_system.sys_1_contents
-                : settings.dispense_system.sys_2_contents;
+            int valveIdx = motor.ca_sys_num.Value;
+            float shotFlowRate = motor.ca_target_flow.Value; // same for all passes
 
-            ResultsShotData shotData = await _dispenseExecutionService.DispenseToRingAsync(settings, motor, motorName, _resultsService.AddToLog);
+            // Prepare
+            response = await _controllerService.WaitBothRegPressures(5);
 
-            // production-only concern: build reference data + persist to currentResults
-            var referenceData = new ResultsReferenceData
+            // Pass 1
+            shotVolume = motor.ca_p1_target_vol.Value;
+            if (shotVolume > 0)
             {
-                id_substance = substance_id,
-                od_substance = substance_od,
-                id_target_vol = motor.shot_settings.id_target_vol,
-                od_target_vol = motor.shot_settings.od_target_vol,
-                id_target_flow = motor.shot_settings.id_target_flow,
-                od_target_flow = motor.shot_settings.od_target_flow,
-                id_calib_pressure = _localDataService.GetPressureFromMotorName(motorName, sysID),
-                od_calib_pressure = _localDataService.GetPressureFromMotorName(motorName, sysOD)
-            };
+                xPos = motor.pos_ca_p1.x.Value;
+                tPos = motor.pos_ca_p1.t.Value;
+                shotTime = shotVolume / shotFlowRate;
+                dir = 1;
+                response = await _controllerService.DispenseSingleTrackToRing(valveIdx, shotTime, xPos, tPos, dir);
+                ResultsShotData shotResultP1 = _controllerService.ParseDispenseResponse(response);
+            }
+            shotDelay = motor.ca_p1_delay.Value * 1000f;
+            await Task.Delay((int)shotDelay);
 
-            _resultsService.currentResults.shot_data = shotData;
-            _resultsService.currentResults.reference_data = referenceData;
+            // Pass 2
+            shotVolume = motor.ca_p2_target_vol.Value;
+            if (shotVolume > 0)
+            {
+                xPos = motor.pos_ca_p2.x.Value;
+                tPos = motor.pos_ca_p2.t.Value;
+                shotTime = shotVolume / shotFlowRate;
+                dir = -1;
+                response = await _controllerService.DispenseSingleTrackToRing(valveIdx, shotTime, xPos, tPos, dir);
+                ResultsShotData shotResultP2 = _controllerService.ParseDispenseResponse(response);
+            }
+            shotDelay = motor.ca_p2_delay.Value * 1000f;
+            await Task.Delay((int)shotDelay);
 
-            _resultsService.AddToLog("Results:");
-            _resultsService.AddToLog($"{LOG_INDENT}ID:");
-            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Valve {motor.shot_settings.id_sys_num} ({substance_id})");
-            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense volume: {shotData.id_vol:F3} mL ({shotData.id_vol.Value * 100 / motor.shot_settings.id_target_vol.Value:F1}% of target)");
-            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense time: {shotData.id_time:F3} s");
-            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Pressure: {shotData.id_pressure:F3} psi");
-            _resultsService.AddToLog($"{LOG_INDENT}OD:");
-            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Valve {motor.shot_settings.od_sys_num} ({substance_od})");
-            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense volume: {shotData.od_vol:F3} mL ({shotData.od_vol.Value * 100 / motor.shot_settings.od_target_vol.Value:F1}% of target)");
-            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense time: {shotData.od_time:F3} s");
-            _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Pressure: {shotData.od_pressure:F3} psi");
+            // Pass 3
+            shotVolume = motor.ca_p3_target_vol.Value;
+            if (shotVolume > 0)
+            {
+                xPos = motor.pos_ca_p3.x.Value;
+                tPos = motor.pos_ca_p3.t.Value;
+                shotTime = shotVolume / shotFlowRate;
+                dir = 1;
+                response = await _controllerService.DispenseSingleTrackToRing(valveIdx, shotTime, xPos, tPos, dir);
+                ResultsShotData shotResultP3 = _controllerService.ParseDispenseResponse(response);
+            }
+            shotDelay = motor.ca_p3_delay.Value * 1000f;
+            await Task.Delay((int)shotDelay);
+
+            // Pass 4
+            shotVolume = motor.ca_p4_target_vol.Value;
+            if (shotVolume > 0)
+            {
+                xPos = motor.pos_ca_p4.x.Value;
+                tPos = motor.pos_ca_p4.t.Value;
+                shotTime = shotVolume / shotFlowRate;
+                dir = -1;
+                response = await _controllerService.DispenseSingleTrackToRing(valveIdx, shotTime, xPos, tPos, dir);
+                ResultsShotData shotResultP4 = _controllerService.ParseDispenseResponse(response);
+            }
+            shotDelay = motor.ca_p4_delay.Value * 1000f;
+            await Task.Delay((int)shotDelay);
+
+
+
+
+
+            //int sysID = motor.shot_settings.id_sys_num.Value;
+            //int sysOD = motor.shot_settings.od_sys_num.Value;
+
+            //string substance_id = motor.shot_settings.id_sys_num == 1
+            //    ? settings.dispense_system.sys_1_contents
+            //    : settings.dispense_system.sys_2_contents;
+            //string substance_od = motor.shot_settings.od_sys_num == 1
+            //    ? settings.dispense_system.sys_1_contents
+            //    : settings.dispense_system.sys_2_contents;
+
+            //ResultsShotData shotData = await _dispenseExecutionService.DispenseToRingAsync(settings, motor, motorName, _resultsService.AddToLog);
+
+            //// production-only concern: build reference data + persist to currentResults
+            //var referenceData = new ResultsReferenceData
+            //{
+            //    id_substance = substance_id,
+            //    od_substance = substance_od,
+            //    id_target_vol = motor.shot_settings.id_target_vol,
+            //    od_target_vol = motor.shot_settings.od_target_vol,
+            //    id_target_flow = motor.shot_settings.id_target_flow,
+            //    od_target_flow = motor.shot_settings.od_target_flow,
+            //    id_calib_pressure = _localDataService.GetPressureFromMotorName(motorName, sysID),
+            //    od_calib_pressure = _localDataService.GetPressureFromMotorName(motorName, sysOD)
+            //};
+
+            //_resultsService.currentResults.shot_data = shotData;
+            //_resultsService.currentResults.reference_data = referenceData;
+
+            //_resultsService.AddToLog("Results:");
+            //_resultsService.AddToLog($"{LOG_INDENT}ID:");
+            //_resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Valve {motor.shot_settings.id_sys_num} ({substance_id})");
+            //_resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense volume: {shotData.id_vol:F3} mL ({shotData.id_vol.Value * 100 / motor.shot_settings.id_target_vol.Value:F1}% of target)");
+            //_resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense time: {shotData.id_time:F3} s");
+            //_resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Pressure: {shotData.id_pressure:F3} psi");
+            //_resultsService.AddToLog($"{LOG_INDENT}OD:");
+            //_resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Valve {motor.shot_settings.od_sys_num} ({substance_od})");
+            //_resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense volume: {shotData.od_vol:F3} mL ({shotData.od_vol.Value * 100 / motor.shot_settings.od_target_vol.Value:F1}% of target)");
+            //_resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Dispense time: {shotData.od_time:F3} s");
+            //_resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}Pressure: {shotData.od_pressure:F3} psi");
+        }
+
+        private async Task ExecuteUVDispenseAsync(CellSettings settings, CSMotor motor, string motorName)
+        {
+            float xPos, tPos, shotVolume, shotTime, shotDelay;
+            string response;
+            int dir;
+
+            int valveIdx = motor.uv_sys_num.Value;
+            float shotFlowRate = motor.uv_target_flow.Value; // same for all passes
+
+            // Prepare
+            response = await _controllerService.WaitBothRegPressures(5);
+
+            // Pass 1
+            shotVolume = motor.uv_p1_target_vol.Value;
+            if (shotVolume > 0)
+            {
+                xPos = motor.pos_uv_p1.x.Value;
+                tPos = motor.pos_uv_p1.t.Value;
+                shotTime = shotVolume / shotFlowRate;
+                dir = 1;
+                response = await _controllerService.DispenseSingleTrackToRing(valveIdx, shotTime, xPos, tPos, dir);
+                ResultsShotData shotResultP1 = _controllerService.ParseDispenseResponse(response);
+            }
+            shotDelay = motor.uv_p1_delay.Value * 1000f;
+            await Task.Delay((int)shotDelay);
+
+        }
+
+        private async Task ExecuteUVCureAsync(CellSettings settings, CSMotor motor, string motorName)
+        {
+            string response;
+
+            float xPos = motor.pos_uv_cure.x.Value;
+            float tPos = motor.pos_uv_cure.t.Value;
+
+            response = await _controllerService.MoveJ(xPos, tPos);
+
+            float cureTime = motor.uv_cure_time.Value;
+            float cureSpinSpeed = motor.uv_cure_spin_speed.Value;
+
+            response = await _controllerService.SpinInPlace(cureTime, cureSpinSpeed);
+
         }
 
         private async Task ExecuteAutocalibrationAsync(CellSettings settings, string motorName)
         {
-            _resultsService.AddToLog("Autocalibrating pressures...");
+            //_resultsService.AddToLog("Autocalibrating pressures...");
 
-            if (_resultsService.currentResults.shot_data == null)
-            {
-                _resultsService.AddToLog("Autocalibration failed: no results data loaded");
-                throw new PartCycleException("Autocalibration failed");
-            }
+            //if (_resultsService.currentResults.shot_data == null)
+            //{
+            //    _resultsService.AddToLog("Autocalibration failed: no results data loaded");
+            //    throw new PartCycleException("Autocalibration failed");
+            //}
 
-            bool calibSuccess;
-            string calibMessage;
-            float sf1, sf2;
+            //bool calibSuccess;
+            //string calibMessage;
+            //float sf1, sf2;
 
-            _flowCalibrationService.CalculateNewScaleFactors(
-                _resultsService.currentResults.shot_data,
-                _settingsService.GetAllSettings(),
-                _localDataService.GetLocalData(),
-                out calibSuccess,
-                out calibMessage,
-                out sf1,
-                out sf2);
+            //_flowCalibrationService.CalculateNewScaleFactors(
+            //    _resultsService.currentResults.shot_data,
+            //    _settingsService.GetAllSettings(),
+            //    _localDataService.GetLocalData(),
+            //    out calibSuccess,
+            //    out calibMessage,
+            //    out sf1,
+            //    out sf2);
 
-            if (!calibSuccess)
-            {
-                throw new PartCycleException($"Calibration calculation failed: {calibMessage}");
-            }
+            //if (!calibSuccess)
+            //{
+            //    throw new PartCycleException($"Calibration calculation failed: {calibMessage}");
+            //}
 
-            _resultsService.AddToLog("Calibration calculation succeeded.");
-            _resultsService.AddToLog("Saving new calibration to local file...");
+            //_resultsService.AddToLog("Calibration calculation succeeded.");
+            //_resultsService.AddToLog("Saving new calibration to local file...");
 
-            var resultContainer = new RunCalibResult
-            {
-                success = calibSuccess,
-                message = calibMessage,
-                time = DateTime.Now,
-                motorName = motorName,
-                sf1 = sf1,
-                sf2 = sf2
-            };
+            //var resultContainer = new RunCalibResult
+            //{
+            //    success = calibSuccess,
+            //    message = calibMessage,
+            //    time = DateTime.Now,
+            //    motorName = motorName,
+            //    sf1 = sf1,
+            //    sf2 = sf2
+            //};
 
-            _flowCalibrationService.GenerateAndSaveCalibration(resultContainer);
-            _resultsService.AddToLog("Calibration saved to local file");
+            //_flowCalibrationService.GenerateAndSaveCalibration(resultContainer);
+            //_resultsService.AddToLog("Calibration saved to local file");
 
-            _resultsService.currentResults.reference_data.sys_1_autocal_sf = sf1;
-            _resultsService.currentResults.reference_data.sys_2_autocal_sf = sf2;
+            //_resultsService.currentResults.reference_data.sys_1_autocal_sf = sf1;
+            //_resultsService.currentResults.reference_data.sys_2_autocal_sf = sf2;
 
-            LDMotorCalib calib = _localDataService.GetCalibFromMotorName(motorName);
-            float? pressure1 = calib.sys_1_pressure;
-            float? pressure2 = calib.sys_2_pressure;
+            //LDMotorCalib calib = _localDataService.GetCalibFromMotorName(motorName);
+            //float? pressure1 = calib.sys_1_pressure;
+            //float? pressure2 = calib.sys_2_pressure;
 
-            _resultsService.AddToLog("Autocalibration succeeded");
-            if (pressure1 != null)
-            {
-                _resultsService.AddToLog($"{LOG_INDENT}System 1:");
-                _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}SF: {sf1:F3}");
-                _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}New pressure: {pressure1:F3}");
-            }
-            if (pressure2 != null)
-            {
-                _resultsService.AddToLog($"{LOG_INDENT}System 2:");
-                _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}SF: {sf2:F3}");
-                _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}New pressure: {pressure2:F3}");
-            }
+            //_resultsService.AddToLog("Autocalibration succeeded");
+            //if (pressure1 != null)
+            //{
+            //    _resultsService.AddToLog($"{LOG_INDENT}System 1:");
+            //    _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}SF: {sf1:F3}");
+            //    _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}New pressure: {pressure1:F3}");
+            //}
+            //if (pressure2 != null)
+            //{
+            //    _resultsService.AddToLog($"{LOG_INDENT}System 2:");
+            //    _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}SF: {sf2:F3}");
+            //    _resultsService.AddToLog($"{LOG_INDENT}{LOG_INDENT}New pressure: {pressure2:F3}");
+            //}
 
-            _resultsService.AddToLog("Adjusting dispense system pressures...");
+            //_resultsService.AddToLog("Adjusting dispense system pressures...");
 
-            if (pressure1 != null)
-            {
-                _resultsService.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1.Value:F3} psi");
-                await _controllerService.SetRegPressure(1, pressure1.Value);
-            }
-            else
-            {
-                _resultsService.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
-            }
+            //if (pressure1 != null)
+            //{
+            //    _resultsService.AddToLog($"Setting pressure for system 1 ({settings.dispense_system.sys_1_contents}) to {pressure1.Value:F3} psi");
+            //    await _controllerService.SetRegPressure(1, pressure1.Value);
+            //}
+            //else
+            //{
+            //    _resultsService.AddToLog($"No pressure change for system 1 ({settings.dispense_system.sys_1_contents})");
+            //}
 
-            if (pressure2 != null)
-            {
-                _resultsService.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2.Value:F3} psi");
-                await _controllerService.SetRegPressure(2, pressure2.Value);
-            }
-            else
-            {
-                _resultsService.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
-            }
+            //if (pressure2 != null)
+            //{
+            //    _resultsService.AddToLog($"Setting pressure for system 2 ({settings.dispense_system.sys_2_contents}) to {pressure2.Value:F3} psi");
+            //    await _controllerService.SetRegPressure(2, pressure2.Value);
+            //}
+            //else
+            //{
+            //    _resultsService.AddToLog($"No pressure change for system 2 ({settings.dispense_system.sys_2_contents})");
+            //}
 
-            _resultsService.AddToLog("System pressures adjusted");
+            //_resultsService.AddToLog("System pressures adjusted");
         }
 
         private async Task ExecuteMoveToUnloadAsync(CellSettings settings)
         {
             _resultsService.AddToLog("Moving to unload...");
-            float x = settings.ddm_common.load.x.Value;
-            float t = settings.ddm_common.load.t.Value;
+            float x = settings.ddm_common.pos_load.x.Value;
+            float t = settings.ddm_common.pos_load.t.Value;
             await _controllerService.MoveJ(x, t);
         }
 
@@ -624,8 +752,8 @@ namespace DDMAutoGUI.Services
                 {
                     _resultsService.AddToLog("Attempting to move to unload position...");
                     await _controllerService.ActuateHallUp();
-                    float x = settings.ddm_common.load.x.Value;
-                    float t = settings.ddm_common.load.t.Value;
+                    float x = settings.ddm_common.pos_load.x.Value;
+                    float t = settings.ddm_common.pos_load.t.Value;
                     await _controllerService.MoveJ(x, t);
                 }
             }

@@ -148,10 +148,10 @@ namespace DDMAutoGUI.Services
 
             try
             {
-                float vol_id = results.shot_data.id_vol.Value;
-                float vol_od = results.shot_data.od_vol.Value;
-                float target_vol_id = motorSettings.shot_settings.id_target_vol.Value;
-                float target_vol_od = motorSettings.shot_settings.od_target_vol.Value;
+                //float vol_id = results.shot_data.id_vol.Value;
+                //float vol_od = results.shot_data.od_vol.Value;
+                //float target_vol_id = motorSettings.shot_settings.id_target_vol.Value;
+                //float target_vol_od = motorSettings.shot_settings.od_target_vol.Value;
 
                 //float dev_id = settings.dispense_system.id_vol_max_err_percent.Value;
                 //float dev_od = settings.dispense_system.od_vol_max_err_percent.Value;

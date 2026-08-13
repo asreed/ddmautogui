@@ -646,7 +646,7 @@ namespace DDMAutoGUI.Services
             {
                 UpdateRobotLog($">> {command}");
 
-                byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination char
+                byte[] commandBytes = Encoding.ASCII.GetBytes(command + term); //don't forget termination
                 StringBuilder response = new StringBuilder();
 
                 try
@@ -1321,6 +1321,17 @@ namespace DDMAutoGUI.Services
             float od_tPos)
         {
             string input = $"DDM_DispenseToRing {id_sys_num} {id_time} {id_xPos} {id_tPos} {od_sys_num} {od_time} {od_xPos} {od_tPos}";
+            return await SendRobotCommand(input);
+        }
+
+        public async Task<string> DispenseSingleTrackToRing(
+            int valve_num,
+            float time,
+            float xPos,
+            float tPos,
+            int dir)
+        {
+            string input = $"DDM_DispenseToRing {valve_num} {time} {xPos} {tPos} {dir}";
             return await SendRobotCommand(input);
         }
 

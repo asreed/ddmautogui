@@ -68,42 +68,55 @@ namespace DDMAutoGUI.Services
 
         public async Task<ResultsShotData> DispenseToRingAsync(CellSettings settings, CSMotor motor, string motorName, Action<string> log = null)
         {
-            int sysID = motor.shot_settings.id_sys_num.Value;
-            int sysOD = motor.shot_settings.od_sys_num.Value;
-            float xID = motor.id_disp.x.Value;
-            float tID = motor.id_disp.t.Value;
-            float xOD = motor.od_disp.x.Value;
-            float tOD = motor.od_disp.t.Value;
-            float targetTimeID = motor.shot_settings.id_target_vol.Value / motor.shot_settings.id_target_flow.Value;
-            float targetTimeOD = motor.shot_settings.od_target_vol.Value / motor.shot_settings.od_target_flow.Value;
+            //int sysID = motor.shot_settings.id_sys_num.Value;
+            //int sysOD = motor.shot_settings.od_sys_num.Value;
+            //float xID = motor.id_disp.x.Value;
+            //float tID = motor.id_disp.t.Value;
+            //float xOD = motor.od_disp.x.Value;
+            //float tOD = motor.od_disp.t.Value;
+            //float targetTimeID = motor.shot_settings.id_target_vol.Value / motor.shot_settings.id_target_flow.Value;
+            //float targetTimeOD = motor.shot_settings.od_target_vol.Value / motor.shot_settings.od_target_flow.Value;
 
-            log?.Invoke("Waiting for pressures to stabilize...");
-            await _controllerService.WaitBothRegPressures(5);
-            log?.Invoke("Pressures stabilized");
+            //log?.Invoke("Waiting for pressures to stabilize...");
+            //await _controllerService.WaitBothRegPressures(5);
+            //log?.Invoke("Pressures stabilized");
 
-            float pressureID = float.Parse(await _controllerService.GetRegPressureSetpoint(sysID));
-            float pressureOD = float.Parse(await _controllerService.GetRegPressureSetpoint(sysOD));
+            //float pressureID = float.Parse(await _controllerService.GetRegPressureSetpoint(sysID));
+            //float pressureOD = float.Parse(await _controllerService.GetRegPressureSetpoint(sysOD));
 
-            log?.Invoke("Dispensing cyanoacrylate...");
-            string response = await _controllerService.DispenseToRing(
-                sysID, targetTimeID, xID, tID,
-                sysOD, targetTimeOD, xOD, tOD);
+            //log?.Invoke("Dispensing cyanoacrylate...");
+            //string response = await _controllerService.DispenseToRing(
+            //    sysID, targetTimeID, xID, tID,
+            //    sysOD, targetTimeOD, xOD, tOD);
 
-            ResultsShotData shotData = _controllerService.ParseDispenseResponse(response);
-            shotData.motor_type = motorName;
-            shotData.id_valve_num = sysID;
-            shotData.od_valve_num = sysOD;
-            shotData.id_pressure = pressureID;
-            shotData.od_pressure = pressureOD;
+            //ResultsShotData shotData = _controllerService.ParseDispenseResponse(response);
+            //shotData.motor_type = motorName;
+            //shotData.id_valve_num = sysID;
+            //shotData.od_valve_num = sysOD;
+            //shotData.id_pressure = pressureID;
+            //shotData.od_pressure = pressureOD;
 
-            if (shotData.shot_result != true)
-            {
-                log?.Invoke($"Dispense failed: {shotData.shot_message}");
-                throw new PartCycleException($"Dispense failed: {shotData.shot_message}");
-            }
+            //if (shotData.shot_result != true)
+            //{
+            //    log?.Invoke($"Dispense failed: {shotData.shot_message}");
+            //    throw new PartCycleException($"Dispense failed: {shotData.shot_message}");
+            //}
 
-            log?.Invoke("Dispense successful");
-            return shotData;
+            //log?.Invoke("Dispense successful");
+            //return shotData;
+
+            return new ResultsShotData();
+        }
+
+
+        public async Task<ResultsShotData> DispenseSingleTrackToRingAsync(int valveIdx, float shotTime, float xPos, float tPos, int dir)
+        {
+            //await _controllerService.WaitBothRegPressures(5);
+            //string response = await _controllerService.DispenseSingleTrackToRing(valveIdx, shotTime, xPos, tPos, dir);
+            //ResultsShotData shotData = _controllerService.ParseDispenseResponse(response);
+            //return shotData;
+
+            return new ResultsShotData();
         }
     }
 }

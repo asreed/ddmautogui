@@ -227,9 +227,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="CustomWindows\MatlabWindow.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Update="CustomWindows\LocalDataPanel.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

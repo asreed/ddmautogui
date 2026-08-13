@@ -119,6 +119,13 @@ namespace DDMAutoGUI.Services
             float od_xPos,
             float od_tPos);
 
+        Task<string> DispenseSingleTrackToRing(
+            int sys_num,
+            float time,
+            float xPos,
+            float tPos,
+            int dir);
+
         #endregion
 
         #region Data Parsing & Conversion

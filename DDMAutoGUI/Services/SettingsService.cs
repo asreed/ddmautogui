@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Text.Json;
 
 namespace DDMAutoGUI.Services
@@ -15,14 +16,14 @@ namespace DDMAutoGUI.Services
         public float? laser_delay { get; set; }
         public float? hall_spin_delay { get; set; }
         public float? hall_spin_time { get; set; }
-        public float? hall_spin_speed { get; set; }
+        public float? hall_spin_speed { get; set; } = 37.5f;
         public float? clearance_check_min { get; set; }
         public float? clearance_check_max { get; set; }
         public float? calib_surface_height { get; set; }
         public float? calib_tool_height { get; set; }
         public float? calib_tool_max_diff { get; set; }
         public CSHeightVerif? height_verification { get; set; }
-        public CSDispense? dispense_system { get; set; }
+        public CSDispenseSys? dispense_system { get; set; }
         public CSMotorCommon? ddm_common { get; set; }
         public CSMotor? ddm_57 { get; set; }
         public CSMotor? ddm_95 { get; set; }
@@ -31,35 +32,50 @@ namespace DDMAutoGUI.Services
         public CSMotor? ddm_170_tall { get; set; }
     }
 
-    public class CSDispense
+    public class CSDispenseSys
     {
-        public string? sys_1_contents { get; set; }
-        public string? sys_2_contents { get; set; }
-        public float? sys_1_max_pressure { get; set; }
-        public float? sys_2_max_pressure { get; set; }
-        public float? sys_1_max_pressure_dev_percent { get; set; }
-        public float? sys_2_max_pressure_dev_percent { get; set; }
+        public string? sys_1_contents { get; set; } = "Permabond 801";
+        public float? sys_1_max_pressure { get; set; } = 55.0f;
         public float? sys_1_flush_pressure { get; set; }
-        public float? sys_2_flush_pressure { get; set; }
-        public float? sys_1_flush_time { get; set; }
-        public float? sys_2_flush_time { get; set; }
+        public float? sys_1_flush_time { get; set; } = 2.0f;
         public float? sys_1_fill_time { get; set; }
+        public float? sys_1_vol_max_err_percent { get; set; } = 5.0f;
+
+        public string? sys_2_contents { get; set; } = "Permabond UV632";
+        public float? sys_2_max_pressure { get; set; } = 55.0f;
+        public float? sys_2_flush_pressure { get; set; }
+        public float? sys_2_flush_time { get; set; } = 2.0f;
         public float? sys_2_fill_time { get; set; }
-        public float? sys_1_vol_max_err_percent { get; set; }
-        public float? sys_2_vol_max_err_percent { get; set; }
-        public float? calib_exp_hours { get; set; }
+        public float? sys_2_vol_max_err_percent { get; set; } = 5.0f;
+
+        public float? calib_exp_hours { get; set; } = 2.0f;
         public CSDefaultPressures? default_pressures { get; set; }
     }
     public class CSMotorCommon
     {
-        public CSLocation? load { get; set; }
-        public CSLocation? camera_top { get; set; }
-        public CSLocation? clearance_check { get; set; }
+        public CSLocation? pos_load { get; set; } = new CSLocation { x = 0, t = -50f };
+        public CSLocation? pos_camera_top { get; set; } = new CSLocation { x = 271f, t = 40f };
+        public CSLocation? pos_clearance_check { get; set; }
     }
 
     public class CSMotor
     {
-        public CSShot? shot_settings { get; set; }
+        public int? ca_sys_num { get; set; }
+        public int? uv_sys_num { get; set; }
+        public float? ca_target_flow { get; set; }
+        public float? ca_p1_target_vol { get; set; }
+        public float? ca_p2_target_vol { get; set; }
+        public float? ca_p3_target_vol { get; set; }
+        public float? ca_p4_target_vol { get; set; }
+        public float? ca_p1_delay { get; set; }
+        public float? ca_p2_delay { get; set; }
+        public float? ca_p3_delay { get; set; }
+        public float? ca_p4_delay { get; set; }
+        public float? uv_target_flow { get; set; }
+        public float? uv_p1_target_vol { get; set; }
+        public float? uv_p1_delay { get; set; }
+        public float? uv_cure_time { get; set; }
+        public float? uv_cure_spin_speed { get; set; }
         public int? laser_ref_num { get; set; } = 30;
         public int? laser_ring_num { get; set; } = 30;
         public int? laser_mag_num { get; set; }
@@ -73,38 +89,25 @@ namespace DDMAutoGUI.Services
         public float? mag_height_max { get; set; }
         public float? pol_expected_wavelength { get; set; }
         public int? pol_expected_magnets { get; set; }
-        public CSLocation? camera_side { get; set; }
-        public CSLocation? id_disp { get; set; }
-        public CSLocation? od_disp { get; set; }
-        public CSLocation? laser_ref { get; set; }
-        public CSLocation? laser_ring { get; set; }
-        public CSLocation? laser_mag { get; set; }
-        public CSLocation? hall_sensor { get; set; }
-        public CSLocation? calib_tool_test { get; set; }
+        public CSLocation? pos_camera_side { get; set; }
+        public CSLocation? pos_ca_p1 { get; set; }
+        public CSLocation? pos_ca_p2 { get; set; }
+        public CSLocation? pos_ca_p3 { get; set; }
+        public CSLocation? pos_ca_p4 { get; set; }
+        public CSLocation? pos_uv_p1 { get; set; }
+        public CSLocation? pos_uv_cure { get; set; }
+        public CSLocation? pos_laser_ref { get; set; }
+        public CSLocation? pos_laser_ring { get; set; }
+        public CSLocation? pos_laser_mag { get; set; }
+        public CSLocation? pos_hall_sensor { get; set; }
+        public CSLocation? pos_calib_tool_test { get; set; }
 
         public bool IsValid()
         {
-            // validate logic. might want to expand checks
+            // TODO: add validation logic
 
-            if (id_disp == null || od_disp == null || laser_mag == null || laser_ring == null)
-            {
-                return false; // invalid if any location is null ...?
-            }
-            else
-            {
-                return true;
-            }
+            return true;
         }
-    }
-
-    public class CSShot
-    {
-        public int? id_sys_num { get; set; }
-        public float? id_target_vol { get; set; }
-        public float? id_target_flow { get; set; }
-        public int? od_sys_num { get; set; }
-        public float? od_target_vol { get; set; }
-        public float? od_target_flow { get; set; }
     }
 
     public class CSLocation
@@ -115,6 +118,8 @@ namespace DDMAutoGUI.Services
 
     public class CSHeightVerif
     {
+        // likely more to be added
+
         public float? max_height { get; set; }
     }
 
@@ -141,7 +146,6 @@ namespace DDMAutoGUI.Services
     {
         private string settingsFTPPath = "/flash/ddm_cell/Settings.json";
         private string settingsLocalName = "Settings.json";
-        private string defaultSettingsPath = AppDomain.CurrentDomain.BaseDirectory + "_reference\\DefaultSettings.json";
 
         private readonly IControllerService _controllerService;
         private readonly IApplicationConfiguration _applicationConfiguration;
@@ -201,7 +205,7 @@ namespace DDMAutoGUI.Services
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                //DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
             };
             return JsonSerializer.Serialize(settings, options);
         }
@@ -400,6 +404,37 @@ namespace DDMAutoGUI.Services
                 "ddm_170_tall" => defaults.ddm_170_tall,
                 _ => null
             };
+        }
+    }
+
+
+
+
+
+    public static class SettingsTemplateGenerator
+    {
+        public static string GenerateJson()
+        {
+            var root = (CellSettings)Populate(typeof(CellSettings));
+            return JsonSerializer.Serialize(root, new JsonSerializerOptions { WriteIndented = true });
+        }
+
+        private static object Populate(Type type)
+        {
+            object instance = Activator.CreateInstance(type)!;
+
+            foreach (PropertyInfo prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (!prop.CanWrite) continue;
+
+                Type propType = prop.PropertyType;
+                if (propType.IsClass && propType != typeof(string) && propType.Namespace == type.Namespace)
+                {
+                    prop.SetValue(instance, Populate(propType));
+                }
+            }
+
+            return instance;
         }
     }
 }

@@ -470,12 +470,12 @@ namespace DDMAutoGUI.ViewModels
 
         public bool DispDispense
         {
-            get => _appConfig.AdvancedOptions.PartCycleOptions.Dispense;
+            get => _appConfig.AdvancedOptions.PartCycleOptions.DispenseCA;
             set
             {
-                if (_appConfig.AdvancedOptions.PartCycleOptions.Dispense != value)
+                if (_appConfig.AdvancedOptions.PartCycleOptions.DispenseCA != value)
                 {
-                    _appConfig.AdvancedOptions.PartCycleOptions.Dispense = value;
+                    _appConfig.AdvancedOptions.PartCycleOptions.DispenseCA = value;
                     OnPropertyChanged();
                 }
             }

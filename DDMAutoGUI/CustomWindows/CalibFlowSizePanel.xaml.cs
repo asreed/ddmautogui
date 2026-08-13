@@ -44,36 +44,36 @@ namespace DDMAutoGUI.CustomWindows
                 return;
             }
 
-            try
-            {
-                RunBtn.Content = $"Calibrate {DisplayName ?? MotorName} flow rate";
+            //try
+            //{
+            //    RunBtn.Content = $"Calibrate {DisplayName ?? MotorName} flow rate";
 
-                CellSettings settings = _settingsService.GetAllSettings();
-                LocalData localData = _localDataService.GetLocalData();
+            //    CellSettings settings = _settingsService.GetAllSettings();
+            //    LocalData localData = _localDataService.GetLocalData();
 
-                CSMotor motor = _settingsService.GetMotorSettingsFromName(MotorName);
-                LDMotorCalib calib = _localDataService.GetCalibFromMotorName(localData, MotorName);
-                CSDefaultCalib refCalib = _settingsService.GetDefaultPressuresFromName(MotorName);
+            //    CSMotor motor = _settingsService.GetMotorSettingsFromName(MotorName);
+            //    LDMotorCalib calib = _localDataService.GetCalibFromMotorName(localData, MotorName);
+            //    CSDefaultCalib refCalib = _settingsService.GetDefaultPressuresFromName(MotorName);
 
-                float sys1RefPres = refCalib.sys_1_pressure.Value;
-                float sys2RefPres = refCalib.sys_2_pressure.Value;
-                float sys1CalPres = calib.sys_1_pressure.Value;
-                float sys2CalPres = calib.sys_2_pressure.Value;
+            //    float sys1RefPres = refCalib.sys_1_pressure.Value;
+            //    float sys2RefPres = refCalib.sys_2_pressure.Value;
+            //    float sys1CalPres = calib.sys_1_pressure.Value;
+            //    float sys2CalPres = calib.sys_2_pressure.Value;
 
-                float sys1Dev = (sys1CalPres - sys1RefPres) / sys1RefPres * 100;
-                float sys2Dev = (sys2CalPres - sys2RefPres) / sys2RefPres * 100;
+            //    float sys1Dev = (sys1CalPres - sys1RefPres) / sys1RefPres * 100;
+            //    float sys2Dev = (sys2CalPres - sys2RefPres) / sys2RefPres * 100;
 
-                S1_RefPresTxb.Text = $"{sys1RefPres:F2} psi";
-                S2_RefPresTxb.Text = $"{sys2RefPres:F2} psi";
-                S1_CalPresTxb.Text = $"{sys1CalPres:F2} psi";
-                S2_CalPresTxb.Text = $"{sys2CalPres:F2} psi";
-                S1_CalPresDevTxb.Text = $"{sys1Dev:F2}%";
-                S2_CalPresDevTxb.Text = $"{sys2Dev:F2}%";
-            }
-            catch (Exception ex)
-            {
-                Debug.Print($"Error populating flow calibration data for {MotorName}: {ex.Message}");
-            }
+            //    S1_RefPresTxb.Text = $"{sys1RefPres:F2} psi";
+            //    S2_RefPresTxb.Text = $"{sys2RefPres:F2} psi";
+            //    S1_CalPresTxb.Text = $"{sys1CalPres:F2} psi";
+            //    S2_CalPresTxb.Text = $"{sys2CalPres:F2} psi";
+            //    S1_CalPresDevTxb.Text = $"{sys1Dev:F2}%";
+            //    S2_CalPresDevTxb.Text = $"{sys2Dev:F2}%";
+            //}
+            //catch (Exception ex)
+            //{
+            //    Debug.Print($"Error populating flow calibration data for {MotorName}: {ex.Message}");
+            //}
         }
 
         private async void RunBtn_Click(object sender, RoutedEventArgs e)

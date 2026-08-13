@@ -38,6 +38,7 @@
                 <Button x:Name="LoadBtn" Content="Load from flash" Click="LoadBtn_Click" Style="{StaticResource SmallButton}"/>
                 <Button x:Name="SaveBtn" Content="Save to flash" Style="{DynamicResource SmallBlackButton}" Click="SaveBtn_Click"/>
             </StackPanel>
+            <Button x:Name="GenerateDefBtn" Content="Generate default settings" Style="{DynamicResource SmallButton}" HorizontalAlignment="Right" Click="GenerateDefBtn_Click"/>
         </Grid>
 
 

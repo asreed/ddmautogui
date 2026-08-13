@@ -43,12 +43,14 @@ namespace DDMAutoGUI.Services
     public class PartCycleOptions
     {
         public bool CheckHealth { get; set; } = true;
-        public bool Dispense { get; set; } = true;
         public bool PhotoTop { get; set; } = true;
         public bool PhotoSide { get; set; } = true;
         public bool RunOCR { get; set; } = true;
         public bool CheckPolarity { get; set; } = true;
         public bool MeasureHeights { get; set; } = true;
+        public bool DispenseCA { get; set; } = true;
+        public bool DispenseUV { get; set; } = true;
+        public bool CureUV { get; set; } = true;
         public bool Autocalibrate { get; set; } = true;
         public bool PhotoTopAfter { get; set; } = true;
         public bool OverrideWarnings { get; set; } = false;

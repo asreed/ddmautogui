@@ -48,14 +48,14 @@ namespace DDMAutoGUI.Services
 
                 await _dispenseExecution.EnablePowerAndHomeAsync(DebugLog);
 
-                await _controllerService.MoveJ(settings.ddm_common.load.x.Value, settings.ddm_common.load.t.Value);
+                await _controllerService.MoveJ(settings.ddm_common.pos_load.x.Value, settings.ddm_common.pos_load.t.Value);
 
                 LDMotorCalib oldCalib = _localDataService.GetCalibFromMotorName(localData, motorName);
                 await _dispenseExecution.SetupPressuresAsync(settings, oldCalib, DebugLog);
 
                 ResultsShotData shotData = await _dispenseExecution.DispenseToRingAsync(settings, motorSettings, motorName, DebugLog);
 
-                await _controllerService.MoveJ(settings.ddm_common.load.x.Value, settings.ddm_common.load.t.Value);
+                await _controllerService.MoveJ(settings.ddm_common.pos_load.x.Value, settings.ddm_common.pos_load.t.Value);
 
                 // calibration-only policy
                 CalculateNewScaleFactors(shotData, settings, localData, out bool ok, out string msg, out float sf1, out float sf2);
@@ -126,136 +126,142 @@ namespace DDMAutoGUI.Services
             /// run. Neither saves nor validates calibration.
             /// </summary>
 
+            //success = false;
+            //message = string.Empty;
+            //sf1 = 1.00f;
+            //sf2 = 1.00f;
+            //CSShot targetShotData = null;
+            //LDMotorCalib calibOriginal = null;
+            //string tb = "  ";
+
+            //switch (prevShotData.motor_type)
+            //{
+            //    case "ddm_57":
+            //        targetShotData = cellSettings.ddm_57.shot_settings;
+            //        calibOriginal = localData.calib_data.ddm_57;
+            //        break;
+            //    case "ddm_95":
+            //        targetShotData = cellSettings.ddm_95.shot_settings;
+            //        calibOriginal = localData.calib_data.ddm_95;
+            //        break;
+            //    case "ddm_116":
+            //        targetShotData = cellSettings.ddm_116.shot_settings;
+            //        calibOriginal = localData.calib_data.ddm_116;
+            //        break;
+            //    case "ddm_170":
+            //        targetShotData = cellSettings.ddm_170.shot_settings;
+            //        calibOriginal = localData.calib_data.ddm_170;
+            //        break;
+            //    case "ddm_170_tall":
+            //        targetShotData = cellSettings.ddm_170_tall.shot_settings;
+            //        calibOriginal = localData.calib_data.ddm_170_tall;
+            //        break;
+            //}
+
+            //LDMotorCalib calibNew = calibOriginal.Clone();
+
+            //Debug.Print($"Calculating scale factors based on motor size {prevShotData.motor_type}");
+
+            //// calculate real flow rate (from given shot data)
+            //// get target flow rate (from cell settings)
+            //// get calib data (from local data)
+            //// apply scale factor to flow rate lookup
+            //// verify new pressures are OK
+            //// copy new calib to local data and save to file
+
+            //float lastFlowID = prevShotData.id_vol.Value / prevShotData.id_time.Value;
+            //float targetFlowID = targetShotData.id_target_flow.Value;
+            //float sfID = targetFlowID / lastFlowID;
+            //float sysID = targetShotData.id_sys_num.Value;
+
+            //float lastFlowOD = prevShotData.od_vol.Value / prevShotData.od_time.Value;
+            //float targetFlowOD = targetShotData.od_target_flow.Value;
+            //float sfOD = targetFlowOD / lastFlowOD;
+            //float sysOD = targetShotData.od_sys_num.Value;
+
+            //if (sysID == sysOD)
+            //{
+            //    switch (sysID)
+            //    {
+            //        case 1: sf1 = (sfID + sfOD) / 2; break;
+            //        case 2: sf2 = (sfID + sfOD) / 2; break;
+            //    }
+            //}
+            //else
+            //{
+            //    sf1 = sysID == 1 ? sfID : sfOD;
+            //    sf2 = sysID == 2 ? sfID : sfOD;
+            //}
+
+            //Debug.Print($"{tb}Individual scale factors calculated:");
+            //Debug.Print($"{tb}{tb}ID: {sfID:F3}");
+            //Debug.Print($"{tb}{tb}OD: {sfOD:F3}");
+            //Debug.Print($"{tb}Applying scale factors:");
+            //Debug.Print($"{tb}{tb}Sys 1: {sf1:F3}");
+            //Debug.Print($"{tb}{tb}Sys 2: {sf2:F3}");
+
+            //Debug.Print($"{tb}Updating calibration values:");
+            //calibNew.sys_1_pressure *= sf1;
+            //calibNew.sys_2_pressure *= sf2;
+            //Debug.Print($"{tb}{tb}Sys 1: ({calibNew.sys_1_pressure,5:0.000})");
+            //Debug.Print($"{tb}{tb}Sys 2: ({calibNew.sys_2_pressure,5:0.000})");
+            ////Debug.Print($"  Sys 1: ({calibNew.sys_1_flow:0.00}, {calibNew.sys_1_pressure,5:0.000})");
+            ////Debug.Print($"  Sys 2: ({calibNew.sys_2_flow:0.00}, {calibNew.sys_2_pressure,5:0.000})");
+
+            //// Basic validation
+
+            //// Check pressures against absolute limits
+
+            //bool validated = false;
+            //float sys1MaxPressure = cellSettings.dispense_system.sys_1_max_pressure.Value;
+            //float sys2MaxPressure = cellSettings.dispense_system.sys_2_max_pressure.Value;
+
+            //if (calibNew.sys_1_pressure > sys1MaxPressure || calibNew.sys_1_pressure < 0)
+            //{
+            //    message = $"Calibration failed: System 1 pressure out of range ({calibNew.sys_1_pressure})";
+            //    return;
+            //}
+            //if (calibNew.sys_2_pressure > sys2MaxPressure || calibNew.sys_2_pressure < 0)
+            //{
+            //    message = $"Calibration failed: System 2 pressure out of range ({calibNew.sys_2_pressure})";
+            //    return;
+            //}
+
+            //// Check pressures against relative limits
+
+            //float newPressure;
+            //float originalPressure;
+            //float diff;
+
+            //newPressure = calibNew.sys_1_pressure.Value;
+            //originalPressure = calibOriginal.sys_1_pressure.Value;
+            //diff = Math.Abs((newPressure - originalPressure) / originalPressure);
+
+            //if (diff > cellSettings.dispense_system.sys_1_max_pressure_dev_percent)
+            //{
+            //    message = $"Validation failed: System 1 pressure deviated too far from calib ({diff})";
+            //    return;
+            //}
+
+            //newPressure = calibNew.sys_2_pressure.Value;
+            //originalPressure = calibOriginal.sys_2_pressure.Value;
+            //diff = Math.Abs((newPressure - originalPressure) / originalPressure);
+
+            //if (diff > cellSettings.dispense_system.sys_2_max_pressure_dev_percent)
+            //{
+            //    message = $"Validation failed: System 2 pressure deviated too far from calib ({diff})";
+            //    return;
+            //}
+
+            //Debug.Print($"{tb}Calibration calculation successful");
+            //message = "Calibration calculation successful";
+            //success = true;
+
             success = false;
-            message = string.Empty;
+            message = "Service depreciated";
             sf1 = 1.00f;
             sf2 = 1.00f;
-            CSShot targetShotData = null;
-            LDMotorCalib calibOriginal = null;
-            string tb = "  ";
 
-            switch (prevShotData.motor_type)
-            {
-                case "ddm_57":
-                    targetShotData = cellSettings.ddm_57.shot_settings;
-                    calibOriginal = localData.calib_data.ddm_57;
-                    break;
-                case "ddm_95":
-                    targetShotData = cellSettings.ddm_95.shot_settings;
-                    calibOriginal = localData.calib_data.ddm_95;
-                    break;
-                case "ddm_116":
-                    targetShotData = cellSettings.ddm_116.shot_settings;
-                    calibOriginal = localData.calib_data.ddm_116;
-                    break;
-                case "ddm_170":
-                    targetShotData = cellSettings.ddm_170.shot_settings;
-                    calibOriginal = localData.calib_data.ddm_170;
-                    break;
-                case "ddm_170_tall":
-                    targetShotData = cellSettings.ddm_170_tall.shot_settings;
-                    calibOriginal = localData.calib_data.ddm_170_tall;
-                    break;
-            }
-
-            LDMotorCalib calibNew = calibOriginal.Clone();
-
-            Debug.Print($"Calculating scale factors based on motor size {prevShotData.motor_type}");
-
-            // calculate real flow rate (from given shot data)
-            // get target flow rate (from cell settings)
-            // get calib data (from local data)
-            // apply scale factor to flow rate lookup
-            // verify new pressures are OK
-            // copy new calib to local data and save to file
-
-            float lastFlowID = prevShotData.id_vol.Value / prevShotData.id_time.Value;
-            float targetFlowID = targetShotData.id_target_flow.Value;
-            float sfID = targetFlowID / lastFlowID;
-            float sysID = targetShotData.id_sys_num.Value;
-
-            float lastFlowOD = prevShotData.od_vol.Value / prevShotData.od_time.Value;
-            float targetFlowOD = targetShotData.od_target_flow.Value;
-            float sfOD = targetFlowOD / lastFlowOD;
-            float sysOD = targetShotData.od_sys_num.Value;
-
-            if (sysID == sysOD)
-            {
-                switch (sysID)
-                {
-                    case 1: sf1 = (sfID + sfOD) / 2; break;
-                    case 2: sf2 = (sfID + sfOD) / 2; break;
-                }
-            }
-            else
-            {
-                sf1 = sysID == 1 ? sfID : sfOD;
-                sf2 = sysID == 2 ? sfID : sfOD;
-            }
-
-            Debug.Print($"{tb}Individual scale factors calculated:");
-            Debug.Print($"{tb}{tb}ID: {sfID:F3}");
-            Debug.Print($"{tb}{tb}OD: {sfOD:F3}");
-            Debug.Print($"{tb}Applying scale factors:");
-            Debug.Print($"{tb}{tb}Sys 1: {sf1:F3}");
-            Debug.Print($"{tb}{tb}Sys 2: {sf2:F3}");
-
-            Debug.Print($"{tb}Updating calibration values:");
-            calibNew.sys_1_pressure *= sf1;
-            calibNew.sys_2_pressure *= sf2;
-            Debug.Print($"{tb}{tb}Sys 1: ({calibNew.sys_1_pressure,5:0.000})");
-            Debug.Print($"{tb}{tb}Sys 2: ({calibNew.sys_2_pressure,5:0.000})");
-            //Debug.Print($"  Sys 1: ({calibNew.sys_1_flow:0.00}, {calibNew.sys_1_pressure,5:0.000})");
-            //Debug.Print($"  Sys 2: ({calibNew.sys_2_flow:0.00}, {calibNew.sys_2_pressure,5:0.000})");
-
-            // Basic validation
-
-            // Check pressures against absolute limits
-
-            bool validated = false;
-            float sys1MaxPressure = cellSettings.dispense_system.sys_1_max_pressure.Value;
-            float sys2MaxPressure = cellSettings.dispense_system.sys_2_max_pressure.Value;
-
-            if (calibNew.sys_1_pressure > sys1MaxPressure || calibNew.sys_1_pressure < 0)
-            {
-                message = $"Calibration failed: System 1 pressure out of range ({calibNew.sys_1_pressure})";
-                return;
-            }
-            if (calibNew.sys_2_pressure > sys2MaxPressure || calibNew.sys_2_pressure < 0)
-            {
-                message = $"Calibration failed: System 2 pressure out of range ({calibNew.sys_2_pressure})";
-                return;
-            }
-
-            // Check pressures against relative limits
-
-            float newPressure;
-            float originalPressure;
-            float diff;
-
-            newPressure = calibNew.sys_1_pressure.Value;
-            originalPressure = calibOriginal.sys_1_pressure.Value;
-            diff = Math.Abs((newPressure - originalPressure) / originalPressure);
-
-            if (diff > cellSettings.dispense_system.sys_1_max_pressure_dev_percent)
-            {
-                message = $"Validation failed: System 1 pressure deviated too far from calib ({diff})";
-                return;
-            }
-
-            newPressure = calibNew.sys_2_pressure.Value;
-            originalPressure = calibOriginal.sys_2_pressure.Value;
-            diff = Math.Abs((newPressure - originalPressure) / originalPressure);
-
-            if (diff > cellSettings.dispense_system.sys_2_max_pressure_dev_percent)
-            {
-                message = $"Validation failed: System 2 pressure deviated too far from calib ({diff})";
-                return;
-            }
-
-            Debug.Print($"{tb}Calibration calculation successful");
-            message = "Calibration calculation successful";
-            success = true;
         }
 
         public void GenerateAndSaveCalibration(RunCalibResult result)

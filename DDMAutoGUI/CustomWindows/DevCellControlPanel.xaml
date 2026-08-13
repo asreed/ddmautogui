@@ -5,15 +5,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:DDMAutoGUI.CustomWindows"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="900">
+             d:DesignHeight="600" d:DesignWidth="800">
 
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="280"/>
         </Grid.ColumnDefinitions>
 
-        <GroupBox Header="System State" Grid.Column="1">
+        <GroupBox Header="System State" Grid.Column="1" Margin="0" Padding="0">
             <TabControl>
                 <TabItem Header="Overview">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -46,7 +46,7 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="140"/>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
                                     <Label Grid.Row="0" Grid.Column="0" Content="System pressure:"/>
@@ -66,7 +66,7 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="140"/>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
 
@@ -153,7 +153,7 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="140"/>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
 
@@ -188,7 +188,7 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="140"/>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
 
@@ -278,18 +278,23 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <GroupBox Grid.Row="0" Header="Motor Settings" >
+            <GroupBox Grid.Row="0" Header="Motor Settings" Margin="0" Padding="0">
                 <StackPanel Orientation="Horizontal">
                     <ComboBox x:Name="Adv_Cell_MotorSizeCmb" 
                               VerticalAlignment="Center" 
                               ItemsSource="{Binding MotorSizes}"
                               SelectedIndex="{Binding SelectedMotorSizeIndex, Mode=TwoWay}"
-                              SelectionChanged="Adv_Cell_MotorSizeCmb_OnSelectionChanged">
+                              SelectionChanged="Adv_Cell_MotorSizeCmb_OnSelectionChanged"
+                              Padding="8 4"
+                              Margin="8 4">
                     </ComboBox>
-                    <Button x:Name="Adv_Cell_ReloadSettingsBtn" Content="Reload" Click="Adv_Cell_ReloadSettingsBtn_Click" Style="{StaticResource SmallButton}" VerticalAlignment="Top" Height="26" Margin="12,0,0,0" Padding="8,0"/>
+                    <Button x:Name="Adv_Cell_ReloadSettingsBtn" 
+                            Content="Reload" 
+                            Click="Adv_Cell_ReloadSettingsBtn_Click" 
+                            Style="{StaticResource SmallButton}"/>
                 </StackPanel>
             </GroupBox>
-            <GroupBox Header="Robot Thread Commands" Grid.Row="1">
+            <GroupBox Header="Robot Thread Commands" Grid.Row="1" Padding="0" Margin="0">
                 <TabControl Grid.Row="1">
 
                     <TabItem Header="Robot">
@@ -359,13 +364,13 @@
                                         <Button Grid.Row="4" Grid.Column="1" x:Name="Adv_Cell_MoveLaserMagBtn" Content="Move, laser mag/conc" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveLaserMagBtn_Click"/>
                                         <Label  Grid.Row="4" Grid.Column="2" x:Name="Adv_Cell_MoveLaserMagOutLbl" Content="-"/>
 
-                                        <Label  Grid.Row="5" Grid.Column="0" x:Name="Adv_Cell_MoveDispIDInLbl" Content="-"/>
+                                        <!--<Label  Grid.Row="5" Grid.Column="0" x:Name="Adv_Cell_MoveDispIDInLbl" Content="-"/>
                                         <Button Grid.Row="5" Grid.Column="1" x:Name="Adv_Cell_MoveDispIDBtn" Content="Move, dispense ID" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveDispIDBtn_Click"/>
                                         <Label  Grid.Row="5" Grid.Column="2" x:Name="Adv_Cell_MoveDispIDOutLbl" Content="-"/>
 
                                         <Label  Grid.Row="6" Grid.Column="0" x:Name="Adv_Cell_MoveDispODInLbl" Content="-"/>
                                         <Button Grid.Row="6" Grid.Column="1" x:Name="Adv_Cell_MoveDispODBtn" Content="Move, dispense OD" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveDispODBtn_Click"/>
-                                        <Label  Grid.Row="6" Grid.Column="2" x:Name="Adv_Cell_MoveDispODOutLbl" Content="-"/>
+                                        <Label  Grid.Row="6" Grid.Column="2" x:Name="Adv_Cell_MoveDispODOutLbl" Content="-"/>-->
 
                                         <Label  Grid.Row="7" Grid.Column="0" x:Name="Adv_Cell_MoveHallInLbl" Content="-"/>
                                         <Button Grid.Row="7" Grid.Column="1" x:Name="Adv_Cell_MoveHallBtn" Content="Move, hall" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallGreenButton}" Click="Adv_Cell_MoveHallBtn_Click"/>
@@ -441,7 +446,7 @@
                                     </Grid.ColumnDefinitions>
 
 
-                                    <GroupBox Header="Pressure Regulators" Grid.Column="0">
+                                    <GroupBox Header="Pressure Regulators" Grid.Column="0" Margin="0">
                                         <Grid>
 
                                             <Grid.ColumnDefinitions>
@@ -468,7 +473,7 @@
                                         </Grid>
                                     </GroupBox>
 
-                                    <GroupBox Header="Shot Volume Measurment" Grid.Column="1">
+                                    <GroupBox Header="Shot Volume Measurment" Grid.Column="1" Margin="0">
                                         <Grid>
 
                                             <Grid.ColumnDefinitions>
@@ -485,11 +490,11 @@
                                             </Grid.RowDefinitions>
 
                                             <StackPanel 
-                                            Orientation="Vertical"
-                                            Grid.Row="0" 
-                                            Grid.Column="0" 
-                                            Grid.ColumnSpan="3"
-                                            Margin="0,0,0,8">
+                                                Orientation="Vertical"
+                                                Grid.Row="0" 
+                                                Grid.Column="0" 
+                                                Grid.ColumnSpan="3"
+                                                Margin="0,0,0,8">
 
                                                 <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="This will open a valve and trigger the flow sensor to measure the dispensed volume." TextWrapping="Wrap"/>
                                             </StackPanel>
@@ -549,7 +554,7 @@
                                     </Grid>
                                 </GroupBox>-->
 
-                                <GroupBox Header="Single Track Dispense">
+                                <GroupBox Header="Single Track Dispense" Margin="0">
                                     <Grid>
 
                                         <Grid.ColumnDefinitions>
@@ -564,23 +569,25 @@
                                             <RowDefinition/>
                                             <RowDefinition/>
                                             <RowDefinition/>
+                                            <RowDefinition/>
                                         </Grid.RowDefinitions>
+                                        
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="This will dispense adhesive from the selected valve around a single track. VERIFY PRESSURE BEFORE DISPENSING HERE." TextWrapping="Wrap" Margin="4,4,4,8"/>
 
-                                        <TextBox Grid.Row="0" Grid.Column="0"  Text="0" Style="{StaticResource SmallTextBox}"/>
-                                        <Label   Grid.Row="0" Grid.Column="1"  Content="Valve number"/>
+                                        <TextBox Grid.Row="1" Grid.Column="0" x:Name="Dev_ST_ValveNumberTxb"  Text="0" Style="{StaticResource SmallTextBox}"/>
+                                        <Label   Grid.Row="1" Grid.Column="1" x:Name="Dev_ST_ValveNumberLbl" Content="Valve number"/>
 
-                                        <TextBox Grid.Row="1" Grid.Column="0"  Text="1.5" Style="{StaticResource SmallTextBox}"/>
-                                        <Label   Grid.Row="1" Grid.Column="1"  Content="Shot time (s)"/>
+                                        <TextBox Grid.Row="2" Grid.Column="0" x:Name="Dev_ST_ShotTimeTxb"  Text="1.5" Style="{StaticResource SmallTextBox}"/>
+                                        <Label   Grid.Row="2" Grid.Column="1" x:Name="Dev_ST_ShotTimeLbl" Content="Shot time (s)"/>
 
-                                        <TextBox Grid.Row="2" Grid.Column="0"  Text="0.00" Style="{StaticResource SmallTextBox}"/>
-                                        <Label   Grid.Row="2" Grid.Column="1"  Content="Start x pos (mm)"/>
+                                        <TextBox Grid.Row="3" Grid.Column="0" x:Name="Dev_ST_StartXPosTxb"  Text="0.00" Style="{StaticResource SmallTextBox}"/>
+                                        <Label   Grid.Row="3" Grid.Column="1" x:Name="Dev_ST_StartXPosLbl" Content="Start x pos (mm)"/>
 
-                                        <TextBox Grid.Row="3" Grid.Column="0"  Text="0.00" Style="{StaticResource SmallTextBox}"/>
-                                        <Label   Grid.Row="3" Grid.Column="1"  Content="Start theta pos (deg)"/>
+                                        <TextBox Grid.Row="4" Grid.Column="0" x:Name="Dev_ST_StartThetaPosTxb"  Text="0.00" Style="{StaticResource SmallTextBox}"/>
+                                        <Label   Grid.Row="4" Grid.Column="1" x:Name="Dev_ST_StartThetaPosLbl" Content="Start theta pos (deg)"/>
 
-                                        <Button  Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Left" Content="Dispense single track" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource BlackButton}"/>
-
-                                        <Label   Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3"  Content="-"/>
+                                        <Button  Grid.Row="5" Grid.Column="0" x:Name="Dev_ST_DispBtn" Grid.ColumnSpan="3" HorizontalAlignment="Left" Content="Dispense single track" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource BlackButton}" Click="Dev_ST_DispBtn_Click"/>
+                                        <Label   Grid.Row="6" Grid.Column="0" x:Name="Dev_ST_DispOutputLbl" Grid.ColumnSpan="3"  Content="-"/>
 
 
                                     </Grid>
@@ -590,54 +597,6 @@
                         </ScrollViewer>
 
                     </TabItem>
-
-                    <TabItem Header="Dispense" Visibility="Collapsed">
-
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel Orientation="Vertical">
-
-                                <GroupBox Header="Dispense Process">
-                                    <Grid>
-
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="160"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                        </Grid.RowDefinitions>
-
-                                        <StackPanel 
-                                            Orientation="Vertical"
-                                            Grid.Row="0" 
-                                            Grid.Column="0" 
-                                            Grid.ColumnSpan="3"
-                                            Margin="0,0,0,8">
-
-                                            <TextBlock TextWrapping="Wrap" Text="This will do the following:"/>
-                                            <TextBlock TextWrapping="Wrap" Text="1. Move to ID position and dispense shot"/>
-                                            <TextBlock TextWrapping="Wrap" Text="2. Move to OD position and dispense shot"/>
-
-                                        </StackPanel>
-
-                                        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="Adv_Cell_DispShotsInLbl" Content="-"/>
-
-                                        <Button Grid.Row="2" Grid.Column="0" x:Name="Adv_Cell_DispShotsBtn" Content="Dispense shots" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallBlackButton}" Click="Adv_Cell_DispShotsBtn_Click"/>
-                                        <Label Grid.Row="2" Grid.Column="1" x:Name="Adv_Cell_DispShotsOutLbl" Content="-"/>
-
-                                    </Grid>
-
-
-                                </GroupBox>
-                            </StackPanel>
-                        </ScrollViewer>
-
-                    </TabItem>
-
                 </TabControl>
             </GroupBox>
         </Grid>

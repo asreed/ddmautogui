@@ -1,4 +1,5 @@
 using DDMAutoGUI.Services;
+using DDMAutoGUI.windows;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
@@ -125,6 +126,14 @@ namespace DDMAutoGUI.CustomWindows
             if (newSettings == null) return;
 
             _settingsManager.SaveSettingsToController(newSettings);
+        }
+
+        private void GenerateDefBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string json = SettingsTemplateGenerator.GenerateJson();
+            TextDataViewer viewer = new TextDataViewer();
+            viewer.PopulateData(json, "Default Settings");
+            viewer.ShowDialog();
         }
     }
 }

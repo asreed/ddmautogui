@@ -64,14 +64,14 @@ namespace DDMAutoGUI.CustomWindows
 
             if (m != null && m.IsValid())
             {
-                Adv_Cell_MoveLoadInLbl.Content = $"[{s.ddm_common.load.x}, {s.ddm_common.load.t}]";
-                Adv_Cell_MoveCamTopInLbl.Content = $"[{s.ddm_common.camera_top.x}, {s.ddm_common.camera_top.t}]";
-                Adv_Cell_MoveCamSideInLbl.Content = $"[{m.camera_side.x}, {m.camera_side.t}]";
-                Adv_Cell_MoveLaserRingInLbl.Content = $"[{m.laser_ring.x}, {m.laser_ring.t}]";
-                Adv_Cell_MoveLaserMagInLbl.Content = $"[{m.laser_mag.x}, {m.laser_mag.t}]";
-                Adv_Cell_MoveDispIDInLbl.Content = $"[{m.id_disp.x}, {m.id_disp.t}]";
-                Adv_Cell_MoveDispODInLbl.Content = $"[{m.od_disp.x}, {m.od_disp.t}]";
-                Adv_Cell_MoveHallInLbl.Content = $"[{m.hall_sensor.x}, {m.hall_sensor.t}]";
+                Adv_Cell_MoveLoadInLbl.Content = $"[{s.ddm_common.pos_load.x}, {s.ddm_common.pos_load.t}]";
+                Adv_Cell_MoveCamTopInLbl.Content = $"[{s.ddm_common.pos_camera_top.x}, {s.ddm_common.pos_camera_top.t}]";
+                Adv_Cell_MoveCamSideInLbl.Content = $"[{m.pos_camera_side.x}, {m.pos_camera_side.t}]";
+                Adv_Cell_MoveLaserRingInLbl.Content = $"[{m.pos_laser_ring.x}, {m.pos_laser_ring.t}]";
+                Adv_Cell_MoveLaserMagInLbl.Content = $"[{m.pos_laser_mag.x}, {m.pos_laser_mag.t}]";
+                //Adv_Cell_MoveDispIDInLbl.Content = $"[{m.id_disp.x}, {m.id_disp.t}]";
+                //Adv_Cell_MoveDispODInLbl.Content = $"[{m.od_disp.x}, {m.od_disp.t}]";
+                Adv_Cell_MoveHallInLbl.Content = $"[{m.pos_hall_sensor.x}, {m.pos_hall_sensor.t}]";
                 Adv_Cell_MeasureRingInLbl.Content = $"{m.laser_ring_num} places, {s.laser_delay} s each";
                 Adv_Cell_MeasureMagInLbl.Content = $"{m.laser_mag_num} places, {s.laser_delay} s each";
             }
@@ -89,8 +89,8 @@ namespace DDMAutoGUI.CustomWindows
             Adv_Cell_MoveCamSideInLbl.Content = blank;
             Adv_Cell_MoveLaserRingInLbl.Content = blank;
             Adv_Cell_MoveLaserMagInLbl.Content = blank;
-            Adv_Cell_MoveDispIDInLbl.Content = blank;
-            Adv_Cell_MoveDispODInLbl.Content = blank;
+            //Adv_Cell_MoveDispIDInLbl.Content = blank;
+            //Adv_Cell_MoveDispODInLbl.Content = blank;
             Adv_Cell_MoveHallInLbl.Content = blank;
             Adv_Cell_MeasureRingInLbl.Content = blank;
             Adv_Cell_MeasureMagInLbl.Content = blank;
@@ -137,28 +137,28 @@ namespace DDMAutoGUI.CustomWindows
         // Movement
 
         private async void Adv_Cell_MoveLoadBtn_Click(object sender, RoutedEventArgs e)
-            => await MoveToAsync(_settingsManager?.GetAllSettings()?.ddm_common?.load, Adv_Cell_MoveLoadOutLbl);
+            => await MoveToAsync(_settingsManager?.GetAllSettings()?.ddm_common?.pos_load, Adv_Cell_MoveLoadOutLbl);
 
         private async void Adv_Cell_MoveCamTopBtn_Click(object sender, RoutedEventArgs e)
-            => await MoveToAsync(_settingsManager?.GetAllSettings()?.ddm_common?.camera_top, Adv_Cell_MoveCamTopOutLbl);
+            => await MoveToAsync(_settingsManager?.GetAllSettings()?.ddm_common?.pos_camera_top, Adv_Cell_MoveCamTopOutLbl);
 
         private async void Adv_Cell_MoveCamSideBtn_Click(object sender, RoutedEventArgs e)
-            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.camera_side, Adv_Cell_MoveCamSideOutLbl);
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.pos_camera_side, Adv_Cell_MoveCamSideOutLbl);
 
         private async void Adv_Cell_MoveLaserRingBtn_Click(object sender, RoutedEventArgs e)
-            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.laser_ring, Adv_Cell_MoveLaserRingOutLbl);
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.pos_laser_ring, Adv_Cell_MoveLaserRingOutLbl);
 
         private async void Adv_Cell_MoveLaserMagBtn_Click(object sender, RoutedEventArgs e)
-            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.laser_mag, Adv_Cell_MoveLaserMagOutLbl);
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.pos_laser_mag, Adv_Cell_MoveLaserMagOutLbl);
 
-        private async void Adv_Cell_MoveDispIDBtn_Click(object sender, RoutedEventArgs e)
-            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.id_disp, Adv_Cell_MoveDispIDOutLbl);
+        //private async void Adv_Cell_MoveDispIDBtn_Click(object sender, RoutedEventArgs e)
+        //    => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.id_disp, Adv_Cell_MoveDispIDOutLbl);
 
-        private async void Adv_Cell_MoveDispODBtn_Click(object sender, RoutedEventArgs e)
-            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.od_disp, Adv_Cell_MoveDispODOutLbl);
+        //private async void Adv_Cell_MoveDispODBtn_Click(object sender, RoutedEventArgs e)
+        //    => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.od_disp, Adv_Cell_MoveDispODOutLbl);
 
         private async void Adv_Cell_MoveHallBtn_Click(object sender, RoutedEventArgs e)
-            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.hall_sensor, Adv_Cell_MoveHallOutLbl);
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.pos_hall_sensor, Adv_Cell_MoveHallOutLbl);
 
         /// <summary>
         /// Shared move helper: performs a MoveJ to the given position and writes the
@@ -179,7 +179,7 @@ namespace DDMAutoGUI.CustomWindows
             if (_controllerManager == null || _settingsManager == null) return;
 
             CSMotor m = _settingsManager.GetSettingsForSelectedSize();
-            string response = await _controllerManager.MeasureHeightsContinuous(m.laser_ring.x.Value, m.laser_ring.t.Value, m.laser_ring_num.Value, 10);
+            string response = await _controllerManager.MeasureHeightsContinuous(m.pos_laser_ring.x.Value, m.pos_laser_ring.t.Value, m.laser_ring_num.Value, 10);
             laserRingData = _controllerManager.ParseHeightData(response);
             Adv_Cell_MeasureRingOutLbl.Content = laserRingData.Count > 0 ? "(data collected)" : $"error: {response}";
         }
@@ -189,7 +189,7 @@ namespace DDMAutoGUI.CustomWindows
             if (_controllerManager == null || _settingsManager == null) return;
 
             CSMotor m = _settingsManager.GetSettingsForSelectedSize();
-            string response = await _controllerManager.MeasureHeightsContinuous(m.laser_mag.x.Value, m.laser_mag.t.Value, m.laser_mag_num.Value, 20);
+            string response = await _controllerManager.MeasureHeightsContinuous(m.pos_laser_mag.x.Value, m.pos_laser_mag.t.Value, m.laser_mag_num.Value, 20);
             laserMagData = _controllerManager.ParseHeightData(response);
             Adv_Cell_MeasureMagOutLbl.Content = laserMagData.Count > 0 ? "(data collected)" : $"error: {response}";
         }
@@ -310,10 +310,30 @@ namespace DDMAutoGUI.CustomWindows
         // ==================================================================
         // Dispense
 
-        private void Adv_Cell_DispShotsBtn_Click(object sender, RoutedEventArgs e)
+        private async void Dev_ST_DispBtn_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Not yet implemented. The Dispense tab is currently collapsed in XAML.
-            Adv_Cell_DispShotsOutLbl.Content = "(not implemented)";
+            if (_controllerManager == null) return;
+
+            int valveNum = int.Parse(Dev_ST_ValveNumberTxb.Text);
+            float time = float.Parse(Dev_ST_ShotTimeTxb.Text);
+            float x = float.Parse(Dev_ST_StartXPosTxb.Text);
+            float t = float.Parse(Dev_ST_StartThetaPosTxb.Text);
+            int dir = 1;
+
+            if (valveNum != 1 && valveNum != 2)
+            {
+                Dev_ST_DispOutputLbl.Content = "Error: Valve number must be 1 or 2";
+                return;
+            }
+
+            if (time <= 0)
+            {
+                Dev_ST_DispOutputLbl.Content = "Error: Shot time must be positive";
+                return;
+            }
+
+            string response = await _controllerManager.DispenseSingleTrackToRing(valveNum, time, x, t, dir);
+            Dev_ST_DispOutputLbl.Content = response;
         }
     }
 }

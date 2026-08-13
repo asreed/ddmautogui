@@ -201,7 +201,7 @@
                             </Border>
 
 
-                            <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="20"  Background="WhiteSmoke">
+                            <TabControl x:Name="Adv_AllControlsTcl" Visibility="Visible" TabStripPlacement="Top" Margin="10"  Background="WhiteSmoke">
 
                                 <TabItem Header="Options">
                                     <StackPanel Orientation="Vertical" Margin="6">
@@ -364,16 +364,6 @@
                     </Grid>
                 </StackPanel>
             </Border>
-            <!--<Border Padding="4" Grid.Column="1">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Border x:Name="Status_SimBdr" Style="{StaticResource SimBorder}" Visibility="Visible">
-                        <TextBlock Text="TCS sim enabled"/>
-                    </Border>
-                    <Border x:Name="Status_GUISimBdr" Style="{StaticResource SimBorder}" Visibility="Visible" Margin="4,0,0,0">
-                        <TextBlock Text="GUI sim enabled"/>
-                    </Border>
-                </StackPanel>
-            </Border>-->
         </Grid>
 
     </Grid>
