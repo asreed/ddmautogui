@@ -468,7 +468,7 @@ namespace DDMAutoGUI.ViewModels
             }
         }
 
-        public bool DispDispense
+        public bool DispCADispense
         {
             get => _appConfig.AdvancedOptions.PartCycleOptions.DispenseCA;
             set
@@ -476,6 +476,33 @@ namespace DDMAutoGUI.ViewModels
                 if (_appConfig.AdvancedOptions.PartCycleOptions.DispenseCA != value)
                 {
                     _appConfig.AdvancedOptions.PartCycleOptions.DispenseCA = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool DispUVDispense
+        {
+            get => _appConfig.AdvancedOptions.PartCycleOptions.DispenseUV;
+            set
+            {
+                if (_appConfig.AdvancedOptions.PartCycleOptions.DispenseUV != value)
+                {
+                    _appConfig.AdvancedOptions.PartCycleOptions.DispenseUV = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+        public bool DispUVCure
+        {
+            get => _appConfig.AdvancedOptions.PartCycleOptions.CureUV;
+            set
+            {
+                if (_appConfig.AdvancedOptions.PartCycleOptions.CureUV != value)
+                {
+                    _appConfig.AdvancedOptions.PartCycleOptions.CureUV = value;
                     OnPropertyChanged();
                 }
             }

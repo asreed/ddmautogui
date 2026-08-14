@@ -87,6 +87,8 @@ namespace DDMAutoGUI.Services
         public float? ca_p4_target_vol { get; set; }
         public float? uv_target_flow { get; set; }
         public float? uv_p1_target_vol { get; set; }
+        public float? ca_new_pressure { get; set; }
+        public float? uv_new_pressure { get; set; }
 
         public ResultsDispRefData Clone()
         {
@@ -238,6 +240,7 @@ namespace DDMAutoGUI.Services
                 currentResults = new Results
                 {
                     disp_data = new ResultsDispData(),
+                    disp_ref_data = new ResultsDispRefData(),
                     process_log = new List<ResultsLogLine>(),
                     version_info = new ResultsVersionInfo
                     {

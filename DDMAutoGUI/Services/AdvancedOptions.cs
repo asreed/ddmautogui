@@ -16,7 +16,7 @@ namespace DDMAutoGUI.Services
         public bool TopCamera { get; set; } = true;
         public bool SideCamera { get; set; } = true;
         public bool LaserSensor { get; set; } = true;
-        public bool DaqDevice { get; set; } = true;
+        public bool DaqDevice { get; set; } = false;
 
         /// <summary>
         /// I/O-Link port numbers (1-indexed) that must report "connected" for the
@@ -31,7 +31,7 @@ namespace DDMAutoGUI.Services
         /// <summary>UNC or mapped path to the server results share, e.g. @"\\us-wst-xxxxxx\share".</summary>
         public string ServerPath { get; set; } = @"\\us-wst-1-fsx-01\share";
 
-        public bool VerifyServerOnConnect { get; set; } = true;
+        public bool VerifyServerOnConnect { get; set; } = false;
 
         /// <summary>When true, results are written locally only and never copied to the server (dev/debug).</summary>
         public bool SaveLocalOnly { get; set; } = false;

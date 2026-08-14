@@ -83,8 +83,8 @@ namespace DDMAutoGUI.Services
                 // Step 1: System Health Check
                 //if (advancedOptions.DispenseOptions.CheckHealth)
                 //{
-                    await ExecuteHealthCheckAsync();
-                    ReportProgress(5, "System health checked");
+                await ExecuteHealthCheckAsync();
+                ReportProgress(5, "System health checked");
                 //}
 
                 // Step 2: Power and Home
@@ -334,7 +334,7 @@ namespace DDMAutoGUI.Services
         {
             _resultsService.AddToLog("Processing images...");
             OCRData? ocrData = await OCRProcessor.RunOCRAsync(resultsPath);
-            
+
             if (ocrData == null)
             {
                 _resultsService.AddToLog("OCR processing failed");
@@ -534,14 +534,22 @@ namespace DDMAutoGUI.Services
 
                 if (_result == false)
                 {
-                    return;
+                    //return;
                 }
                 dispData.ca_p1_time = _time;
                 dispData.ca_p1_vol = _vol;
 
             }
-            shotDelay = motor.ca_p1_delay.Value * 1000f;
-            await Task.Delay((int)shotDelay);
+            else
+            {
+                dispData.ca_p1_time = 0;
+                dispData.ca_p1_vol = 0;
+            }
+            if (motor.ca_p1_delay != null)
+            {
+                shotDelay = motor.ca_p1_delay.Value * 1000f;
+                await Task.Delay((int)shotDelay);
+            }
 
             // Pass 2
             shotVolume = motor.ca_p2_target_vol.Value;
@@ -561,13 +569,21 @@ namespace DDMAutoGUI.Services
 
                 if (_result == false)
                 {
-                    return;
+                    //return;
                 }
                 dispData.ca_p2_time = _time;
                 dispData.ca_p2_vol = _vol;
             }
-            shotDelay = motor.ca_p2_delay.Value * 1000f;
-            await Task.Delay((int)shotDelay);
+            else
+            {
+                dispData.ca_p2_time = 0;
+                dispData.ca_p2_vol = 0;
+            }
+            if (motor.ca_p2_delay != null)
+            {
+                shotDelay = motor.ca_p2_delay.Value * 1000f;
+                await Task.Delay((int)shotDelay);
+            }
 
             // Pass 3
             shotVolume = motor.ca_p3_target_vol.Value;
@@ -587,13 +603,21 @@ namespace DDMAutoGUI.Services
 
                 if (_result == false)
                 {
-                    return;
+                    //return;
                 }
                 dispData.ca_p3_time = _time;
                 dispData.ca_p3_vol = _vol;
             }
-            shotDelay = motor.ca_p3_delay.Value * 1000f;
-            await Task.Delay((int)shotDelay);
+            else
+            {
+                dispData.ca_p3_time = 0;
+                dispData.ca_p3_vol = 0;
+            }
+            if (motor.ca_p3_delay != null)
+            {
+                shotDelay = motor.ca_p3_delay.Value * 1000f;
+                await Task.Delay((int)shotDelay);
+            }
 
             // Pass 4
             shotVolume = motor.ca_p4_target_vol.Value;
@@ -613,13 +637,21 @@ namespace DDMAutoGUI.Services
 
                 if (_result == false)
                 {
-                    return;
+                    //return;
                 }
                 dispData.ca_p4_time = _time;
                 dispData.ca_p4_vol = _vol;
             }
-            shotDelay = motor.ca_p4_delay.Value * 1000f;
-            await Task.Delay((int)shotDelay);
+            else
+            {
+                dispData.ca_p4_time = 0;
+                dispData.ca_p4_vol = 0;
+            }
+            if (motor.ca_p4_delay != null)
+            {
+                shotDelay = motor.ca_p4_delay.Value * 1000f;
+                await Task.Delay((int)shotDelay);
+            }
 
             // Print results to log
             _resultsService.AddToLog($"CA Dispense Results:");
@@ -693,7 +725,6 @@ namespace DDMAutoGUI.Services
             dispRefData.uv_p1_target_vol = motor.uv_p1_target_vol;
             _resultsService.currentResults.disp_ref_data = dispRefData;
 
-
             // Create dispense data object
             ResultsDispData dispData = _resultsService.currentResults.disp_data.Clone();
 
@@ -707,6 +738,7 @@ namespace DDMAutoGUI.Services
 
             // Prepare
             response = await _controllerService.WaitBothRegPressures(5);
+            dispData.uv_pressure = float.Parse(await _controllerService.GetRegPressureSetpoint(valveIdx));
 
             // Pass 1
             shotVolume = motor.uv_p1_target_vol.Value;
@@ -726,13 +758,16 @@ namespace DDMAutoGUI.Services
 
                 if (_result == false)
                 {
-                    return;
+                    //return;
                 }
                 dispData.uv_p1_time = _time;
                 dispData.uv_p1_vol = _vol;
             }
-            shotDelay = motor.uv_p1_delay.Value * 1000f;
-            await Task.Delay((int)shotDelay);
+            if (motor.uv_p1_delay != null)
+            {
+                shotDelay = motor.uv_p1_delay.Value * 1000f;
+                await Task.Delay((int)shotDelay);
+            }
 
             _resultsService.AddToLog($"UV Dispense Results:");
             _resultsService.AddToLog($"{LG_TB}Valve: {dispData.uv_valve_idx}");
@@ -763,6 +798,79 @@ namespace DDMAutoGUI.Services
 
         private async Task ExecuteAutocalibrationAsync(CellSettings settings, string motorName)
         {
+            string response;
+
+
+            // Calculate new pressures
+            int caValveIdx = _resultsService.currentResults.disp_data.ca_valve_idx.Value;
+            float caPressure = _resultsService.currentResults.disp_data.ca_pressure.Value;
+            float caVolP1 = _resultsService.currentResults.disp_data.ca_p1_vol ?? 0;
+            float caVolP2 = _resultsService.currentResults.disp_data.ca_p2_vol ?? 0;
+            float caVolP3 = _resultsService.currentResults.disp_data.ca_p3_vol ?? 0;
+            float caVolP4 = _resultsService.currentResults.disp_data.ca_p4_vol ?? 0;
+            float caTotalVol = caVolP1 + caVolP2 + caVolP3 + caVolP4;
+            float caTargetVolP1 = _resultsService.currentResults.disp_ref_data.ca_p1_target_vol ?? 0;
+            float caTargetVolP2 = _resultsService.currentResults.disp_ref_data.ca_p2_target_vol ?? 0;
+            float caTargetVolP3 = _resultsService.currentResults.disp_ref_data.ca_p3_target_vol ?? 0;
+            float caTargetVolP4 = _resultsService.currentResults.disp_ref_data.ca_p4_target_vol ?? 0;
+            float caTotalTargetVol = caTargetVolP1 + caTargetVolP2 + caTargetVolP3 + caTargetVolP4;
+
+            int uvValveIdx = _resultsService.currentResults.disp_data.uv_valve_idx.Value;
+            float uvPressure = _resultsService.currentResults.disp_data.uv_pressure.Value;
+            float uvVolP1 = _resultsService.currentResults.disp_data.uv_p1_vol ?? 0;
+            float uvTotalVol = uvVolP1;
+            float uvTargetVolP1 = _resultsService.currentResults.disp_ref_data.uv_p1_target_vol ?? 0;
+            float uvTotalTargetVol = uvTargetVolP1;
+
+            float caNewPressure = FlowCalibration.CalculateNewPressure(caPressure, caTotalVol, caTotalTargetVol);
+            float uvNewPressure = FlowCalibration.CalculateNewPressure(uvPressure, uvTotalVol, uvTotalTargetVol);
+
+            // Store new pressures in current results
+            _resultsService.currentResults.disp_ref_data.ca_new_pressure = caNewPressure;
+            _resultsService.currentResults.disp_ref_data.uv_new_pressure = uvNewPressure;
+
+            // Set new pressures
+            response = await _controllerService.SetRegPressure(caValveIdx, caNewPressure);
+            response = await _controllerService.SetRegPressure(uvValveIdx, uvNewPressure);
+
+            // Update local data with new pressures
+            LocalData newLocalData = _localDataService.GetLocalData();
+            newLocalData.calib_data.last_size = motorName;
+            newLocalData.calib_data.last_calib = DateTime.Now;
+
+            // TODO: Think about how/why system/valve index and contents are hardcoded. Either make more flexible or less flexible.
+            // TODO: Consider how to remove FlowCalibrationService entirely. Or rewrite. Current pattern is strange.
+
+            switch (motorName)
+            {
+                case "ddm_57":
+                    newLocalData.calib_data.ddm_57.sys_1_pressure = caNewPressure;
+                    newLocalData.calib_data.ddm_57.sys_2_pressure = uvNewPressure;
+                    break;
+                case "ddm_95":
+                    newLocalData.calib_data.ddm_95.sys_1_pressure = caNewPressure;
+                    newLocalData.calib_data.ddm_95.sys_2_pressure = uvNewPressure;
+                    break;
+                case "ddm_116":
+                    newLocalData.calib_data.ddm_116.sys_1_pressure = caNewPressure;
+                    newLocalData.calib_data.ddm_116.sys_2_pressure = uvNewPressure;
+                    break;
+                case "ddm_170":
+                    newLocalData.calib_data.ddm_170.sys_1_pressure = caNewPressure;
+                    newLocalData.calib_data.ddm_170.sys_2_pressure = uvNewPressure;
+                    break;
+                case "ddm_170_tall":
+                    newLocalData.calib_data.ddm_170_tall.sys_1_pressure = caNewPressure;
+                    newLocalData.calib_data.ddm_170_tall.sys_2_pressure = uvNewPressure;
+                    break;
+            }
+
+            _localDataService.SetLocalData(newLocalData);
+            _localDataService.SaveLocalDataToFile();
+
+
+
+
             //_resultsService.AddToLog("Autocalibrating pressures...");
 
             //if (_resultsService.currentResults.shot_data == null)

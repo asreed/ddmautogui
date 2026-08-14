@@ -222,7 +222,9 @@
                                                 <CheckBox x:Name="Adv_Opt_Disp_RunOCRChk"       Content="Run OCR"                  IsChecked="{Binding DispRunOCR}"/>
                                                 <CheckBox x:Name="Adv_Opt_Disp_MagPolChk"       Content="Measure Polarity"         IsChecked="{Binding DispCheckPolarity}"/>
                                                 <CheckBox x:Name="Adv_Opt_Disp_RingHeightChk"   Content="Measure Heights"          IsChecked="{Binding DispMeasureHeights}"/>
-                                                <CheckBox x:Name="Adv_Opt_Disp_DispChk"         Content="Dispense"                 IsChecked="{Binding DispDispense}"/>
+                                                <CheckBox x:Name="Adv_Opt_DispCA_DispChk"         Content="Dispense CA"            IsChecked="{Binding DispCADispense}"/>
+                                                <CheckBox x:Name="Adv_Opt_DispUV_DispChk"         Content="Dispense UV"            IsChecked="{Binding DispUVDispense}"/>
+                                                <CheckBox x:Name="Adv_Opt_CureUV_DispChk"         Content="Cure UV"                IsChecked="{Binding DispUVCure}"/>
                                                 <CheckBox x:Name="Adv_Opt_Disp_AutoCalibChk"    Content="Autocalibrate"            IsChecked="{Binding DispAutocalibrate}"/>
                                                 <CheckBox x:Name="Adv_Opt_Disp_TopPhotoAfterChk" Content="Photo Top After"         IsChecked="{Binding DispPhotoTopAfter}"/>
                                                 </StackPanel>
