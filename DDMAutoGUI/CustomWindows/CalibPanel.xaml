@@ -24,9 +24,9 @@
 
             <TabControl Grid.Row="1" Grid.Column="1">
 
-                <TabItem Header="Flow Rate">
+                <!--<TabItem Header="Flow Rate">
                     <CustomWindows:CalibFlowPanel x:Name="CalFlowPanel"/>
-                </TabItem>
+                </TabItem>-->
                 <TabItem Header="Position">
                     <CustomWindows:CalibPositionPanel x:Name="CalPosPanel"/>
                 </TabItem>

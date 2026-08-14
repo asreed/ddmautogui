@@ -60,8 +60,8 @@ namespace DDMAutoGUI.Services
 
     public class CSMotor
     {
-        public int? ca_sys_num { get; set; }
-        public int? uv_sys_num { get; set; }
+        public int? ca_valve_idx { get; set; }
+        public int? uv_valve_idx { get; set; }
         public float? ca_target_flow { get; set; }
         public float? ca_p1_target_vol { get; set; }
         public float? ca_p2_target_vol { get; set; }

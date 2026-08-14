@@ -53,7 +53,7 @@ namespace DDMAutoGUI.Services
                 LDMotorCalib oldCalib = _localDataService.GetCalibFromMotorName(localData, motorName);
                 await _dispenseExecution.SetupPressuresAsync(settings, oldCalib, DebugLog);
 
-                ResultsShotData shotData = await _dispenseExecution.DispenseToRingAsync(settings, motorSettings, motorName, DebugLog);
+                ResultsDispData shotData = await _dispenseExecution.DispenseToRingAsync(settings, motorSettings, motorName, DebugLog);
 
                 await _controllerService.MoveJ(settings.ddm_common.pos_load.x.Value, settings.ddm_common.pos_load.t.Value);
 
@@ -112,7 +112,7 @@ namespace DDMAutoGUI.Services
         }
 
         public void CalculateNewScaleFactors(
-            ResultsShotData prevShotData,
+            ResultsDispData prevShotData,
             CellSettings cellSettings,
             LocalData localData,
             out bool success,

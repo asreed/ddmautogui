@@ -2,6 +2,7 @@
 using DDMAutoGUI.Vision;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
 
@@ -11,6 +12,24 @@ using System.Text.Json;
 
 namespace DDMAutoGUI.Services
 {
+    public class Results
+    {
+        public DateTime? date_saved { get; set; }
+        public string? motor_type { get; set; }
+        public string? ring_sn_user { get; set; }
+        public string? ring_sn_detected { get; set; }
+        public string? tool_sn_detected { get; set; }
+        public bool? overall_part_cycle_result { get; set; }
+        public string? overall_part_cycle_message { get; set; }
+        public ResultsVersionInfo? version_info { get; set; }
+        public OCRData? ocr_data { get; set; }
+        public ResultsDispData? disp_data { get; set; }
+        public ResultsDispRefData? disp_ref_data { get; set; }
+        public HeightVerificationResult? height_verification_result { get; set; }
+        public DAQMatlabResults? daq_matlab_results { get; set; }
+        public List<ResultsLogLine>? process_log { get; set; }
+    }
+
     public class ResultsVersionInfo
     {
         public string? gui_version { get; set; }
@@ -18,37 +37,73 @@ namespace DDMAutoGUI.Services
         public string? pac_version { get; set; }
         public string? polarity_version { get; set; }
     }
-    public class ResultsShotData
+    public class ResultsDispData
     {
-        // Contains only directly measured shot data
+        // Contains only directly measured shot data and result message
 
-        public string? motor_type { get; set; }
         public bool? shot_result { get; set; }
         public string? shot_message { get; set; }
-        public int? id_valve_num { get; set; }
-        public float? id_pressure { get; set; }
-        public float? id_time { get; set; }
-        public float? id_vol { get; set; }
-        public int? od_valve_num { get; set; }
-        public float? od_pressure { get; set; }
-        public float? od_time { get; set; }
-        public float? od_vol { get; set; }
+        public int? ca_valve_idx { get; set; }
+        public int? uv_valve_idx { get; set; }
+        public float? ca_pressure { get; set; }
+        public float? uv_pressure { get; set; }
+        public float? ca_p1_time { get; set; }
+        public float? ca_p2_time { get; set; }
+        public float? ca_p3_time { get; set; }
+        public float? ca_p4_time { get; set; }
+        public float? ca_p1_vol { get; set; }
+        public float? ca_p2_vol { get; set; }
+        public float? ca_p3_vol { get; set; }
+        public float? ca_p4_vol { get; set; }
+        public float? uv_p1_time { get; set; }
+        public float? uv_p1_vol { get; set; }
+
+        public ResultsDispData Clone()
+        {
+            return (ResultsDispData)this.MemberwiseClone();
+        }
+
+        //public int? id_valve_num { get; set; }
+        //public float? id_pressure { get; set; }
+        //public float? id_time { get; set; }
+        //public float? id_vol { get; set; }
+        //public int? od_valve_num { get; set; }
+        //public float? od_pressure { get; set; }
+        //public float? od_time { get; set; }
+        //public float? od_vol { get; set; }
     }
 
-    public class ResultsReferenceData
+    public class ResultsDispRefData
     {
         // Contains reference/calibration data 
         // (may be redundant to settings and local data)
-        public string? id_substance { get; set; }
-        public float? id_target_vol { get; set; }
-        public float? id_target_flow { get; set; }
-        public float? id_calib_pressure { get; set; }
-        public string? od_substance { get; set; }
-        public float? od_target_vol { get; set; }
-        public float? od_target_flow { get; set; }
-        public float? od_calib_pressure { get; set; }
-        public float? sys_1_autocal_sf { get; set; }
-        public float? sys_2_autocal_sf { get; set; }
+
+        public string? sys_1_substance { get; set; }
+        public string? sys_2_substance { get; set; }
+        public float? ca_target_flow { get; set; }
+        public float? ca_p1_target_vol { get; set; }
+        public float? ca_p2_target_vol { get; set; }
+        public float? ca_p3_target_vol { get; set; }
+        public float? ca_p4_target_vol { get; set; }
+        public float? uv_target_flow { get; set; }
+        public float? uv_p1_target_vol { get; set; }
+
+        public ResultsDispRefData Clone()
+        {
+            return (ResultsDispRefData)this.MemberwiseClone();
+        }
+
+
+        //public string? id_substance { get; set; }
+        //public float? id_target_vol { get; set; }
+        //public float? id_target_flow { get; set; }
+        //public float? id_calib_pressure { get; set; }
+        //public string? od_substance { get; set; }
+        //public float? od_target_vol { get; set; }
+        //public float? od_target_flow { get; set; }
+        //public float? od_calib_pressure { get; set; }
+        //public float? sys_1_autocal_sf { get; set; }
+        //public float? sys_2_autocal_sf { get; set; }
     }
 
     public class ResultsHeightMeasurement
@@ -61,23 +116,6 @@ namespace DDMAutoGUI.Services
     {
         public DateTime? timestamp { get; set; }
         public string? message { get; set; }
-    }
-
-    public class Results
-    {
-        public DateTime? date_saved { get; set; }
-        public string? ring_sn_user { get; set; }
-        public string? ring_sn_detected { get; set; }
-        public string? tool_sn_detected { get; set; }
-        public OCRData? ocr_data { get; set; }
-        public bool? overall_part_cycle_result { get; set; }
-        public string? overall_part_cycle_message { get; set; }
-        public ResultsShotData? shot_data { get; set; }
-        public ResultsReferenceData? reference_data { get; set; }
-        public ResultsVersionInfo? version_info { get; set; }
-        public HeightVerificationResult? height_verification_result { get; set; }
-        public DAQMatlabResults? daq_matlab_results { get; set; }
-        public List<ResultsLogLine>? process_log { get; set; }
     }
 
     public class ResultsService : IResultsService
@@ -129,7 +167,7 @@ namespace DDMAutoGUI.Services
                 message = "Ring serial number is missing or empty";
                 return;
             }
-            if (results.shot_data == null)
+            if (results.disp_data == null)
             {
                 message = "Shot data is null";
                 return;
@@ -140,7 +178,7 @@ namespace DDMAutoGUI.Services
                 return;
             }
 
-            if (results.shot_data.motor_type == null)
+            if (results.disp_data.shot_result == null)
             {
                 message = "No shot data available";
                 return;
@@ -199,7 +237,7 @@ namespace DDMAutoGUI.Services
             {
                 currentResults = new Results
                 {
-                    shot_data = new ResultsShotData(),
+                    disp_data = new ResultsDispData(),
                     process_log = new List<ResultsLogLine>(),
                     version_info = new ResultsVersionInfo
                     {

@@ -22,13 +22,13 @@ namespace DDMAutoGUI.Services
         /// Runs the ID/OD dispense for the given motor and returns parsed shot data.
         /// Throws <see cref="PartCycleException"/> if the shot itself reports failure.
         /// </summary>
-        Task<ResultsShotData> DispenseToRingAsync(CellSettings settings, CSMotor motor, string motorName, Action<string> log = null);
+        Task<ResultsDispData> DispenseToRingAsync(CellSettings settings, CSMotor motor, string motorName, Action<string> log = null);
 
 
         /// <summary>
         /// Runs the single track dispense for the given motor and returns parsed shot data.
         /// Throws <see cref="PartCycleException"/> if the shot itself reports failure.
         /// </summary>
-        Task<ResultsShotData> DispenseSingleTrackToRingAsync(int valveIdx, float shotTime, float xPos, float tPos, int dir);
+        Task<ResultsDispData> DispenseSingleTrackToRingAsync(int valveIdx, float shotTime, float xPos, float tPos, int dir);
     }
 }

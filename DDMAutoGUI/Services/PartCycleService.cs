@@ -24,7 +24,7 @@ namespace DDMAutoGUI.Services
         public event EventHandler<ProgressChangedEventArgs> ProgressChanged;
 
         // Constants
-        private const string LOG_INDENT = "  ";
+        private const string LG_TB = "  ";
         private const string LOG_DOUBLE_INDENT = "    ";
 
         public PartCycleService(
@@ -242,7 +242,7 @@ namespace DDMAutoGUI.Services
                 _resultsService.AddToLog("Issues found:");
                 foreach (string issue in healthResult.issues)
                 {
-                    _resultsService.AddToLog($"{LOG_INDENT}{issue}");
+                    _resultsService.AddToLog($"{LG_TB}{issue}");
                 }
                 throw new PartCycleException("System health check failed");
             }
@@ -490,15 +490,31 @@ namespace DDMAutoGUI.Services
 
         private async Task ExecuteCADispenseAsync(CellSettings settings, CSMotor motor, string motorName)
         {
+            // Fill in reference data
+            ResultsDispRefData dispRefData = _resultsService.currentResults.disp_ref_data.Clone();
+            dispRefData.sys_1_substance = settings.dispense_system.sys_1_contents;
+            dispRefData.sys_2_substance = settings.dispense_system.sys_2_contents;
+            dispRefData.ca_target_flow = motor.ca_target_flow;
+            dispRefData.ca_p1_target_vol = motor.ca_p1_target_vol;
+            dispRefData.ca_p2_target_vol = motor.ca_p2_target_vol;
+            dispRefData.ca_p3_target_vol = motor.ca_p3_target_vol;
+            dispRefData.ca_p4_target_vol = motor.ca_p4_target_vol;
+            _resultsService.currentResults.disp_ref_data = dispRefData;
+
+            // Create dispense data object
+            ResultsDispData dispData = _resultsService.currentResults.disp_data.Clone();
+
+            // Initialize variables
             float xPos, tPos, shotVolume, shotTime, shotDelay;
             string response;
             int dir;
-
-            int valveIdx = motor.ca_sys_num.Value;
+            int valveIdx = motor.ca_valve_idx.Value;
             float shotFlowRate = motor.ca_target_flow.Value; // same for all passes
+            dispData.ca_valve_idx = motor.ca_valve_idx;
 
             // Prepare
             response = await _controllerService.WaitBothRegPressures(5);
+            dispData.ca_pressure = float.Parse(await _controllerService.GetRegPressureSetpoint(valveIdx));
 
             // Pass 1
             shotVolume = motor.ca_p1_target_vol.Value;
@@ -509,7 +525,20 @@ namespace DDMAutoGUI.Services
                 shotTime = shotVolume / shotFlowRate;
                 dir = 1;
                 response = await _controllerService.DispenseSingleTrackToRing(valveIdx, shotTime, xPos, tPos, dir);
-                ResultsShotData shotResultP1 = _controllerService.ParseDispenseResponse(response);
+
+                bool _result;
+                string _message;
+                float _time;
+                float _vol;
+                _controllerService.ParseDispenseSTResponse(response, out _result, out _message, out _time, out _vol);
+
+                if (_result == false)
+                {
+                    return;
+                }
+                dispData.ca_p1_time = _time;
+                dispData.ca_p1_vol = _vol;
+
             }
             shotDelay = motor.ca_p1_delay.Value * 1000f;
             await Task.Delay((int)shotDelay);
@@ -523,7 +552,19 @@ namespace DDMAutoGUI.Services
                 shotTime = shotVolume / shotFlowRate;
                 dir = -1;
                 response = await _controllerService.DispenseSingleTrackToRing(valveIdx, shotTime, xPos, tPos, dir);
-                ResultsShotData shotResultP2 = _controllerService.ParseDispenseResponse(response);
+
+                bool _result;
+                string _message;
+                float _time;
+                float _vol;
+                _controllerService.ParseDispenseSTResponse(response, out _result, out _message, out _time, out _vol);
+
+                if (_result == false)
+                {
+                    return;
+                }
+                dispData.ca_p2_time = _time;
+                dispData.ca_p2_vol = _vol;
             }
             shotDelay = motor.ca_p2_delay.Value * 1000f;
             await Task.Delay((int)shotDelay);
@@ -537,7 +578,19 @@ namespace DDMAutoGUI.Services
                 shotTime = shotVolume / shotFlowRate;
                 dir = 1;
                 response = await _controllerService.DispenseSingleTrackToRing(valveIdx, shotTime, xPos, tPos, dir);
-                ResultsShotData shotResultP3 = _controllerService.ParseDispenseResponse(response);
+
+                bool _result;
+                string _message;
+                float _time;
+                float _vol;
+                _controllerService.ParseDispenseSTResponse(response, out _result, out _message, out _time, out _vol);
+
+                if (_result == false)
+                {
+                    return;
+                }
+                dispData.ca_p3_time = _time;
+                dispData.ca_p3_vol = _vol;
             }
             shotDelay = motor.ca_p3_delay.Value * 1000f;
             await Task.Delay((int)shotDelay);
@@ -551,13 +604,42 @@ namespace DDMAutoGUI.Services
                 shotTime = shotVolume / shotFlowRate;
                 dir = -1;
                 response = await _controllerService.DispenseSingleTrackToRing(valveIdx, shotTime, xPos, tPos, dir);
-                ResultsShotData shotResultP4 = _controllerService.ParseDispenseResponse(response);
+
+                bool _result;
+                string _message;
+                float _time;
+                float _vol;
+                _controllerService.ParseDispenseSTResponse(response, out _result, out _message, out _time, out _vol);
+
+                if (_result == false)
+                {
+                    return;
+                }
+                dispData.ca_p4_time = _time;
+                dispData.ca_p4_vol = _vol;
             }
             shotDelay = motor.ca_p4_delay.Value * 1000f;
             await Task.Delay((int)shotDelay);
 
+            // Print results to log
+            _resultsService.AddToLog($"CA Dispense Results:");
+            _resultsService.AddToLog($"{LG_TB}Valve: {dispData.ca_valve_idx}");
+            _resultsService.AddToLog($"{LG_TB}Pressure: {dispData.ca_pressure:F3} psi");
+            _resultsService.AddToLog($"{LG_TB}Pass 1:");
+            _resultsService.AddToLog($"{LG_TB}{LG_TB}Volume: {dispData.ca_p1_vol:F3} mL ({dispData.ca_p1_vol.Value * 100 / dispRefData.ca_p1_target_vol.Value:F1}%)");
+            _resultsService.AddToLog($"{LG_TB}{LG_TB}Time: {dispData.ca_p1_time:F3} s");
+            _resultsService.AddToLog($"{LG_TB}Pass 2:");
+            _resultsService.AddToLog($"{LG_TB}{LG_TB}Volume: {dispData.ca_p2_vol:F3} mL ({dispData.ca_p2_vol.Value * 100 / dispRefData.ca_p2_target_vol.Value:F1}%)");
+            _resultsService.AddToLog($"{LG_TB}{LG_TB}Time: {dispData.ca_p2_time:F3} s");
+            _resultsService.AddToLog($"{LG_TB}Pass 3:");
+            _resultsService.AddToLog($"{LG_TB}{LG_TB}Volume: {dispData.ca_p3_vol:F3} mL ({dispData.ca_p3_vol.Value * 100 / dispRefData.ca_p3_target_vol.Value:F1}%)");
+            _resultsService.AddToLog($"{LG_TB}{LG_TB}Time: {dispData.ca_p3_time:F3} s");
+            _resultsService.AddToLog($"{LG_TB}Pass 4:");
+            _resultsService.AddToLog($"{LG_TB}{LG_TB}Volume: {dispData.ca_p4_vol:F3} mL ({dispData.ca_p4_vol.Value * 100 / dispRefData.ca_p4_target_vol.Value:F1}%)");
+            _resultsService.AddToLog($"{LG_TB}{LG_TB}Time: {dispData.ca_p4_time:F3} s");
 
-
+            // Update current results with real data from dispense
+            _resultsService.currentResults.disp_data = dispData;
 
 
             //int sysID = motor.shot_settings.id_sys_num.Value;
@@ -603,12 +685,25 @@ namespace DDMAutoGUI.Services
 
         private async Task ExecuteUVDispenseAsync(CellSettings settings, CSMotor motor, string motorName)
         {
+
+            // Fill in reference data
+            ResultsDispRefData dispRefData = _resultsService.currentResults.disp_ref_data.Clone();
+            dispRefData.sys_2_substance = settings.dispense_system.sys_2_contents;
+            dispRefData.uv_target_flow = motor.uv_target_flow;
+            dispRefData.uv_p1_target_vol = motor.uv_p1_target_vol;
+            _resultsService.currentResults.disp_ref_data = dispRefData;
+
+
+            // Create dispense data object
+            ResultsDispData dispData = _resultsService.currentResults.disp_data.Clone();
+
+            // Initialize variables
             float xPos, tPos, shotVolume, shotTime, shotDelay;
             string response;
             int dir;
-
-            int valveIdx = motor.uv_sys_num.Value;
+            int valveIdx = motor.uv_valve_idx.Value;
             float shotFlowRate = motor.uv_target_flow.Value; // same for all passes
+            dispData.uv_valve_idx = motor.uv_valve_idx;
 
             // Prepare
             response = await _controllerService.WaitBothRegPressures(5);
@@ -622,11 +717,32 @@ namespace DDMAutoGUI.Services
                 shotTime = shotVolume / shotFlowRate;
                 dir = 1;
                 response = await _controllerService.DispenseSingleTrackToRing(valveIdx, shotTime, xPos, tPos, dir);
-                ResultsShotData shotResultP1 = _controllerService.ParseDispenseResponse(response);
+
+                bool _result;
+                string _message;
+                float _time;
+                float _vol;
+                _controllerService.ParseDispenseSTResponse(response, out _result, out _message, out _time, out _vol);
+
+                if (_result == false)
+                {
+                    return;
+                }
+                dispData.uv_p1_time = _time;
+                dispData.uv_p1_vol = _vol;
             }
             shotDelay = motor.uv_p1_delay.Value * 1000f;
             await Task.Delay((int)shotDelay);
 
+            _resultsService.AddToLog($"UV Dispense Results:");
+            _resultsService.AddToLog($"{LG_TB}Valve: {dispData.uv_valve_idx}");
+            _resultsService.AddToLog($"{LG_TB}Pressure: {dispData.uv_pressure:F3} psi");
+            _resultsService.AddToLog($"{LG_TB}Pass 1:");
+            _resultsService.AddToLog($"{LG_TB}{LG_TB}Volume: {dispData.uv_p1_vol:F3} mL ({dispData.uv_p1_vol.Value * 100 / dispRefData.uv_p1_target_vol.Value:F1}%)");
+            _resultsService.AddToLog($"{LG_TB}{LG_TB}Time: {dispData.uv_p1_time:F3} s");
+
+            // Update current results with real data from dispense
+            _resultsService.currentResults.disp_data = dispData;
         }
 
         private async Task ExecuteUVCureAsync(CellSettings settings, CSMotor motor, string motorName)

@@ -15,7 +15,7 @@ namespace DDMAutoGUI.CustomWindows
         public void SetupPanel()
         {
             CalPosPanel.SetupPanel();
-            CalFlowPanel.SetupPanel();
+            //CalFlowPanel.SetupPanel();
         }
     }
 }

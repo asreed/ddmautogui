@@ -30,7 +30,7 @@ namespace DDMAutoGUI.Services
         /// Calculates new scale factors for flow calibration based on shot data.
         /// </summary>
         void CalculateNewScaleFactors(
-            ResultsShotData shotData,
+            ResultsDispData shotData,
             CellSettings settings,
             LocalData localData,
             out bool success,

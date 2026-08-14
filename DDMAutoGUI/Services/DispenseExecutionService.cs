@@ -66,7 +66,7 @@ namespace DDMAutoGUI.Services
             log?.Invoke("Flow sensors zeroed");
         }
 
-        public async Task<ResultsShotData> DispenseToRingAsync(CellSettings settings, CSMotor motor, string motorName, Action<string> log = null)
+        public async Task<ResultsDispData> DispenseToRingAsync(CellSettings settings, CSMotor motor, string motorName, Action<string> log = null)
         {
             //int sysID = motor.shot_settings.id_sys_num.Value;
             //int sysOD = motor.shot_settings.od_sys_num.Value;
@@ -105,18 +105,18 @@ namespace DDMAutoGUI.Services
             //log?.Invoke("Dispense successful");
             //return shotData;
 
-            return new ResultsShotData();
+            return new ResultsDispData();
         }
 
 
-        public async Task<ResultsShotData> DispenseSingleTrackToRingAsync(int valveIdx, float shotTime, float xPos, float tPos, int dir)
+        public async Task<ResultsDispData> DispenseSingleTrackToRingAsync(int valveIdx, float shotTime, float xPos, float tPos, int dir)
         {
             //await _controllerService.WaitBothRegPressures(5);
             //string response = await _controllerService.DispenseSingleTrackToRing(valveIdx, shotTime, xPos, tPos, dir);
             //ResultsShotData shotData = _controllerService.ParseDispenseResponse(response);
             //return shotData;
 
-            return new ResultsShotData();
+            return new ResultsDispData();
         }
     }
 }

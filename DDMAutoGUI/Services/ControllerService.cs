@@ -823,29 +823,57 @@ namespace DDMAutoGUI.Services
             return sb.ToString();
         }
 
-        public ResultsShotData ParseDispenseResponse(string response)
+        public ResultsDispData ParseDispenseResponse(string response)
         {
-            ResultsShotData data = new ResultsShotData();
+            ResultsDispData data = new ResultsDispData();
+
+            //string[] parts = response.Split(" ");
+            //if (parts[0] == "0")
+            //{
+            //    if (parts.Length == 5)
+            //    {
+            //        data.id_time = float.Parse(parts[1]);
+            //        data.id_vol = float.Parse(parts[2]);
+            //        data.od_time = float.Parse(parts[3]);
+            //        data.od_vol = float.Parse(parts[4]);
+            //        data.shot_result = true;
+            //        data.shot_message = string.Empty;
+            //    }
+            //}
+            //else
+            //{
+            //    data.shot_result = false;
+            //    data.shot_message = response;
+            //}
+            return data;
+        }
+
+        public void ParseDispenseSTResponse(
+            string response, 
+            out bool shotResult, 
+            out string shotMessage, 
+            out float shotTime, 
+            out float shotVol)
+        {
+            shotTime = 0f;
+            shotVol = 0f;
+            shotResult = false;
+            shotMessage = "";
 
             string[] parts = response.Split(" ");
             if (parts[0] == "0")
             {
-                if (parts.Length == 5)
+                if (parts.Length == 3)
                 {
-                    data.id_time = float.Parse(parts[1]);
-                    data.id_vol = float.Parse(parts[2]);
-                    data.od_time = float.Parse(parts[3]);
-                    data.od_vol = float.Parse(parts[4]);
-                    data.shot_result = true;
-                    data.shot_message = string.Empty;
+                    shotTime = float.Parse(parts[1]);
+                    shotVol = float.Parse(parts[2]);
                 }
             }
             else
             {
-                data.shot_result = false;
-                data.shot_message = response;
+                shotResult = false;
+                shotMessage = response;
             }
-            return data;
         }
 
         public IOLinkStatus ParseIOLinkStatus(string ioLinkString)
@@ -1331,7 +1359,7 @@ namespace DDMAutoGUI.Services
             float tPos,
             int dir)
         {
-            string input = $"DDM_DispenseToRing {valve_num} {time} {xPos} {tPos} {dir}";
+            string input = $"DDM_DispenseSingleTrackToRing {valve_num} {time} {xPos} {tPos} {dir}";
             return await SendRobotCommand(input);
         }
 

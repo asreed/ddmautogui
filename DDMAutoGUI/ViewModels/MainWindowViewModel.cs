@@ -1201,14 +1201,14 @@ namespace DDMAutoGUI.ViewModels
             ResultRingSerial = string.IsNullOrWhiteSpace(data?.ring_sn_detected) ? "-" : data.ring_sn_detected;
 
 
-            float idFrac = data?.reference_data?.id_target_vol is float idTarget and not 0f
-                ? (data?.shot_data?.id_vol ?? 0f) / idTarget * 100
-                : 0f;
-            float odFrac = data?.reference_data?.od_target_vol is float odTarget and not 0f
-                ? (data?.shot_data?.od_vol ?? 0f) / odTarget * 100
-                : 0f;
-            ResultDispenseVolumeId = data?.shot_data?.id_vol is float idVol ? $"{idFrac:F1}% ({idVol:0.000})" : "-";
-            ResultDispenseVolumeOd = data?.shot_data?.od_vol is float odVol ? $"{odFrac:F1}% ({odVol:0.000})" : "-";
+            //float idFrac = data?.disp_ref_data?.id_target_vol is float idTarget and not 0f
+            //    ? (data?.disp_data?.id_vol ?? 0f) / idTarget * 100
+            //    : 0f;
+            //float odFrac = data?.disp_ref_data?.od_target_vol is float odTarget and not 0f
+            //    ? (data?.disp_data?.od_vol ?? 0f) / odTarget * 100
+            //    : 0f;
+            //ResultDispenseVolumeId = data?.disp_data?.id_vol is float idVol ? $"{idFrac:F1}% ({idVol:0.000})" : "-";
+            //ResultDispenseVolumeOd = data?.disp_data?.od_vol is float odVol ? $"{odFrac:F1}% ({odVol:0.000})" : "-";
 
             // Process step statuses
             string folder = _resultsService.currentResultsFolderPath;
@@ -1228,7 +1228,7 @@ namespace DDMAutoGUI.ViewModels
                 ? (heightPassed ? "Passed" : "Failed")
                 : "-";
 
-            ResultStepDispense = data?.shot_data?.shot_result is bool shotResult
+            ResultStepDispense = data?.disp_data?.shot_result is bool shotResult
                 ? (shotResult ? "Completed" : "Incomplete")
                 : "-";
 

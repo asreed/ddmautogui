@@ -132,7 +132,13 @@ namespace DDMAutoGUI.Services
 
         List<ResultsHeightMeasurement> ParseHeightData(string rawString);
         string ParseHeightDataToString(List<ResultsHeightMeasurement> measurementList);
-        ResultsShotData ParseDispenseResponse(string response);
+        ResultsDispData ParseDispenseResponse(string response);
+        void ParseDispenseSTResponse(
+            string response,
+            out bool shotResult,
+            out string shotMessage,
+            out float shotTime,
+            out float shotVol);
         IOLinkStatus ParseIOLinkStatus(string ioLinkString);
         List<ResultsHeightMeasurement> GetSimulatedHeightData(int nMeasurements);
 
