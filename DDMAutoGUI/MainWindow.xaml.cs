@@ -228,20 +228,6 @@ namespace DDMAutoGUI
             Adv_PWBox.Focus();
         }
 
-        private void Adv_DAQ_GetA0Btn_Click(object sender, RoutedEventArgs e)
-        {
-            // DAQ voltage reading - implement as needed
-
-
-        }
-
-        private void Adv_DAQ_GetA0TimedBtn_Click(object sender, RoutedEventArgs e)
-        {
-            // DAQ timed reading - implement as needed
-
-
-        }
-
         #endregion
 
 

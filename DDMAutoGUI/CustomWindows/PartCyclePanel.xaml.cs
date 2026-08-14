@@ -39,6 +39,7 @@ namespace DDMAutoGUI.CustomWindows
                 vm.SelectedMotorType = rb.Tag as string;
             }
         }
+
         private void Disp_Res_FinishBtn_Click(object sender, RoutedEventArgs e)
         {
             dispTabControl.SelectedIndex = 0;

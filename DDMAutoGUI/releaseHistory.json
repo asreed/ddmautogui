@@ -2,10 +2,10 @@
   "releases": [
     {
       "version": "1.3.0",
-      "releaseDate": "(In progress)",
+      "releaseDate": "2026-08-17",
       "releaseIntent": "ENGINEERING ONLY",
       "releaseDisplayNotes": "Intended for new UV-cure adhesive testing",
-      "releaseNotes": "(In progress Major changes made to process: 825 removed, 801 used exclusively on all sizes, ID/OD changed to multipass options. Settings changed significantly. TCS updated. PAC files updated. Result JSON files consolidated. Polarity plot generated removed from Matlab; Matlab EXE depreciation started and direction connection to DAQ from GUI started. Remote server connection for results storage started. Height verification method improved to catch tilted ring. ..."
+      "releaseNotes": "Significant process changes. Multi-pass CA dispense, single-pass UV dispense, UV cure. 825 removed, 801 used exclusively on all sizes, ID/OD changed to multipass options. Settings changed significantly. TCS updated. PAC files updated. Result JSON files consolidated. Polarity plot generated removed from Matlab; Matlab EXE depreciation started and direct connection to DAQ from GUI started. Remote server connection for results storage started. Height verification method improved to catch tilted ring but not finalized. UV lamp not yet added."
     },
     {
       "version": "1.2.4",
