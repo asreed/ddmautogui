@@ -6,11 +6,11 @@
         <ResourceDictionary Source="Colors.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <!-- ============================================================= -->
+    <!-- =============================================================  -->
     <!-- Default (gray) button. Kept as its own template because its    -->
     <!-- highlight/shadow opacities and disabled colors differ from the -->
     <!-- accent buttons.                                                -->
-    <!-- ============================================================= -->
+    <!-- =============================================================  -->
     <Style TargetType="{x:Type Button}">
         <Style.Resources>
             <Style TargetType="Image">
@@ -96,9 +96,6 @@
         </Setter>
     </Style>
 
-    <Style TargetType="Button" x:Key="SmallButton" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Padding" Value="5"/>
-    </Style>
 
     <!-- Flat icon button -->
     <Style TargetType="{x:Type Button}" x:Key="SmallDevIconButton">
@@ -156,13 +153,13 @@
         </Setter>
     </Style>
 
-    <!-- ============================================================= -->
-    <!-- Shared accent-button template + base style.                    -->
+    <!-- =============================================================   -->
+    <!-- Shared accent-button template + base style.                     -->
     <!-- mainBorder.Background uses TemplateBinding, so per-color hover  -->
     <!-- / pressed colors live in each style's Style.Triggers (a         -->
     <!-- Setter.Value can't be a Binding, but a style trigger changing   -->
     <!-- Background flows through the TemplateBinding).                  -->
-    <!-- ============================================================= -->
+    <!-- =============================================================   -->
     <ControlTemplate x:Key="AccentButtonTemplate" TargetType="Button">
         <Grid>
             <Border x:Name="mainBorder"
@@ -362,24 +359,31 @@
         </Style.Triggers>
     </Style>
 
+    
+    <!-- Small button -->
+    <Style TargetType="Button" x:Key="SmallButton" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Padding" Value="6,3"/>
+        <Setter Property="Margin" Value="2"/>
+    </Style>
+
     <!-- Small accent variants -->
     <Style x:Key="SmallGreenButton" TargetType="Button" BasedOn="{StaticResource GreenButton}">
-        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Padding" Value="6,3"/>
         <Setter Property="Margin" Value="2"/>
     </Style>
 
     <Style x:Key="SmallOrangeButton" TargetType="Button" BasedOn="{StaticResource OrangeButton}">
-        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Padding" Value="6,3"/>
         <Setter Property="Margin" Value="2"/>
     </Style>
 
     <Style x:Key="SmallRedButton" TargetType="Button" BasedOn="{StaticResource RedButton}">
-        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Padding" Value="6,3"/>
         <Setter Property="Margin" Value="2"/>
     </Style>
 
     <Style x:Key="SmallBlackButton" TargetType="Button" BasedOn="{StaticResource BlackButton}">
-        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Padding" Value="6,3"/>
         <Setter Property="Margin" Value="2"/>
     </Style>
 

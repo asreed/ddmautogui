@@ -69,8 +69,12 @@ namespace DDMAutoGUI.CustomWindows
                 Adv_Cell_MoveCamSideInLbl.Content = $"[{m.pos_camera_side.x}, {m.pos_camera_side.t}]";
                 Adv_Cell_MoveLaserRingInLbl.Content = $"[{m.pos_laser_ring.x}, {m.pos_laser_ring.t}]";
                 Adv_Cell_MoveLaserMagInLbl.Content = $"[{m.pos_laser_mag.x}, {m.pos_laser_mag.t}]";
-                //Adv_Cell_MoveDispIDInLbl.Content = $"[{m.id_disp.x}, {m.id_disp.t}]";
-                //Adv_Cell_MoveDispODInLbl.Content = $"[{m.od_disp.x}, {m.od_disp.t}]";
+                Adv_Cell_MoveDispCAP1Lbl.Content = $"[{m.pos_ca_p1.x}, {m.pos_ca_p1.t}]";
+                Adv_Cell_MoveDispCAP2Lbl.Content = $"[{m.pos_ca_p2.x}, {m.pos_ca_p2.t}]";
+                Adv_Cell_MoveDispCAP3Lbl.Content = $"[{m.pos_ca_p3.x}, {m.pos_ca_p3.t}]";
+                Adv_Cell_MoveDispCAP4Lbl.Content = $"[{m.pos_ca_p4.x}, {m.pos_ca_p4.t}]";
+                Adv_Cell_MoveDispUVP1Lbl.Content = $"[{m.pos_uv_p1.x}, {m.pos_uv_p1.t}]";
+                Adv_Cell_MoveDispUVCureLbl.Content = $"[{m.pos_uv_cure.x}, {m.pos_uv_cure.t}]";
                 Adv_Cell_MoveHallInLbl.Content = $"[{m.pos_hall_sensor.x}, {m.pos_hall_sensor.t}]";
                 Adv_Cell_MeasureRingInLbl.Content = $"{m.laser_ring_num} places, {s.laser_delay} s each";
                 Adv_Cell_MeasureMagInLbl.Content = $"{m.laser_mag_num} places, {s.laser_delay} s each";
@@ -89,8 +93,12 @@ namespace DDMAutoGUI.CustomWindows
             Adv_Cell_MoveCamSideInLbl.Content = blank;
             Adv_Cell_MoveLaserRingInLbl.Content = blank;
             Adv_Cell_MoveLaserMagInLbl.Content = blank;
-            //Adv_Cell_MoveDispIDInLbl.Content = blank;
-            //Adv_Cell_MoveDispODInLbl.Content = blank;
+            Adv_Cell_MoveDispCAP1Lbl.Content = blank;
+            Adv_Cell_MoveDispCAP2Lbl.Content = blank;
+            Adv_Cell_MoveDispCAP3Lbl.Content = blank;
+            Adv_Cell_MoveDispCAP4Lbl.Content = blank;
+            Adv_Cell_MoveDispUVP1Lbl.Content = blank;
+            Adv_Cell_MoveDispUVCureLbl.Content = blank;
             Adv_Cell_MoveHallInLbl.Content = blank;
             Adv_Cell_MeasureRingInLbl.Content = blank;
             Adv_Cell_MeasureMagInLbl.Content = blank;
@@ -335,5 +343,23 @@ namespace DDMAutoGUI.CustomWindows
             string response = await _controllerManager.DispenseSingleTrackToRing(valveNum, time, x, t, dir);
             Dev_ST_DispOutputLbl.Content = response;
         }
+
+        private async void Adv_Cell_MoveDispCAP1Btn_Click(object sender, RoutedEventArgs e)
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.pos_ca_p1, Adv_Cell_MoveDispCAP1OutLbl);
+
+        private async void Adv_Cell_MoveDispCAP2Btn_Click(object sender, RoutedEventArgs e)
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.pos_ca_p2, Adv_Cell_MoveDispCAP2OutLbl);
+
+        private async void Adv_Cell_MoveDispCAP3Btn_Click(object sender, RoutedEventArgs e)
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.pos_ca_p3, Adv_Cell_MoveDispCAP3OutLbl);
+
+        private async void Adv_Cell_MoveDispCAP4Btn_Click(object sender, RoutedEventArgs e)
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.pos_ca_p4, Adv_Cell_MoveDispCAP4OutLbl);
+
+        private async void Adv_Cell_MoveDispUVP1Btn_Click(object sender, RoutedEventArgs e)
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.pos_uv_p1, Adv_Cell_MoveDispUVP1OutLbl);
+
+        private async void Adv_Cell_MoveDispUVCureBtn_Click(object sender, RoutedEventArgs e)
+            => await MoveToAsync(_settingsManager?.GetSettingsForSelectedSize()?.pos_uv_cure, Adv_Cell_MoveDispUVCureOutLbl);
     }
 }

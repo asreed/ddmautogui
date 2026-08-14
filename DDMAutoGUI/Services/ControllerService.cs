@@ -500,7 +500,7 @@ namespace DDMAutoGUI.Services
                     {
                         throw new Exception($"{ErrorCodes.conDaq.Code}: {ErrorCodes.conDaq.Message}");
                     }
-                    UpdateConnectionLog($"✓ Hall DAQ ({daqResult.device_id})");
+                    UpdateConnectionLog($"✓ NI DAQ ({daqResult.device_id})");
                 }
 
                 // --- Results Server ---
@@ -517,7 +517,7 @@ namespace DDMAutoGUI.Services
                 }
 
                 // --- Retest Controller State ---
-                await Task.Delay(10000);
+                //await Task.Delay(10000);
                 string sysStateTest = await GetSystemStateRemote(false);
                 if (!sysStateTest.StartsWith("0"))
                 {

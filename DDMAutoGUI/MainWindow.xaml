@@ -209,10 +209,10 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <Label Content="Controller IP" VerticalAlignment="Center"/>
                                                 <TextBox 
-                                                Width="150"
-                                                x:Name="IPTxt"
+                                                    Width="150"
+                                                    x:Name="IPTxt"
                                                     Style="{StaticResource SmallTextBox}"
-                                                Text="{Binding ControllerIpAddress, UpdateSourceTrigger=PropertyChanged}"/>
+                                                    Text="{Binding ControllerIpAddress, UpdateSourceTrigger=PropertyChanged}"/>
                                             </StackPanel>
                                         </GroupBox>
                                         <GroupBox Header="Dispense" HorizontalAlignment="Left" Padding="12">

@@ -24,8 +24,7 @@ namespace DDMAutoGUI.Services
         public event EventHandler<ProgressChangedEventArgs> ProgressChanged;
 
         // Constants
-        private const string LG_TB = "  ";
-        private const string LOG_DOUBLE_INDENT = "    ";
+        private const string TB = "  ";
 
         public PartCycleService(
             IControllerService controllerService,
@@ -242,7 +241,7 @@ namespace DDMAutoGUI.Services
                 _resultsService.AddToLog("Issues found:");
                 foreach (string issue in healthResult.issues)
                 {
-                    _resultsService.AddToLog($"{LG_TB}{issue}");
+                    _resultsService.AddToLog($"{TB}{issue}");
                 }
                 throw new PartCycleException("System health check failed");
             }
@@ -655,20 +654,20 @@ namespace DDMAutoGUI.Services
 
             // Print results to log
             _resultsService.AddToLog($"CA Dispense Results:");
-            _resultsService.AddToLog($"{LG_TB}Valve: {dispData.ca_valve_idx}");
-            _resultsService.AddToLog($"{LG_TB}Pressure: {dispData.ca_pressure:F3} psi");
-            _resultsService.AddToLog($"{LG_TB}Pass 1:");
-            _resultsService.AddToLog($"{LG_TB}{LG_TB}Volume: {dispData.ca_p1_vol:F3} mL ({dispData.ca_p1_vol.Value * 100 / dispRefData.ca_p1_target_vol.Value:F1}%)");
-            _resultsService.AddToLog($"{LG_TB}{LG_TB}Time: {dispData.ca_p1_time:F3} s");
-            _resultsService.AddToLog($"{LG_TB}Pass 2:");
-            _resultsService.AddToLog($"{LG_TB}{LG_TB}Volume: {dispData.ca_p2_vol:F3} mL ({dispData.ca_p2_vol.Value * 100 / dispRefData.ca_p2_target_vol.Value:F1}%)");
-            _resultsService.AddToLog($"{LG_TB}{LG_TB}Time: {dispData.ca_p2_time:F3} s");
-            _resultsService.AddToLog($"{LG_TB}Pass 3:");
-            _resultsService.AddToLog($"{LG_TB}{LG_TB}Volume: {dispData.ca_p3_vol:F3} mL ({dispData.ca_p3_vol.Value * 100 / dispRefData.ca_p3_target_vol.Value:F1}%)");
-            _resultsService.AddToLog($"{LG_TB}{LG_TB}Time: {dispData.ca_p3_time:F3} s");
-            _resultsService.AddToLog($"{LG_TB}Pass 4:");
-            _resultsService.AddToLog($"{LG_TB}{LG_TB}Volume: {dispData.ca_p4_vol:F3} mL ({dispData.ca_p4_vol.Value * 100 / dispRefData.ca_p4_target_vol.Value:F1}%)");
-            _resultsService.AddToLog($"{LG_TB}{LG_TB}Time: {dispData.ca_p4_time:F3} s");
+            _resultsService.AddToLog($"{TB}Valve: {dispData.ca_valve_idx}");
+            _resultsService.AddToLog($"{TB}Pressure: {dispData.ca_pressure:F3} psi");
+            _resultsService.AddToLog($"{TB}Pass 1:");
+            _resultsService.AddToLog($"{TB}{TB}Volume: {dispData.ca_p1_vol:F3} mL ({dispData.ca_p1_vol.Value * 100 / dispRefData.ca_p1_target_vol.Value:F1}%)");
+            _resultsService.AddToLog($"{TB}{TB}Time: {dispData.ca_p1_time:F3} s");
+            _resultsService.AddToLog($"{TB}Pass 2:");
+            _resultsService.AddToLog($"{TB}{TB}Volume: {dispData.ca_p2_vol:F3} mL ({dispData.ca_p2_vol.Value * 100 / dispRefData.ca_p2_target_vol.Value:F1}%)");
+            _resultsService.AddToLog($"{TB}{TB}Time: {dispData.ca_p2_time:F3} s");
+            _resultsService.AddToLog($"{TB}Pass 3:");
+            _resultsService.AddToLog($"{TB}{TB}Volume: {dispData.ca_p3_vol:F3} mL ({dispData.ca_p3_vol.Value * 100 / dispRefData.ca_p3_target_vol.Value:F1}%)");
+            _resultsService.AddToLog($"{TB}{TB}Time: {dispData.ca_p3_time:F3} s");
+            _resultsService.AddToLog($"{TB}Pass 4:");
+            _resultsService.AddToLog($"{TB}{TB}Volume: {dispData.ca_p4_vol:F3} mL ({dispData.ca_p4_vol.Value * 100 / dispRefData.ca_p4_target_vol.Value:F1}%)");
+            _resultsService.AddToLog($"{TB}{TB}Time: {dispData.ca_p4_time:F3} s");
 
             // Update current results with real data from dispense
             _resultsService.currentResults.disp_data = dispData;
@@ -770,11 +769,11 @@ namespace DDMAutoGUI.Services
             }
 
             _resultsService.AddToLog($"UV Dispense Results:");
-            _resultsService.AddToLog($"{LG_TB}Valve: {dispData.uv_valve_idx}");
-            _resultsService.AddToLog($"{LG_TB}Pressure: {dispData.uv_pressure:F3} psi");
-            _resultsService.AddToLog($"{LG_TB}Pass 1:");
-            _resultsService.AddToLog($"{LG_TB}{LG_TB}Volume: {dispData.uv_p1_vol:F3} mL ({dispData.uv_p1_vol.Value * 100 / dispRefData.uv_p1_target_vol.Value:F1}%)");
-            _resultsService.AddToLog($"{LG_TB}{LG_TB}Time: {dispData.uv_p1_time:F3} s");
+            _resultsService.AddToLog($"{TB}Valve: {dispData.uv_valve_idx}");
+            _resultsService.AddToLog($"{TB}Pressure: {dispData.uv_pressure:F3} psi");
+            _resultsService.AddToLog($"{TB}Pass 1:");
+            _resultsService.AddToLog($"{TB}{TB}Volume: {dispData.uv_p1_vol:F3} mL ({dispData.uv_p1_vol.Value * 100 / dispRefData.uv_p1_target_vol.Value:F1}%)");
+            _resultsService.AddToLog($"{TB}{TB}Time: {dispData.uv_p1_time:F3} s");
 
             // Update current results with real data from dispense
             _resultsService.currentResults.disp_data = dispData;
