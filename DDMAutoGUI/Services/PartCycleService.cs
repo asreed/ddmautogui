@@ -824,6 +824,18 @@ namespace DDMAutoGUI.Services
             float caNewPressure = FlowCalibration.CalculateNewPressure(caPressure, caTotalVol, caTotalTargetVol);
             float uvNewPressure = FlowCalibration.CalculateNewPressure(uvPressure, uvTotalVol, uvTotalTargetVol);
 
+            _resultsService.AddToLog($"CA volumes: {caVolP1} {caVolP2} {caVolP3} {caVolP4}");
+            _resultsService.AddToLog($"{TB}{caTotalVol} / {caTotalTargetVol} = {caTotalVol / caTotalTargetVol * 100f}%");
+            _resultsService.AddToLog($"{TB}Old pressure: {caPressure}");
+            _resultsService.AddToLog($"{TB}New pressure: {caNewPressure}");
+            _resultsService.AddToLog($"{TB}Valve index: {caValveIdx}");
+
+            _resultsService.AddToLog($"UV volumes: {uvVolP1}");
+            _resultsService.AddToLog($"{TB}{uvTotalVol} / {uvTotalTargetVol} = {uvTotalVol / uvTotalTargetVol * 100f}%");
+            _resultsService.AddToLog($"{TB}Old pressure: {uvPressure}");
+            _resultsService.AddToLog($"{TB}New pressure: {uvNewPressure}");
+            _resultsService.AddToLog($"{TB}Valve index: {uvValveIdx}");
+
             // Store new pressures in current results
             _resultsService.currentResults.disp_ref_data.ca_new_pressure = caNewPressure;
             _resultsService.currentResults.disp_ref_data.uv_new_pressure = uvNewPressure;

@@ -15,7 +15,7 @@ namespace DDMAutoGUI.Utilities
             float prevVolume,
             float targetVolume)
         {
-            return (prevPressure * prevVolume) / targetVolume;
+            return prevPressure * (targetVolume / prevVolume);
         }
     }
 }
