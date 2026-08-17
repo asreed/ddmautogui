@@ -797,8 +797,11 @@ namespace DDMAutoGUI.Services
 
         private async Task ExecuteAutocalibrationAsync(CellSettings settings, string motorName)
         {
-            string response;
+            // TODO: Clean this up to include more informative or useful log printouts
+            // TODO: Clean this up to reduce duplicated logic
+            // TODO: Consider splitting into CA and UV autocalibration instead of combined
 
+            string response;
 
             // Calculate new pressures
             int caValveIdx = _resultsService.currentResults.disp_data.ca_valve_idx.Value;
@@ -814,6 +817,55 @@ namespace DDMAutoGUI.Services
             float caTargetVolP4 = _resultsService.currentResults.disp_ref_data.ca_p4_target_vol ?? 0;
             float caTotalTargetVol = caTargetVolP1 + caTargetVolP2 + caTargetVolP3 + caTargetVolP4;
 
+            if (caTotalVol > 0)
+            {
+                float caNewPressure = FlowCalibration.CalculateNewPressure(caPressure, caTotalVol, caTotalTargetVol);
+                _resultsService.AddToLog($"CA volumes: {caVolP1} {caVolP2} {caVolP3} {caVolP4}");
+                _resultsService.AddToLog($"{TB}{caTotalVol} / {caTotalTargetVol} = {caTotalVol / caTotalTargetVol * 100f}%");
+                _resultsService.AddToLog($"{TB}Old pressure: {caPressure}");
+                _resultsService.AddToLog($"{TB}New pressure: {caNewPressure}");
+                _resultsService.AddToLog($"{TB}Valve index: {caValveIdx}");
+
+                // Store new pressures in current results
+                _resultsService.currentResults.disp_ref_data.ca_new_pressure = caNewPressure;
+                response = await _controllerService.SetRegPressure(caValveIdx, caNewPressure);
+
+                // Update local data with new pressures
+                LocalData newLocalData = _localDataService.GetLocalData();
+                newLocalData.calib_data.last_size = motorName;
+                newLocalData.calib_data.last_calib = DateTime.Now;
+
+                // TODO: Think about how/why system/valve index and contents are hardcoded. Either make more flexible or less flexible.
+                // TODO: Consider how to remove FlowCalibrationService entirely. Or rewrite. Current pattern is strange.
+
+                switch (motorName)
+                {
+                    case "ddm_57":
+                        newLocalData.calib_data.ddm_57.sys_1_pressure = caNewPressure;
+                        break;
+                    case "ddm_95":
+                        newLocalData.calib_data.ddm_95.sys_1_pressure = caNewPressure;
+                        break;
+                    case "ddm_116":
+                        newLocalData.calib_data.ddm_116.sys_1_pressure = caNewPressure;
+                        break;
+                    case "ddm_170":
+                        newLocalData.calib_data.ddm_170.sys_1_pressure = caNewPressure;
+                        break;
+                    case "ddm_170_tall":
+                        newLocalData.calib_data.ddm_170_tall.sys_1_pressure = caNewPressure;
+                        break;
+                }
+
+                _localDataService.SetLocalData(newLocalData);
+                _localDataService.SaveLocalDataToFile();
+            }
+            else
+            {
+                _resultsService.AddToLog($"No CA dispense measured. Unable to recalibrate CA.");
+            }
+
+
             int uvValveIdx = _resultsService.currentResults.disp_data.uv_valve_idx.Value;
             float uvPressure = _resultsService.currentResults.disp_data.uv_pressure.Value;
             float uvVolP1 = _resultsService.currentResults.disp_data.uv_p1_vol ?? 0;
@@ -821,63 +873,59 @@ namespace DDMAutoGUI.Services
             float uvTargetVolP1 = _resultsService.currentResults.disp_ref_data.uv_p1_target_vol ?? 0;
             float uvTotalTargetVol = uvTargetVolP1;
 
-            float caNewPressure = FlowCalibration.CalculateNewPressure(caPressure, caTotalVol, caTotalTargetVol);
-            float uvNewPressure = FlowCalibration.CalculateNewPressure(uvPressure, uvTotalVol, uvTotalTargetVol);
-
-            _resultsService.AddToLog($"CA volumes: {caVolP1} {caVolP2} {caVolP3} {caVolP4}");
-            _resultsService.AddToLog($"{TB}{caTotalVol} / {caTotalTargetVol} = {caTotalVol / caTotalTargetVol * 100f}%");
-            _resultsService.AddToLog($"{TB}Old pressure: {caPressure}");
-            _resultsService.AddToLog($"{TB}New pressure: {caNewPressure}");
-            _resultsService.AddToLog($"{TB}Valve index: {caValveIdx}");
-
-            _resultsService.AddToLog($"UV volumes: {uvVolP1}");
-            _resultsService.AddToLog($"{TB}{uvTotalVol} / {uvTotalTargetVol} = {uvTotalVol / uvTotalTargetVol * 100f}%");
-            _resultsService.AddToLog($"{TB}Old pressure: {uvPressure}");
-            _resultsService.AddToLog($"{TB}New pressure: {uvNewPressure}");
-            _resultsService.AddToLog($"{TB}Valve index: {uvValveIdx}");
-
-            // Store new pressures in current results
-            _resultsService.currentResults.disp_ref_data.ca_new_pressure = caNewPressure;
-            _resultsService.currentResults.disp_ref_data.uv_new_pressure = uvNewPressure;
-
-            // Set new pressures
-            response = await _controllerService.SetRegPressure(caValveIdx, caNewPressure);
-            response = await _controllerService.SetRegPressure(uvValveIdx, uvNewPressure);
-
-            // Update local data with new pressures
-            LocalData newLocalData = _localDataService.GetLocalData();
-            newLocalData.calib_data.last_size = motorName;
-            newLocalData.calib_data.last_calib = DateTime.Now;
-
-            // TODO: Think about how/why system/valve index and contents are hardcoded. Either make more flexible or less flexible.
-            // TODO: Consider how to remove FlowCalibrationService entirely. Or rewrite. Current pattern is strange.
-
-            switch (motorName)
+            if (uvTotalVol > 0)
             {
-                case "ddm_57":
-                    newLocalData.calib_data.ddm_57.sys_1_pressure = caNewPressure;
-                    newLocalData.calib_data.ddm_57.sys_2_pressure = uvNewPressure;
-                    break;
-                case "ddm_95":
-                    newLocalData.calib_data.ddm_95.sys_1_pressure = caNewPressure;
-                    newLocalData.calib_data.ddm_95.sys_2_pressure = uvNewPressure;
-                    break;
-                case "ddm_116":
-                    newLocalData.calib_data.ddm_116.sys_1_pressure = caNewPressure;
-                    newLocalData.calib_data.ddm_116.sys_2_pressure = uvNewPressure;
-                    break;
-                case "ddm_170":
-                    newLocalData.calib_data.ddm_170.sys_1_pressure = caNewPressure;
-                    newLocalData.calib_data.ddm_170.sys_2_pressure = uvNewPressure;
-                    break;
-                case "ddm_170_tall":
-                    newLocalData.calib_data.ddm_170_tall.sys_1_pressure = caNewPressure;
-                    newLocalData.calib_data.ddm_170_tall.sys_2_pressure = uvNewPressure;
-                    break;
+
+                float uvNewPressure = FlowCalibration.CalculateNewPressure(uvPressure, uvTotalVol, uvTotalTargetVol);
+
+                _resultsService.AddToLog($"UV volumes: {uvVolP1}");
+                _resultsService.AddToLog($"{TB}{uvTotalVol} / {uvTotalTargetVol} = {uvTotalVol / uvTotalTargetVol * 100f}%");
+                _resultsService.AddToLog($"{TB}Old pressure: {uvPressure}");
+                _resultsService.AddToLog($"{TB}New pressure: {uvNewPressure}");
+                _resultsService.AddToLog($"{TB}Valve index: {uvValveIdx}");
+
+                _resultsService.currentResults.disp_ref_data.uv_new_pressure = uvNewPressure;
+
+                // Set new pressures
+                response = await _controllerService.SetRegPressure(uvValveIdx, uvNewPressure);
+
+                // Update local data with new pressures
+                LocalData newLocalData = _localDataService.GetLocalData();
+                newLocalData.calib_data.last_size = motorName;
+                newLocalData.calib_data.last_calib = DateTime.Now;
+
+                // TODO: Think about how/why system/valve index and contents are hardcoded. Either make more flexible or less flexible.
+                // TODO: Consider how to remove FlowCalibrationService entirely. Or rewrite. Current pattern is strange.
+
+                switch (motorName)
+                {
+                    case "ddm_57":
+                        newLocalData.calib_data.ddm_57.sys_2_pressure = uvNewPressure;
+                        break;
+                    case "ddm_95":
+                        newLocalData.calib_data.ddm_95.sys_2_pressure = uvNewPressure;
+                        break;
+                    case "ddm_116":
+                        newLocalData.calib_data.ddm_116.sys_2_pressure = uvNewPressure;
+                        break;
+                    case "ddm_170":
+                        newLocalData.calib_data.ddm_170.sys_2_pressure = uvNewPressure;
+                        break;
+                    case "ddm_170_tall":
+                        newLocalData.calib_data.ddm_170_tall.sys_2_pressure = uvNewPressure;
+                        break;
+                }
+
+                _localDataService.SetLocalData(newLocalData);
+                _localDataService.SaveLocalDataToFile();
+
+            }
+            else
+            {
+                _resultsService.AddToLog($"No UV dispense measured. Unable to recalibrate UV.");
             }
 
-            _localDataService.SetLocalData(newLocalData);
-            _localDataService.SaveLocalDataToFile();
+
 
 
 

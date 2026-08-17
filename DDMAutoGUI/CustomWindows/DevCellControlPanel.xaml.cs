@@ -326,11 +326,17 @@ namespace DDMAutoGUI.CustomWindows
             float time = float.Parse(Dev_ST_ShotTimeTxb.Text);
             float x = float.Parse(Dev_ST_StartXPosTxb.Text);
             float t = float.Parse(Dev_ST_StartThetaPosTxb.Text);
-            int dir = 1;
+            int dir = int.Parse(Dev_ST_DirPosTxb.Text);
 
             if (valveNum != 1 && valveNum != 2)
             {
                 Dev_ST_DispOutputLbl.Content = "Error: Valve number must be 1 or 2";
+                return;
+            }
+
+            if (dir != 1 && dir != -1)
+            {
+                Dev_ST_DispOutputLbl.Content = "Error: Direction must be +1 or -1";
                 return;
             }
 

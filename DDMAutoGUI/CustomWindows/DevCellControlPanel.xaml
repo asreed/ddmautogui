@@ -593,6 +593,8 @@
                                             <RowDefinition/>
                                             <RowDefinition/>
                                             <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
                                         </Grid.RowDefinitions>
                                         
                                         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Dispense adhesive from the selected valve around a single track. Does not adjust pressure in any way. VERIFY PRESSURE BEFORE DISPENSING HERE." TextWrapping="Wrap" Margin="4,4,4,8"/>
@@ -609,8 +611,11 @@
                                         <TextBox Grid.Row="4" Grid.Column="0" x:Name="Dev_ST_StartThetaPosTxb"  Text="0.00" Style="{StaticResource SmallTextBox}"/>
                                         <Label   Grid.Row="4" Grid.Column="1" x:Name="Dev_ST_StartThetaPosLbl" Content="Start theta pos (deg)"/>
 
-                                        <Button  Grid.Row="5" Grid.Column="0" x:Name="Dev_ST_DispBtn" Grid.ColumnSpan="3" HorizontalAlignment="Left" Content="Dispense single track" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallBlackButton}" Click="Dev_ST_DispBtn_Click"/>
-                                        <Label   Grid.Row="6" Grid.Column="0" x:Name="Dev_ST_DispOutputLbl" Grid.ColumnSpan="3"  Content="-"/>
+                                        <TextBox Grid.Row="5" Grid.Column="0" x:Name="Dev_ST_DirPosTxb"  Text="1" Style="{StaticResource SmallTextBox}"/>
+                                        <Label   Grid.Row="5" Grid.Column="1" x:Name="Dev_ST_DirPosLbl" Content="Direction (1 or -1)"/>
+
+                                        <Button  Grid.Row="6" Grid.Column="0" x:Name="Dev_ST_DispBtn" Grid.ColumnSpan="3" HorizontalAlignment="Left" Content="Dispense single track" IsEnabled="{Binding IsRobotControlEnabled}" Style="{DynamicResource SmallBlackButton}" Click="Dev_ST_DispBtn_Click"/>
+                                        <Label   Grid.Row="7" Grid.Column="0" x:Name="Dev_ST_DispOutputLbl" Grid.ColumnSpan="3"  Content="-"/>
 
 
                                     </Grid>
